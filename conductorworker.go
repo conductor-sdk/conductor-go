@@ -14,10 +14,12 @@
 package conductor
 
 import (
-	"github.com/netflix/conductor/client/go/task"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"time"
+
+	"github.com/netflix/conductor/client/go/settings"
+	"github.com/netflix/conductor/client/go/task"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -37,12 +39,14 @@ type ConductorWorker struct {
 }
 
 // NewConductorWorker Create a new Conductor worker
-//with baseUrl (e.g. http://localhost:8080/api, and pollingInterval in millisecond)
-func NewConductorWorker(baseUrl string, threadCount int, pollingInterval int) *ConductorWorker {
+func NewConductorWorker(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings, threadCount int, pollingInterval int) *ConductorWorker {
 	conductorWorker := new(ConductorWorker)
 	conductorWorker.ThreadCount = threadCount
 	conductorWorker.PollingInterval = pollingInterval
-	conductorHttpClient := NewConductorHttpClient(baseUrl)
+	conductorHttpClient := NewConductorHttpClient(
+		authenticationSettings,
+		httpSettings,
+	)
 	conductorWorker.ConductorHttpClient = conductorHttpClient
 	return conductorWorker
 }

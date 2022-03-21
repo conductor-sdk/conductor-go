@@ -1,13 +1,13 @@
 package settings
 
 type AuthenticationSettings struct {
-	keyId     string
-	keySecret string
+	KeyId     string
+	KeySecret string
 }
 
-func newAuthenticationSettings(keyId string, keySecret string) *AuthenticationSettings {
+func NewAuthenticationSettings(keyId string, keySecret string) *AuthenticationSettings {
 	settings := new(AuthenticationSettings)
-	settings.keyId = keyId
-	settings.keySecret = keySecret
+	settings.KeyId = keyId
+	settings.KeySecret = keySecret
 	return settings
 }

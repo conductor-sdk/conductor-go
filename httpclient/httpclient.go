@@ -16,25 +16,29 @@ package httpclient
 import (
 	"bytes"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/netflix/conductor/client/go/settings"
+	log "github.com/sirupsen/logrus"
 )
 
 type HttpClient struct {
-	BaseUrl   string
-	Headers   map[string]string
-	PrintLogs bool
-	client    *http.Client
+	authenticationSettings *settings.AuthenticationSettings
+	client                 *http.Client
+	httpSettings           *settings.HttpSettings
 }
 
-func NewHttpClient(baseUrl string, headers map[string]string, printLogs bool) *HttpClient {
+func NewHttpClientWithAuthentication(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings) *HttpClient {
 	httpClient := new(HttpClient)
-	httpClient.BaseUrl = baseUrl
-	httpClient.Headers = headers
-	httpClient.PrintLogs = printLogs
+	httpClient.authenticationSettings = authenticationSettings
 	httpClient.client = &http.Client{}
+	if httpSettings != nil {
+		httpClient.httpSettings = httpSettings
+	} else {
+		httpClient.httpSettings = settings.NewHttpSettings()
+	}
 	return httpClient
 }
 
@@ -45,7 +49,7 @@ func (c *HttpClient) logSendRequest(url string, requestType string, body string)
 }
 
 func (c *HttpClient) logResponse(statusCode string, response string) {
-	log.Println("Received response from Server (", c.BaseUrl, "):")
+	log.Println("Received response from Server (", c.httpSettings.BaseUrl, "):")
 	log.Println("Status: ", statusCode)
 	log.Println("Response:")
 	log.Println(response)
@@ -81,7 +85,7 @@ func (c *HttpClient) httpRequest(url string, requestType string, headers map[str
 		return "", err
 	}
 	// Default Headers
-	for key, value := range c.Headers {
+	for key, value := range c.httpSettings.Headers {
 		req.Header.Set(key, value)
 	}
 
@@ -90,7 +94,7 @@ func (c *HttpClient) httpRequest(url string, requestType string, headers map[str
 		req.Header.Set(key, value)
 	}
 
-	if c.PrintLogs {
+	if c.httpSettings.Debug {
 		c.logSendRequest(url, requestType, body)
 	}
 
@@ -115,7 +119,7 @@ func (c *HttpClient) httpRequest(url string, requestType string, headers map[str
 		return "", err
 	}
 
-	if c.PrintLogs {
+	if c.httpSettings.Debug {
 		c.logResponse(resp.Status, responseString)
 	}
 	return responseString, nil
@@ -162,7 +166,7 @@ func (c *HttpClient) Delete(url string, queryParamsMap map[string]string, header
 }
 
 func (c *HttpClient) MakeUrl(path string, args ...string) string {
-	url := c.BaseUrl
+	url := c.httpSettings.BaseUrl
 	r := strings.NewReplacer(args...)
 	return url + r.Replace(path)
 }
