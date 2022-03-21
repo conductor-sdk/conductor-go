@@ -1,16 +1,3 @@
-// Copyright 2017 Netflix, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 package httpclient
 
 import (
@@ -20,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/netflix/conductor/client/go/model"
 	"github.com/netflix/conductor/client/go/settings"
 	log "github.com/sirupsen/logrus"
 )
@@ -79,10 +67,10 @@ func (c *HttpClient) httpRequest(url string, requestType string, headers map[str
 		var bodyStr = []byte(body)
 		req, err = http.NewRequest(requestType, url, bytes.NewBuffer(bodyStr))
 	}
-
 	if err != nil {
 		return "", err
 	}
+
 	// Default Headers
 	for key, value := range c.httpSettings.Headers {
 		req.Header.Set(key, value)
@@ -168,4 +156,35 @@ func (c *HttpClient) MakeUrl(path string, args ...string) string {
 	url := c.httpSettings.BaseUrl
 	r := strings.NewReplacer(args...)
 	return url + r.Replace(path)
+}
+
+/**********************/
+/* Auth Functions */
+/**********************/
+
+func (c *HttpClient) RefreshToken() {
+	if c.authenticationSettings == nil {
+		return
+	}
+	url := c.MakeUrl("/token")
+	body := c.authenticationSettings.GetFormattedSettings()
+	resp, err := c.Post(
+		url,
+		nil,
+		nil,
+		body,
+	)
+	if err != nil {
+		log.Error("Http RefreshToken: Failed to get token, error: ", err)
+		return
+	}
+	token, err := model.GetTokenFromResponse(resp)
+	if err != nil {
+		log.Error("Http RefreshToken: Failed to parse token message, error: ", err)
+	}
+	c.updateToken(token.Token)
+}
+
+func (c *HttpClient) updateToken(token string) {
+	c.httpSettings.Headers["X-Authorization"] = token
 }

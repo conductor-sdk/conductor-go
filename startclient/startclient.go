@@ -17,6 +17,7 @@ import (
 	"os"
 
 	conductor "github.com/netflix/conductor/client/go"
+	"github.com/netflix/conductor/client/go/settings"
 	"github.com/netflix/conductor/client/go/task/sample"
 	log "github.com/sirupsen/logrus"
 )
@@ -34,14 +35,24 @@ func init() {
 	// Set to debug for demonstration.  Change to Info for production use cases.
 	log.SetLevel(log.DebugLevel)
 }
+
 func main() {
-	c := conductor.NewConductorWorker(
-		nil,
-		nil,
-		1,
-		1,
+	var authenticationSettings = settings.NewAuthenticationSettings(
+		"keyId",
+		"keySecret",
 	)
 
-	c.Start("task_15", "", sample.Task_1_Execution_Function, true)
-	//c.Start("task_2", "mydomain", sample.Task_2_Execution_Function, true)
+	var httpSettings = settings.NewHttpSettingsWithBaseUrlAndDebug(
+		"https://play.orkes.io/api",
+		true,
+	)
+
+	c := conductor.NewConductorWorker(
+		authenticationSettings,
+		httpSettings,
+		1,
+		5000,
+	)
+
+	c.Start("go_task_example", "", sample.Task_1_Execution_Function, true)
 }

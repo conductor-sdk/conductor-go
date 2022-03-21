@@ -19,6 +19,7 @@ func NewConductorHttpClient(authenticationSettings *settings.AuthenticationSetti
 		authenticationSettings,
 		httpSettings,
 	)
+	client.httpClient.RefreshToken()
 	return client
 }
 
