@@ -34,11 +34,10 @@ func NewHttpClientWithAuthentication(authenticationSettings *settings.Authentica
 	httpClient := new(HttpClient)
 	httpClient.authenticationSettings = authenticationSettings
 	httpClient.client = &http.Client{}
-	if httpSettings != nil {
-		httpClient.httpSettings = httpSettings
-	} else {
-		httpClient.httpSettings = settings.NewHttpSettings()
+	if httpSettings == nil {
+		httpSettings = settings.NewHttpSettings()
 	}
+	httpClient.httpSettings = httpSettings
 	return httpClient
 }
 
