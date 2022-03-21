@@ -1,4 +1,4 @@
-package httpclient
+package settings
 
 type AuthenticationSettings struct {
 	keyId     string
