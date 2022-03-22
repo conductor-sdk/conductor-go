@@ -1,40 +1,31 @@
-// Copyright 2017 Netflix, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 package httpclient
 
 import (
 	"bytes"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/netflix/conductor/client/go/model"
+	"github.com/netflix/conductor/client/go/settings"
+	log "github.com/sirupsen/logrus"
 )
 
 type HttpClient struct {
-	BaseUrl   string
-	Headers   map[string]string
-	PrintLogs bool
-	client    *http.Client
+	authenticationSettings *settings.AuthenticationSettings
+	client                 *http.Client
+	httpSettings           *settings.HttpSettings
 }
 
-func NewHttpClient(baseUrl string, headers map[string]string, printLogs bool) *HttpClient {
+func NewHttpClientWithAuthentication(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings) *HttpClient {
 	httpClient := new(HttpClient)
-	httpClient.BaseUrl = baseUrl
-	httpClient.Headers = headers
-	httpClient.PrintLogs = printLogs
+	httpClient.authenticationSettings = authenticationSettings
 	httpClient.client = &http.Client{}
+	if httpSettings == nil {
+		httpSettings = settings.NewHttpSettings()
+	}
+	httpClient.httpSettings = httpSettings
 	return httpClient
 }
 
@@ -45,7 +36,7 @@ func (c *HttpClient) logSendRequest(url string, requestType string, body string)
 }
 
 func (c *HttpClient) logResponse(statusCode string, response string) {
-	log.Println("Received response from Server (", c.BaseUrl, "):")
+	log.Println("Received response from Server (", c.httpSettings.BaseUrl, "):")
 	log.Println("Status: ", statusCode)
 	log.Println("Response:")
 	log.Println(response)
@@ -76,12 +67,12 @@ func (c *HttpClient) httpRequest(url string, requestType string, headers map[str
 		var bodyStr = []byte(body)
 		req, err = http.NewRequest(requestType, url, bytes.NewBuffer(bodyStr))
 	}
-
 	if err != nil {
 		return "", err
 	}
+
 	// Default Headers
-	for key, value := range c.Headers {
+	for key, value := range c.httpSettings.Headers {
 		req.Header.Set(key, value)
 	}
 
@@ -90,7 +81,7 @@ func (c *HttpClient) httpRequest(url string, requestType string, headers map[str
 		req.Header.Set(key, value)
 	}
 
-	if c.PrintLogs {
+	if c.httpSettings.Debug {
 		c.logSendRequest(url, requestType, body)
 	}
 
@@ -115,7 +106,7 @@ func (c *HttpClient) httpRequest(url string, requestType string, headers map[str
 		return "", err
 	}
 
-	if c.PrintLogs {
+	if c.httpSettings.Debug {
 		c.logResponse(resp.Status, responseString)
 	}
 	return responseString, nil
@@ -162,7 +153,38 @@ func (c *HttpClient) Delete(url string, queryParamsMap map[string]string, header
 }
 
 func (c *HttpClient) MakeUrl(path string, args ...string) string {
-	url := c.BaseUrl
+	url := c.httpSettings.BaseUrl
 	r := strings.NewReplacer(args...)
 	return url + r.Replace(path)
+}
+
+/**********************/
+/* Auth Functions */
+/**********************/
+
+func (c *HttpClient) RefreshToken() {
+	if c.authenticationSettings == nil {
+		return
+	}
+	url := c.MakeUrl("/token")
+	body := c.authenticationSettings.GetFormattedSettings()
+	resp, err := c.Post(
+		url,
+		nil,
+		nil,
+		body,
+	)
+	if err != nil {
+		log.Error("Http RefreshToken: Failed to get token, error: ", err)
+		return
+	}
+	token, err := model.GetTokenFromResponse(resp)
+	if err != nil {
+		log.Error("Http RefreshToken: Failed to parse token message, error: ", err)
+	}
+	c.updateToken(token.Token)
+}
+
+func (c *HttpClient) updateToken(token string) {
+	c.httpSettings.Headers["X-Authorization"] = token
 }
