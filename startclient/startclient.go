@@ -14,11 +14,13 @@
 package main
 
 import (
+	"net/http"
 	"os"
 
 	conductor "github.com/netflix/conductor/client/go"
 	"github.com/netflix/conductor/client/go/settings"
 	"github.com/netflix/conductor/client/go/task/sample"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -36,7 +38,14 @@ func init() {
 	log.SetLevel(log.DebugLevel)
 }
 
+func provideMetrics() {
+	http.Handle("/metrics", promhttp.Handler())
+	http.ListenAndServe(":2112", nil)
+}
+
 func main() {
+	provideMetrics()
+
 	var authenticationSettings = settings.NewAuthenticationSettings(
 		"keyId",
 		"keySecret",
