@@ -44,7 +44,7 @@ func provideMetrics() {
 }
 
 func main() {
-	provideMetrics()
+	go provideMetrics()
 
 	var authenticationSettings = settings.NewAuthenticationSettings(
 		"keyId",
