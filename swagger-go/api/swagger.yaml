@@ -1,0 +1,5287 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /api/workflow/{workflowId}/skiptask/{taskReferenceName}:
+    put:
+      tags:
+      - workflow-resource
+      summary: Skips a given task from a current running workflow
+      operationId: skipTaskFromWorkflow
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: taskReferenceName
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: skipTaskRequest
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/SkipTaskRequest'
+      responses:
+        "200":
+          description: OK
+  /api/workflow/{workflowId}/resume:
+    put:
+      tags:
+      - workflow-resource
+      summary: Resumes the workflow
+      operationId: resumeWorkflow
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/workflow/{workflowId}/pause:
+    put:
+      tags:
+      - workflow-resource
+      summary: Pauses the workflow
+      operationId: pauseWorkflow
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/workflow/decide/{workflowId}:
+    put:
+      tags:
+      - workflow-resource
+      summary: Starts the decision task for a workflow
+      operationId: decide
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/workflow/bulk/resume:
+    put:
+      tags:
+      - workflow-bulk-resource
+      summary: Resume the list of workflows
+      operationId: resumeWorkflow_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BulkResponse'
+  /api/workflow/bulk/pause:
+    put:
+      tags:
+      - workflow-bulk-resource
+      summary: Pause the list of workflows
+      operationId: pauseWorkflow_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BulkResponse'
+  /api/metadata/workflow:
+    get:
+      tags:
+      - metadata-resource
+      summary: Retrieves all workflow definition along with blueprint
+      operationId: getAll
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WorkflowDef'
+                x-content-type: '*/*'
+    put:
+      tags:
+      - metadata-resource
+      summary: Create or update workflow definition
+      operationId: update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/WorkflowDef'
+        required: true
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+      - metadata-resource
+      summary: Create a new workflow definition
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowDef'
+        required: true
+      responses:
+        "200":
+          description: OK
+  /api/metadata/taskdefs:
+    get:
+      tags:
+      - metadata-resource
+      summary: Gets all task definition
+      operationId: getTaskDefs
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskDef'
+                x-content-type: '*/*'
+    put:
+      tags:
+      - metadata-resource
+      summary: Update an existing task
+      operationId: registerTaskDef
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskDef'
+        required: true
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+      - metadata-resource
+      summary: Create new task definition(s)
+      operationId: registerTaskDef_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaskDef'
+        required: true
+      responses:
+        "200":
+          description: OK
+  /api/event:
+    get:
+      tags:
+      - event-resource
+      summary: Get all the event handlers
+      operationId: getEventHandlers
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventHandler'
+                x-content-type: '*/*'
+    put:
+      tags:
+      - event-resource
+      summary: Update an existing event handler.
+      operationId: updateEventHandler
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventHandler'
+        required: true
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+      - event-resource
+      summary: Add a new event handler.
+      operationId: addEventHandler
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventHandler'
+        required: true
+      responses:
+        "200":
+          description: OK
+  /api/workflow/{workflowId}/retry:
+    post:
+      tags:
+      - workflow-resource
+      summary: Retries the last failed task
+      operationId: retry
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: resumeSubworkflowTasks
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "204":
+          description: No Content
+  /api/workflow/{workflowId}/restart:
+    post:
+      tags:
+      - workflow-resource
+      summary: Restarts a completed workflow
+      operationId: restart
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: useLatestDefinitions
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "204":
+          description: No Content
+  /api/workflow/{workflowId}/resetcallbacks:
+    post:
+      tags:
+      - workflow-resource
+      summary: Resets callback times of all non-terminal SIMPLE tasks to 0
+      operationId: resetWorkflow
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+  /api/workflow/{workflowId}/rerun:
+    post:
+      tags:
+      - workflow-resource
+      summary: Reruns the workflow from a specific task
+      operationId: rerun
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RerunWorkflowRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                x-content-type: text/plain
+  /api/workflow/{name}/correlated:
+    post:
+      tags:
+      - workflow-resource
+      summary: Lists workflows for the given correlation id list
+      operationId: getWorkflows
+      parameters:
+      - name: name
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: includeClosed
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+          default: false
+      - name: includeTasks
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+          default: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Workflow'
+                x-content-type: '*/*'
+  /api/workflow/{name}:
+    post:
+      tags:
+      - workflow-resource
+      summary: Start a new workflow. Returns the ID of the workflow instance that
+        can be later used for tracking
+      operationId: startWorkflow
+      parameters:
+      - name: name
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: version
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+      - name: correlationId
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: priority
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: object
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                x-content-type: text/plain
+  /api/workflow/bulk/terminate:
+    post:
+      tags:
+      - workflow-bulk-resource
+      summary: Terminate workflows execution
+      operationId: terminate
+      parameters:
+      - name: reason
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BulkResponse'
+  /api/workflow/bulk/retry:
+    post:
+      tags:
+      - workflow-bulk-resource
+      summary: Retry the last failed task for each workflow from the list
+      operationId: retry_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BulkResponse'
+  /api/workflow/bulk/restart:
+    post:
+      tags:
+      - workflow-bulk-resource
+      summary: Restart the list of completed workflow
+      operationId: restart_1
+      parameters:
+      - name: useLatestDefinitions
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+          default: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BulkResponse'
+  /api/workflow:
+    post:
+      tags:
+      - workflow-resource
+      summary: "Start a new workflow with StartWorkflowRequest, which allows task\
+        \ to be executed in a domain"
+      operationId: startWorkflow_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartWorkflowRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                x-content-type: text/plain
+  /api/tasks/{taskId}/log:
+    get:
+      tags:
+      - task-resource
+      summary: Get Task Execution Logs
+      operationId: getTaskLogs
+      parameters:
+      - name: taskId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskExecLog'
+                x-content-type: '*/*'
+    post:
+      tags:
+      - task-resource
+      summary: Log Task Execution Details
+      operationId: log
+      parameters:
+      - name: taskId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+  /api/tasks/queue/requeue/{taskType}:
+    post:
+      tags:
+      - task-resource
+      summary: Requeue pending tasks
+      operationId: requeuePendingTask
+      parameters:
+      - name: taskType
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                x-content-type: text/plain
+  /api/tasks:
+    post:
+      tags:
+      - task-resource
+      summary: Update a task
+      operationId: updateTask
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskResult'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                x-content-type: text/plain
+  /api/queue/update/{workflowId}/{taskRefName}/{status}:
+    post:
+      tags:
+      - queue-admin-resource
+      summary: Publish a message in queue to mark a wait task as completed.
+      operationId: update_1
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: taskRefName
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: status
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          enum:
+          - IN_PROGRESS
+          - CANCELED
+          - FAILED
+          - FAILED_WITH_TERMINAL_ERROR
+          - COMPLETED
+          - COMPLETED_WITH_ERRORS
+          - SCHEDULED
+          - TIMED_OUT
+          - SKIPPED
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: object
+        required: true
+      responses:
+        "200":
+          description: OK
+  /api/queue/update/{workflowId}/task/{taskId}/{status}:
+    post:
+      tags:
+      - queue-admin-resource
+      summary: Publish a message in queue to mark a wait task (by taskId) as completed.
+      operationId: updateByTaskId
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: taskId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: status
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          enum:
+          - IN_PROGRESS
+          - CANCELED
+          - FAILED
+          - FAILED_WITH_TERMINAL_ERROR
+          - COMPLETED
+          - COMPLETED_WITH_ERRORS
+          - SCHEDULED
+          - TIMED_OUT
+          - SKIPPED
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: object
+        required: true
+      responses:
+        "200":
+          description: OK
+  /api/admin/sweep/requeue/{workflowId}:
+    post:
+      tags:
+      - admin-resource
+      summary: Queue up all the running workflows for sweep
+      operationId: requeueSweep
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                x-content-type: text/plain
+  /api/admin/consistency/verifyAndRepair/{workflowId}:
+    post:
+      tags:
+      - admin-resource
+      summary: Verify and repair workflow consistency
+      operationId: verifyAndRepairWorkflowConsistency
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                x-content-type: text/plain
+  /health:
+    get:
+      tags:
+      - health-check-resource
+      operationId: doCheck
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/HealthCheckStatus'
+  /api/workflow/{workflowId}:
+    get:
+      tags:
+      - workflow-resource
+      summary: Gets the workflow by workflow id
+      operationId: getExecutionStatus
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: includeTasks
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+          default: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Workflow'
+    delete:
+      tags:
+      - workflow-resource
+      summary: Terminate workflow execution
+      operationId: terminate_1
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: reason
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/workflow/{name}/correlated/{correlationId}:
+    get:
+      tags:
+      - workflow-resource
+      summary: Lists workflows for the given correlation id
+      operationId: getWorkflows_1
+      parameters:
+      - name: name
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: correlationId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: includeClosed
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+          default: false
+      - name: includeTasks
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Workflow'
+                x-content-type: '*/*'
+  /api/workflow/search:
+    get:
+      tags:
+      - workflow-resource
+      summary: Search for workflows based on payload and other parameters
+      description: "use sort options as sort=<field>:ASC|DESC e.g. sort=name&sort=workflowId:DESC.\
+        \ If order is not specified, defaults to ASC."
+      operationId: search
+      parameters:
+      - name: start
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 100
+      - name: sort
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: freeText
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: '*'
+      - name: query
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SearchResultWorkflowSummary'
+  /api/workflow/search-v2:
+    get:
+      tags:
+      - workflow-resource
+      summary: Search for workflows based on payload and other parameters
+      description: "use sort options as sort=<field>:ASC|DESC e.g. sort=name&sort=workflowId:DESC.\
+        \ If order is not specified, defaults to ASC."
+      operationId: searchV2
+      parameters:
+      - name: start
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 100
+      - name: sort
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: freeText
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: '*'
+      - name: query
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SearchResultWorkflow'
+  /api/workflow/search-by-tasks:
+    get:
+      tags:
+      - workflow-resource
+      summary: Search for workflows based on task parameters
+      description: "use sort options as sort=<field>:ASC|DESC e.g. sort=name&sort=workflowId:DESC.\
+        \ If order is not specified, defaults to ASC"
+      operationId: searchWorkflowsByTasks
+      parameters:
+      - name: start
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 100
+      - name: sort
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: freeText
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: '*'
+      - name: query
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SearchResultWorkflowSummary'
+  /api/workflow/search-by-tasks-v2:
+    get:
+      tags:
+      - workflow-resource
+      summary: Search for workflows based on task parameters
+      description: "use sort options as sort=<field>:ASC|DESC e.g. sort=name&sort=workflowId:DESC.\
+        \ If order is not specified, defaults to ASC"
+      operationId: searchWorkflowsByTasksV2
+      parameters:
+      - name: start
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 100
+      - name: sort
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: freeText
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: '*'
+      - name: query
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SearchResultWorkflow'
+  /api/workflow/running/{name}:
+    get:
+      tags:
+      - workflow-resource
+      summary: Retrieve all the running workflows
+      operationId: getRunningWorkflow
+      parameters:
+      - name: name
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: version
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: startTime
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int64
+      - name: endTime
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+                x-content-type: '*/*'
+  /api/workflow/externalstoragelocation:
+    get:
+      tags:
+      - workflow-resource
+      summary: Get the uri and path of the external storage where the workflow payload
+        is to be stored
+      operationId: getExternalStorageLocation
+      parameters:
+      - name: path
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: operation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: payloadType
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExternalStorageLocation'
+  /api/tasks/{taskId}:
+    get:
+      tags:
+      - task-resource
+      summary: Get task by Id
+      operationId: getTask
+      parameters:
+      - name: taskId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Task'
+  /api/tasks/search:
+    get:
+      tags:
+      - task-resource
+      summary: Search for tasks based in payload and other parameters
+      description: "use sort options as sort=<field>:ASC|DESC e.g. sort=name&sort=workflowId:DESC.\
+        \ If order is not specified, defaults to ASC"
+      operationId: search_1
+      parameters:
+      - name: start
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 100
+      - name: sort
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: freeText
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: '*'
+      - name: query
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SearchResultTaskSummary'
+  /api/tasks/search-v2:
+    get:
+      tags:
+      - task-resource
+      summary: Search for tasks based in payload and other parameters
+      description: "use sort options as sort=<field>:ASC|DESC e.g. sort=name&sort=workflowId:DESC.\
+        \ If order is not specified, defaults to ASC"
+      operationId: searchV2_1
+      parameters:
+      - name: start
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 100
+      - name: sort
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: freeText
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: '*'
+      - name: query
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SearchResultTask'
+  /api/tasks/queue/sizes:
+    get:
+      tags:
+      - task-resource
+      summary: Get Task type queue sizes
+      operationId: size
+      parameters:
+      - name: taskType
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                  format: int32
+                x-content-type: '*/*'
+  /api/tasks/queue/polldata:
+    get:
+      tags:
+      - task-resource
+      summary: Get the last poll data for a given task type
+      operationId: getPollData
+      parameters:
+      - name: taskType
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PollData'
+                x-content-type: '*/*'
+  /api/tasks/queue/polldata/all:
+    get:
+      tags:
+      - task-resource
+      summary: Get the last poll data for all task types
+      operationId: getAllPollData
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PollData'
+                x-content-type: '*/*'
+  /api/tasks/queue/all:
+    get:
+      tags:
+      - task-resource
+      summary: Get the details about each queue
+      operationId: all
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                  format: int64
+                x-content-type: '*/*'
+  /api/tasks/queue/all/verbose:
+    get:
+      tags:
+      - task-resource
+      summary: Get the details about each queue
+      operationId: allVerbose
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  additionalProperties:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                      format: int64
+                x-content-type: '*/*'
+  /api/tasks/poll/{tasktype}:
+    get:
+      tags:
+      - task-resource
+      summary: Poll for a task of a certain type
+      operationId: poll
+      parameters:
+      - name: tasktype
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: workerid
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: domain
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Task'
+  /api/tasks/poll/batch/{tasktype}:
+    get:
+      tags:
+      - task-resource
+      summary: Batch poll for a task of a certain type
+      operationId: batchPoll
+      parameters:
+      - name: tasktype
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: workerid
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: domain
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: count
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: timeout
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 100
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+                x-content-type: '*/*'
+  /api/tasks/externalstoragelocation:
+    get:
+      tags:
+      - task-resource
+      summary: Get the external uri where the task payload is to be stored
+      operationId: getExternalStorageLocation_1
+      parameters:
+      - name: path
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: operation
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: payloadType
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExternalStorageLocation'
+  /api/queue/:
+    get:
+      tags:
+      - queue-admin-resource
+      summary: Get Queue Names
+      operationId: names
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+                x-content-type: '*/*'
+  /api/queue/size:
+    get:
+      tags:
+      - queue-admin-resource
+      summary: Get the queue length
+      operationId: size_1
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                  format: int64
+                x-content-type: '*/*'
+  /api/metadata/workflow/{name}:
+    get:
+      tags:
+      - metadata-resource
+      summary: Retrieves workflow definition along with blueprint
+      operationId: get
+      parameters:
+      - name: name
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: version
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/WorkflowDef'
+  /api/metadata/taskdefs/{tasktype}:
+    get:
+      tags:
+      - metadata-resource
+      summary: Gets the task definition
+      operationId: getTaskDef
+      parameters:
+      - name: tasktype
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/TaskDef'
+    delete:
+      tags:
+      - metadata-resource
+      summary: Remove a task definition
+      operationId: unregisterTaskDef
+      parameters:
+      - name: tasktype
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/event/{event}:
+    get:
+      tags:
+      - event-resource
+      summary: Get event handlers for a given event
+      operationId: getEventHandlersForEvent
+      parameters:
+      - name: event
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: activeOnly
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+          default: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventHandler'
+                x-content-type: '*/*'
+  /api/admin/task/{tasktype}:
+    get:
+      tags:
+      - admin-resource
+      summary: Get the list of pending tasks for a given task type
+      operationId: view
+      parameters:
+      - name: tasktype
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: start
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: count
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+          default: 100
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+                x-content-type: '*/*'
+  /api/admin/queues:
+    get:
+      tags:
+      - admin-resource
+      summary: Get registered queues
+      operationId: getEventQueues
+      parameters:
+      - name: verbose
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                x-content-type: '*/*'
+  /api/admin/config:
+    get:
+      tags:
+      - admin-resource
+      summary: Get all the configuration parameters
+      operationId: getAllConfig
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                x-content-type: '*/*'
+  /api/workflow/{workflowId}/remove:
+    delete:
+      tags:
+      - workflow-resource
+      summary: Removes the workflow from the system
+      operationId: delete
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: archiveWorkflow
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+          default: true
+      responses:
+        "200":
+          description: OK
+  /api/metadata/workflow/{name}/{version}:
+    delete:
+      tags:
+      - metadata-resource
+      summary: Removes workflow definition. It does not remove workflows associated
+        with the definition.
+      operationId: unregisterWorkflowDef
+      parameters:
+      - name: name
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: version
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+  /api/event/{name}:
+    delete:
+      tags:
+      - event-resource
+      summary: Remove an event handler
+      operationId: removeEventHandlerStatus
+      parameters:
+      - name: name
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    SkipTaskRequest:
+      type: object
+      properties:
+        taskInput:
+          type: object
+          additionalProperties:
+            type: object
+        taskOutput:
+          type: object
+          additionalProperties:
+            type: object
+    BulkResponse:
+      type: object
+      properties:
+        bulkErrorResults:
+          type: object
+          additionalProperties:
+            type: string
+        bulkSuccessfulResults:
+          type: array
+          items:
+            type: string
+      example:
+        bulkErrorResults:
+          key: bulkErrorResults
+        bulkSuccessfulResults:
+        - bulkSuccessfulResults
+        - bulkSuccessfulResults
+    SubWorkflowParams:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: integer
+          format: int32
+        taskToDomain:
+          type: object
+          additionalProperties:
+            type: string
+        workflowDefinition:
+          $ref: '#/components/schemas/WorkflowDef'
+      example:
+        workflowDefinition: null
+        name: name
+        taskToDomain:
+          key: taskToDomain
+        version: 5
+    TaskDef:
+      required:
+      - name
+      - timeoutSeconds
+      type: object
+      properties:
+        ownerApp:
+          type: string
+        createTime:
+          type: integer
+          format: int64
+        updateTime:
+          type: integer
+          format: int64
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        retryCount:
+          minimum: 0
+          type: integer
+          format: int32
+        timeoutSeconds:
+          type: integer
+          format: int64
+        inputKeys:
+          type: array
+          items:
+            type: string
+        outputKeys:
+          type: array
+          items:
+            type: string
+        timeoutPolicy:
+          type: string
+          enum:
+          - RETRY
+          - TIME_OUT_WF
+          - ALERT_ONLY
+        retryLogic:
+          type: string
+          enum:
+          - FIXED
+          - EXPONENTIAL_BACKOFF
+          - LINEAR_BACKOFF
+        retryDelaySeconds:
+          type: integer
+          format: int32
+        responseTimeoutSeconds:
+          minimum: 1
+          type: integer
+          format: int64
+        concurrentExecLimit:
+          type: integer
+          format: int32
+        inputTemplate:
+          type: object
+          additionalProperties:
+            type: object
+        rateLimitPerFrequency:
+          type: integer
+          format: int32
+        rateLimitFrequencyInSeconds:
+          type: integer
+          format: int32
+        isolationGroupId:
+          type: string
+        executionNameSpace:
+          type: string
+        ownerEmail:
+          type: string
+        pollTimeoutSeconds:
+          minimum: 0
+          type: integer
+          format: int32
+        backoffScaleFactor:
+          minimum: 1
+          type: integer
+          format: int32
+      example:
+        updatedBy: updatedBy
+        timeoutPolicy: RETRY
+        inputKeys:
+        - inputKeys
+        - inputKeys
+        concurrentExecLimit: 7
+        isolationGroupId: isolationGroupId
+        retryCount: 0
+        description: description
+        updateTime: 7
+        inputTemplate:
+          key: {}
+        ownerApp: ownerApp
+        ownerEmail: ownerEmail
+        retryDelaySeconds: 2
+        backoffScaleFactor: 1
+        createTime: 2
+        createdBy: createdBy
+        rateLimitPerFrequency: 1
+        retryLogic: FIXED
+        responseTimeoutSeconds: 1
+        name: name
+        timeoutSeconds: 3
+        rateLimitFrequencyInSeconds: 1
+        outputKeys:
+        - outputKeys
+        - outputKeys
+        executionNameSpace: executionNameSpace
+        pollTimeoutSeconds: 0
+    WorkflowDef:
+      required:
+      - name
+      - tasks
+      - timeoutSeconds
+      type: object
+      properties:
+        ownerApp:
+          type: string
+        createTime:
+          type: integer
+          format: int64
+        updateTime:
+          type: integer
+          format: int64
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        version:
+          type: integer
+          format: int32
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowTask'
+        inputParameters:
+          type: array
+          items:
+            type: string
+        outputParameters:
+          type: object
+          additionalProperties:
+            type: object
+        failureWorkflow:
+          type: string
+        schemaVersion:
+          maximum: 2
+          minimum: 2
+          type: integer
+          format: int32
+        restartable:
+          type: boolean
+        workflowStatusListenerEnabled:
+          type: boolean
+        ownerEmail:
+          type: string
+        timeoutPolicy:
+          type: string
+          enum:
+          - TIME_OUT_WF
+          - ALERT_ONLY
+        timeoutSeconds:
+          type: integer
+          format: int64
+        variables:
+          type: object
+          additionalProperties:
+            type: object
+        inputTemplate:
+          type: object
+          additionalProperties:
+            type: object
+      example:
+        variables:
+          key: {}
+        updatedBy: updatedBy
+        schemaVersion: 2
+        timeoutPolicy: TIME_OUT_WF
+        restartable: true
+        description: description
+        updateTime: 6
+        version: 1
+        inputParameters:
+        - inputParameters
+        - inputParameters
+        inputTemplate:
+          key: {}
+        ownerApp: ownerApp
+        workflowStatusListenerEnabled: true
+        ownerEmail: ownerEmail
+        createTime: 0
+        createdBy: createdBy
+        name: name
+        timeoutSeconds: 4
+        failureWorkflow: failureWorkflow
+        tasks:
+        - joinOn:
+          - joinOn
+          - joinOn
+          description: description
+          scriptExpression: scriptExpression
+          type: type
+          inputParameters:
+            key: {}
+          dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+          decisionCases:
+            key:
+            - null
+            - null
+          loopOver:
+          - null
+          - null
+          caseExpression: caseExpression
+          defaultExclusiveJoinTask:
+          - defaultExclusiveJoinTask
+          - defaultExclusiveJoinTask
+          taskDefinition:
+            updatedBy: updatedBy
+            timeoutPolicy: RETRY
+            inputKeys:
+            - inputKeys
+            - inputKeys
+            concurrentExecLimit: 7
+            isolationGroupId: isolationGroupId
+            retryCount: 0
+            description: description
+            updateTime: 7
+            inputTemplate:
+              key: {}
+            ownerApp: ownerApp
+            ownerEmail: ownerEmail
+            retryDelaySeconds: 2
+            backoffScaleFactor: 1
+            createTime: 2
+            createdBy: createdBy
+            rateLimitPerFrequency: 1
+            retryLogic: FIXED
+            responseTimeoutSeconds: 1
+            name: name
+            timeoutSeconds: 3
+            rateLimitFrequencyInSeconds: 1
+            outputKeys:
+            - outputKeys
+            - outputKeys
+            executionNameSpace: executionNameSpace
+            pollTimeoutSeconds: 0
+          caseValueParam: caseValueParam
+          dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+          expression: expression
+          loopCondition: loopCondition
+          asyncComplete: true
+          sink: sink
+          rateLimited: true
+          retryCount: 7
+          subWorkflowParam:
+            workflowDefinition: null
+            name: name
+            taskToDomain:
+              key: taskToDomain
+            version: 5
+          optional: true
+          evaluatorType: evaluatorType
+          workflowTaskType: SIMPLE
+          dynamicTaskNameParam: dynamicTaskNameParam
+          name: name
+          startDelay: 5
+          taskReferenceName: taskReferenceName
+          defaultCase:
+          - null
+          - null
+          forkTasks:
+          - - null
+            - null
+          - - null
+            - null
+          dynamicForkTasksParam: dynamicForkTasksParam
+        - joinOn:
+          - joinOn
+          - joinOn
+          description: description
+          scriptExpression: scriptExpression
+          type: type
+          inputParameters:
+            key: {}
+          dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+          decisionCases:
+            key:
+            - null
+            - null
+          loopOver:
+          - null
+          - null
+          caseExpression: caseExpression
+          defaultExclusiveJoinTask:
+          - defaultExclusiveJoinTask
+          - defaultExclusiveJoinTask
+          taskDefinition:
+            updatedBy: updatedBy
+            timeoutPolicy: RETRY
+            inputKeys:
+            - inputKeys
+            - inputKeys
+            concurrentExecLimit: 7
+            isolationGroupId: isolationGroupId
+            retryCount: 0
+            description: description
+            updateTime: 7
+            inputTemplate:
+              key: {}
+            ownerApp: ownerApp
+            ownerEmail: ownerEmail
+            retryDelaySeconds: 2
+            backoffScaleFactor: 1
+            createTime: 2
+            createdBy: createdBy
+            rateLimitPerFrequency: 1
+            retryLogic: FIXED
+            responseTimeoutSeconds: 1
+            name: name
+            timeoutSeconds: 3
+            rateLimitFrequencyInSeconds: 1
+            outputKeys:
+            - outputKeys
+            - outputKeys
+            executionNameSpace: executionNameSpace
+            pollTimeoutSeconds: 0
+          caseValueParam: caseValueParam
+          dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+          expression: expression
+          loopCondition: loopCondition
+          asyncComplete: true
+          sink: sink
+          rateLimited: true
+          retryCount: 7
+          subWorkflowParam:
+            workflowDefinition: null
+            name: name
+            taskToDomain:
+              key: taskToDomain
+            version: 5
+          optional: true
+          evaluatorType: evaluatorType
+          workflowTaskType: SIMPLE
+          dynamicTaskNameParam: dynamicTaskNameParam
+          name: name
+          startDelay: 5
+          taskReferenceName: taskReferenceName
+          defaultCase:
+          - null
+          - null
+          forkTasks:
+          - - null
+            - null
+          - - null
+            - null
+          dynamicForkTasksParam: dynamicForkTasksParam
+        outputParameters:
+          key: {}
+    WorkflowTask:
+      required:
+      - name
+      - taskReferenceName
+      type: object
+      properties:
+        name:
+          type: string
+        taskReferenceName:
+          type: string
+        description:
+          type: string
+        inputParameters:
+          type: object
+          additionalProperties:
+            type: object
+        type:
+          type: string
+        dynamicTaskNameParam:
+          type: string
+        caseValueParam:
+          type: string
+          deprecated: true
+        caseExpression:
+          type: string
+          deprecated: true
+        scriptExpression:
+          type: string
+        decisionCases:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/WorkflowTask'
+        dynamicForkJoinTasksParam:
+          type: string
+          deprecated: true
+        dynamicForkTasksParam:
+          type: string
+        dynamicForkTasksInputParamName:
+          type: string
+        defaultCase:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowTask'
+        forkTasks:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/WorkflowTask'
+        startDelay:
+          type: integer
+          format: int32
+        subWorkflowParam:
+          $ref: '#/components/schemas/SubWorkflowParams'
+        joinOn:
+          type: array
+          items:
+            type: string
+        sink:
+          type: string
+        optional:
+          type: boolean
+        taskDefinition:
+          $ref: '#/components/schemas/TaskDef'
+        rateLimited:
+          type: boolean
+        defaultExclusiveJoinTask:
+          type: array
+          items:
+            type: string
+        asyncComplete:
+          type: boolean
+        loopCondition:
+          type: string
+        loopOver:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowTask'
+        retryCount:
+          type: integer
+          format: int32
+        evaluatorType:
+          type: string
+        expression:
+          type: string
+        workflowTaskType:
+          type: string
+          writeOnly: true
+          enum:
+          - SIMPLE
+          - DYNAMIC
+          - FORK_JOIN
+          - FORK_JOIN_DYNAMIC
+          - DECISION
+          - SWITCH
+          - JOIN
+          - DO_WHILE
+          - SUB_WORKFLOW
+          - EVENT
+          - WAIT
+          - USER_DEFINED
+          - HTTP
+          - LAMBDA
+          - INLINE
+          - EXCLUSIVE_JOIN
+          - TERMINATE
+          - KAFKA_PUBLISH
+          - JSON_JQ_TRANSFORM
+          - SET_VARIABLE
+      example:
+        joinOn:
+        - joinOn
+        - joinOn
+        description: description
+        scriptExpression: scriptExpression
+        type: type
+        inputParameters:
+          key: {}
+        dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+        decisionCases:
+          key:
+          - null
+          - null
+        loopOver:
+        - null
+        - null
+        caseExpression: caseExpression
+        defaultExclusiveJoinTask:
+        - defaultExclusiveJoinTask
+        - defaultExclusiveJoinTask
+        taskDefinition:
+          updatedBy: updatedBy
+          timeoutPolicy: RETRY
+          inputKeys:
+          - inputKeys
+          - inputKeys
+          concurrentExecLimit: 7
+          isolationGroupId: isolationGroupId
+          retryCount: 0
+          description: description
+          updateTime: 7
+          inputTemplate:
+            key: {}
+          ownerApp: ownerApp
+          ownerEmail: ownerEmail
+          retryDelaySeconds: 2
+          backoffScaleFactor: 1
+          createTime: 2
+          createdBy: createdBy
+          rateLimitPerFrequency: 1
+          retryLogic: FIXED
+          responseTimeoutSeconds: 1
+          name: name
+          timeoutSeconds: 3
+          rateLimitFrequencyInSeconds: 1
+          outputKeys:
+          - outputKeys
+          - outputKeys
+          executionNameSpace: executionNameSpace
+          pollTimeoutSeconds: 0
+        caseValueParam: caseValueParam
+        dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+        expression: expression
+        loopCondition: loopCondition
+        asyncComplete: true
+        sink: sink
+        rateLimited: true
+        retryCount: 7
+        subWorkflowParam:
+          workflowDefinition: null
+          name: name
+          taskToDomain:
+            key: taskToDomain
+          version: 5
+        optional: true
+        evaluatorType: evaluatorType
+        workflowTaskType: SIMPLE
+        dynamicTaskNameParam: dynamicTaskNameParam
+        name: name
+        startDelay: 5
+        taskReferenceName: taskReferenceName
+        defaultCase:
+        - null
+        - null
+        forkTasks:
+        - - null
+          - null
+        - - null
+          - null
+        dynamicForkTasksParam: dynamicForkTasksParam
+    Action:
+      type: object
+      properties:
+        action:
+          type: string
+          enum:
+          - start_workflow
+          - complete_task
+          - fail_task
+        start_workflow:
+          $ref: '#/components/schemas/StartWorkflow'
+        complete_task:
+          $ref: '#/components/schemas/TaskDetails'
+        fail_task:
+          $ref: '#/components/schemas/TaskDetails'
+        expandInlineJSON:
+          type: boolean
+      example:
+        fail_task: null
+        expandInlineJSON: true
+        action: start_workflow
+        start_workflow:
+          input:
+            key: {}
+          name: name
+          correlationId: correlationId
+          taskToDomain:
+            key: taskToDomain
+          version: 0
+        complete_task:
+          output:
+            key: {}
+          taskRefName: taskRefName
+          workflowId: workflowId
+          taskId: taskId
+    EventHandler:
+      required:
+      - actions
+      - event
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        event:
+          type: string
+        condition:
+          type: string
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
+        active:
+          type: boolean
+        evaluatorType:
+          type: string
+      example:
+        condition: condition
+        evaluatorType: evaluatorType
+        name: name
+        active: true
+        event: event
+        actions:
+        - fail_task: null
+          expandInlineJSON: true
+          action: start_workflow
+          start_workflow:
+            input:
+              key: {}
+            name: name
+            correlationId: correlationId
+            taskToDomain:
+              key: taskToDomain
+            version: 0
+          complete_task:
+            output:
+              key: {}
+            taskRefName: taskRefName
+            workflowId: workflowId
+            taskId: taskId
+        - fail_task: null
+          expandInlineJSON: true
+          action: start_workflow
+          start_workflow:
+            input:
+              key: {}
+            name: name
+            correlationId: correlationId
+            taskToDomain:
+              key: taskToDomain
+            version: 0
+          complete_task:
+            output:
+              key: {}
+            taskRefName: taskRefName
+            workflowId: workflowId
+            taskId: taskId
+    StartWorkflow:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: integer
+          format: int32
+        correlationId:
+          type: string
+        input:
+          type: object
+          additionalProperties:
+            type: object
+        taskToDomain:
+          type: object
+          additionalProperties:
+            type: string
+      example:
+        input:
+          key: {}
+        name: name
+        correlationId: correlationId
+        taskToDomain:
+          key: taskToDomain
+        version: 0
+    TaskDetails:
+      type: object
+      properties:
+        workflowId:
+          type: string
+        taskRefName:
+          type: string
+        output:
+          type: object
+          additionalProperties:
+            type: object
+        taskId:
+          type: string
+      example:
+        output:
+          key: {}
+        taskRefName: taskRefName
+        workflowId: workflowId
+        taskId: taskId
+    RerunWorkflowRequest:
+      type: object
+      properties:
+        reRunFromWorkflowId:
+          type: string
+        workflowInput:
+          type: object
+          additionalProperties:
+            type: object
+        reRunFromTaskId:
+          type: string
+        taskInput:
+          type: object
+          additionalProperties:
+            type: object
+        correlationId:
+          type: string
+    Task:
+      type: object
+      properties:
+        taskType:
+          type: string
+        status:
+          type: string
+          enum:
+          - IN_PROGRESS
+          - CANCELED
+          - FAILED
+          - FAILED_WITH_TERMINAL_ERROR
+          - COMPLETED
+          - COMPLETED_WITH_ERRORS
+          - SCHEDULED
+          - TIMED_OUT
+          - SKIPPED
+        inputData:
+          type: object
+          additionalProperties:
+            type: object
+        referenceTaskName:
+          type: string
+        retryCount:
+          type: integer
+          format: int32
+        seq:
+          type: integer
+          format: int32
+        correlationId:
+          type: string
+        pollCount:
+          type: integer
+          format: int32
+        taskDefName:
+          type: string
+        scheduledTime:
+          type: integer
+          format: int64
+        startTime:
+          type: integer
+          format: int64
+        endTime:
+          type: integer
+          format: int64
+        updateTime:
+          type: integer
+          format: int64
+        startDelayInSeconds:
+          type: integer
+          format: int32
+        retriedTaskId:
+          type: string
+        retried:
+          type: boolean
+        executed:
+          type: boolean
+        callbackFromWorker:
+          type: boolean
+        responseTimeoutSeconds:
+          type: integer
+          format: int64
+        workflowInstanceId:
+          type: string
+        workflowType:
+          type: string
+        taskId:
+          type: string
+        reasonForIncompletion:
+          type: string
+        callbackAfterSeconds:
+          type: integer
+          format: int64
+        workerId:
+          type: string
+        outputData:
+          type: object
+          additionalProperties:
+            type: object
+        workflowTask:
+          $ref: '#/components/schemas/WorkflowTask'
+        domain:
+          type: string
+        rateLimitPerFrequency:
+          type: integer
+          format: int32
+        rateLimitFrequencyInSeconds:
+          type: integer
+          format: int32
+        externalInputPayloadStoragePath:
+          type: string
+        externalOutputPayloadStoragePath:
+          type: string
+        workflowPriority:
+          type: integer
+          format: int32
+        executionNameSpace:
+          type: string
+        isolationGroupId:
+          type: string
+        iteration:
+          type: integer
+          format: int32
+        subWorkflowId:
+          type: string
+        subworkflowChanged:
+          type: boolean
+        taskDefinition:
+          $ref: '#/components/schemas/TaskDef'
+        loopOverTask:
+          type: boolean
+        queueWaitTime:
+          type: integer
+          format: int64
+      example:
+        retried: true
+        outputData:
+          key: {}
+        referenceTaskName: referenceTaskName
+        workflowPriority: 6
+        isolationGroupId: isolationGroupId
+        executed: true
+        subworkflowChanged: true
+        taskType: taskType
+        reasonForIncompletion: reasonForIncompletion
+        responseTimeoutSeconds: 7
+        queueWaitTime: 1
+        rateLimitFrequencyInSeconds: 1
+        iteration: 7
+        correlationId: correlationId
+        startTime: 9
+        callbackFromWorker: true
+        workflowType: workflowType
+        taskDefinition:
+          updatedBy: updatedBy
+          timeoutPolicy: RETRY
+          inputKeys:
+          - inputKeys
+          - inputKeys
+          concurrentExecLimit: 7
+          isolationGroupId: isolationGroupId
+          retryCount: 0
+          description: description
+          updateTime: 7
+          inputTemplate:
+            key: {}
+          ownerApp: ownerApp
+          ownerEmail: ownerEmail
+          retryDelaySeconds: 2
+          backoffScaleFactor: 1
+          createTime: 2
+          createdBy: createdBy
+          rateLimitPerFrequency: 1
+          retryLogic: FIXED
+          responseTimeoutSeconds: 1
+          name: name
+          timeoutSeconds: 3
+          rateLimitFrequencyInSeconds: 1
+          outputKeys:
+          - outputKeys
+          - outputKeys
+          executionNameSpace: executionNameSpace
+          pollTimeoutSeconds: 0
+        workflowInstanceId: workflowInstanceId
+        seq: 5
+        startDelayInSeconds: 4
+        inputData:
+          key: {}
+        callbackAfterSeconds: 1
+        workerId: workerId
+        scheduledTime: 7
+        externalInputPayloadStoragePath: externalInputPayloadStoragePath
+        retryCount: 5
+        workflowTask:
+          joinOn:
+          - joinOn
+          - joinOn
+          description: description
+          scriptExpression: scriptExpression
+          type: type
+          inputParameters:
+            key: {}
+          dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+          decisionCases:
+            key:
+            - null
+            - null
+          loopOver:
+          - null
+          - null
+          caseExpression: caseExpression
+          defaultExclusiveJoinTask:
+          - defaultExclusiveJoinTask
+          - defaultExclusiveJoinTask
+          taskDefinition:
+            updatedBy: updatedBy
+            timeoutPolicy: RETRY
+            inputKeys:
+            - inputKeys
+            - inputKeys
+            concurrentExecLimit: 7
+            isolationGroupId: isolationGroupId
+            retryCount: 0
+            description: description
+            updateTime: 7
+            inputTemplate:
+              key: {}
+            ownerApp: ownerApp
+            ownerEmail: ownerEmail
+            retryDelaySeconds: 2
+            backoffScaleFactor: 1
+            createTime: 2
+            createdBy: createdBy
+            rateLimitPerFrequency: 1
+            retryLogic: FIXED
+            responseTimeoutSeconds: 1
+            name: name
+            timeoutSeconds: 3
+            rateLimitFrequencyInSeconds: 1
+            outputKeys:
+            - outputKeys
+            - outputKeys
+            executionNameSpace: executionNameSpace
+            pollTimeoutSeconds: 0
+          caseValueParam: caseValueParam
+          dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+          expression: expression
+          loopCondition: loopCondition
+          asyncComplete: true
+          sink: sink
+          rateLimited: true
+          retryCount: 7
+          subWorkflowParam:
+            workflowDefinition: null
+            name: name
+            taskToDomain:
+              key: taskToDomain
+            version: 5
+          optional: true
+          evaluatorType: evaluatorType
+          workflowTaskType: SIMPLE
+          dynamicTaskNameParam: dynamicTaskNameParam
+          name: name
+          startDelay: 5
+          taskReferenceName: taskReferenceName
+          defaultCase:
+          - null
+          - null
+          forkTasks:
+          - - null
+            - null
+          - - null
+            - null
+          dynamicForkTasksParam: dynamicForkTasksParam
+        retriedTaskId: retriedTaskId
+        updateTime: 2
+        pollCount: 2
+        rateLimitPerFrequency: 1
+        subWorkflowId: subWorkflowId
+        domain: domain
+        taskDefName: taskDefName
+        loopOverTask: true
+        endTime: 3
+        executionNameSpace: executionNameSpace
+        taskId: taskId
+        status: IN_PROGRESS
+        externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+    Workflow:
+      type: object
+      properties:
+        ownerApp:
+          type: string
+        createTime:
+          type: integer
+          format: int64
+        updateTime:
+          type: integer
+          format: int64
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+        status:
+          type: string
+          enum:
+          - RUNNING
+          - COMPLETED
+          - FAILED
+          - TIMED_OUT
+          - TERMINATED
+          - PAUSED
+        endTime:
+          type: integer
+          format: int64
+        workflowId:
+          type: string
+        parentWorkflowId:
+          type: string
+        parentWorkflowTaskId:
+          type: string
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        input:
+          type: object
+          additionalProperties:
+            type: object
+        output:
+          type: object
+          additionalProperties:
+            type: object
+        correlationId:
+          type: string
+        reRunFromWorkflowId:
+          type: string
+        reasonForIncompletion:
+          type: string
+        event:
+          type: string
+        taskToDomain:
+          type: object
+          additionalProperties:
+            type: string
+        failedReferenceTaskNames:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        workflowDefinition:
+          $ref: '#/components/schemas/WorkflowDef'
+        externalInputPayloadStoragePath:
+          type: string
+        externalOutputPayloadStoragePath:
+          type: string
+        priority:
+          maximum: 99
+          minimum: 0
+          type: integer
+          format: int32
+        variables:
+          type: object
+          additionalProperties:
+            type: object
+        lastRetriedTime:
+          type: integer
+          format: int64
+        startTime:
+          type: integer
+          format: int64
+        workflowName:
+          type: string
+        workflowVersion:
+          type: integer
+          format: int32
+      example:
+        workflowDefinition:
+          variables:
+            key: {}
+          updatedBy: updatedBy
+          schemaVersion: 2
+          timeoutPolicy: TIME_OUT_WF
+          restartable: true
+          description: description
+          updateTime: 6
+          version: 1
+          inputParameters:
+          - inputParameters
+          - inputParameters
+          inputTemplate:
+            key: {}
+          ownerApp: ownerApp
+          workflowStatusListenerEnabled: true
+          ownerEmail: ownerEmail
+          createTime: 0
+          createdBy: createdBy
+          name: name
+          timeoutSeconds: 4
+          failureWorkflow: failureWorkflow
+          tasks:
+          - joinOn:
+            - joinOn
+            - joinOn
+            description: description
+            scriptExpression: scriptExpression
+            type: type
+            inputParameters:
+              key: {}
+            dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+            decisionCases:
+              key:
+              - null
+              - null
+            loopOver:
+            - null
+            - null
+            caseExpression: caseExpression
+            defaultExclusiveJoinTask:
+            - defaultExclusiveJoinTask
+            - defaultExclusiveJoinTask
+            taskDefinition:
+              updatedBy: updatedBy
+              timeoutPolicy: RETRY
+              inputKeys:
+              - inputKeys
+              - inputKeys
+              concurrentExecLimit: 7
+              isolationGroupId: isolationGroupId
+              retryCount: 0
+              description: description
+              updateTime: 7
+              inputTemplate:
+                key: {}
+              ownerApp: ownerApp
+              ownerEmail: ownerEmail
+              retryDelaySeconds: 2
+              backoffScaleFactor: 1
+              createTime: 2
+              createdBy: createdBy
+              rateLimitPerFrequency: 1
+              retryLogic: FIXED
+              responseTimeoutSeconds: 1
+              name: name
+              timeoutSeconds: 3
+              rateLimitFrequencyInSeconds: 1
+              outputKeys:
+              - outputKeys
+              - outputKeys
+              executionNameSpace: executionNameSpace
+              pollTimeoutSeconds: 0
+            caseValueParam: caseValueParam
+            dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+            expression: expression
+            loopCondition: loopCondition
+            asyncComplete: true
+            sink: sink
+            rateLimited: true
+            retryCount: 7
+            subWorkflowParam:
+              workflowDefinition: null
+              name: name
+              taskToDomain:
+                key: taskToDomain
+              version: 5
+            optional: true
+            evaluatorType: evaluatorType
+            workflowTaskType: SIMPLE
+            dynamicTaskNameParam: dynamicTaskNameParam
+            name: name
+            startDelay: 5
+            taskReferenceName: taskReferenceName
+            defaultCase:
+            - null
+            - null
+            forkTasks:
+            - - null
+              - null
+            - - null
+              - null
+            dynamicForkTasksParam: dynamicForkTasksParam
+          - joinOn:
+            - joinOn
+            - joinOn
+            description: description
+            scriptExpression: scriptExpression
+            type: type
+            inputParameters:
+              key: {}
+            dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+            decisionCases:
+              key:
+              - null
+              - null
+            loopOver:
+            - null
+            - null
+            caseExpression: caseExpression
+            defaultExclusiveJoinTask:
+            - defaultExclusiveJoinTask
+            - defaultExclusiveJoinTask
+            taskDefinition:
+              updatedBy: updatedBy
+              timeoutPolicy: RETRY
+              inputKeys:
+              - inputKeys
+              - inputKeys
+              concurrentExecLimit: 7
+              isolationGroupId: isolationGroupId
+              retryCount: 0
+              description: description
+              updateTime: 7
+              inputTemplate:
+                key: {}
+              ownerApp: ownerApp
+              ownerEmail: ownerEmail
+              retryDelaySeconds: 2
+              backoffScaleFactor: 1
+              createTime: 2
+              createdBy: createdBy
+              rateLimitPerFrequency: 1
+              retryLogic: FIXED
+              responseTimeoutSeconds: 1
+              name: name
+              timeoutSeconds: 3
+              rateLimitFrequencyInSeconds: 1
+              outputKeys:
+              - outputKeys
+              - outputKeys
+              executionNameSpace: executionNameSpace
+              pollTimeoutSeconds: 0
+            caseValueParam: caseValueParam
+            dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+            expression: expression
+            loopCondition: loopCondition
+            asyncComplete: true
+            sink: sink
+            rateLimited: true
+            retryCount: 7
+            subWorkflowParam:
+              workflowDefinition: null
+              name: name
+              taskToDomain:
+                key: taskToDomain
+              version: 5
+            optional: true
+            evaluatorType: evaluatorType
+            workflowTaskType: SIMPLE
+            dynamicTaskNameParam: dynamicTaskNameParam
+            name: name
+            startDelay: 5
+            taskReferenceName: taskReferenceName
+            defaultCase:
+            - null
+            - null
+            forkTasks:
+            - - null
+              - null
+            - - null
+              - null
+            dynamicForkTasksParam: dynamicForkTasksParam
+          outputParameters:
+            key: {}
+        lastRetriedTime: 5
+        taskToDomain:
+          key: taskToDomain
+        failedReferenceTaskNames:
+        - failedReferenceTaskNames
+        - failedReferenceTaskNames
+        ownerApp: ownerApp
+        output:
+          key: {}
+        reasonForIncompletion: reasonForIncompletion
+        correlationId: correlationId
+        startTime: 9
+        event: event
+        tasks:
+        - retried: true
+          outputData:
+            key: {}
+          referenceTaskName: referenceTaskName
+          workflowPriority: 6
+          isolationGroupId: isolationGroupId
+          executed: true
+          subworkflowChanged: true
+          taskType: taskType
+          reasonForIncompletion: reasonForIncompletion
+          responseTimeoutSeconds: 7
+          queueWaitTime: 1
+          rateLimitFrequencyInSeconds: 1
+          iteration: 7
+          correlationId: correlationId
+          startTime: 9
+          callbackFromWorker: true
+          workflowType: workflowType
+          taskDefinition:
+            updatedBy: updatedBy
+            timeoutPolicy: RETRY
+            inputKeys:
+            - inputKeys
+            - inputKeys
+            concurrentExecLimit: 7
+            isolationGroupId: isolationGroupId
+            retryCount: 0
+            description: description
+            updateTime: 7
+            inputTemplate:
+              key: {}
+            ownerApp: ownerApp
+            ownerEmail: ownerEmail
+            retryDelaySeconds: 2
+            backoffScaleFactor: 1
+            createTime: 2
+            createdBy: createdBy
+            rateLimitPerFrequency: 1
+            retryLogic: FIXED
+            responseTimeoutSeconds: 1
+            name: name
+            timeoutSeconds: 3
+            rateLimitFrequencyInSeconds: 1
+            outputKeys:
+            - outputKeys
+            - outputKeys
+            executionNameSpace: executionNameSpace
+            pollTimeoutSeconds: 0
+          workflowInstanceId: workflowInstanceId
+          seq: 5
+          startDelayInSeconds: 4
+          inputData:
+            key: {}
+          callbackAfterSeconds: 1
+          workerId: workerId
+          scheduledTime: 7
+          externalInputPayloadStoragePath: externalInputPayloadStoragePath
+          retryCount: 5
+          workflowTask:
+            joinOn:
+            - joinOn
+            - joinOn
+            description: description
+            scriptExpression: scriptExpression
+            type: type
+            inputParameters:
+              key: {}
+            dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+            decisionCases:
+              key:
+              - null
+              - null
+            loopOver:
+            - null
+            - null
+            caseExpression: caseExpression
+            defaultExclusiveJoinTask:
+            - defaultExclusiveJoinTask
+            - defaultExclusiveJoinTask
+            taskDefinition:
+              updatedBy: updatedBy
+              timeoutPolicy: RETRY
+              inputKeys:
+              - inputKeys
+              - inputKeys
+              concurrentExecLimit: 7
+              isolationGroupId: isolationGroupId
+              retryCount: 0
+              description: description
+              updateTime: 7
+              inputTemplate:
+                key: {}
+              ownerApp: ownerApp
+              ownerEmail: ownerEmail
+              retryDelaySeconds: 2
+              backoffScaleFactor: 1
+              createTime: 2
+              createdBy: createdBy
+              rateLimitPerFrequency: 1
+              retryLogic: FIXED
+              responseTimeoutSeconds: 1
+              name: name
+              timeoutSeconds: 3
+              rateLimitFrequencyInSeconds: 1
+              outputKeys:
+              - outputKeys
+              - outputKeys
+              executionNameSpace: executionNameSpace
+              pollTimeoutSeconds: 0
+            caseValueParam: caseValueParam
+            dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+            expression: expression
+            loopCondition: loopCondition
+            asyncComplete: true
+            sink: sink
+            rateLimited: true
+            retryCount: 7
+            subWorkflowParam:
+              workflowDefinition: null
+              name: name
+              taskToDomain:
+                key: taskToDomain
+              version: 5
+            optional: true
+            evaluatorType: evaluatorType
+            workflowTaskType: SIMPLE
+            dynamicTaskNameParam: dynamicTaskNameParam
+            name: name
+            startDelay: 5
+            taskReferenceName: taskReferenceName
+            defaultCase:
+            - null
+            - null
+            forkTasks:
+            - - null
+              - null
+            - - null
+              - null
+            dynamicForkTasksParam: dynamicForkTasksParam
+          retriedTaskId: retriedTaskId
+          updateTime: 2
+          pollCount: 2
+          rateLimitPerFrequency: 1
+          subWorkflowId: subWorkflowId
+          domain: domain
+          taskDefName: taskDefName
+          loopOverTask: true
+          endTime: 3
+          executionNameSpace: executionNameSpace
+          taskId: taskId
+          status: IN_PROGRESS
+          externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+        - retried: true
+          outputData:
+            key: {}
+          referenceTaskName: referenceTaskName
+          workflowPriority: 6
+          isolationGroupId: isolationGroupId
+          executed: true
+          subworkflowChanged: true
+          taskType: taskType
+          reasonForIncompletion: reasonForIncompletion
+          responseTimeoutSeconds: 7
+          queueWaitTime: 1
+          rateLimitFrequencyInSeconds: 1
+          iteration: 7
+          correlationId: correlationId
+          startTime: 9
+          callbackFromWorker: true
+          workflowType: workflowType
+          taskDefinition:
+            updatedBy: updatedBy
+            timeoutPolicy: RETRY
+            inputKeys:
+            - inputKeys
+            - inputKeys
+            concurrentExecLimit: 7
+            isolationGroupId: isolationGroupId
+            retryCount: 0
+            description: description
+            updateTime: 7
+            inputTemplate:
+              key: {}
+            ownerApp: ownerApp
+            ownerEmail: ownerEmail
+            retryDelaySeconds: 2
+            backoffScaleFactor: 1
+            createTime: 2
+            createdBy: createdBy
+            rateLimitPerFrequency: 1
+            retryLogic: FIXED
+            responseTimeoutSeconds: 1
+            name: name
+            timeoutSeconds: 3
+            rateLimitFrequencyInSeconds: 1
+            outputKeys:
+            - outputKeys
+            - outputKeys
+            executionNameSpace: executionNameSpace
+            pollTimeoutSeconds: 0
+          workflowInstanceId: workflowInstanceId
+          seq: 5
+          startDelayInSeconds: 4
+          inputData:
+            key: {}
+          callbackAfterSeconds: 1
+          workerId: workerId
+          scheduledTime: 7
+          externalInputPayloadStoragePath: externalInputPayloadStoragePath
+          retryCount: 5
+          workflowTask:
+            joinOn:
+            - joinOn
+            - joinOn
+            description: description
+            scriptExpression: scriptExpression
+            type: type
+            inputParameters:
+              key: {}
+            dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+            decisionCases:
+              key:
+              - null
+              - null
+            loopOver:
+            - null
+            - null
+            caseExpression: caseExpression
+            defaultExclusiveJoinTask:
+            - defaultExclusiveJoinTask
+            - defaultExclusiveJoinTask
+            taskDefinition:
+              updatedBy: updatedBy
+              timeoutPolicy: RETRY
+              inputKeys:
+              - inputKeys
+              - inputKeys
+              concurrentExecLimit: 7
+              isolationGroupId: isolationGroupId
+              retryCount: 0
+              description: description
+              updateTime: 7
+              inputTemplate:
+                key: {}
+              ownerApp: ownerApp
+              ownerEmail: ownerEmail
+              retryDelaySeconds: 2
+              backoffScaleFactor: 1
+              createTime: 2
+              createdBy: createdBy
+              rateLimitPerFrequency: 1
+              retryLogic: FIXED
+              responseTimeoutSeconds: 1
+              name: name
+              timeoutSeconds: 3
+              rateLimitFrequencyInSeconds: 1
+              outputKeys:
+              - outputKeys
+              - outputKeys
+              executionNameSpace: executionNameSpace
+              pollTimeoutSeconds: 0
+            caseValueParam: caseValueParam
+            dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+            expression: expression
+            loopCondition: loopCondition
+            asyncComplete: true
+            sink: sink
+            rateLimited: true
+            retryCount: 7
+            subWorkflowParam:
+              workflowDefinition: null
+              name: name
+              taskToDomain:
+                key: taskToDomain
+              version: 5
+            optional: true
+            evaluatorType: evaluatorType
+            workflowTaskType: SIMPLE
+            dynamicTaskNameParam: dynamicTaskNameParam
+            name: name
+            startDelay: 5
+            taskReferenceName: taskReferenceName
+            defaultCase:
+            - null
+            - null
+            forkTasks:
+            - - null
+              - null
+            - - null
+              - null
+            dynamicForkTasksParam: dynamicForkTasksParam
+          retriedTaskId: retriedTaskId
+          updateTime: 2
+          pollCount: 2
+          rateLimitPerFrequency: 1
+          subWorkflowId: subWorkflowId
+          domain: domain
+          taskDefName: taskDefName
+          loopOverTask: true
+          endTime: 3
+          executionNameSpace: executionNameSpace
+          taskId: taskId
+          status: IN_PROGRESS
+          externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+        variables:
+          key: {}
+        updatedBy: updatedBy
+        externalInputPayloadStoragePath: externalInputPayloadStoragePath
+        parentWorkflowTaskId: parentWorkflowTaskId
+        updateTime: 6
+        workflowName: workflowName
+        priority: 49
+        input:
+          key: {}
+        parentWorkflowId: parentWorkflowId
+        createTime: 0
+        createdBy: createdBy
+        reRunFromWorkflowId: reRunFromWorkflowId
+        endTime: 1
+        workflowVersion: 9
+        workflowId: workflowId
+        status: RUNNING
+        externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+    StartWorkflowRequest:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: integer
+          format: int32
+        correlationId:
+          type: string
+        input:
+          type: object
+          additionalProperties:
+            type: object
+        taskToDomain:
+          type: object
+          additionalProperties:
+            type: string
+        workflowDef:
+          $ref: '#/components/schemas/WorkflowDef'
+        externalInputPayloadStoragePath:
+          type: string
+        priority:
+          maximum: 99
+          minimum: 0
+          type: integer
+          format: int32
+    TaskExecLog:
+      type: object
+      properties:
+        log:
+          type: string
+        taskId:
+          type: string
+        createdTime:
+          type: integer
+          format: int64
+      example:
+        log: log
+        createdTime: 0
+        taskId: taskId
+    TaskResult:
+      required:
+      - taskId
+      - workflowInstanceId
+      type: object
+      properties:
+        workflowInstanceId:
+          type: string
+        taskId:
+          type: string
+        reasonForIncompletion:
+          type: string
+        callbackAfterSeconds:
+          type: integer
+          format: int64
+        workerId:
+          type: string
+        status:
+          type: string
+          enum:
+          - IN_PROGRESS
+          - FAILED
+          - FAILED_WITH_TERMINAL_ERROR
+          - COMPLETED
+        outputData:
+          type: object
+          additionalProperties:
+            type: object
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskExecLog'
+        externalOutputPayloadStoragePath:
+          type: string
+        subWorkflowId:
+          type: string
+    Health:
+      type: object
+      properties:
+        details:
+          type: object
+          additionalProperties:
+            type: object
+        errorMessage:
+          type: string
+        healthy:
+          type: boolean
+      example:
+        healthy: true
+        errorMessage: errorMessage
+        details:
+          key: {}
+    HealthCheckStatus:
+      type: object
+      properties:
+        healthResults:
+          type: array
+          items:
+            $ref: '#/components/schemas/Health'
+        suppressedHealthResults:
+          type: array
+          items:
+            $ref: '#/components/schemas/Health'
+        healthy:
+          type: boolean
+      example:
+        healthy: true
+        suppressedHealthResults:
+        - null
+        - null
+        healthResults:
+        - healthy: true
+          errorMessage: errorMessage
+          details:
+            key: {}
+        - healthy: true
+          errorMessage: errorMessage
+          details:
+            key: {}
+    SearchResultWorkflowSummary:
+      type: object
+      properties:
+        totalHits:
+          type: integer
+          format: int64
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowSummary'
+      example:
+        totalHits: 0
+        results:
+        - externalInputPayloadStoragePath: externalInputPayloadStoragePath
+          updateTime: updateTime
+          priority: 5
+          version: 6
+          failedReferenceTaskNames: failedReferenceTaskNames
+          output: output
+          executionTime: 1
+          outputSize: 5
+          input: input
+          reasonForIncompletion: reasonForIncompletion
+          inputSize: 2
+          workflowType: workflowType
+          correlationId: correlationId
+          startTime: startTime
+          endTime: endTime
+          event: event
+          workflowId: workflowId
+          status: RUNNING
+          externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+        - externalInputPayloadStoragePath: externalInputPayloadStoragePath
+          updateTime: updateTime
+          priority: 5
+          version: 6
+          failedReferenceTaskNames: failedReferenceTaskNames
+          output: output
+          executionTime: 1
+          outputSize: 5
+          input: input
+          reasonForIncompletion: reasonForIncompletion
+          inputSize: 2
+          workflowType: workflowType
+          correlationId: correlationId
+          startTime: startTime
+          endTime: endTime
+          event: event
+          workflowId: workflowId
+          status: RUNNING
+          externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+    WorkflowSummary:
+      type: object
+      properties:
+        workflowType:
+          type: string
+        version:
+          type: integer
+          format: int32
+        workflowId:
+          type: string
+        correlationId:
+          type: string
+        startTime:
+          type: string
+        updateTime:
+          type: string
+        endTime:
+          type: string
+        status:
+          type: string
+          enum:
+          - RUNNING
+          - COMPLETED
+          - FAILED
+          - TIMED_OUT
+          - TERMINATED
+          - PAUSED
+        input:
+          type: string
+        output:
+          type: string
+        reasonForIncompletion:
+          type: string
+        executionTime:
+          type: integer
+          format: int64
+        event:
+          type: string
+        failedReferenceTaskNames:
+          type: string
+        externalInputPayloadStoragePath:
+          type: string
+        externalOutputPayloadStoragePath:
+          type: string
+        priority:
+          type: integer
+          format: int32
+        outputSize:
+          type: integer
+          format: int64
+        inputSize:
+          type: integer
+          format: int64
+      example:
+        externalInputPayloadStoragePath: externalInputPayloadStoragePath
+        updateTime: updateTime
+        priority: 5
+        version: 6
+        failedReferenceTaskNames: failedReferenceTaskNames
+        output: output
+        executionTime: 1
+        outputSize: 5
+        input: input
+        reasonForIncompletion: reasonForIncompletion
+        inputSize: 2
+        workflowType: workflowType
+        correlationId: correlationId
+        startTime: startTime
+        endTime: endTime
+        event: event
+        workflowId: workflowId
+        status: RUNNING
+        externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+    SearchResultWorkflow:
+      type: object
+      properties:
+        totalHits:
+          type: integer
+          format: int64
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workflow'
+      example:
+        totalHits: 0
+        results:
+        - workflowDefinition:
+            variables:
+              key: {}
+            updatedBy: updatedBy
+            schemaVersion: 2
+            timeoutPolicy: TIME_OUT_WF
+            restartable: true
+            description: description
+            updateTime: 6
+            version: 1
+            inputParameters:
+            - inputParameters
+            - inputParameters
+            inputTemplate:
+              key: {}
+            ownerApp: ownerApp
+            workflowStatusListenerEnabled: true
+            ownerEmail: ownerEmail
+            createTime: 0
+            createdBy: createdBy
+            name: name
+            timeoutSeconds: 4
+            failureWorkflow: failureWorkflow
+            tasks:
+            - joinOn:
+              - joinOn
+              - joinOn
+              description: description
+              scriptExpression: scriptExpression
+              type: type
+              inputParameters:
+                key: {}
+              dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+              decisionCases:
+                key:
+                - null
+                - null
+              loopOver:
+              - null
+              - null
+              caseExpression: caseExpression
+              defaultExclusiveJoinTask:
+              - defaultExclusiveJoinTask
+              - defaultExclusiveJoinTask
+              taskDefinition:
+                updatedBy: updatedBy
+                timeoutPolicy: RETRY
+                inputKeys:
+                - inputKeys
+                - inputKeys
+                concurrentExecLimit: 7
+                isolationGroupId: isolationGroupId
+                retryCount: 0
+                description: description
+                updateTime: 7
+                inputTemplate:
+                  key: {}
+                ownerApp: ownerApp
+                ownerEmail: ownerEmail
+                retryDelaySeconds: 2
+                backoffScaleFactor: 1
+                createTime: 2
+                createdBy: createdBy
+                rateLimitPerFrequency: 1
+                retryLogic: FIXED
+                responseTimeoutSeconds: 1
+                name: name
+                timeoutSeconds: 3
+                rateLimitFrequencyInSeconds: 1
+                outputKeys:
+                - outputKeys
+                - outputKeys
+                executionNameSpace: executionNameSpace
+                pollTimeoutSeconds: 0
+              caseValueParam: caseValueParam
+              dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+              expression: expression
+              loopCondition: loopCondition
+              asyncComplete: true
+              sink: sink
+              rateLimited: true
+              retryCount: 7
+              subWorkflowParam:
+                workflowDefinition: null
+                name: name
+                taskToDomain:
+                  key: taskToDomain
+                version: 5
+              optional: true
+              evaluatorType: evaluatorType
+              workflowTaskType: SIMPLE
+              dynamicTaskNameParam: dynamicTaskNameParam
+              name: name
+              startDelay: 5
+              taskReferenceName: taskReferenceName
+              defaultCase:
+              - null
+              - null
+              forkTasks:
+              - - null
+                - null
+              - - null
+                - null
+              dynamicForkTasksParam: dynamicForkTasksParam
+            - joinOn:
+              - joinOn
+              - joinOn
+              description: description
+              scriptExpression: scriptExpression
+              type: type
+              inputParameters:
+                key: {}
+              dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+              decisionCases:
+                key:
+                - null
+                - null
+              loopOver:
+              - null
+              - null
+              caseExpression: caseExpression
+              defaultExclusiveJoinTask:
+              - defaultExclusiveJoinTask
+              - defaultExclusiveJoinTask
+              taskDefinition:
+                updatedBy: updatedBy
+                timeoutPolicy: RETRY
+                inputKeys:
+                - inputKeys
+                - inputKeys
+                concurrentExecLimit: 7
+                isolationGroupId: isolationGroupId
+                retryCount: 0
+                description: description
+                updateTime: 7
+                inputTemplate:
+                  key: {}
+                ownerApp: ownerApp
+                ownerEmail: ownerEmail
+                retryDelaySeconds: 2
+                backoffScaleFactor: 1
+                createTime: 2
+                createdBy: createdBy
+                rateLimitPerFrequency: 1
+                retryLogic: FIXED
+                responseTimeoutSeconds: 1
+                name: name
+                timeoutSeconds: 3
+                rateLimitFrequencyInSeconds: 1
+                outputKeys:
+                - outputKeys
+                - outputKeys
+                executionNameSpace: executionNameSpace
+                pollTimeoutSeconds: 0
+              caseValueParam: caseValueParam
+              dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+              expression: expression
+              loopCondition: loopCondition
+              asyncComplete: true
+              sink: sink
+              rateLimited: true
+              retryCount: 7
+              subWorkflowParam:
+                workflowDefinition: null
+                name: name
+                taskToDomain:
+                  key: taskToDomain
+                version: 5
+              optional: true
+              evaluatorType: evaluatorType
+              workflowTaskType: SIMPLE
+              dynamicTaskNameParam: dynamicTaskNameParam
+              name: name
+              startDelay: 5
+              taskReferenceName: taskReferenceName
+              defaultCase:
+              - null
+              - null
+              forkTasks:
+              - - null
+                - null
+              - - null
+                - null
+              dynamicForkTasksParam: dynamicForkTasksParam
+            outputParameters:
+              key: {}
+          lastRetriedTime: 5
+          taskToDomain:
+            key: taskToDomain
+          failedReferenceTaskNames:
+          - failedReferenceTaskNames
+          - failedReferenceTaskNames
+          ownerApp: ownerApp
+          output:
+            key: {}
+          reasonForIncompletion: reasonForIncompletion
+          correlationId: correlationId
+          startTime: 9
+          event: event
+          tasks:
+          - retried: true
+            outputData:
+              key: {}
+            referenceTaskName: referenceTaskName
+            workflowPriority: 6
+            isolationGroupId: isolationGroupId
+            executed: true
+            subworkflowChanged: true
+            taskType: taskType
+            reasonForIncompletion: reasonForIncompletion
+            responseTimeoutSeconds: 7
+            queueWaitTime: 1
+            rateLimitFrequencyInSeconds: 1
+            iteration: 7
+            correlationId: correlationId
+            startTime: 9
+            callbackFromWorker: true
+            workflowType: workflowType
+            taskDefinition:
+              updatedBy: updatedBy
+              timeoutPolicy: RETRY
+              inputKeys:
+              - inputKeys
+              - inputKeys
+              concurrentExecLimit: 7
+              isolationGroupId: isolationGroupId
+              retryCount: 0
+              description: description
+              updateTime: 7
+              inputTemplate:
+                key: {}
+              ownerApp: ownerApp
+              ownerEmail: ownerEmail
+              retryDelaySeconds: 2
+              backoffScaleFactor: 1
+              createTime: 2
+              createdBy: createdBy
+              rateLimitPerFrequency: 1
+              retryLogic: FIXED
+              responseTimeoutSeconds: 1
+              name: name
+              timeoutSeconds: 3
+              rateLimitFrequencyInSeconds: 1
+              outputKeys:
+              - outputKeys
+              - outputKeys
+              executionNameSpace: executionNameSpace
+              pollTimeoutSeconds: 0
+            workflowInstanceId: workflowInstanceId
+            seq: 5
+            startDelayInSeconds: 4
+            inputData:
+              key: {}
+            callbackAfterSeconds: 1
+            workerId: workerId
+            scheduledTime: 7
+            externalInputPayloadStoragePath: externalInputPayloadStoragePath
+            retryCount: 5
+            workflowTask:
+              joinOn:
+              - joinOn
+              - joinOn
+              description: description
+              scriptExpression: scriptExpression
+              type: type
+              inputParameters:
+                key: {}
+              dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+              decisionCases:
+                key:
+                - null
+                - null
+              loopOver:
+              - null
+              - null
+              caseExpression: caseExpression
+              defaultExclusiveJoinTask:
+              - defaultExclusiveJoinTask
+              - defaultExclusiveJoinTask
+              taskDefinition:
+                updatedBy: updatedBy
+                timeoutPolicy: RETRY
+                inputKeys:
+                - inputKeys
+                - inputKeys
+                concurrentExecLimit: 7
+                isolationGroupId: isolationGroupId
+                retryCount: 0
+                description: description
+                updateTime: 7
+                inputTemplate:
+                  key: {}
+                ownerApp: ownerApp
+                ownerEmail: ownerEmail
+                retryDelaySeconds: 2
+                backoffScaleFactor: 1
+                createTime: 2
+                createdBy: createdBy
+                rateLimitPerFrequency: 1
+                retryLogic: FIXED
+                responseTimeoutSeconds: 1
+                name: name
+                timeoutSeconds: 3
+                rateLimitFrequencyInSeconds: 1
+                outputKeys:
+                - outputKeys
+                - outputKeys
+                executionNameSpace: executionNameSpace
+                pollTimeoutSeconds: 0
+              caseValueParam: caseValueParam
+              dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+              expression: expression
+              loopCondition: loopCondition
+              asyncComplete: true
+              sink: sink
+              rateLimited: true
+              retryCount: 7
+              subWorkflowParam:
+                workflowDefinition: null
+                name: name
+                taskToDomain:
+                  key: taskToDomain
+                version: 5
+              optional: true
+              evaluatorType: evaluatorType
+              workflowTaskType: SIMPLE
+              dynamicTaskNameParam: dynamicTaskNameParam
+              name: name
+              startDelay: 5
+              taskReferenceName: taskReferenceName
+              defaultCase:
+              - null
+              - null
+              forkTasks:
+              - - null
+                - null
+              - - null
+                - null
+              dynamicForkTasksParam: dynamicForkTasksParam
+            retriedTaskId: retriedTaskId
+            updateTime: 2
+            pollCount: 2
+            rateLimitPerFrequency: 1
+            subWorkflowId: subWorkflowId
+            domain: domain
+            taskDefName: taskDefName
+            loopOverTask: true
+            endTime: 3
+            executionNameSpace: executionNameSpace
+            taskId: taskId
+            status: IN_PROGRESS
+            externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+          - retried: true
+            outputData:
+              key: {}
+            referenceTaskName: referenceTaskName
+            workflowPriority: 6
+            isolationGroupId: isolationGroupId
+            executed: true
+            subworkflowChanged: true
+            taskType: taskType
+            reasonForIncompletion: reasonForIncompletion
+            responseTimeoutSeconds: 7
+            queueWaitTime: 1
+            rateLimitFrequencyInSeconds: 1
+            iteration: 7
+            correlationId: correlationId
+            startTime: 9
+            callbackFromWorker: true
+            workflowType: workflowType
+            taskDefinition:
+              updatedBy: updatedBy
+              timeoutPolicy: RETRY
+              inputKeys:
+              - inputKeys
+              - inputKeys
+              concurrentExecLimit: 7
+              isolationGroupId: isolationGroupId
+              retryCount: 0
+              description: description
+              updateTime: 7
+              inputTemplate:
+                key: {}
+              ownerApp: ownerApp
+              ownerEmail: ownerEmail
+              retryDelaySeconds: 2
+              backoffScaleFactor: 1
+              createTime: 2
+              createdBy: createdBy
+              rateLimitPerFrequency: 1
+              retryLogic: FIXED
+              responseTimeoutSeconds: 1
+              name: name
+              timeoutSeconds: 3
+              rateLimitFrequencyInSeconds: 1
+              outputKeys:
+              - outputKeys
+              - outputKeys
+              executionNameSpace: executionNameSpace
+              pollTimeoutSeconds: 0
+            workflowInstanceId: workflowInstanceId
+            seq: 5
+            startDelayInSeconds: 4
+            inputData:
+              key: {}
+            callbackAfterSeconds: 1
+            workerId: workerId
+            scheduledTime: 7
+            externalInputPayloadStoragePath: externalInputPayloadStoragePath
+            retryCount: 5
+            workflowTask:
+              joinOn:
+              - joinOn
+              - joinOn
+              description: description
+              scriptExpression: scriptExpression
+              type: type
+              inputParameters:
+                key: {}
+              dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+              decisionCases:
+                key:
+                - null
+                - null
+              loopOver:
+              - null
+              - null
+              caseExpression: caseExpression
+              defaultExclusiveJoinTask:
+              - defaultExclusiveJoinTask
+              - defaultExclusiveJoinTask
+              taskDefinition:
+                updatedBy: updatedBy
+                timeoutPolicy: RETRY
+                inputKeys:
+                - inputKeys
+                - inputKeys
+                concurrentExecLimit: 7
+                isolationGroupId: isolationGroupId
+                retryCount: 0
+                description: description
+                updateTime: 7
+                inputTemplate:
+                  key: {}
+                ownerApp: ownerApp
+                ownerEmail: ownerEmail
+                retryDelaySeconds: 2
+                backoffScaleFactor: 1
+                createTime: 2
+                createdBy: createdBy
+                rateLimitPerFrequency: 1
+                retryLogic: FIXED
+                responseTimeoutSeconds: 1
+                name: name
+                timeoutSeconds: 3
+                rateLimitFrequencyInSeconds: 1
+                outputKeys:
+                - outputKeys
+                - outputKeys
+                executionNameSpace: executionNameSpace
+                pollTimeoutSeconds: 0
+              caseValueParam: caseValueParam
+              dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+              expression: expression
+              loopCondition: loopCondition
+              asyncComplete: true
+              sink: sink
+              rateLimited: true
+              retryCount: 7
+              subWorkflowParam:
+                workflowDefinition: null
+                name: name
+                taskToDomain:
+                  key: taskToDomain
+                version: 5
+              optional: true
+              evaluatorType: evaluatorType
+              workflowTaskType: SIMPLE
+              dynamicTaskNameParam: dynamicTaskNameParam
+              name: name
+              startDelay: 5
+              taskReferenceName: taskReferenceName
+              defaultCase:
+              - null
+              - null
+              forkTasks:
+              - - null
+                - null
+              - - null
+                - null
+              dynamicForkTasksParam: dynamicForkTasksParam
+            retriedTaskId: retriedTaskId
+            updateTime: 2
+            pollCount: 2
+            rateLimitPerFrequency: 1
+            subWorkflowId: subWorkflowId
+            domain: domain
+            taskDefName: taskDefName
+            loopOverTask: true
+            endTime: 3
+            executionNameSpace: executionNameSpace
+            taskId: taskId
+            status: IN_PROGRESS
+            externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+          variables:
+            key: {}
+          updatedBy: updatedBy
+          externalInputPayloadStoragePath: externalInputPayloadStoragePath
+          parentWorkflowTaskId: parentWorkflowTaskId
+          updateTime: 6
+          workflowName: workflowName
+          priority: 49
+          input:
+            key: {}
+          parentWorkflowId: parentWorkflowId
+          createTime: 0
+          createdBy: createdBy
+          reRunFromWorkflowId: reRunFromWorkflowId
+          endTime: 1
+          workflowVersion: 9
+          workflowId: workflowId
+          status: RUNNING
+          externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+        - workflowDefinition:
+            variables:
+              key: {}
+            updatedBy: updatedBy
+            schemaVersion: 2
+            timeoutPolicy: TIME_OUT_WF
+            restartable: true
+            description: description
+            updateTime: 6
+            version: 1
+            inputParameters:
+            - inputParameters
+            - inputParameters
+            inputTemplate:
+              key: {}
+            ownerApp: ownerApp
+            workflowStatusListenerEnabled: true
+            ownerEmail: ownerEmail
+            createTime: 0
+            createdBy: createdBy
+            name: name
+            timeoutSeconds: 4
+            failureWorkflow: failureWorkflow
+            tasks:
+            - joinOn:
+              - joinOn
+              - joinOn
+              description: description
+              scriptExpression: scriptExpression
+              type: type
+              inputParameters:
+                key: {}
+              dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+              decisionCases:
+                key:
+                - null
+                - null
+              loopOver:
+              - null
+              - null
+              caseExpression: caseExpression
+              defaultExclusiveJoinTask:
+              - defaultExclusiveJoinTask
+              - defaultExclusiveJoinTask
+              taskDefinition:
+                updatedBy: updatedBy
+                timeoutPolicy: RETRY
+                inputKeys:
+                - inputKeys
+                - inputKeys
+                concurrentExecLimit: 7
+                isolationGroupId: isolationGroupId
+                retryCount: 0
+                description: description
+                updateTime: 7
+                inputTemplate:
+                  key: {}
+                ownerApp: ownerApp
+                ownerEmail: ownerEmail
+                retryDelaySeconds: 2
+                backoffScaleFactor: 1
+                createTime: 2
+                createdBy: createdBy
+                rateLimitPerFrequency: 1
+                retryLogic: FIXED
+                responseTimeoutSeconds: 1
+                name: name
+                timeoutSeconds: 3
+                rateLimitFrequencyInSeconds: 1
+                outputKeys:
+                - outputKeys
+                - outputKeys
+                executionNameSpace: executionNameSpace
+                pollTimeoutSeconds: 0
+              caseValueParam: caseValueParam
+              dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+              expression: expression
+              loopCondition: loopCondition
+              asyncComplete: true
+              sink: sink
+              rateLimited: true
+              retryCount: 7
+              subWorkflowParam:
+                workflowDefinition: null
+                name: name
+                taskToDomain:
+                  key: taskToDomain
+                version: 5
+              optional: true
+              evaluatorType: evaluatorType
+              workflowTaskType: SIMPLE
+              dynamicTaskNameParam: dynamicTaskNameParam
+              name: name
+              startDelay: 5
+              taskReferenceName: taskReferenceName
+              defaultCase:
+              - null
+              - null
+              forkTasks:
+              - - null
+                - null
+              - - null
+                - null
+              dynamicForkTasksParam: dynamicForkTasksParam
+            - joinOn:
+              - joinOn
+              - joinOn
+              description: description
+              scriptExpression: scriptExpression
+              type: type
+              inputParameters:
+                key: {}
+              dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+              decisionCases:
+                key:
+                - null
+                - null
+              loopOver:
+              - null
+              - null
+              caseExpression: caseExpression
+              defaultExclusiveJoinTask:
+              - defaultExclusiveJoinTask
+              - defaultExclusiveJoinTask
+              taskDefinition:
+                updatedBy: updatedBy
+                timeoutPolicy: RETRY
+                inputKeys:
+                - inputKeys
+                - inputKeys
+                concurrentExecLimit: 7
+                isolationGroupId: isolationGroupId
+                retryCount: 0
+                description: description
+                updateTime: 7
+                inputTemplate:
+                  key: {}
+                ownerApp: ownerApp
+                ownerEmail: ownerEmail
+                retryDelaySeconds: 2
+                backoffScaleFactor: 1
+                createTime: 2
+                createdBy: createdBy
+                rateLimitPerFrequency: 1
+                retryLogic: FIXED
+                responseTimeoutSeconds: 1
+                name: name
+                timeoutSeconds: 3
+                rateLimitFrequencyInSeconds: 1
+                outputKeys:
+                - outputKeys
+                - outputKeys
+                executionNameSpace: executionNameSpace
+                pollTimeoutSeconds: 0
+              caseValueParam: caseValueParam
+              dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+              expression: expression
+              loopCondition: loopCondition
+              asyncComplete: true
+              sink: sink
+              rateLimited: true
+              retryCount: 7
+              subWorkflowParam:
+                workflowDefinition: null
+                name: name
+                taskToDomain:
+                  key: taskToDomain
+                version: 5
+              optional: true
+              evaluatorType: evaluatorType
+              workflowTaskType: SIMPLE
+              dynamicTaskNameParam: dynamicTaskNameParam
+              name: name
+              startDelay: 5
+              taskReferenceName: taskReferenceName
+              defaultCase:
+              - null
+              - null
+              forkTasks:
+              - - null
+                - null
+              - - null
+                - null
+              dynamicForkTasksParam: dynamicForkTasksParam
+            outputParameters:
+              key: {}
+          lastRetriedTime: 5
+          taskToDomain:
+            key: taskToDomain
+          failedReferenceTaskNames:
+          - failedReferenceTaskNames
+          - failedReferenceTaskNames
+          ownerApp: ownerApp
+          output:
+            key: {}
+          reasonForIncompletion: reasonForIncompletion
+          correlationId: correlationId
+          startTime: 9
+          event: event
+          tasks:
+          - retried: true
+            outputData:
+              key: {}
+            referenceTaskName: referenceTaskName
+            workflowPriority: 6
+            isolationGroupId: isolationGroupId
+            executed: true
+            subworkflowChanged: true
+            taskType: taskType
+            reasonForIncompletion: reasonForIncompletion
+            responseTimeoutSeconds: 7
+            queueWaitTime: 1
+            rateLimitFrequencyInSeconds: 1
+            iteration: 7
+            correlationId: correlationId
+            startTime: 9
+            callbackFromWorker: true
+            workflowType: workflowType
+            taskDefinition:
+              updatedBy: updatedBy
+              timeoutPolicy: RETRY
+              inputKeys:
+              - inputKeys
+              - inputKeys
+              concurrentExecLimit: 7
+              isolationGroupId: isolationGroupId
+              retryCount: 0
+              description: description
+              updateTime: 7
+              inputTemplate:
+                key: {}
+              ownerApp: ownerApp
+              ownerEmail: ownerEmail
+              retryDelaySeconds: 2
+              backoffScaleFactor: 1
+              createTime: 2
+              createdBy: createdBy
+              rateLimitPerFrequency: 1
+              retryLogic: FIXED
+              responseTimeoutSeconds: 1
+              name: name
+              timeoutSeconds: 3
+              rateLimitFrequencyInSeconds: 1
+              outputKeys:
+              - outputKeys
+              - outputKeys
+              executionNameSpace: executionNameSpace
+              pollTimeoutSeconds: 0
+            workflowInstanceId: workflowInstanceId
+            seq: 5
+            startDelayInSeconds: 4
+            inputData:
+              key: {}
+            callbackAfterSeconds: 1
+            workerId: workerId
+            scheduledTime: 7
+            externalInputPayloadStoragePath: externalInputPayloadStoragePath
+            retryCount: 5
+            workflowTask:
+              joinOn:
+              - joinOn
+              - joinOn
+              description: description
+              scriptExpression: scriptExpression
+              type: type
+              inputParameters:
+                key: {}
+              dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+              decisionCases:
+                key:
+                - null
+                - null
+              loopOver:
+              - null
+              - null
+              caseExpression: caseExpression
+              defaultExclusiveJoinTask:
+              - defaultExclusiveJoinTask
+              - defaultExclusiveJoinTask
+              taskDefinition:
+                updatedBy: updatedBy
+                timeoutPolicy: RETRY
+                inputKeys:
+                - inputKeys
+                - inputKeys
+                concurrentExecLimit: 7
+                isolationGroupId: isolationGroupId
+                retryCount: 0
+                description: description
+                updateTime: 7
+                inputTemplate:
+                  key: {}
+                ownerApp: ownerApp
+                ownerEmail: ownerEmail
+                retryDelaySeconds: 2
+                backoffScaleFactor: 1
+                createTime: 2
+                createdBy: createdBy
+                rateLimitPerFrequency: 1
+                retryLogic: FIXED
+                responseTimeoutSeconds: 1
+                name: name
+                timeoutSeconds: 3
+                rateLimitFrequencyInSeconds: 1
+                outputKeys:
+                - outputKeys
+                - outputKeys
+                executionNameSpace: executionNameSpace
+                pollTimeoutSeconds: 0
+              caseValueParam: caseValueParam
+              dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+              expression: expression
+              loopCondition: loopCondition
+              asyncComplete: true
+              sink: sink
+              rateLimited: true
+              retryCount: 7
+              subWorkflowParam:
+                workflowDefinition: null
+                name: name
+                taskToDomain:
+                  key: taskToDomain
+                version: 5
+              optional: true
+              evaluatorType: evaluatorType
+              workflowTaskType: SIMPLE
+              dynamicTaskNameParam: dynamicTaskNameParam
+              name: name
+              startDelay: 5
+              taskReferenceName: taskReferenceName
+              defaultCase:
+              - null
+              - null
+              forkTasks:
+              - - null
+                - null
+              - - null
+                - null
+              dynamicForkTasksParam: dynamicForkTasksParam
+            retriedTaskId: retriedTaskId
+            updateTime: 2
+            pollCount: 2
+            rateLimitPerFrequency: 1
+            subWorkflowId: subWorkflowId
+            domain: domain
+            taskDefName: taskDefName
+            loopOverTask: true
+            endTime: 3
+            executionNameSpace: executionNameSpace
+            taskId: taskId
+            status: IN_PROGRESS
+            externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+          - retried: true
+            outputData:
+              key: {}
+            referenceTaskName: referenceTaskName
+            workflowPriority: 6
+            isolationGroupId: isolationGroupId
+            executed: true
+            subworkflowChanged: true
+            taskType: taskType
+            reasonForIncompletion: reasonForIncompletion
+            responseTimeoutSeconds: 7
+            queueWaitTime: 1
+            rateLimitFrequencyInSeconds: 1
+            iteration: 7
+            correlationId: correlationId
+            startTime: 9
+            callbackFromWorker: true
+            workflowType: workflowType
+            taskDefinition:
+              updatedBy: updatedBy
+              timeoutPolicy: RETRY
+              inputKeys:
+              - inputKeys
+              - inputKeys
+              concurrentExecLimit: 7
+              isolationGroupId: isolationGroupId
+              retryCount: 0
+              description: description
+              updateTime: 7
+              inputTemplate:
+                key: {}
+              ownerApp: ownerApp
+              ownerEmail: ownerEmail
+              retryDelaySeconds: 2
+              backoffScaleFactor: 1
+              createTime: 2
+              createdBy: createdBy
+              rateLimitPerFrequency: 1
+              retryLogic: FIXED
+              responseTimeoutSeconds: 1
+              name: name
+              timeoutSeconds: 3
+              rateLimitFrequencyInSeconds: 1
+              outputKeys:
+              - outputKeys
+              - outputKeys
+              executionNameSpace: executionNameSpace
+              pollTimeoutSeconds: 0
+            workflowInstanceId: workflowInstanceId
+            seq: 5
+            startDelayInSeconds: 4
+            inputData:
+              key: {}
+            callbackAfterSeconds: 1
+            workerId: workerId
+            scheduledTime: 7
+            externalInputPayloadStoragePath: externalInputPayloadStoragePath
+            retryCount: 5
+            workflowTask:
+              joinOn:
+              - joinOn
+              - joinOn
+              description: description
+              scriptExpression: scriptExpression
+              type: type
+              inputParameters:
+                key: {}
+              dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+              decisionCases:
+                key:
+                - null
+                - null
+              loopOver:
+              - null
+              - null
+              caseExpression: caseExpression
+              defaultExclusiveJoinTask:
+              - defaultExclusiveJoinTask
+              - defaultExclusiveJoinTask
+              taskDefinition:
+                updatedBy: updatedBy
+                timeoutPolicy: RETRY
+                inputKeys:
+                - inputKeys
+                - inputKeys
+                concurrentExecLimit: 7
+                isolationGroupId: isolationGroupId
+                retryCount: 0
+                description: description
+                updateTime: 7
+                inputTemplate:
+                  key: {}
+                ownerApp: ownerApp
+                ownerEmail: ownerEmail
+                retryDelaySeconds: 2
+                backoffScaleFactor: 1
+                createTime: 2
+                createdBy: createdBy
+                rateLimitPerFrequency: 1
+                retryLogic: FIXED
+                responseTimeoutSeconds: 1
+                name: name
+                timeoutSeconds: 3
+                rateLimitFrequencyInSeconds: 1
+                outputKeys:
+                - outputKeys
+                - outputKeys
+                executionNameSpace: executionNameSpace
+                pollTimeoutSeconds: 0
+              caseValueParam: caseValueParam
+              dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+              expression: expression
+              loopCondition: loopCondition
+              asyncComplete: true
+              sink: sink
+              rateLimited: true
+              retryCount: 7
+              subWorkflowParam:
+                workflowDefinition: null
+                name: name
+                taskToDomain:
+                  key: taskToDomain
+                version: 5
+              optional: true
+              evaluatorType: evaluatorType
+              workflowTaskType: SIMPLE
+              dynamicTaskNameParam: dynamicTaskNameParam
+              name: name
+              startDelay: 5
+              taskReferenceName: taskReferenceName
+              defaultCase:
+              - null
+              - null
+              forkTasks:
+              - - null
+                - null
+              - - null
+                - null
+              dynamicForkTasksParam: dynamicForkTasksParam
+            retriedTaskId: retriedTaskId
+            updateTime: 2
+            pollCount: 2
+            rateLimitPerFrequency: 1
+            subWorkflowId: subWorkflowId
+            domain: domain
+            taskDefName: taskDefName
+            loopOverTask: true
+            endTime: 3
+            executionNameSpace: executionNameSpace
+            taskId: taskId
+            status: IN_PROGRESS
+            externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+          variables:
+            key: {}
+          updatedBy: updatedBy
+          externalInputPayloadStoragePath: externalInputPayloadStoragePath
+          parentWorkflowTaskId: parentWorkflowTaskId
+          updateTime: 6
+          workflowName: workflowName
+          priority: 49
+          input:
+            key: {}
+          parentWorkflowId: parentWorkflowId
+          createTime: 0
+          createdBy: createdBy
+          reRunFromWorkflowId: reRunFromWorkflowId
+          endTime: 1
+          workflowVersion: 9
+          workflowId: workflowId
+          status: RUNNING
+          externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+    ExternalStorageLocation:
+      type: object
+      properties:
+        uri:
+          type: string
+        path:
+          type: string
+      example:
+        path: path
+        uri: uri
+    SearchResultTaskSummary:
+      type: object
+      properties:
+        totalHits:
+          type: integer
+          format: int64
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskSummary'
+      example:
+        totalHits: 0
+        results:
+        - scheduledTime: scheduledTime
+          externalInputPayloadStoragePath: externalInputPayloadStoragePath
+          workflowPriority: 5
+          updateTime: updateTime
+          executionTime: 6
+          output: output
+          input: input
+          taskType: taskType
+          reasonForIncompletion: reasonForIncompletion
+          queueWaitTime: 1
+          taskDefName: taskDefName
+          workflowType: workflowType
+          correlationId: correlationId
+          startTime: startTime
+          endTime: endTime
+          workflowId: workflowId
+          taskId: taskId
+          status: IN_PROGRESS
+          externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+        - scheduledTime: scheduledTime
+          externalInputPayloadStoragePath: externalInputPayloadStoragePath
+          workflowPriority: 5
+          updateTime: updateTime
+          executionTime: 6
+          output: output
+          input: input
+          taskType: taskType
+          reasonForIncompletion: reasonForIncompletion
+          queueWaitTime: 1
+          taskDefName: taskDefName
+          workflowType: workflowType
+          correlationId: correlationId
+          startTime: startTime
+          endTime: endTime
+          workflowId: workflowId
+          taskId: taskId
+          status: IN_PROGRESS
+          externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+    TaskSummary:
+      type: object
+      properties:
+        workflowId:
+          type: string
+        workflowType:
+          type: string
+        correlationId:
+          type: string
+        scheduledTime:
+          type: string
+        startTime:
+          type: string
+        updateTime:
+          type: string
+        endTime:
+          type: string
+        status:
+          type: string
+          enum:
+          - IN_PROGRESS
+          - CANCELED
+          - FAILED
+          - FAILED_WITH_TERMINAL_ERROR
+          - COMPLETED
+          - COMPLETED_WITH_ERRORS
+          - SCHEDULED
+          - TIMED_OUT
+          - SKIPPED
+        reasonForIncompletion:
+          type: string
+        executionTime:
+          type: integer
+          format: int64
+        queueWaitTime:
+          type: integer
+          format: int64
+        taskDefName:
+          type: string
+        taskType:
+          type: string
+        input:
+          type: string
+        output:
+          type: string
+        taskId:
+          type: string
+        externalInputPayloadStoragePath:
+          type: string
+        externalOutputPayloadStoragePath:
+          type: string
+        workflowPriority:
+          type: integer
+          format: int32
+      example:
+        scheduledTime: scheduledTime
+        externalInputPayloadStoragePath: externalInputPayloadStoragePath
+        workflowPriority: 5
+        updateTime: updateTime
+        executionTime: 6
+        output: output
+        input: input
+        taskType: taskType
+        reasonForIncompletion: reasonForIncompletion
+        queueWaitTime: 1
+        taskDefName: taskDefName
+        workflowType: workflowType
+        correlationId: correlationId
+        startTime: startTime
+        endTime: endTime
+        workflowId: workflowId
+        taskId: taskId
+        status: IN_PROGRESS
+        externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+    SearchResultTask:
+      type: object
+      properties:
+        totalHits:
+          type: integer
+          format: int64
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+      example:
+        totalHits: 0
+        results:
+        - retried: true
+          outputData:
+            key: {}
+          referenceTaskName: referenceTaskName
+          workflowPriority: 6
+          isolationGroupId: isolationGroupId
+          executed: true
+          subworkflowChanged: true
+          taskType: taskType
+          reasonForIncompletion: reasonForIncompletion
+          responseTimeoutSeconds: 7
+          queueWaitTime: 1
+          rateLimitFrequencyInSeconds: 1
+          iteration: 7
+          correlationId: correlationId
+          startTime: 9
+          callbackFromWorker: true
+          workflowType: workflowType
+          taskDefinition:
+            updatedBy: updatedBy
+            timeoutPolicy: RETRY
+            inputKeys:
+            - inputKeys
+            - inputKeys
+            concurrentExecLimit: 7
+            isolationGroupId: isolationGroupId
+            retryCount: 0
+            description: description
+            updateTime: 7
+            inputTemplate:
+              key: {}
+            ownerApp: ownerApp
+            ownerEmail: ownerEmail
+            retryDelaySeconds: 2
+            backoffScaleFactor: 1
+            createTime: 2
+            createdBy: createdBy
+            rateLimitPerFrequency: 1
+            retryLogic: FIXED
+            responseTimeoutSeconds: 1
+            name: name
+            timeoutSeconds: 3
+            rateLimitFrequencyInSeconds: 1
+            outputKeys:
+            - outputKeys
+            - outputKeys
+            executionNameSpace: executionNameSpace
+            pollTimeoutSeconds: 0
+          workflowInstanceId: workflowInstanceId
+          seq: 5
+          startDelayInSeconds: 4
+          inputData:
+            key: {}
+          callbackAfterSeconds: 1
+          workerId: workerId
+          scheduledTime: 7
+          externalInputPayloadStoragePath: externalInputPayloadStoragePath
+          retryCount: 5
+          workflowTask:
+            joinOn:
+            - joinOn
+            - joinOn
+            description: description
+            scriptExpression: scriptExpression
+            type: type
+            inputParameters:
+              key: {}
+            dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+            decisionCases:
+              key:
+              - null
+              - null
+            loopOver:
+            - null
+            - null
+            caseExpression: caseExpression
+            defaultExclusiveJoinTask:
+            - defaultExclusiveJoinTask
+            - defaultExclusiveJoinTask
+            taskDefinition:
+              updatedBy: updatedBy
+              timeoutPolicy: RETRY
+              inputKeys:
+              - inputKeys
+              - inputKeys
+              concurrentExecLimit: 7
+              isolationGroupId: isolationGroupId
+              retryCount: 0
+              description: description
+              updateTime: 7
+              inputTemplate:
+                key: {}
+              ownerApp: ownerApp
+              ownerEmail: ownerEmail
+              retryDelaySeconds: 2
+              backoffScaleFactor: 1
+              createTime: 2
+              createdBy: createdBy
+              rateLimitPerFrequency: 1
+              retryLogic: FIXED
+              responseTimeoutSeconds: 1
+              name: name
+              timeoutSeconds: 3
+              rateLimitFrequencyInSeconds: 1
+              outputKeys:
+              - outputKeys
+              - outputKeys
+              executionNameSpace: executionNameSpace
+              pollTimeoutSeconds: 0
+            caseValueParam: caseValueParam
+            dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+            expression: expression
+            loopCondition: loopCondition
+            asyncComplete: true
+            sink: sink
+            rateLimited: true
+            retryCount: 7
+            subWorkflowParam:
+              workflowDefinition: null
+              name: name
+              taskToDomain:
+                key: taskToDomain
+              version: 5
+            optional: true
+            evaluatorType: evaluatorType
+            workflowTaskType: SIMPLE
+            dynamicTaskNameParam: dynamicTaskNameParam
+            name: name
+            startDelay: 5
+            taskReferenceName: taskReferenceName
+            defaultCase:
+            - null
+            - null
+            forkTasks:
+            - - null
+              - null
+            - - null
+              - null
+            dynamicForkTasksParam: dynamicForkTasksParam
+          retriedTaskId: retriedTaskId
+          updateTime: 2
+          pollCount: 2
+          rateLimitPerFrequency: 1
+          subWorkflowId: subWorkflowId
+          domain: domain
+          taskDefName: taskDefName
+          loopOverTask: true
+          endTime: 3
+          executionNameSpace: executionNameSpace
+          taskId: taskId
+          status: IN_PROGRESS
+          externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+        - retried: true
+          outputData:
+            key: {}
+          referenceTaskName: referenceTaskName
+          workflowPriority: 6
+          isolationGroupId: isolationGroupId
+          executed: true
+          subworkflowChanged: true
+          taskType: taskType
+          reasonForIncompletion: reasonForIncompletion
+          responseTimeoutSeconds: 7
+          queueWaitTime: 1
+          rateLimitFrequencyInSeconds: 1
+          iteration: 7
+          correlationId: correlationId
+          startTime: 9
+          callbackFromWorker: true
+          workflowType: workflowType
+          taskDefinition:
+            updatedBy: updatedBy
+            timeoutPolicy: RETRY
+            inputKeys:
+            - inputKeys
+            - inputKeys
+            concurrentExecLimit: 7
+            isolationGroupId: isolationGroupId
+            retryCount: 0
+            description: description
+            updateTime: 7
+            inputTemplate:
+              key: {}
+            ownerApp: ownerApp
+            ownerEmail: ownerEmail
+            retryDelaySeconds: 2
+            backoffScaleFactor: 1
+            createTime: 2
+            createdBy: createdBy
+            rateLimitPerFrequency: 1
+            retryLogic: FIXED
+            responseTimeoutSeconds: 1
+            name: name
+            timeoutSeconds: 3
+            rateLimitFrequencyInSeconds: 1
+            outputKeys:
+            - outputKeys
+            - outputKeys
+            executionNameSpace: executionNameSpace
+            pollTimeoutSeconds: 0
+          workflowInstanceId: workflowInstanceId
+          seq: 5
+          startDelayInSeconds: 4
+          inputData:
+            key: {}
+          callbackAfterSeconds: 1
+          workerId: workerId
+          scheduledTime: 7
+          externalInputPayloadStoragePath: externalInputPayloadStoragePath
+          retryCount: 5
+          workflowTask:
+            joinOn:
+            - joinOn
+            - joinOn
+            description: description
+            scriptExpression: scriptExpression
+            type: type
+            inputParameters:
+              key: {}
+            dynamicForkJoinTasksParam: dynamicForkJoinTasksParam
+            decisionCases:
+              key:
+              - null
+              - null
+            loopOver:
+            - null
+            - null
+            caseExpression: caseExpression
+            defaultExclusiveJoinTask:
+            - defaultExclusiveJoinTask
+            - defaultExclusiveJoinTask
+            taskDefinition:
+              updatedBy: updatedBy
+              timeoutPolicy: RETRY
+              inputKeys:
+              - inputKeys
+              - inputKeys
+              concurrentExecLimit: 7
+              isolationGroupId: isolationGroupId
+              retryCount: 0
+              description: description
+              updateTime: 7
+              inputTemplate:
+                key: {}
+              ownerApp: ownerApp
+              ownerEmail: ownerEmail
+              retryDelaySeconds: 2
+              backoffScaleFactor: 1
+              createTime: 2
+              createdBy: createdBy
+              rateLimitPerFrequency: 1
+              retryLogic: FIXED
+              responseTimeoutSeconds: 1
+              name: name
+              timeoutSeconds: 3
+              rateLimitFrequencyInSeconds: 1
+              outputKeys:
+              - outputKeys
+              - outputKeys
+              executionNameSpace: executionNameSpace
+              pollTimeoutSeconds: 0
+            caseValueParam: caseValueParam
+            dynamicForkTasksInputParamName: dynamicForkTasksInputParamName
+            expression: expression
+            loopCondition: loopCondition
+            asyncComplete: true
+            sink: sink
+            rateLimited: true
+            retryCount: 7
+            subWorkflowParam:
+              workflowDefinition: null
+              name: name
+              taskToDomain:
+                key: taskToDomain
+              version: 5
+            optional: true
+            evaluatorType: evaluatorType
+            workflowTaskType: SIMPLE
+            dynamicTaskNameParam: dynamicTaskNameParam
+            name: name
+            startDelay: 5
+            taskReferenceName: taskReferenceName
+            defaultCase:
+            - null
+            - null
+            forkTasks:
+            - - null
+              - null
+            - - null
+              - null
+            dynamicForkTasksParam: dynamicForkTasksParam
+          retriedTaskId: retriedTaskId
+          updateTime: 2
+          pollCount: 2
+          rateLimitPerFrequency: 1
+          subWorkflowId: subWorkflowId
+          domain: domain
+          taskDefName: taskDefName
+          loopOverTask: true
+          endTime: 3
+          executionNameSpace: executionNameSpace
+          taskId: taskId
+          status: IN_PROGRESS
+          externalOutputPayloadStoragePath: externalOutputPayloadStoragePath
+    PollData:
+      type: object
+      properties:
+        queueName:
+          type: string
+        domain:
+          type: string
+        workerId:
+          type: string
+        lastPollTime:
+          type: integer
+          format: int64
+      example:
+        workerId: workerId
+        lastPollTime: 0
+        queueName: queueName
+        domain: domain
