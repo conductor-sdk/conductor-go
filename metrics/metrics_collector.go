@@ -5,21 +5,29 @@ import (
 )
 
 type MetricsCollector struct {
-	counter prometheus.Counter
+	counters [1]prometheus.Counter
 }
 
 func NewMetricsCollector() *MetricsCollector {
 	metricsCollector := new(MetricsCollector)
-	metricsCollector.counter = prometheus.NewCounter(
-		prometheus.CounterOpts{
-			Name: "counter",
-			Help: "Counter example...",
-		},
-	)
-	prometheus.MustRegister(metricsCollector.counter)
+	metricsCollector.counters = newCounters()
+	for _, counter := range metricsCollector.counters {
+		prometheus.MustRegister(counter)
+	}
 	return metricsCollector
 }
 
 func (c *MetricsCollector) IncrementCounter() {
-	c.counter.Inc()
+	c.counters[0].Inc()
+}
+
+func newCounters() [1]prometheus.Counter {
+	return [...]prometheus.Counter{
+		prometheus.NewCounter(
+			prometheus.CounterOpts{
+				Name: "counter",
+				Help: "Counter example...",
+			},
+		),
+	}
 }
