@@ -42,6 +42,8 @@ func main() {
 		2112,
 	)
 
+	var metricsCollector = metrics.NewMetricsCollector()
+
 	var authenticationSettings = settings.NewAuthenticationSettings(
 		"keyId",
 		"keySecret",
@@ -55,6 +57,7 @@ func main() {
 	c := conductor.NewConductorWorker(
 		authenticationSettings,
 		httpSettings,
+		metricsCollector,
 		1,
 		5000,
 	)

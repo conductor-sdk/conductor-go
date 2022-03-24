@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/netflix/conductor/client/go/metrics"
 	"github.com/netflix/conductor/client/go/model"
 	"github.com/netflix/conductor/client/go/settings"
 	log "github.com/sirupsen/logrus"
@@ -20,20 +21,28 @@ func init() {
 }
 
 type ConductorWorker struct {
-	ConductorHttpClient *ConductorHttpClient
-	ThreadCount         int
-	PollingInterval     int
+	conductorHttpClient *ConductorHttpClient
+	metricsCollector    *metrics.MetricsCollector
+	pollingInterval     int
+	threadCount         int
 }
 
-func NewConductorWorker(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings, threadCount int, pollingInterval int) *ConductorWorker {
+func NewConductorWorker(
+	authenticationSettings *settings.AuthenticationSettings,
+	httpSettings *settings.HttpSettings,
+	metricsCollector *metrics.MetricsCollector,
+	threadCount int,
+	pollingInterval int,
+) *ConductorWorker {
 	conductorWorker := new(ConductorWorker)
-	conductorWorker.ThreadCount = threadCount
-	conductorWorker.PollingInterval = pollingInterval
 	conductorHttpClient := NewConductorHttpClient(
 		authenticationSettings,
 		httpSettings,
 	)
-	conductorWorker.ConductorHttpClient = conductorHttpClient
+	conductorWorker.metricsCollector = metricsCollector
+	conductorWorker.pollingInterval = pollingInterval
+	conductorWorker.threadCount = threadCount
+	conductorWorker.conductorHttpClient = conductorHttpClient
 	return conductorWorker
 }
 
@@ -54,15 +63,17 @@ func (c *ConductorWorker) Execute(t *model.Task, executeFunction func(t *model.T
 		log.Error("Error Forming TaskResult JSON body", err)
 		return
 	}
-	_, _ = c.ConductorHttpClient.UpdateTask(taskResultJsonString)
+	_, _ = c.conductorHttpClient.UpdateTask(taskResultJsonString)
 }
 
 func (c *ConductorWorker) PollAndExecute(taskType string, domain string, executeFunction func(t *model.Task) (*model.TaskResult, error)) {
 	for {
-		time.Sleep(time.Duration(c.PollingInterval) * time.Millisecond)
+		c.metricsCollector.IncrementCounter()
+
+		time.Sleep(time.Duration(c.pollingInterval) * time.Millisecond)
 
 		// Poll for Task taskType
-		polled, err := c.ConductorHttpClient.PollForTask(taskType, hostname, domain)
+		polled, err := c.conductorHttpClient.PollForTask(taskType, hostname, domain)
 		if err != nil {
 			log.Error("Error Polling task:", err.Error())
 			continue
@@ -85,8 +96,8 @@ func (c *ConductorWorker) PollAndExecute(taskType string, domain string, execute
 }
 
 func (c *ConductorWorker) Start(taskType string, domain string, executeFunction func(t *model.Task) (*model.TaskResult, error), wait bool) {
-	log.Println("Polling for task:", taskType, "with a:", c.PollingInterval, "(ms) polling interval with", c.ThreadCount, "goroutines for task execution, with workerid as", hostname)
-	for i := 1; i <= c.ThreadCount; i++ {
+	log.Println("Polling for task:", taskType, "with a:", c.pollingInterval, "(ms) polling interval with", c.threadCount, "goroutines for task execution, with workerId as", hostname)
+	for i := 1; i <= c.threadCount; i++ {
 		go c.PollAndExecute(taskType, domain, executeFunction)
 	}
 
