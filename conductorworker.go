@@ -75,8 +75,16 @@ func (c *ConductorWorker) PollAndExecute(taskType string, domain string, execute
 
 		time.Sleep(time.Duration(c.pollingInterval) * time.Millisecond)
 
-		// Poll for Task taskType
+		startTime := time.Now()
 		polled, err := c.conductorHttpClient.PollForTask(taskType, hostname, domain)
+		spentTime := time.Since(startTime)
+
+		c.metricsCollector.SetGauge(
+			metrics.TASK_POLL_TIME,
+			[]string{taskType},
+			spentTime.Seconds(),
+		)
+
 		if err != nil {
 			log.Error("Error Polling task:", err.Error())
 			continue
