@@ -3,10 +3,10 @@ package main
 import (
 	"os"
 
-	conductor "github.com/netflix/conductor/client/go"
+	"github.com/netflix/conductor/client/go/example"
 	"github.com/netflix/conductor/client/go/metrics"
+	"github.com/netflix/conductor/client/go/orkestrator"
 	"github.com/netflix/conductor/client/go/settings"
-	"github.com/netflix/conductor/client/go/task/sample"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -24,30 +24,35 @@ func init() {
 }
 
 func main() {
-	go metrics.ProvideMetrics(
-		"/metrics",
-		2112,
-	)
-
-	var metricsCollector = metrics.NewMetricsCollector()
-
-	var authenticationSettings = settings.NewAuthenticationSettings(
+	authenticationSettings := settings.NewAuthenticationSettings(
 		"keyId",
 		"keySecret",
 	)
-
-	var httpSettings = settings.NewHttpSettingsWithBaseUrlAndDebug(
+	httpSettings := settings.NewHttpSettingsWithBaseUrlAndDebug(
 		"https://play.orkes.io/api",
 		true,
 	)
 
-	c := conductor.NewConductorWorker(
+	metricsCollector := metrics.NewMetricsCollector()
+	go metrics.ProvideDefaultMetrics()
+
+	workerOrkestrator := orkestrator.NewWorkerOrkestrator(
 		authenticationSettings,
 		httpSettings,
 		metricsCollector,
 		1,
 		5000,
 	)
-
-	c.Start("go_task_example", "", sample.Task_1_Execution_Function, true)
+	workerOrkestrator.StartWorker(
+		"go_task_example",
+		"",
+		example.TaskExecuteFunctionExample1,
+		true,
+	)
+	workerOrkestrator.StartWorker(
+		"go_task_example",
+		"",
+		example.TaskExecuteFunctionExample1,
+		true,
+	)
 }

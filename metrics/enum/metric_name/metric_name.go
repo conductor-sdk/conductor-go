@@ -1,4 +1,4 @@
-package metrics
+package metric_name
 
 type MetricName uint8
 

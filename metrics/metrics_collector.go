@@ -1,15 +1,18 @@
 package metrics
 
-import "github.com/prometheus/client_golang/prometheus"
+import (
+	"github.com/netflix/conductor/client/go/metrics/enum/metric_name"
+	"github.com/prometheus/client_golang/prometheus"
+)
 
 type MetricsCollector struct {
-	counterByName map[MetricName]*prometheus.CounterVec
-	gaugeByName   map[MetricName]*prometheus.GaugeVec
+	counterByName map[metric_name.MetricName]*prometheus.CounterVec
+	gaugeByName   map[metric_name.MetricName]*prometheus.GaugeVec
 }
 
-func newCounterTemplates() map[MetricName]*MetricDetails {
-	return map[MetricName]*MetricDetails{
-		TASK_POLL: NewMetricDetails(
+func newCounterTemplates() map[metric_name.MetricName]*MetricDetails {
+	return map[metric_name.MetricName]*MetricDetails{
+		metric_name.TASK_POLL: NewMetricDetails(
 			"task_poll",
 			"Counter for TaskPoll",
 			[]string{"task_type"},
@@ -17,9 +20,9 @@ func newCounterTemplates() map[MetricName]*MetricDetails {
 	}
 }
 
-func newGaugeTemplates() map[MetricName]*MetricDetails {
-	return map[MetricName]*MetricDetails{
-		TASK_POLL_TIME: NewMetricDetails(
+func newGaugeTemplates() map[metric_name.MetricName]*MetricDetails {
+	return map[metric_name.MetricName]*MetricDetails{
+		metric_name.TASK_POLL_TIME: NewMetricDetails(
 			"task_poll_time",
 			"Gauge for Task poll time",
 			[]string{"task_type"},
@@ -47,16 +50,16 @@ func newGauge(metricDetails *MetricDetails) *prometheus.GaugeVec {
 	)
 }
 
-func newCounterByName(counterTemplates map[MetricName]*MetricDetails) map[MetricName]*prometheus.CounterVec {
-	counterByName := map[MetricName]*prometheus.CounterVec{}
+func newCounterByName(counterTemplates map[metric_name.MetricName]*MetricDetails) map[metric_name.MetricName]*prometheus.CounterVec {
+	counterByName := map[metric_name.MetricName]*prometheus.CounterVec{}
 	for metricName, metricDetails := range counterTemplates {
 		counterByName[metricName] = newCounter(metricDetails)
 	}
 	return counterByName
 }
 
-func newGaugeByName(gaugeTemplates map[MetricName]*MetricDetails) map[MetricName]*prometheus.GaugeVec {
-	gaugeByName := map[MetricName]*prometheus.GaugeVec{}
+func newGaugeByName(gaugeTemplates map[metric_name.MetricName]*MetricDetails) map[metric_name.MetricName]*prometheus.GaugeVec {
+	gaugeByName := map[metric_name.MetricName]*prometheus.GaugeVec{}
 	for metricName, metricDetails := range gaugeTemplates {
 		gaugeByName[metricName] = newGauge(metricDetails)
 	}
@@ -86,17 +89,17 @@ func (c *MetricsCollector) registerMetricsCollectors() {
 	}
 }
 
-func (c *MetricsCollector) IncrementCounter(metricName MetricName, labelValues []string) {
+func (c *MetricsCollector) IncrementCounter(metricName metric_name.MetricName, labelValues []string) {
 	counter := c.getCounter(metricName, labelValues)
 	(*counter).Inc()
 }
 
-func (c *MetricsCollector) SetGauge(metricName MetricName, labelValues []string, value float64) {
+func (c *MetricsCollector) SetGauge(metricName metric_name.MetricName, labelValues []string, value float64) {
 	gauge := c.getGauge(metricName, labelValues)
 	(*gauge).Set(value)
 }
 
-func (c *MetricsCollector) getCounter(metricName MetricName, labelValues []string) *prometheus.Counter {
+func (c *MetricsCollector) getCounter(metricName metric_name.MetricName, labelValues []string) *prometheus.Counter {
 	if counterVec, ok := c.counterByName[metricName]; ok {
 		counter, _ := counterVec.GetMetricWithLabelValues(
 			labelValues...,
@@ -106,7 +109,7 @@ func (c *MetricsCollector) getCounter(metricName MetricName, labelValues []strin
 	return nil
 }
 
-func (c *MetricsCollector) getGauge(metricName MetricName, labelValues []string) *prometheus.Gauge {
+func (c *MetricsCollector) getGauge(metricName metric_name.MetricName, labelValues []string) *prometheus.Gauge {
 	if gaugeVec, ok := c.gaugeByName[metricName]; ok {
 		gauge, _ := gaugeVec.GetMetricWithLabelValues(
 			labelValues...,

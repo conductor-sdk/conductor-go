@@ -1,4 +1,4 @@
-package httpclient
+package http
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/netflix/conductor/client/go/model"
+	"github.com/netflix/conductor/client/go/conductor_client/model"
 	"github.com/netflix/conductor/client/go/settings"
 	log "github.com/sirupsen/logrus"
 )
