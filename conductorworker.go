@@ -68,7 +68,10 @@ func (c *ConductorWorker) Execute(t *model.Task, executeFunction func(t *model.T
 
 func (c *ConductorWorker) PollAndExecute(taskType string, domain string, executeFunction func(t *model.Task) (*model.TaskResult, error)) {
 	for {
-		c.metricsCollector.IncrementCounter()
+		c.metricsCollector.IncrementCounter(
+			metrics.TASK_POLL,
+			[]string{taskType},
+		)
 
 		time.Sleep(time.Duration(c.pollingInterval) * time.Millisecond)
 
