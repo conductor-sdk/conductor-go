@@ -27,9 +27,23 @@ var gaugeTemplates = map[metric_name.MetricName]*metric_model.MetricDetails{
 			metric_label.WORKFLOW_VERSION,
 		},
 	),
+	metric_name.TASK_RESULT_SIZE: metric_model.NewMetricDetails(
+		metric_name.TASK_RESULT_SIZE,
+		metric_documentation.TASK_RESULT_SIZE,
+		[]metric_label.MetricLabel{
+			metric_label.TASK_TYPE,
+		},
+	),
 	metric_name.TASK_POLL_TIME: metric_model.NewMetricDetails(
 		metric_name.TASK_POLL_TIME,
 		metric_documentation.TASK_POLL_TIME,
+		[]metric_label.MetricLabel{
+			metric_label.TASK_TYPE,
+		},
+	),
+	metric_name.TASK_EXECUTE_TIME: metric_model.NewMetricDetails(
+		metric_name.TASK_EXECUTE_TIME,
+		metric_documentation.TASK_EXECUTE_TIME,
 		[]metric_label.MetricLabel{
 			metric_label.TASK_TYPE,
 		},
