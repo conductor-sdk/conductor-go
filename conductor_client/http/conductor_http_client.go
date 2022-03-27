@@ -1,21 +1,20 @@
-package conductor
+package http
 
 import (
 	"fmt"
 	"strconv"
 
-	"github.com/netflix/conductor/client/go/httpclient"
 	"github.com/netflix/conductor/client/go/settings"
 	log "github.com/sirupsen/logrus"
 )
 
 type ConductorHttpClient struct {
-	httpClient *httpclient.HttpClient
+	httpClient *HttpClient
 }
 
 func NewConductorHttpClient(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings) *ConductorHttpClient {
 	client := new(ConductorHttpClient)
-	client.httpClient = httpclient.NewHttpClientWithAuthentication(
+	client.httpClient = NewHttpClientWithAuthentication(
 		authenticationSettings,
 		httpSettings,
 	)

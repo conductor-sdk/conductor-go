@@ -10,7 +10,10 @@ Go must be installed and GOPATH env variable set.
 ## Install
 
 ```shell
-go get github.com/netflix/conductor/client/go
+$ go get github.com/netflix/conductor/client/go
+$ go get github.com/prometheus/client_golang/prometheus
+$ go get github.com/prometheus/client_golang/prometheus/promauto
+$ go get github.com/prometheus/client_golang/prometheus/promhttp
 ```
 This will create a Go project under $GOPATH/src and download any dependencies.
 
