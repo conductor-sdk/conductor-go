@@ -28,6 +28,101 @@ func (c *MetricsCollector) IncrementTaskPoll(taskType string) {
 	)
 }
 
+func (c *MetricsCollector) IncrementTaskExecutionQueueFull(taskType string) {
+	c.incrementCounter(
+		metric_name.TASK_EXECUTION_QUEUE_FULL,
+		[]string{
+			taskType,
+		},
+	)
+}
+
+func (c *MetricsCollector) IncrementUncaughtException() {
+	c.incrementCounter(
+		metric_name.THREAD_UNCAUGHT_EXCEPTION,
+		[]string{},
+	)
+}
+
+func (c *MetricsCollector) IncrementTaskPollError(taskType string, err error) {
+	c.incrementCounter(
+		metric_name.TASK_POLL_ERROR,
+		[]string{
+			taskType,
+			err.Error(),
+		},
+	)
+}
+
+func (c *MetricsCollector) IncrementTaskPaused(taskType string) {
+	c.incrementCounter(
+		metric_name.TASK_PAUSED,
+		[]string{
+			taskType,
+		},
+	)
+}
+
+func (c *MetricsCollector) IncrementTaskExecuteError(taskType string, err error) {
+	c.incrementCounter(
+		metric_name.TASK_EXECUTE_ERROR,
+		[]string{
+			taskType,
+			err.Error(),
+		},
+	)
+}
+
+func (c *MetricsCollector) IncrementTaskAckFailed(taskType string) {
+	c.incrementCounter(
+		metric_name.TASK_ACK_FAILED,
+		[]string{
+			taskType,
+		},
+	)
+}
+
+func (c *MetricsCollector) IncrementTaskAckError(taskType string, err error) {
+	c.incrementCounter(
+		metric_name.TASK_ACK_ERROR,
+		[]string{
+			taskType,
+			err.Error(),
+		},
+	)
+}
+
+func (c *MetricsCollector) IncrementTaskUpdateError(taskType string, err error) {
+	c.incrementCounter(
+		metric_name.TASK_UPDATE_ERROR,
+		[]string{
+			taskType,
+			err.Error(),
+		},
+	)
+}
+
+func (c *MetricsCollector) IncrementExternalPayloadUsed(entityName string, operation string, payloadType string) {
+	c.incrementCounter(
+		metric_name.EXTERNAL_PAYLOAD_USED,
+		[]string{
+			entityName,
+			operation,
+			payloadType,
+		},
+	)
+}
+
+func (c *MetricsCollector) IncrementWorkflowStartError(workflowType string, err error) {
+	c.incrementCounter(
+		metric_name.WORKFLOW_START_ERROR,
+		[]string{
+			workflowType,
+			err.Error(),
+		},
+	)
+}
+
 func (c *MetricsCollector) RecordWorkflowInputPayloadSize(workflowType string, version string, payloadSize float64) {
 	c.setGauge(
 		metric_name.WORKFLOW_INPUT_SIZE,
@@ -39,9 +134,29 @@ func (c *MetricsCollector) RecordWorkflowInputPayloadSize(workflowType string, v
 	)
 }
 
+func (c *MetricsCollector) RecordTaskResultPayloadSize(taskType string, payloadSize float64) {
+	c.setGauge(
+		metric_name.TASK_RESULT_SIZE,
+		[]string{
+			taskType,
+		},
+		payloadSize,
+	)
+}
+
 func (c *MetricsCollector) RecordTaskPollTime(taskType string, timeSpent float64) {
 	c.setGauge(
 		metric_name.TASK_POLL_TIME,
+		[]string{
+			taskType,
+		},
+		timeSpent,
+	)
+}
+
+func (c *MetricsCollector) RecordTaskExecuteTime(taskType string, timeSpent float64) {
+	c.setGauge(
+		metric_name.TASK_EXECUTE_TIME,
 		[]string{
 			taskType,
 		},
