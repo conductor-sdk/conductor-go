@@ -8,7 +8,6 @@ import (
 	"github.com/netflix/conductor/client/go/conductor_client/model"
 	"github.com/netflix/conductor/client/go/conductor_client/model/enum/task_result_status"
 	"github.com/netflix/conductor/client/go/metrics"
-	"github.com/netflix/conductor/client/go/metrics/enum/metric_name"
 	"github.com/netflix/conductor/client/go/settings"
 	log "github.com/sirupsen/logrus"
 )
@@ -88,10 +87,7 @@ func (c *WorkerOrkestrator) sleep() {
 }
 
 func (c *WorkerOrkestrator) pollTask(taskType string, domain string) *model.Task {
-	c.metricsCollector.IncrementCounter(
-		metric_name.TASK_POLL,
-		[]string{taskType},
-	)
+	c.metricsCollector.IncrementTaskPoll(taskType)
 
 	startTime := time.Now()
 	polled, err := c.conductorHttpClient.PollForTask(
@@ -100,10 +96,8 @@ func (c *WorkerOrkestrator) pollTask(taskType string, domain string) *model.Task
 		domain,
 	)
 	spentTime := time.Since(startTime)
-
-	c.metricsCollector.SetGauge(
-		metric_name.TASK_POLL_TIME,
-		[]string{taskType},
+	c.metricsCollector.RecordTaskPollTime(
+		taskType,
 		spentTime.Seconds(),
 	)
 
