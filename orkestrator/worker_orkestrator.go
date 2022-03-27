@@ -3,6 +3,7 @@ package orkestrator
 import (
 	"os"
 	"time"
+	"unsafe"
 
 	"github.com/netflix/conductor/client/go/conductor_client/http"
 	"github.com/netflix/conductor/client/go/conductor_client/model"
@@ -77,7 +78,7 @@ func (c *WorkerOrkestrator) runOnce(taskType string, domain string, executeFunct
 		return
 	}
 	taskResult := c.executeTask(task, executeFunction)
-	c.updateTask(taskResult)
+	c.updateTask(taskType, taskResult)
 }
 
 func (c *WorkerOrkestrator) sleep() {
@@ -103,6 +104,9 @@ func (c *WorkerOrkestrator) pollTask(taskType string, domain string) *model.Task
 
 	if err != nil {
 		log.Error("Error Polling task:", err.Error())
+		c.metricsCollector.IncrementTaskPollError(
+			taskType, err,
+		)
 		return nil
 	}
 	if polled == "" {
@@ -113,6 +117,9 @@ func (c *WorkerOrkestrator) pollTask(taskType string, domain string) *model.Task
 	parsedTask, err := model.ParseTask(polled)
 	if err != nil {
 		log.Error("Error Parsing task:", err.Error())
+		c.metricsCollector.IncrementTaskPollError(
+			taskType, err,
+		)
 		return nil
 	}
 
@@ -120,7 +127,12 @@ func (c *WorkerOrkestrator) pollTask(taskType string, domain string) *model.Task
 }
 
 func (c *WorkerOrkestrator) executeTask(t *model.Task, executeFunction model.TaskExecuteFunction) *model.TaskResult {
+	startTime := time.Now()
 	taskResult, err := executeFunction(t)
+	spentTime := time.Since(startTime)
+	c.metricsCollector.RecordTaskExecuteTime(
+		t.TaskDefName, spentTime.Seconds(),
+	)
 	if taskResult == nil {
 		log.Error("TaskResult cannot be nil: ", t.TaskId)
 		return nil
@@ -129,14 +141,24 @@ func (c *WorkerOrkestrator) executeTask(t *model.Task, executeFunction model.Tas
 		log.Error("Error Executing task:", err.Error())
 		taskResult.Status = task_result_status.FAILED
 		taskResult.ReasonForIncompletion = err.Error()
+		c.metricsCollector.IncrementTaskExecuteError(
+			t.TaskDefName, err,
+		)
 	}
+	size := unsafe.Sizeof(taskResult)
+	c.metricsCollector.RecordTaskResultPayloadSize(
+		t.TaskDefName, float64(size),
+	)
 	return taskResult
 }
 
-func (c *WorkerOrkestrator) updateTask(taskResult *model.TaskResult) {
+func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *model.TaskResult) {
 	taskResultJsonString, err := taskResult.ToJSONString()
 	if err != nil {
 		log.Error("Error Forming TaskResult JSON body", err)
+		c.metricsCollector.IncrementTaskUpdateError(
+			taskType, err,
+		)
 		return
 	}
 	_, _ = c.conductorHttpClient.UpdateTask(taskResultJsonString)
