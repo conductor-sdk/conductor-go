@@ -40,19 +40,17 @@ func main() {
 		authenticationSettings,
 		httpSettings,
 		metricsCollector,
-		1,
 		5000,
 	)
 	workerOrkestrator.StartWorker(
 		"go_task_example",
-		"",
 		example.TaskExecuteFunctionExample1,
-		true,
+		1,
 	)
 	workerOrkestrator.StartWorker(
 		"go_task_example",
-		"",
 		example.TaskExecuteFunctionExample1,
-		true,
+		1,
 	)
+	workerOrkestrator.WaitWorkers()
 }
