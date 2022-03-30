@@ -1,7 +1,7 @@
 package orkestrator
 
 import (
-	"os"
+	"sync"
 	"time"
 	"unsafe"
 
@@ -13,29 +13,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var (
-	hostname, hostnameError = os.Hostname()
-)
-
-func init() {
-	if hostnameError != nil {
-		log.Fatal("Could not get hostname")
-	}
-}
-
 type WorkerOrkestrator struct {
 	conductorHttpClient *http.ConductorHttpClient
 	metricsCollector    *metrics.MetricsCollector
-	pollingInterval     int
-	threadCount         int
+	waitGroup           sync.WaitGroup
 }
 
 func NewWorkerOrkestrator(
 	authenticationSettings *settings.AuthenticationSettings,
 	httpSettings *settings.HttpSettings,
 	metricsCollector *metrics.MetricsCollector,
-	threadCount int,
-	pollingInterval int,
 ) *WorkerOrkestrator {
 	workerOrkestrator := new(WorkerOrkestrator)
 	conductorHttpClient := http.NewConductorHttpClient(
@@ -43,37 +30,36 @@ func NewWorkerOrkestrator(
 		httpSettings,
 	)
 	workerOrkestrator.metricsCollector = metricsCollector
-	workerOrkestrator.pollingInterval = pollingInterval
-	workerOrkestrator.threadCount = threadCount
 	workerOrkestrator.conductorHttpClient = conductorHttpClient
 	return workerOrkestrator
 }
 
-func (c *WorkerOrkestrator) StartWorker(taskType string, domain string, executeFunction model.TaskExecuteFunction, wait bool) {
+func (c *WorkerOrkestrator) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, parallelGoRoutinesAmount int, pollingInterval int) {
+	for goRoutines := 1; goRoutines <= parallelGoRoutinesAmount; goRoutines++ {
+		go c.run(taskType, executeFunction, pollingInterval)
+	}
 	log.Println(
-		"Polling for task:", taskType,
-		"with a:", c.pollingInterval,
-		"(ms) polling interval with", c.threadCount,
-		"goroutines for task execution, with workerId as", hostname,
+		"Started worker for task:", taskType,
+		", go routines amount:", parallelGoRoutinesAmount,
+		", polling interval:", pollingInterval, "(ms)",
 	)
-	for goRoutines := 1; goRoutines <= c.threadCount; goRoutines++ {
-		go c.run(taskType, domain, executeFunction)
-	}
-	// wait infinitely while the go routines are running
-	if wait {
-		select {}
-	}
 }
 
-func (c *WorkerOrkestrator) run(taskType string, domain string, executeFunction model.TaskExecuteFunction) {
+func (c *WorkerOrkestrator) WaitWorkers() {
+	c.waitGroup.Wait()
+}
+
+func (c *WorkerOrkestrator) run(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int) {
+	c.waitGroup.Add(1)
 	for {
-		c.runOnce(taskType, domain, executeFunction)
-		c.sleep()
+		c.runOnce(taskType, executeFunction)
+		sleep(pollingInterval)
 	}
+	c.waitGroup.Done()
 }
 
-func (c *WorkerOrkestrator) runOnce(taskType string, domain string, executeFunction model.TaskExecuteFunction) {
-	task := c.pollTask(taskType, domain)
+func (c *WorkerOrkestrator) runOnce(taskType string, executeFunction model.TaskExecuteFunction) {
+	task := c.pollTask(taskType)
 	if task == nil {
 		return
 	}
@@ -81,21 +67,11 @@ func (c *WorkerOrkestrator) runOnce(taskType string, domain string, executeFunct
 	c.updateTask(taskType, taskResult)
 }
 
-func (c *WorkerOrkestrator) sleep() {
-	time.Sleep(
-		time.Duration(c.pollingInterval) * time.Millisecond,
-	)
-}
-
-func (c *WorkerOrkestrator) pollTask(taskType string, domain string) *model.Task {
+func (c *WorkerOrkestrator) pollTask(taskType string) *model.Task {
 	c.metricsCollector.IncrementTaskPoll(taskType)
 
 	startTime := time.Now()
-	polled, err := c.conductorHttpClient.PollForTask(
-		taskType,
-		hostname,
-		domain,
-	)
+	polled, err := c.conductorHttpClient.PollForTask(taskType)
 	spentTime := time.Since(startTime)
 	c.metricsCollector.RecordTaskPollTime(
 		taskType,
@@ -162,4 +138,10 @@ func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *model.TaskRe
 		return
 	}
 	_, _ = c.conductorHttpClient.UpdateTask(taskResultJsonString)
+}
+
+func sleep(pollingInterval int) {
+	time.Sleep(
+		time.Duration(pollingInterval) * time.Millisecond,
+	)
 }
