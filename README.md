@@ -6,13 +6,13 @@ To find out more about Conductor visit: [https://github.com/Netflix/conductor](h
 
 ## Quick Start
 
-1. [Write TaskExecutionFunction](#Write-TaskExecutionFunction)
+1. [Write worker as a function](#Write-worker-as-a-function)
 2. [Run workers](#Run-workers)
 3. [Worker Configurations](#Worker-Configurations)
 
 
 
-### Write Worker as a TaskExecutionFunction
+### Write worker as a function
 
 ```go
 package example
