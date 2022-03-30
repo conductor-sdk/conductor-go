@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/conductor-sdk/conductor/client/go/conductor_client/model"
-	"github.com/conductor-sdk/conductor/client/go/settings"
+	"github.com/conductor-sdk/conductor-go/conductor_client/model"
+	"github.com/conductor-sdk/conductor-go/settings"
 	log "github.com/sirupsen/logrus"
 )
 

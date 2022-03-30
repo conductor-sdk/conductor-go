@@ -5,11 +5,11 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/conductor-sdk/conductor/client/go/conductor_client/http"
-	"github.com/conductor-sdk/conductor/client/go/conductor_client/model"
-	"github.com/conductor-sdk/conductor/client/go/conductor_client/model/enum/task_result_status"
-	"github.com/conductor-sdk/conductor/client/go/metrics"
-	"github.com/conductor-sdk/conductor/client/go/settings"
+	"github.com/conductor-sdk/conductor-go/conductor_client/http"
+	"github.com/conductor-sdk/conductor-go/conductor_client/model"
+	"github.com/conductor-sdk/conductor-go/conductor_client/model/enum/task_result_status"
+	"github.com/conductor-sdk/conductor-go/metrics"
+	"github.com/conductor-sdk/conductor-go/settings"
 	log "github.com/sirupsen/logrus"
 )
 

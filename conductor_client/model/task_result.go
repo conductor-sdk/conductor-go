@@ -3,7 +3,7 @@ package model
 import (
 	"encoding/json"
 
-	"github.com/conductor-sdk/conductor/client/go/conductor_client/model/enum/task_result_status"
+	"github.com/conductor-sdk/conductor-go/conductor_client/model/enum/task_result_status"
 )
 
 type TaskResult struct {

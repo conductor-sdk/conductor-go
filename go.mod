@@ -1,4 +1,4 @@
-module github.com/conductor-sdk/conductor/client/go
+module github.com/conductor-sdk/conductor-go
 
 go 1.7
 

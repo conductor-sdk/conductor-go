@@ -3,10 +3,10 @@ package main
 import (
 	"os"
 
-	"github.com/conductor-sdk/conductor/client/go/example/task_execute_function"
-	"github.com/conductor-sdk/conductor/client/go/metrics"
-	"github.com/conductor-sdk/conductor/client/go/orkestrator"
-	"github.com/conductor-sdk/conductor/client/go/settings"
+	"github.com/conductor-sdk/conductor-go/example/task_execute_function"
+	"github.com/conductor-sdk/conductor-go/metrics"
+	"github.com/conductor-sdk/conductor-go/orkestrator"
+	"github.com/conductor-sdk/conductor-go/settings"
 	log "github.com/sirupsen/logrus"
 )
 
