@@ -34,6 +34,7 @@ func NewWorkerOrkestrator(
 
 func (c *WorkerOrkestrator) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, parallelGoRoutinesAmount int, pollingInterval int) {
 	for goRoutines := 1; goRoutines <= parallelGoRoutinesAmount; goRoutines++ {
+		c.waitGroup.Add(1)
 		go c.run(taskType, executeFunction, pollingInterval)
 	}
 	log.Debug(
@@ -48,7 +49,6 @@ func (c *WorkerOrkestrator) WaitWorkers() {
 }
 
 func (c *WorkerOrkestrator) run(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int) {
-	c.waitGroup.Add(1)
 	for {
 		c.runOnce(taskType, executeFunction)
 		sleep(pollingInterval)
