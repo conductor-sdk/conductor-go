@@ -207,27 +207,3 @@ Conductor uses [Prometheus](https://prometheus.io/) to collect metrics.
 Use if your conductor server requires authentication
 * key_id: Key
 * key_secret: Secret for the Key 
-
-## Unit Tests
-### Simple validation
-
-```shell
-/conductor-python/src$ python3 -m unittest -v
-```
-
-### Run with code coverage
-
-```shell
-/conductor-python/src$ python3 -m coverage run --source=conductor/ -m unittest
-```
-
-Report:
-
-```shell
-/conductor-python/src$ python3 -m coverage report
-```
-
-Visual coverage results:
-```shell
-/conductor-python/src$ python3 -m coverage html
-```
