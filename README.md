@@ -8,7 +8,7 @@ To find out more about Conductor visit: [https://github.com/Netflix/conductor](h
 
 1. [Write worker as a function](#Write-worker-as-a-function)
 2. [Run workers](#Run-workers)
-3. [Worker Configurations](#Worker-Configurations)
+3. [Configuration](#Configuration)
 
 
 
@@ -187,23 +187,60 @@ curl -X 'POST' \
 ```
 
 
-## Worker Configurations
-Worker configuration is handled via `Configuraiton` object passed when initializing `TaskHandler`
+## Configuration
 
-### Server Configurations
-* base_url : Conductor server address.  e.g. `http://localhost:8000` if running locally 
-* debug: `true` for verbose logging `false` to display only the errors
-* authentication_settings: see below
-* metrics_settings: see below
+### Authentication settings
+Use if your conductor server requires authentication
+* keyId: Key
+* keySecret: Secret for the Key
 
-### Metrics
+```go
+authenticationSettings := settings.NewAuthenticationSettings(
+    "keyId",
+    "keySecret",
+),
+```
+
+### HTTP Settings
+
+* baseUrl: Conductor server address. e.g. http://localhost:8000 if running locally
+
+```go
+httpSettings := settings.NewHttpSettings(
+    "https://play.orkes.io/api",
+)
+```
+
+### Metrics Settings
 Conductor uses [Prometheus](https://prometheus.io/) to collect metrics.
 
-* directory: Directory where to store the metrics 
-* file_name: File where the metrics are colleted. e.g. `metrics.log`
-* update_interval: Time interval in seconds at which to collect metrics into the file
+* apiEndpoint : Address to serve metrics (e.g. `/metrics`)
+* port : Port to serve metrics (e.g. `2112`)
 
-### Authentication
-Use if your conductor server requires authentication
-* key_id: Key
-* key_secret: Secret for the Key 
+With this configuration, you can access metrics via `http://localhost:2112/metrics` after exposing them with:
+
+```go
+metricsSettings := settings.NewMetricsSettings(
+    "/metrics",
+    2112,
+)
+
+go metrics.ProvideMetrics(metricsSettings)
+```
+
+### Worker Settings
+
+You can create a new worker by calling `workerOrkestrator.StartWorker` with:
+* taskType : Task definition name (e.g `"go_task_example"`)
+* executeFunction : Task Execution Function (e.g. `example.TaskExecuteFunctionExample1` from `example` folder)
+* parallelGoRoutinesAmount : Amount of Go routines to be executed in parallel for new worker (e.g. `1`, single thread)
+* pollingInterval : Amount of ms to wait between polling for task
+
+```go
+workerOrkestrator.StartWorker(
+    "go_task_example",
+    example.TaskExecuteFunctionExample1,
+    1,
+    100,
+)
+```
