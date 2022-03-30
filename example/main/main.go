@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/netflix/conductor/client/go/example"
+	"github.com/netflix/conductor/client/go/example/task_execute_function"
 	"github.com/netflix/conductor/client/go/metrics"
 	"github.com/netflix/conductor/client/go/orkestrator"
 	"github.com/netflix/conductor/client/go/settings"
@@ -43,16 +43,16 @@ func main() {
 		),
 	)
 	workerOrkestrator.StartWorker(
-		"go_task_example",                   // task definition name
-		example.TaskExecuteFunctionExample1, // task execution function
-		1,                                   // parallel go routines amount
-		5000,                                // 5000ms
+		"go_task_example",              // task definition name
+		task_execute_function.Example1, // task execution function
+		1,                              // parallel go routines amount
+		5000,                           // 5000ms
 	)
 	workerOrkestrator.StartWorker(
-		"go_task_example",                   // task definition name
-		example.TaskExecuteFunctionExample1, // task execution function
-		1,                                   // parallel go routines amount
-		100,                                 // 100ms
+		"go_task_example",              // task definition name
+		task_execute_function.Example2, // task execution function
+		1,                              // parallel go routines amount
+		100,                            // 100ms
 	)
 	// Wait for all workers to finish, otherwise would terminate them
 	workerOrkestrator.WaitWorkers()

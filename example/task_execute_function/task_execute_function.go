@@ -1,4 +1,4 @@
-package example
+package task_execute_function
 
 import (
 	"github.com/netflix/conductor/client/go/conductor_client/model"
@@ -6,7 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func TaskExecuteFunctionExample1(t *model.Task) (taskResult *model.TaskResult, err error) {
+func Example1(t *model.Task) (taskResult *model.TaskResult, err error) {
 	log.Debug("Executing Task_1_Execution_Function for", t.TaskType)
 	taskResult = model.NewTaskResult(t)
 	taskResult.OutputData = map[string]interface{}{
@@ -21,7 +21,7 @@ func TaskExecuteFunctionExample1(t *model.Task) (taskResult *model.TaskResult, e
 	return taskResult, err
 }
 
-func TaskExecuteFunctionExample2(t *model.Task) (taskResult *model.TaskResult, err error) {
+func Example2(t *model.Task) (taskResult *model.TaskResult, err error) {
 	log.Debug("Executing Task_2_Execution_Function for", t.TaskType)
 	taskResult = model.NewTaskResult(t)
 	taskResult.OutputData = map[string]interface{}{
