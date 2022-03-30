@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/netflix/conductor/client/go/settings"
+	"github.com/conductor-sdk/conductor/client/go/settings"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 

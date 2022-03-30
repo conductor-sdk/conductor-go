@@ -1,9 +1,9 @@
 package metrics
 
 import (
-	"github.com/netflix/conductor/client/go/metrics/metric_model/metric_name"
-	"github.com/netflix/conductor/client/go/metrics/metrics_counter"
-	"github.com/netflix/conductor/client/go/metrics/metrics_gauge"
+	"github.com/conductor-sdk/conductor/client/go/metrics/metric_model/metric_name"
+	"github.com/conductor-sdk/conductor/client/go/metrics/metrics_counter"
+	"github.com/conductor-sdk/conductor/client/go/metrics/metrics_gauge"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

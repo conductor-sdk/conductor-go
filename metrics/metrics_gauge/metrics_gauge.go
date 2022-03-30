@@ -1,10 +1,10 @@
 package metrics_gauge
 
 import (
-	"github.com/netflix/conductor/client/go/metrics/metric_model"
-	"github.com/netflix/conductor/client/go/metrics/metric_model/metric_documentation"
-	"github.com/netflix/conductor/client/go/metrics/metric_model/metric_label"
-	"github.com/netflix/conductor/client/go/metrics/metric_model/metric_name"
+	"github.com/conductor-sdk/conductor/client/go/metrics/metric_model"
+	"github.com/conductor-sdk/conductor/client/go/metrics/metric_model/metric_documentation"
+	"github.com/conductor-sdk/conductor/client/go/metrics/metric_model/metric_label"
+	"github.com/conductor-sdk/conductor/client/go/metrics/metric_model/metric_name"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

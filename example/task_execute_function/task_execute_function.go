@@ -1,8 +1,8 @@
 package task_execute_function
 
 import (
-	"github.com/netflix/conductor/client/go/conductor_client/model"
-	"github.com/netflix/conductor/client/go/conductor_client/model/enum/task_result_status"
+	"github.com/conductor-sdk/conductor/client/go/conductor_client/model"
+	"github.com/conductor-sdk/conductor/client/go/conductor_client/model/enum/task_result_status"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/netflix/conductor/client/go/settings"
+	"github.com/conductor-sdk/conductor/client/go/settings"
 	log "github.com/sirupsen/logrus"
 )
 

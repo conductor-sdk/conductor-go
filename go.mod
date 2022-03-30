@@ -1,6 +1,6 @@
-module github.com/netflix/conductor/client/go
+module github.com/conductor-sdk/conductor/client/go
 
-go 1.12
+go 1.7
 
 require (
 	github.com/prometheus/client_golang v1.12.1
