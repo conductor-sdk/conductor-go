@@ -22,15 +22,13 @@ type WorkerOrkestrator struct {
 func NewWorkerOrkestrator(
 	authenticationSettings *settings.AuthenticationSettings,
 	httpSettings *settings.HttpSettings,
-	metricsCollector *metrics.MetricsCollector,
 ) *WorkerOrkestrator {
 	workerOrkestrator := new(WorkerOrkestrator)
-	conductorHttpClient := http.NewConductorHttpClient(
+	workerOrkestrator.metricsCollector = metrics.NewMetricsCollector()
+	workerOrkestrator.conductorHttpClient = http.NewConductorHttpClient(
 		authenticationSettings,
 		httpSettings,
 	)
-	workerOrkestrator.metricsCollector = metricsCollector
-	workerOrkestrator.conductorHttpClient = conductorHttpClient
 	return workerOrkestrator
 }
 

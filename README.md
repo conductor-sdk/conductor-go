@@ -6,36 +6,38 @@ To find out more about Conductor visit: [https://github.com/Netflix/conductor](h
 
 ## Quick Start
 
-1. [Create virtual environment](#Virtual-Environment-Setup)
-2. [Write worker](#Write-worker)
-3. [Run workers](#Run-workers)
-4. [Worker Configurations](#Worker-Configurations)
-5. [C/C++ Support](#cc-support)
-
-### Virtual Environment Setup
+1. [Write TaskExecutionFunction](#Write-TaskExecutionFunction)
+2. [Run workers](#Run-workers)
+3. [Worker Configurations](#Worker-Configurations)
+4. [C/C++ Support](#cc-support)
 
 
 
-### Write worker    
+### Write Worker as a TaskExecutionFunction
 
-```python
-from conductor.client.http.models.task import Task
-from conductor.client.http.models.task_result import TaskResult
-from conductor.client.http.models.task_result_status import TaskResultStatus
-from conductor.client.worker.worker_interface import WorkerInterface
+```go
+package example
 
+import (
+	"github.com/netflix/conductor/client/go/conductor_client/model"
+	"github.com/netflix/conductor/client/go/conductor_client/model/enum/task_result_status"
+	log "github.com/sirupsen/logrus"
+)
 
-class SimplePythonWorker(WorkerInterface):
-    def execute(self, task: Task) -> TaskResult:
-        task_result = self.get_task_result_from_task(task)
-        
-        # Add any outputs that the task should produce as part of the execution
-        task_result.add_output_data('key', 'value')
-        task_result.add_output_data('temperature', 32)
-        
-        # Mark the task status as COMPLETED
-        task_result.status = TaskResultStatus.COMPLETED
-        return task_result
+func TaskExecuteFunctionExample(t *model.Task) (taskResult *model.TaskResult, err error) {
+	log.Debug("Executing Task_Execution_Function_Example for", t.TaskType)
+	taskResult = model.NewTaskResult(t)
+	taskResult.OutputData = map[string]interface{}{
+		"task": "task_1",
+		"key2": "value2",
+		"key3": 3,
+		"key4": false,
+	}
+	taskResult.Logs = append(taskResult.Logs, model.LogMessage{Log: "Hello World"})
+	taskResult.Status = task_result_status.COMPLETED
+	err = nil
+	return taskResult, err
+}
 ```
 ### Run workers
 Create main method that does the following:
