@@ -28,10 +28,8 @@ func main() {
 		"keyId",
 		"keySecret",
 	)
-	httpSettings := settings.NewHttpSettingsWithBaseUrlAndDebug(
-		"https://play.orkes.io/api",
-		true,
-	)
+
+	httpSettings := settings.NewHttpSettings("https://play.orkes.io/api")
 
 	metricsCollector := metrics.NewMetricsCollector()
 	go metrics.ProvideDefaultMetrics()
@@ -45,13 +43,13 @@ func main() {
 		"go_task_example",
 		example.TaskExecuteFunctionExample1,
 		1,
-		5000,
+		5000, // 5000ms
 	)
 	workerOrkestrator.StartWorker(
 		"go_task_example",
 		example.TaskExecuteFunctionExample1,
 		1,
-		1000,
+		100, // 100ms
 	)
 	workerOrkestrator.WaitWorkers()
 }
