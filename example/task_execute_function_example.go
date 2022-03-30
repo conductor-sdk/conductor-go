@@ -22,7 +22,7 @@ func TaskExecuteFunctionExample1(t *model.Task) (taskResult *model.TaskResult, e
 }
 
 func TaskExecuteFunctionExample2(t *model.Task) (taskResult *model.TaskResult, err error) {
-	log.Println("Executing Task_2_Execution_Function for", t.TaskType)
+	log.Debug("Executing Task_2_Execution_Function for", t.TaskType)
 	taskResult = model.NewTaskResult(t)
 	taskResult.OutputData = map[string]interface{}{
 		"task": "task_2",

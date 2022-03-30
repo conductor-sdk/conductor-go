@@ -38,7 +38,7 @@ func (c *WorkerOrkestrator) StartWorker(taskType string, executeFunction model.T
 	for goRoutines := 1; goRoutines <= parallelGoRoutinesAmount; goRoutines++ {
 		go c.run(taskType, executeFunction, pollingInterval)
 	}
-	log.Println(
+	log.Debug(
 		"Started worker for task:", taskType,
 		", go routines amount:", parallelGoRoutinesAmount,
 		", polling interval:", pollingInterval, "(ms)",
