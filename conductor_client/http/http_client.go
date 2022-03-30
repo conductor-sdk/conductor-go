@@ -112,7 +112,7 @@ func (c *HttpClient) Get(url string, queryParamsMap map[string]string, headers m
 	urlString := url + genParamString(queryParamsMap)
 	resp, err := c.httpRequest(urlString, "GET", headers, "")
 	if err != nil {
-		log.Println("Http GET Error for URL: ", urlString)
+		log.Debug("Http GET Error for URL: ", urlString)
 		return "", err
 	}
 	return resp, nil
