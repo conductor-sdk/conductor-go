@@ -16,7 +16,6 @@ import (
 type WorkerOrkestrator struct {
 	conductorHttpClient *http.ConductorHttpClient
 	metricsCollector    *metrics.MetricsCollector
-	pollingInterval     int
 	waitGroup           sync.WaitGroup
 }
 
@@ -24,7 +23,6 @@ func NewWorkerOrkestrator(
 	authenticationSettings *settings.AuthenticationSettings,
 	httpSettings *settings.HttpSettings,
 	metricsCollector *metrics.MetricsCollector,
-	pollingInterval int,
 ) *WorkerOrkestrator {
 	workerOrkestrator := new(WorkerOrkestrator)
 	conductorHttpClient := http.NewConductorHttpClient(
@@ -32,19 +30,18 @@ func NewWorkerOrkestrator(
 		httpSettings,
 	)
 	workerOrkestrator.metricsCollector = metricsCollector
-	workerOrkestrator.pollingInterval = pollingInterval
 	workerOrkestrator.conductorHttpClient = conductorHttpClient
 	return workerOrkestrator
 }
 
-func (c *WorkerOrkestrator) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, parallelGoRoutinesAmount int) {
+func (c *WorkerOrkestrator) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, parallelGoRoutinesAmount int, pollingInterval int) {
 	for goRoutines := 1; goRoutines <= parallelGoRoutinesAmount; goRoutines++ {
-		go c.run(taskType, executeFunction)
+		go c.run(taskType, executeFunction, pollingInterval)
 	}
 	log.Println(
 		"Started worker for task:", taskType,
-		", polling interval:", c.pollingInterval, "(ms)",
-		", go routines:", parallelGoRoutinesAmount,
+		", go routines amount:", parallelGoRoutinesAmount,
+		", polling interval:", pollingInterval, "(ms)",
 	)
 }
 
@@ -52,11 +49,11 @@ func (c *WorkerOrkestrator) WaitWorkers() {
 	c.waitGroup.Wait()
 }
 
-func (c *WorkerOrkestrator) run(taskType string, executeFunction model.TaskExecuteFunction) {
+func (c *WorkerOrkestrator) run(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int) {
 	c.waitGroup.Add(1)
 	for {
 		c.runOnce(taskType, executeFunction)
-		c.sleep()
+		sleep(pollingInterval)
 	}
 	c.waitGroup.Done()
 }
@@ -68,12 +65,6 @@ func (c *WorkerOrkestrator) runOnce(taskType string, executeFunction model.TaskE
 	}
 	taskResult := c.executeTask(task, executeFunction)
 	c.updateTask(taskType, taskResult)
-}
-
-func (c *WorkerOrkestrator) sleep() {
-	time.Sleep(
-		time.Duration(c.pollingInterval) * time.Millisecond,
-	)
 }
 
 func (c *WorkerOrkestrator) pollTask(taskType string) *model.Task {
@@ -147,4 +138,10 @@ func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *model.TaskRe
 		return
 	}
 	_, _ = c.conductorHttpClient.UpdateTask(taskResultJsonString)
+}
+
+func sleep(pollingInterval int) {
+	time.Sleep(
+		time.Duration(pollingInterval) * time.Millisecond,
+	)
 }
