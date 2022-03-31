@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/conductor-sdk/conductor-go/settings"
+	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	log "github.com/sirupsen/logrus"
 )
 

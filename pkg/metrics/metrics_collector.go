@@ -1,9 +1,9 @@
 package metrics
 
 import (
-	"github.com/conductor-sdk/conductor-go/metrics/metric_model/metric_name"
-	"github.com/conductor-sdk/conductor-go/metrics/metrics_counter"
-	"github.com/conductor-sdk/conductor-go/metrics/metrics_gauge"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_name"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_counter"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_gauge"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

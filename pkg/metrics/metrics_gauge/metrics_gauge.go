@@ -1,10 +1,10 @@
 package metrics_gauge
 
 import (
-	"github.com/conductor-sdk/conductor-go/metrics/metric_model"
-	"github.com/conductor-sdk/conductor-go/metrics/metric_model/metric_documentation"
-	"github.com/conductor-sdk/conductor-go/metrics/metric_model/metric_label"
-	"github.com/conductor-sdk/conductor-go/metrics/metric_model/metric_name"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_documentation"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_label"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_name"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
