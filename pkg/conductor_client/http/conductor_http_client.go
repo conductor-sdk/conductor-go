@@ -1,24 +1,25 @@
-package conductor
+package http
 
 import (
-	"fmt"
+	"os"
 	"strconv"
 
-	"github.com/netflix/conductor/client/go/httpclient"
-	"github.com/netflix/conductor/client/go/settings"
+	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	log "github.com/sirupsen/logrus"
 )
 
 type ConductorHttpClient struct {
-	httpClient *httpclient.HttpClient
+	httpClient *HttpClient
+	hostname   string
 }
 
 func NewConductorHttpClient(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings) *ConductorHttpClient {
 	client := new(ConductorHttpClient)
-	client.httpClient = httpclient.NewHttpClientWithAuthentication(
+	client.httpClient = NewHttpClientWithAuthentication(
 		authenticationSettings,
 		httpSettings,
 	)
+	client.hostname, _ = os.Hostname()
 	client.httpClient.RefreshToken()
 	return client
 }
@@ -177,43 +178,18 @@ func (c *ConductorHttpClient) UpdateTask(taskBody string) (string, error) {
 	}
 }
 
-func (c *ConductorHttpClient) PollForTask(taskType string, workerid string, domain string) (string, error) {
+func (c *ConductorHttpClient) PollForTask(taskType string) (string, error) {
 	url := c.httpClient.MakeUrl("/tasks/poll/{taskType}", "{taskType}", taskType)
 	params := map[string]string{
-		"workerid": workerid,
-	}
-	// only add the domain if requested, otherwise conductor will silently fail (https://github.com/Netflix/conductor/issues/1952)
-	if domain != "" {
-		params["domain"] = domain
+		"workerid": c.hostname,
 	}
 	outputString, err := c.httpClient.Get(url, params, nil)
 	if err != nil {
-		log.Error("Error while trying to Poll For Task taskType:", taskType, ",workerid:", workerid, err)
+		log.Error("Error while trying to Poll For Task taskType:", taskType)
 		return "", err
 	} else {
 		return outputString, nil
 	}
-}
-
-// AckTask Deprecated
-func (c *ConductorHttpClient) AckTask(taskId, workerid, domain string) (string, error) {
-	url := c.httpClient.MakeUrl("/tasks/{taskId}/ack", "{taskId}", taskId)
-	params := map[string]string{
-		"workerid": workerid,
-	}
-	// only add the domain if requested, otherwise conductor will silently fail (https://github.com/Netflix/conductor/issues/1952)
-	if domain != "" {
-		params["domain"] = domain
-	}
-	headers := map[string]string{"Accept": "application/json"}
-	outputString, err := c.httpClient.Post(url, params, headers, "")
-	if err != nil {
-		return "", err
-	}
-	if outputString != "true" {
-		return "", fmt.Errorf("Task id: %s has already been Acked", taskId)
-	}
-	return outputString, nil
 }
 
 func (c *ConductorHttpClient) GetAllTasksInQueue() (string, error) {

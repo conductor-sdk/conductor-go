@@ -1,4 +1,4 @@
-package httpclient
+package http
 
 import (
 	"bytes"
@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/netflix/conductor/client/go/model"
-	"github.com/netflix/conductor/client/go/settings"
+	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/model"
+	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -23,23 +23,23 @@ func NewHttpClientWithAuthentication(authenticationSettings *settings.Authentica
 	httpClient.authenticationSettings = authenticationSettings
 	httpClient.client = &http.Client{}
 	if httpSettings == nil {
-		httpSettings = settings.NewHttpSettings()
+		httpSettings = settings.NewHttpDefaultSettings()
 	}
 	httpClient.httpSettings = httpSettings
 	return httpClient
 }
 
 func (c *HttpClient) logSendRequest(url string, requestType string, body string) {
-	log.Println("Sending [", requestType, "] request to Server (", url, "):")
-	log.Println("Body:")
-	log.Println(body)
+	log.Debug("Sending [", requestType, "] request to Server (", url, "):")
+	log.Debug("Body:")
+	log.Debug(body)
 }
 
 func (c *HttpClient) logResponse(statusCode string, response string) {
-	log.Println("Received response from Server (", c.httpSettings.BaseUrl, "):")
-	log.Println("Status: ", statusCode)
-	log.Println("Response:")
-	log.Println(response)
+	log.Debug("Received response from Server (", c.httpSettings.BaseUrl, "):")
+	log.Debug("Status: ", statusCode)
+	log.Debug("Response:")
+	log.Debug(response)
 }
 
 func genParamString(paramMap map[string]string) string {
@@ -81,9 +81,7 @@ func (c *HttpClient) httpRequest(url string, requestType string, headers map[str
 		req.Header.Set(key, value)
 	}
 
-	if c.httpSettings.Debug {
-		c.logSendRequest(url, requestType, body)
-	}
+	c.logSendRequest(url, requestType, body)
 
 	resp, err := c.client.Do(req)
 	if err != nil {
@@ -105,10 +103,8 @@ func (c *HttpClient) httpRequest(url string, requestType string, headers map[str
 		log.Error("ERROR reading response for URL: ", url, err)
 		return "", err
 	}
+	c.logResponse(resp.Status, responseString)
 
-	if c.httpSettings.Debug {
-		c.logResponse(resp.Status, responseString)
-	}
 	return responseString, nil
 }
 
@@ -116,7 +112,7 @@ func (c *HttpClient) Get(url string, queryParamsMap map[string]string, headers m
 	urlString := url + genParamString(queryParamsMap)
 	resp, err := c.httpRequest(urlString, "GET", headers, "")
 	if err != nil {
-		log.Println("Http GET Error for URL: ", urlString)
+		log.Debug("Http GET Error for URL: ", urlString)
 		return "", err
 	}
 	return resp, nil

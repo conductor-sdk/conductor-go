@@ -2,19 +2,19 @@ package model
 
 import (
 	"encoding/json"
+
+	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/model/enum/task_result_status"
 )
 
-type TaskResultStatus string
-
 type TaskResult struct {
-	Status                TaskResultStatus       `json:"status"`
-	WorkflowInstanceId    string                 `json:"workflowInstanceId"`
-	TaskId                string                 `json:"taskId"`
-	ReasonForIncompletion string                 `json:"reasonForIncompletion"`
-	CallbackAfterSeconds  int64                  `json:"callbackAfterSeconds"`
-	WorkerId              string                 `json:"workerId"`
-	OutputData            map[string]interface{} `json:"outputData"`
-	Logs                  []LogMessage           `json:"logs"`
+	Status                task_result_status.TaskResultStatus `json:"status"`
+	WorkflowInstanceId    string                              `json:"workflowInstanceId"`
+	TaskId                string                              `json:"taskId"`
+	ReasonForIncompletion string                              `json:"reasonForIncompletion"`
+	CallbackAfterSeconds  int64                               `json:"callbackAfterSeconds"`
+	WorkerId              string                              `json:"workerId"`
+	OutputData            map[string]interface{}              `json:"outputData"`
+	Logs                  []LogMessage                        `json:"logs"`
 }
 
 // LogMessage used to sent logs to conductor server
@@ -38,7 +38,7 @@ func NewTaskResult(t *Task) *TaskResult {
 	taskResult.WorkflowInstanceId = t.WorkflowInstanceId
 	taskResult.TaskId = t.TaskId
 	taskResult.ReasonForIncompletion = t.ReasonForIncompletion
-	taskResult.Status = TaskResultStatus(t.Status)
+	taskResult.Status = task_result_status.TaskResultStatus(t.Status)
 	taskResult.WorkerId = t.WorkerId
 	taskResult.OutputData = t.OutputData
 	taskResult.Logs = make([]LogMessage, 0)

@@ -2,44 +2,20 @@ package model
 
 import (
 	"encoding/json"
-)
 
-type WorkflowTaskType uint8
-type TaskStatus string
-
-const (
-	SIMPLE WorkflowTaskType = iota
-	DYNAMIC
-	FORK_JOIN
-	FORK_JOIN_DYNAMIC
-	DECISION
-	JOIN
-	SUB_WORKFLOW
-	EVENT
-	WAIT
-	USER_DEFINED
-)
-
-const (
-	IN_PROGRESS TaskStatus = "IN_PROGRESS"
-	CANCELED               = "CANCELED"
-	FAILED                 = "FAILED"
-	COMPLETED              = "COMPLETED"
-	SCHEDULED              = "SCHEDULED"
-	TIMED_OUT              = "TIMED_OUT"
-	SKIPPED                = "SKIPPED"
+	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/model/enum/task_result_status"
 )
 
 type Task struct {
-	TaskType          string                 `json:"taskType"`
-	Status            TaskStatus             `json:"status"`
-	InputData         map[string]interface{} `json:"inputData"`
-	ReferenceTaskName string                 `json:"referenceTaskName"`
-	RetryCount        int                    `json:"retryCount"`
-	Seq               int                    `json:"seq"`
-	CorrelationId     string                 `json:"correlationId"`
-	PollCount         int                    `json:"pollCount"`
-	TaskDefName       string                 `json:"taskDefName"`
+	TaskType          string                              `json:"taskType"`
+	Status            task_result_status.TaskResultStatus `json:"status"`
+	InputData         map[string]interface{}              `json:"inputData"`
+	ReferenceTaskName string                              `json:"referenceTaskName"`
+	RetryCount        int                                 `json:"retryCount"`
+	Seq               int                                 `json:"seq"`
+	CorrelationId     string                              `json:"correlationId"`
+	PollCount         int                                 `json:"pollCount"`
+	TaskDefName       string                              `json:"taskDefName"`
 	// Time when the task was scheduled
 	ScheduledTime int64 `json:"scheduledTime"`
 	// Time when the task was first polled
