@@ -5,16 +5,17 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/http"
-	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/model"
-	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/model/enum/task_result_status"
+	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
+	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/metrics"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	log "github.com/sirupsen/logrus"
 )
 
 type WorkerOrkestrator struct {
-	conductorHttpClient *http.ConductorHttpClient
+	conductorHttpClient *conductor_http_client.APIClient
 	metricsCollector    *metrics.MetricsCollector
 	waitGroup           sync.WaitGroup
 }
@@ -23,13 +24,13 @@ func NewWorkerOrkestrator(
 	authenticationSettings *settings.AuthenticationSettings,
 	httpSettings *settings.HttpSettings,
 ) *WorkerOrkestrator {
-	workerOrkestrator := new(WorkerOrkestrator)
-	workerOrkestrator.metricsCollector = metrics.NewMetricsCollector()
-	workerOrkestrator.conductorHttpClient = http.NewConductorHttpClient(
-		authenticationSettings,
-		httpSettings,
-	)
-	return workerOrkestrator
+	return &WorkerOrkestrator{
+		metricsCollector: metrics.NewMetricsCollector(),
+		conductorHttpClient: conductor_http_client.NewAPIClient(
+			authenticationSettings,
+			httpSettings,
+		),
+	}
 }
 
 func (c *WorkerOrkestrator) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, parallelGoRoutinesAmount int, pollingInterval int) {
@@ -65,7 +66,7 @@ func (c *WorkerOrkestrator) runOnce(taskType string, executeFunction model.TaskE
 	c.updateTask(taskType, taskResult)
 }
 
-func (c *WorkerOrkestrator) pollTask(taskType string) *model.Task {
+func (c *WorkerOrkestrator) pollTask(taskType string) *http_model.Task {
 	c.metricsCollector.IncrementTaskPoll(taskType)
 
 	startTime := time.Now()
