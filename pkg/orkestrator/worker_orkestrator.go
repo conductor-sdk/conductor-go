@@ -1,6 +1,7 @@
 package orkestrator
 
 import (
+	"context"
 	"sync"
 	"time"
 	"unsafe"
@@ -15,9 +16,9 @@ import (
 )
 
 type WorkerOrkestrator struct {
-	conductorHttpClient *conductor_http_client.APIClient
-	metricsCollector    *metrics.MetricsCollector
-	waitGroup           sync.WaitGroup
+	conductorTaskResourceClient *conductor_http_client.TaskResourceApiService
+	metricsCollector            *metrics.MetricsCollector
+	waitGroup                   sync.WaitGroup
 }
 
 func NewWorkerOrkestrator(
@@ -25,11 +26,11 @@ func NewWorkerOrkestrator(
 	httpSettings *settings.HttpSettings,
 ) *WorkerOrkestrator {
 	return &WorkerOrkestrator{
-		metricsCollector: metrics.NewMetricsCollector(),
-		conductorHttpClient: conductor_http_client.NewAPIClient(
+		conductorTaskResourceClient: conductor_http_client.NewTaskResourceApiService(
 			authenticationSettings,
 			httpSettings,
 		),
+		metricsCollector: metrics.NewMetricsCollector(),
 	}
 }
 
@@ -70,26 +71,19 @@ func (c *WorkerOrkestrator) pollTask(taskType string) *http_model.Task {
 	c.metricsCollector.IncrementTaskPoll(taskType)
 
 	startTime := time.Now()
-	polled, err := c.conductorHttpClient.PollForTask(taskType)
+
+	task, _, err := c.conductorTaskResourceClient.Poll(
+		context.Background(),
+		taskType,
+		nil,
+	)
+
 	spentTime := time.Since(startTime)
 	c.metricsCollector.RecordTaskPollTime(
 		taskType,
 		spentTime.Seconds(),
 	)
 
-	if err != nil {
-		log.Error("Error Polling task:", err.Error())
-		c.metricsCollector.IncrementTaskPollError(
-			taskType, err,
-		)
-		return nil
-	}
-	if polled == "" {
-		log.Debug("No task found for:", taskType)
-		return nil
-	}
-
-	parsedTask, err := model.ParseTask(polled)
 	if err != nil {
 		log.Error("Error Parsing task:", err.Error())
 		c.metricsCollector.IncrementTaskPollError(
@@ -98,10 +92,10 @@ func (c *WorkerOrkestrator) pollTask(taskType string) *http_model.Task {
 		return nil
 	}
 
-	return parsedTask
+	return &task
 }
 
-func (c *WorkerOrkestrator) executeTask(t *model.Task, executeFunction model.TaskExecuteFunction) *model.TaskResult {
+func (c *WorkerOrkestrator) executeTask(t *http_model.Task, executeFunction model.TaskExecuteFunction) *http_model.TaskResult {
 	startTime := time.Now()
 	taskResult, err := executeFunction(t)
 	spentTime := time.Since(startTime)
@@ -127,16 +121,15 @@ func (c *WorkerOrkestrator) executeTask(t *model.Task, executeFunction model.Tas
 	return taskResult
 }
 
-func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *model.TaskResult) {
-	taskResultJsonString, err := taskResult.ToJSONString()
+func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *http_model.TaskResult) {
+	_, _, err := c.conductorTaskResourceClient.UpdateTask(
+		context.Background(),
+		*taskResult,
+	)
 	if err != nil {
-		log.Error("Error Forming TaskResult JSON body", err)
-		c.metricsCollector.IncrementTaskUpdateError(
-			taskType, err,
-		)
-		return
+		log.Error("Error Updating task:", err.Error())
+		c.metricsCollector.IncrementTaskUpdateError(taskType, err)
 	}
-	_, _ = c.conductorHttpClient.UpdateTask(taskResultJsonString)
 }
 
 func sleep(pollingInterval int) {

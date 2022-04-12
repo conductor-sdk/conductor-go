@@ -67,11 +67,9 @@ func selectHeaderAccept(accepts []string) string {
 	if len(accepts) == 0 {
 		return ""
 	}
-
 	if contains(accepts, "application/json") {
 		return "application/json"
 	}
-
 	return strings.Join(accepts, ",")
 }
 
@@ -122,7 +120,7 @@ func parameterToString(obj interface{}, collectionFormat string) string {
 }
 
 // callAPI do the request.
-func (c *APIClient) callAPI(request *http.Request) (*http.Response, error) {
+func (c *APIClient) CallAPI(request *http.Request) (*http.Response, error) {
 	return c.httpClient.Do(request)
 }
 
@@ -132,7 +130,7 @@ func (c *APIClient) ChangeBaseUrl(url string) {
 }
 
 // prepareRequest build the request
-func (c *APIClient) prepareRequest(
+func (c *APIClient) PrepareRequest(
 	ctx context.Context,
 	path string, method string,
 	postBody interface{},
@@ -209,7 +207,7 @@ func (c *APIClient) prepareRequest(
 	}
 
 	// Setup path and query parameters
-	url, err := url.Parse(path)
+	url, err := url.Parse(c.httpSettings.BaseUrl + path)
 	if err != nil {
 		return nil, err
 	}
@@ -243,34 +241,6 @@ func (c *APIClient) prepareRequest(
 		}
 		localVarRequest.Header = headers
 	}
-
-	// if ctx != nil {
-	// 	// add context to the request
-	// 	localVarRequest = localVarRequest.WithContext(ctx)
-
-	// 	// Walk through any authentication.
-
-	// 	// OAuth2 authentication
-	// 	if tok, ok := ctx.Value(ContextOAuth2).(oauth2.TokenSource); ok {
-	// 		// We were able to grab an oauth2 token from the context
-	// 		var latestToken *oauth2.Token
-	// 		if latestToken, err = tok.Token(); err != nil {
-	// 			return nil, err
-	// 		}
-
-	// 		latestToken.SetAuthHeader(localVarRequest)
-	// 	}
-
-	// 	// Basic HTTP Authentication
-	// 	if auth, ok := ctx.Value(ContextBasicAuth).(BasicAuth); ok {
-	// 		localVarRequest.SetBasicAuth(auth.UserName, auth.Password)
-	// 	}
-
-	// 	// AccessToken Authentication
-	// 	if auth, ok := ctx.Value(ContextAccessToken).(string); ok {
-	// 		localVarRequest.Header.Add("Authorization", "Bearer "+auth)
-	// 	}
-	// }
 
 	for header, value := range c.httpSettings.Headers {
 		localVarRequest.Header.Add(header, value)
