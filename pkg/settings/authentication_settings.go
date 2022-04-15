@@ -1,7 +1,5 @@
 package settings
 
-import "encoding/json"
-
 type AuthenticationSettings struct {
 	keyId     string
 	keySecret string
@@ -14,11 +12,10 @@ func NewAuthenticationSettings(keyId string, keySecret string) *AuthenticationSe
 	}
 }
 
-func (s *AuthenticationSettings) GetFormattedSettings() string {
-	keys := map[string]string{
+func (s *AuthenticationSettings) GetBody() map[string]string {
+	body := map[string]string{
 		"keyId":     s.keyId,
 		"keySecret": s.keySecret,
 	}
-	result, _ := json.Marshal(keys)
-	return string(result)
+	return body
 }
