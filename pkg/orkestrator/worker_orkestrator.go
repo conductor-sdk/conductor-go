@@ -40,9 +40,9 @@ func (c *WorkerOrkestrator) StartWorker(taskType string, executeFunction model.T
 		go c.run(taskType, executeFunction, pollingInterval)
 	}
 	log.Debug(
-		"Started worker for task:", taskType,
-		", go routines amount:", parallelGoRoutinesAmount,
-		", polling interval:", pollingInterval, "(ms)",
+		"Started worker for task: ", taskType,
+		", go routines amount: ", parallelGoRoutinesAmount,
+		", polling interval: ", pollingInterval, "ms",
 	)
 }
 
@@ -52,15 +52,15 @@ func (c *WorkerOrkestrator) WaitWorkers() {
 
 func (c *WorkerOrkestrator) run(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int) {
 	for {
-		c.runOnce(taskType, executeFunction)
-		sleep(pollingInterval)
+		c.runOnce(taskType, executeFunction, pollingInterval)
 	}
 	c.waitGroup.Done()
 }
 
-func (c *WorkerOrkestrator) runOnce(taskType string, executeFunction model.TaskExecuteFunction) {
+func (c *WorkerOrkestrator) runOnce(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int) {
 	task := c.pollTask(taskType)
 	if task == nil {
+		sleep(pollingInterval)
 		return
 	}
 	taskResult := c.executeTask(task, executeFunction)
@@ -69,29 +69,31 @@ func (c *WorkerOrkestrator) runOnce(taskType string, executeFunction model.TaskE
 
 func (c *WorkerOrkestrator) pollTask(taskType string) *http_model.Task {
 	c.metricsCollector.IncrementTaskPoll(taskType)
-
 	startTime := time.Now()
-
-	task, _, err := c.conductorTaskResourceClient.Poll(
+	task, response, err := c.conductorTaskResourceClient.Poll(
 		context.Background(),
 		taskType,
 		nil,
 	)
-
 	spentTime := time.Since(startTime)
 	c.metricsCollector.RecordTaskPollTime(
 		taskType,
 		spentTime.Seconds(),
 	)
-
+	if response.StatusCode == 204 {
+		return nil
+	}
 	if err != nil {
-		log.Error("Error Parsing task:", err.Error())
+		log.Error(
+			"Error polling for task: ", taskType,
+			", error: ", err.Error(),
+		)
 		c.metricsCollector.IncrementTaskPollError(
 			taskType, err,
 		)
 		return nil
 	}
-
+	log.Debug("Polled task: ", task)
 	return &task
 }
 
@@ -118,6 +120,7 @@ func (c *WorkerOrkestrator) executeTask(t *http_model.Task, executeFunction mode
 	c.metricsCollector.RecordTaskResultPayloadSize(
 		t.TaskDefName, float64(size),
 	)
+	log.Debug("Executed task: ", *t)
 	return taskResult
 }
 
@@ -130,6 +133,7 @@ func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *http_model.T
 		log.Error("Error Updating task:", err.Error())
 		c.metricsCollector.IncrementTaskUpdateError(taskType, err)
 	}
+	log.Debug("Updated task: ", *taskResult)
 }
 
 func sleep(pollingInterval int) {

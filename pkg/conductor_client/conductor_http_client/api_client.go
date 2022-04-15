@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -20,7 +21,9 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -33,6 +36,7 @@ type APIClient struct {
 	authenticationToken    *string
 	httpSettings           *settings.HttpSettings
 	httpClient             *http.Client
+	isRefreshingToken      bool
 }
 
 func NewAPIClient(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings) *APIClient {
@@ -44,89 +48,13 @@ func NewAPIClient(authenticationSettings *settings.AuthenticationSettings, httpS
 		authenticationToken:    nil,
 		httpSettings:           httpSettings,
 		httpClient:             &http.Client{},
+		isRefreshingToken:      false,
 	}
-}
-
-func atoi(in string) (int, error) {
-	return strconv.Atoi(in)
-}
-
-// selectHeaderContentType select a content type from the available list.
-func selectHeaderContentType(contentTypes []string) string {
-	if len(contentTypes) == 0 {
-		return ""
-	}
-	if contains(contentTypes, "application/json") {
-		return "application/json"
-	}
-	return contentTypes[0] // use the first content type specified in 'consumes'
-}
-
-// selectHeaderAccept join all accept types and return
-func selectHeaderAccept(accepts []string) string {
-	if len(accepts) == 0 {
-		return ""
-	}
-	if contains(accepts, "application/json") {
-		return "application/json"
-	}
-	return strings.Join(accepts, ",")
-}
-
-// contains is a case insenstive match, finding needle in a haystack
-func contains(haystack []string, needle string) bool {
-	for _, a := range haystack {
-		if strings.ToLower(a) == strings.ToLower(needle) {
-			return true
-		}
-	}
-	return false
-}
-
-// Verify optional parameters are of the correct type.
-func typeCheckParameter(obj interface{}, expected string, name string) error {
-	// Make sure there is an object.
-	if obj == nil {
-		return nil
-	}
-
-	// Check the type is as expected.
-	if reflect.TypeOf(obj).String() != expected {
-		return fmt.Errorf("Expected %s to be of type %s but received %s.", name, expected, reflect.TypeOf(obj).String())
-	}
-	return nil
-}
-
-// parameterToString convert interface{} parameters to string, using a delimiter if format is provided.
-func parameterToString(obj interface{}, collectionFormat string) string {
-	var delimiter string
-
-	switch collectionFormat {
-	case "pipes":
-		delimiter = "|"
-	case "ssv":
-		delimiter = " "
-	case "tsv":
-		delimiter = "\t"
-	case "csv":
-		delimiter = ","
-	}
-
-	if reflect.TypeOf(obj).Kind() == reflect.Slice {
-		return strings.Trim(strings.Replace(fmt.Sprint(obj), " ", delimiter, -1), "[]")
-	}
-
-	return fmt.Sprintf("%v", obj)
 }
 
 // callAPI do the request.
 func (c *APIClient) CallAPI(request *http.Request) (*http.Response, error) {
 	return c.httpClient.Do(request)
-}
-
-// Change base path to allow switching to mocks
-func (c *APIClient) ChangeBaseUrl(url string) {
-	c.httpSettings.BaseUrl = url
 }
 
 // prepareRequest build the request
@@ -206,6 +134,14 @@ func (c *APIClient) PrepareRequest(
 		headerParams["Content-Length"] = fmt.Sprintf("%d", body.Len())
 	}
 
+	// Auth
+	if c.mustUpdateToken() {
+		c.refreshToken()
+	}
+	if c.authenticationToken != nil {
+		headerParams["X-Authorization"] = *c.authenticationToken
+	}
+
 	// Setup path and query parameters
 	url, err := url.Parse(c.httpSettings.BaseUrl + path)
 	if err != nil {
@@ -249,6 +185,92 @@ func (c *APIClient) PrepareRequest(
 	return localVarRequest, nil
 }
 
+func (c *APIClient) mustUpdateToken() bool {
+	if c.isRefreshingToken == true {
+		return false
+	}
+	if c.authenticationSettings == nil || c.authenticationToken != nil {
+		return false
+	}
+	return true
+}
+
+func (c *APIClient) refreshToken() {
+	token, response, err := c.getToken()
+	if err == nil {
+		c.authenticationToken = &token.Token
+		return
+	}
+	log.Warn(
+		"Failed to refresh authentication token",
+		", response: ", response,
+		", error: ", err,
+	)
+}
+
+func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
+	c.isRefreshingToken = true
+	var (
+		localVarHttpMethod  = strings.ToUpper("Post")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue http_model.Token
+	)
+	localVarPath := "/api/token"
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	localVarHttpContentTypes := []string{}
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+	localVarHttpHeaderAccepts := []string{"*/*"}
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	localVarPostBody = c.authenticationSettings.GetBody()
+	r, err := c.PrepareRequest(context.Background(), localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+	localVarHttpResponse, err := c.CallAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
+	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarHttpResponse.Body.Close()
+	if err != nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
+	if localVarHttpResponse.StatusCode < 300 {
+		err = c.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return localVarReturnValue, localVarHttpResponse, err
+		}
+	}
+	if localVarHttpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  localVarBody,
+			error: localVarHttpResponse.Status,
+		}
+		if localVarHttpResponse.StatusCode == 200 {
+			var v http_model.Task
+			err = c.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHttpResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHttpResponse, newErr
+		}
+		return localVarReturnValue, localVarHttpResponse, newErr
+	}
+	return localVarReturnValue, localVarHttpResponse, nil
+}
+
 func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err error) {
 	if strings.Contains(contentType, "application/xml") {
 		if err = xml.Unmarshal(b, v); err != nil {
@@ -279,6 +301,78 @@ func addFile(w *multipart.Writer, fieldName, path string) error {
 	_, err = io.Copy(part, file)
 
 	return err
+}
+
+func atoi(in string) (int, error) {
+	return strconv.Atoi(in)
+}
+
+// selectHeaderContentType select a content type from the available list.
+func selectHeaderContentType(contentTypes []string) string {
+	if len(contentTypes) == 0 {
+		return ""
+	}
+	if contains(contentTypes, "application/json") {
+		return "application/json"
+	}
+	return contentTypes[0] // use the first content type specified in 'consumes'
+}
+
+// selectHeaderAccept join all accept types and return
+func selectHeaderAccept(accepts []string) string {
+	if len(accepts) == 0 {
+		return ""
+	}
+	if contains(accepts, "application/json") {
+		return "application/json"
+	}
+	return strings.Join(accepts, ",")
+}
+
+// contains is a case insenstive match, finding needle in a haystack
+func contains(haystack []string, needle string) bool {
+	for _, a := range haystack {
+		if strings.ToLower(a) == strings.ToLower(needle) {
+			return true
+		}
+	}
+	return false
+}
+
+// Verify optional parameters are of the correct type.
+func typeCheckParameter(obj interface{}, expected string, name string) error {
+	// Make sure there is an object.
+	if obj == nil {
+		return nil
+	}
+
+	// Check the type is as expected.
+	if reflect.TypeOf(obj).String() != expected {
+		return fmt.Errorf("Expected %s to be of type %s but received %s.", name, expected, reflect.TypeOf(obj).String())
+	}
+	return nil
+}
+
+// parameterToString convert interface{} parameters to string, using a delimiter if format is provided.
+func parameterToString(obj interface{}, collectionFormat string) string {
+	var delimiter string
+
+	switch collectionFormat {
+	case "pipes":
+		delimiter = "|"
+	case "ssv":
+		delimiter = " "
+	case "tsv":
+		delimiter = "\t"
+	case "csv":
+		delimiter = ","
+	}
+
+	if reflect.TypeOf(obj).Kind() == reflect.Slice {
+		return strings.Trim(strings.Replace(fmt.Sprint(obj), " ", delimiter, -1), "[]")
+	}
+
+	return fmt.Sprintf("%v", obj)
 }
 
 // Prevent trying to import "fmt"
