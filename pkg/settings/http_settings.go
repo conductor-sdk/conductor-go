@@ -1,9 +1,8 @@
 package settings
 
 type HttpSettings struct {
-	BaseUrl     string
-	BearerToken *string
-	Headers     map[string]string
+	BaseUrl string
+	Headers map[string]string
 }
 
 func NewHttpDefaultSettings() *HttpSettings {
@@ -11,12 +10,11 @@ func NewHttpDefaultSettings() *HttpSettings {
 }
 
 func NewHttpSettings(baseUrl string) *HttpSettings {
-	settings := new(HttpSettings)
-	settings.BaseUrl = baseUrl
-	settings.BearerToken = nil
-	settings.Headers = map[string]string{
-		"Content-Type": "application/json",
-		"Accept":       "application/json",
+	return &HttpSettings{
+		BaseUrl: baseUrl,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+			"Accept":       "application/json",
+		},
 	}
-	return settings
 }

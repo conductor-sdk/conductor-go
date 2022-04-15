@@ -13,8 +13,8 @@ func NewDefaultMetricsSettings() *MetricsSettings {
 }
 
 func NewMetricsSettings(apiEndpoint string, port int) *MetricsSettings {
-	metricsSettings := new(MetricsSettings)
-	metricsSettings.ApiEndpoint = apiEndpoint
-	metricsSettings.Port = port
-	return metricsSettings
+	return &MetricsSettings{
+		ApiEndpoint: apiEndpoint,
+		Port:        port,
+	}
 }
