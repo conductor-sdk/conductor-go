@@ -25,12 +25,14 @@ func NewWorkerOrkestrator(
 	authenticationSettings *settings.AuthenticationSettings,
 	httpSettings *settings.HttpSettings,
 ) *WorkerOrkestrator {
+	metricsCollector := metrics.NewMetricsCollector()
 	return &WorkerOrkestrator{
 		conductorTaskResourceClient: conductor_http_client.NewTaskResourceApiService(
 			authenticationSettings,
 			httpSettings,
+			metricsCollector,
 		),
-		metricsCollector: metrics.NewMetricsCollector(),
+		metricsCollector: metricsCollector,
 	}
 }
 
@@ -126,6 +128,7 @@ func (c *WorkerOrkestrator) executeTask(t *http_model.Task, executeFunction mode
 
 func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *http_model.TaskResult) {
 	_, _, err := c.conductorTaskResourceClient.UpdateTask(
+		taskType,
 		context.Background(),
 		*taskResult,
 	)

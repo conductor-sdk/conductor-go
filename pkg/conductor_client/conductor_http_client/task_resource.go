@@ -10,6 +10,8 @@ import (
 
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_external_storage"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 )
 
@@ -19,18 +21,21 @@ var (
 )
 
 type TaskResourceApiService struct {
-	client *APIClient
+	client           *APIClient
+	metricsCollector *metrics.MetricsCollector
 }
 
 func NewTaskResourceApiService(
 	authenticationSettings *settings.AuthenticationSettings,
 	httpSettings *settings.HttpSettings,
+	metricsCollector *metrics.MetricsCollector,
 ) *TaskResourceApiService {
 	return &TaskResourceApiService{
-		NewAPIClient(
+		client: NewAPIClient(
 			authenticationSettings,
 			httpSettings,
 		),
+		metricsCollector: metricsCollector,
 	}
 }
 
@@ -1318,7 +1323,13 @@ TaskResourceApiService Update a task
  * @param body
 @return string
 */
-func (a *TaskResourceApiService) UpdateTask(ctx context.Context, body http_model.TaskResult) (string, *http.Response, error) {
+func (a *TaskResourceApiService) UpdateTask(taskType string, ctx context.Context, body http_model.TaskResult) (string, *http.Response, error) {
+	a.metricsCollector.IncrementExternalPayloadUsed(
+		taskType,
+		string(metric_external_storage.WRITE),
+		string(metric_external_storage.TASK_OUTPUT),
+	)
+
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}

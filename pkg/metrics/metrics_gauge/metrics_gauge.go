@@ -6,14 +6,14 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_label"
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_name"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 func NewGaugeByName() map[metric_name.MetricName]*prometheus.GaugeVec {
 	gaugeByName := map[metric_name.MetricName]*prometheus.GaugeVec{}
 	for metricName, metricDetails := range gaugeTemplates {
-		gauge := newGauge(metricDetails)
-		gaugeByName[metricName] = gauge
-		prometheus.MustRegister(gauge)
+		gaugeByName[metricName] = newGauge(metricDetails)
+		prometheus.MustRegister(gaugeByName[metricName])
 	}
 	return gaugeByName
 }
@@ -51,7 +51,8 @@ var gaugeTemplates = map[metric_name.MetricName]*metric_model.MetricDetails{
 }
 
 func newGauge(metricDetails *metric_model.MetricDetails) *prometheus.GaugeVec {
-	return prometheus.NewGaugeVec(
+	reg := prometheus.NewRegistry()
+	return promauto.With(reg).NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: metricDetails.Name,
 			Help: metricDetails.Description,
