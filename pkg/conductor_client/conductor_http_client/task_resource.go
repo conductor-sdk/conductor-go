@@ -1415,7 +1415,7 @@ func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskType stri
 	if a.client.httpSettings.ExternalStorageSettings == nil {
 		return
 	}
-	if !a.isTaskResultSizeAllowed(size) {
+	if a.isTaskResultAboveMaxThreshold(size) {
 		err := errors.New(
 			fmt.Sprintf(
 				"The TaskResult payload size: %d is greater than the permissible %d bytes",
@@ -1435,13 +1435,13 @@ func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskType stri
 			string(metric_external_storage.TASK_OUTPUT),
 		)
 		// TODO: update this with actual storage path
-		externalStoragePath := ""
+		externalStoragePath := "RANDOM_PATH"
 		taskResult.ExternalOutputPayloadStoragePath = externalStoragePath
 		taskResult.OutputData = nil
 	}
 }
 
-func (a *TaskResourceApiService) isTaskResultSizeAllowed(size int64) bool {
+func (a *TaskResourceApiService) isTaskResultAboveMaxThreshold(size int64) bool {
 	return size > a.client.httpSettings.ExternalStorageSettings.TaskOutputMaxPayloadThresholdKB
 }
 
