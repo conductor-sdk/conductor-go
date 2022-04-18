@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/conductor-sdk/conductor-go/examples/external_storage_handler"
 	"github.com/conductor-sdk/conductor-go/examples/task_execute_function"
 	"github.com/conductor-sdk/conductor-go/pkg/metrics"
 	"github.com/conductor-sdk/conductor-go/pkg/orkestrator"
@@ -39,7 +40,12 @@ func main() {
 			"keySecret", // key secret from your application
 		),
 		settings.NewHttpSettings(
-			"https://play.orkes.io/api", // conductor http server url
+			"https://play.orkes.io", // conductor http server url
+			settings.NewExternalStorageSettings(
+				4,  // taskOutputPayloadThresholdKB
+				10, // taskOutputMaxPayloadThresholdKB
+				external_storage_handler.S3UploadAndGetPath, // ExternalStorageHandler function
+			),
 		),
 	)
 	workerOrkestrator.StartWorker(
@@ -47,12 +53,6 @@ func main() {
 		task_execute_function.Example1, // task execution function
 		1,                              // parallel go routines amount
 		5000,                           // 5000ms
-	)
-	workerOrkestrator.StartWorker(
-		"go_task_example",              // task definition name
-		task_execute_function.Example2, // task execution function
-		1,                              // parallel go routines amount
-		100,                            // 100ms
 	)
 	// Wait for all workers to finish, otherwise would terminate them
 	workerOrkestrator.WaitWorkers()
