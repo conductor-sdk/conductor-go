@@ -128,7 +128,10 @@ func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *http_model.T
 		taskResult,
 	)
 	if err != nil {
-		log.Error("Error Updating task:", err.Error())
+		log.Error(
+			"Error on task update. taskResult: ", *taskResult,
+			", error: ", err.Error(),
+		)
 		c.metricsCollector.IncrementTaskUpdateError(taskType, err)
 	}
 	log.Debug("Updated task: ", *taskResult)

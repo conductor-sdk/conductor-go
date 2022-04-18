@@ -1328,6 +1328,7 @@ TaskResourceApiService Update a task
 */
 func (a *TaskResourceApiService) UpdateTask(taskType string, ctx context.Context, taskResult *http_model.TaskResult) (string, *http.Response, error) {
 	a.evaluateTaskResultExternalStorage(taskType, taskResult)
+	// log.Debug("taskResult after evaluate external storage: ", *taskResult)
 
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
@@ -1367,6 +1368,9 @@ func (a *TaskResourceApiService) UpdateTask(taskType string, ctx context.Context
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
+
+	// requestString, _ := httputil.DumpRequest(r, true)
+	// log.Debug("request: ", string(requestString))
 
 	localVarHttpResponse, err := a.client.CallAPI(r)
 	if err != nil || localVarHttpResponse == nil {

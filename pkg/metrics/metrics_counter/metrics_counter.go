@@ -6,7 +6,6 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_label"
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_name"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 func NewCounterByName() map[metric_name.MetricName]*prometheus.CounterVec {
@@ -104,8 +103,7 @@ var counterTemplates = map[metric_name.MetricName]*metric_model.MetricDetails{
 }
 
 func newCounter(metricDetails *metric_model.MetricDetails) *prometheus.CounterVec {
-	reg := prometheus.NewRegistry()
-	return promauto.With(reg).NewCounterVec(
+	return prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: metricDetails.Name,
 			Help: metricDetails.Description,
