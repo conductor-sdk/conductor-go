@@ -16,6 +16,8 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_external_storage"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Linger please
@@ -1423,8 +1425,8 @@ func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskType stri
 				a.client.httpSettings.ExternalStorageSettings.TaskOutputMaxPayloadThresholdKB,
 			),
 		)
-		taskResult.ReasonForIncompletion = err.Error()
 		taskResult.Status = task_result_status.FAILED_WITH_TERMINAL_ERROR
+		taskResult.ReasonForIncompletion = err.Error()
 		taskResult.OutputData = nil
 		return
 	}
@@ -1434,8 +1436,10 @@ func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskType stri
 			string(metric_external_storage.WRITE),
 			string(metric_external_storage.TASK_OUTPUT),
 		)
-		// TODO: update this with actual storage path
-		externalStoragePath := "RANDOM_PATH"
+		externalStoragePath, err := a.client.httpSettings.ExternalStorageSettings.ExternalStorageHandler(taskResult.OutputData)
+		if err != nil {
+			log.Debug("Failed to get External Storage Path for TaskResult: ", *taskResult)
+		}
 		taskResult.ExternalOutputPayloadStoragePath = externalStoragePath
 		taskResult.OutputData = nil
 	}

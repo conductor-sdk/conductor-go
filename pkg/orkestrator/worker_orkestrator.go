@@ -122,7 +122,7 @@ func (c *WorkerOrkestrator) executeTask(t *http_model.Task, executeFunction mode
 }
 
 func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *http_model.TaskResult) {
-	_, _, err := c.conductorTaskResourceClient.UpdateTask(
+	_, response, err := c.conductorTaskResourceClient.UpdateTask(
 		taskType,
 		context.Background(),
 		taskResult,
@@ -131,8 +131,10 @@ func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *http_model.T
 		log.Error(
 			"Error on task update. taskResult: ", *taskResult,
 			", error: ", err.Error(),
+			", response: ", response,
 		)
 		c.metricsCollector.IncrementTaskUpdateError(taskType, err)
+		return
 	}
 	log.Debug("Updated task: ", *taskResult)
 }
