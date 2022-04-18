@@ -1433,6 +1433,7 @@ func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskType stri
 			string(metric_external_storage.WRITE),
 			string(metric_external_storage.TASK_OUTPUT),
 		)
+		// TODO: update this with actual storage path
 		externalStoragePath := ""
 		taskResult.ExternalOutputPayloadStoragePath = externalStoragePath
 		taskResult.OutputData = nil
