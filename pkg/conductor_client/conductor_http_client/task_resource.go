@@ -2,16 +2,19 @@ package conductor_http_client
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+	"unsafe"
 
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/metrics"
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_external_storage"
+	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 )
 
@@ -1323,12 +1326,8 @@ TaskResourceApiService Update a task
  * @param body
 @return string
 */
-func (a *TaskResourceApiService) UpdateTask(taskType string, ctx context.Context, body http_model.TaskResult) (string, *http.Response, error) {
-	a.metricsCollector.IncrementExternalPayloadUsed(
-		taskType,
-		string(metric_external_storage.WRITE),
-		string(metric_external_storage.TASK_OUTPUT),
-	)
+func (a *TaskResourceApiService) UpdateTask(taskType string, ctx context.Context, taskResult *http_model.TaskResult) (string, *http.Response, error) {
+	a.evaluateTaskResultExternalStorage(taskType, taskResult)
 
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
@@ -1363,7 +1362,7 @@ func (a *TaskResourceApiService) UpdateTask(taskType string, ctx context.Context
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 	// body params
-	localVarPostBody = &body
+	localVarPostBody = &taskResult.OutputData
 	r, err := a.client.PrepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1407,4 +1406,43 @@ func (a *TaskResourceApiService) UpdateTask(taskType string, ctx context.Context
 	}
 
 	return localVarReturnValue, localVarHttpResponse, nil
+}
+
+func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskType string, taskResult *http_model.TaskResult) {
+	size := int64(unsafe.Sizeof(taskResult.OutputData))
+	a.metricsCollector.RecordTaskResultPayloadSize(taskType, float64(size))
+	if a.client.httpSettings.ExternalStorageSettings == nil {
+		return
+	}
+	if !a.isTaskResultSizeAllowed(size) {
+		err := errors.New(
+			fmt.Sprintf(
+				"The TaskResult payload size: %d is greater than the permissible %d bytes",
+				size,
+				a.client.httpSettings.ExternalStorageSettings.TaskOutputMaxPayloadThresholdKB,
+			),
+		)
+		taskResult.ReasonForIncompletion = err.Error()
+		taskResult.Status = task_result_status.FAILED_WITH_TERMINAL_ERROR
+		taskResult.OutputData = nil
+		return
+	}
+	if a.mustUploadTaskResult(size) {
+		a.metricsCollector.IncrementExternalPayloadUsed(
+			taskType,
+			string(metric_external_storage.WRITE),
+			string(metric_external_storage.TASK_OUTPUT),
+		)
+		externalStoragePath := ""
+		taskResult.ExternalOutputPayloadStoragePath = externalStoragePath
+		taskResult.OutputData = nil
+	}
+}
+
+func (a *TaskResourceApiService) isTaskResultSizeAllowed(size int64) bool {
+	return size > a.client.httpSettings.ExternalStorageSettings.TaskOutputMaxPayloadThresholdKB
+}
+
+func (a *TaskResourceApiService) mustUploadTaskResult(size int64) bool {
+	return size > a.client.httpSettings.ExternalStorageSettings.TaskOutputPayloadThresholdKB
 }
