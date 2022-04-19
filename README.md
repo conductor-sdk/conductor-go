@@ -26,7 +26,7 @@ module conductor_test
 go 1.18
 
 require (
-	github.com/conductor-sdk/conductor-go v1.0.7
+	github.com/conductor-sdk/conductor-go v1.0.8
 )
 ```
 
