@@ -11,9 +11,8 @@ import (
 func NewCounterByName() map[metric_name.MetricName]*prometheus.CounterVec {
 	counterByName := map[metric_name.MetricName]*prometheus.CounterVec{}
 	for metricName, metricDetails := range counterTemplates {
-		counter := newCounter(metricDetails)
-		counterByName[metricName] = counter
-		prometheus.MustRegister(counter)
+		counterByName[metricName] = newCounter(metricDetails)
+		prometheus.MustRegister(counterByName[metricName])
 	}
 	return counterByName
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"sync"
 	"time"
-	"unsafe"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
@@ -25,12 +24,14 @@ func NewWorkerOrkestrator(
 	authenticationSettings *settings.AuthenticationSettings,
 	httpSettings *settings.HttpSettings,
 ) *WorkerOrkestrator {
+	metricsCollector := metrics.NewMetricsCollector()
 	return &WorkerOrkestrator{
 		conductorTaskResourceClient: conductor_http_client.NewTaskResourceApiService(
 			authenticationSettings,
 			httpSettings,
+			metricsCollector,
 		),
-		metricsCollector: metrics.NewMetricsCollector(),
+		metricsCollector: metricsCollector,
 	}
 }
 
@@ -116,22 +117,24 @@ func (c *WorkerOrkestrator) executeTask(t *http_model.Task, executeFunction mode
 			t.TaskDefName, err,
 		)
 	}
-	size := unsafe.Sizeof(taskResult)
-	c.metricsCollector.RecordTaskResultPayloadSize(
-		t.TaskDefName, float64(size),
-	)
 	log.Debug("Executed task: ", *t)
 	return taskResult
 }
 
 func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *http_model.TaskResult) {
-	_, _, err := c.conductorTaskResourceClient.UpdateTask(
+	_, response, err := c.conductorTaskResourceClient.UpdateTask(
+		taskType,
 		context.Background(),
-		*taskResult,
+		taskResult,
 	)
 	if err != nil {
-		log.Error("Error Updating task:", err.Error())
+		log.Error(
+			"Error on task update. taskResult: ", *taskResult,
+			", error: ", err.Error(),
+			", response: ", response,
+		)
 		c.metricsCollector.IncrementTaskUpdateError(taskType, err)
+		return
 	}
 	log.Debug("Updated task: ", *taskResult)
 }

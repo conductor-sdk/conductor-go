@@ -11,9 +11,8 @@ import (
 func NewGaugeByName() map[metric_name.MetricName]*prometheus.GaugeVec {
 	gaugeByName := map[metric_name.MetricName]*prometheus.GaugeVec{}
 	for metricName, metricDetails := range gaugeTemplates {
-		gauge := newGauge(metricDetails)
-		gaugeByName[metricName] = gauge
-		prometheus.MustRegister(gauge)
+		gaugeByName[metricName] = newGauge(metricDetails)
+		prometheus.MustRegister(gaugeByName[metricName])
 	}
 	return gaugeByName
 }
