@@ -10,7 +10,6 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/metrics"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
-	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -21,16 +20,13 @@ type WorkerOrkestrator struct {
 }
 
 func NewWorkerOrkestrator(
-	authenticationSettings *settings.AuthenticationSettings,
-	httpSettings *settings.HttpSettings,
+	metricsCollector *metrics.MetricsCollector,
+	apiClient *conductor_http_client.APIClient,
 ) *WorkerOrkestrator {
-	metricsCollector := metrics.NewMetricsCollector()
 	return &WorkerOrkestrator{
-		conductorTaskResourceClient: conductor_http_client.NewTaskResourceApiService(
-			authenticationSettings,
-			httpSettings,
-			metricsCollector,
-		),
+		conductorTaskResourceClient: &conductor_http_client.TaskResourceApiService{
+			APIClient: apiClient,
+		},
 		metricsCollector: metricsCollector,
 	}
 }
