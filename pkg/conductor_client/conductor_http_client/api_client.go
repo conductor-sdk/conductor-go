@@ -140,9 +140,7 @@ func (c *APIClient) prepareRequest(
 	}
 
 	// Auth
-	if c.mustUpdateToken() {
-		c.refreshToken()
-	}
+	c.refreshToken()
 	if c.authenticationToken != nil {
 		headerParams["X-Authorization"] = *c.authenticationToken
 	}
@@ -190,17 +188,20 @@ func (c *APIClient) prepareRequest(
 	return localVarRequest, nil
 }
 
-func (c *APIClient) mustUpdateToken() bool {
+func (c *APIClient) mustRefreshToken() bool {
 	if c.isRefreshingToken {
 		return false
 	}
-	if c.authenticationSettings == nil || c.authenticationToken != nil {
+	if c.authenticationSettings == nil {
 		return false
 	}
-	return true
+	return c.authenticationToken == nil
 }
 
 func (c *APIClient) refreshToken() {
+	if !c.mustRefreshToken() {
+		return
+	}
 	token, response, err := c.getToken()
 	if err == nil {
 		c.authenticationToken = &token.Token
