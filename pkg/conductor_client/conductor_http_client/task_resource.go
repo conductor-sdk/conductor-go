@@ -12,6 +12,8 @@ import (
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_external_storage"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_counter"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_gauge"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 
 	log "github.com/sirupsen/logrus"
@@ -1395,7 +1397,7 @@ func (a *TaskResourceApiService) UpdateTask(taskType string, ctx context.Context
 
 func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskType string, taskResult *http_model.TaskResult) {
 	size := int64(unsafe.Sizeof(taskResult.OutputData))
-	a.metricsCollector.RecordTaskResultPayloadSize(taskType, float64(size))
+	metrics_gauge.RecordTaskResultPayloadSize(taskType, float64(size))
 	if a.httpSettings.ExternalStorageSettings == nil {
 		return
 	}
@@ -1411,7 +1413,7 @@ func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskType stri
 		return
 	}
 	if a.mustUploadTaskResult(size) {
-		a.metricsCollector.IncrementExternalPayloadUsed(
+		metrics_counter.IncrementExternalPayloadUsed(
 			taskType,
 			string(metric_external_storage.WRITE),
 			string(metric_external_storage.TASK_OUTPUT),

@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/conductor-sdk/conductor-go/pkg/metrics"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	log "github.com/sirupsen/logrus"
 )
@@ -36,13 +35,11 @@ type APIClient struct {
 	httpSettings           *settings.HttpSettings
 	httpClient             *http.Client
 	isRefreshingToken      bool
-	metricsCollector       *metrics.MetricsCollector
 }
 
 func NewAPIClient(
 	authenticationSettings *settings.AuthenticationSettings,
 	httpSettings *settings.HttpSettings,
-	metricsCollector *metrics.MetricsCollector,
 ) *APIClient {
 	if httpSettings == nil {
 		httpSettings = settings.NewHttpDefaultSettings()
@@ -53,7 +50,6 @@ func NewAPIClient(
 		httpSettings:           httpSettings,
 		httpClient:             &http.Client{},
 		isRefreshingToken:      false,
-		metricsCollector:       metricsCollector,
 	}
 }
 
