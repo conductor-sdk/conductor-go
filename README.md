@@ -15,8 +15,8 @@ To find out more about Conductor visit: [https://github.com/Netflix/conductor](h
 
 Create a folder to build your package:
 ```shell
-$ mkdir conductor-go/
-$ cd conductor-go/
+mkdir conductor-go/
+cd conductor-go/
 ```
 
 Create a go.mod file for dependencies
