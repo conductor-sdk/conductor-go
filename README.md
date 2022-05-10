@@ -7,9 +7,8 @@ To find out more about Conductor visit: [https://github.com/Netflix/conductor](h
 ## Quick Start
 
 1. [Setup conductor-go package](#Setup-conductor-go-package)
-1. [Write worker as a function](#Write-worker-as-a-function)
-1. [Run workers](#Run-workers)
-1. [Configuration](#Configuration)
+2. [Run workers](#Run-workers)
+3. [Configuration](#Configuration)
 
 ### Setup conductor go package
 
