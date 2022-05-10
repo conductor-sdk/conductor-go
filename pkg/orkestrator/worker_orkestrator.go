@@ -91,9 +91,6 @@ func (c *WorkerOrkestrator) pollTask(taskType string) *http_model.Task {
 		taskType,
 		spentTime.Seconds(),
 	)
-	if response.StatusCode == 204 {
-		return nil
-	}
 	if err != nil {
 		log.Error(
 			"Error polling for task: ", taskType,
@@ -102,6 +99,9 @@ func (c *WorkerOrkestrator) pollTask(taskType string) *http_model.Task {
 		metrics_counter.IncrementTaskPollError(
 			taskType, err,
 		)
+		return nil
+	}
+	if response.StatusCode == 204 {
 		return nil
 	}
 	log.Debug("Polled task: ", task)
