@@ -3,6 +3,7 @@ package orkestrator_tests
 import (
 	"testing"
 
+	"github.com/conductor-sdk/conductor-go/examples/task_execute_function"
 	"github.com/conductor-sdk/conductor-go/pkg/orkestrator"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/conductor_client_tests"
 )
@@ -21,5 +22,12 @@ func TestWorkerOrkestratorExecution(t *testing.T) {
 	workerOrkestrator := orkestrator.NewWorkerOrkestratorWithApiClient(apiClient)
 	workerOrkestrator.StartWorker(
 		"go_task_example_from_code",
+		task_execute_function.Example1,
+		3,
+		1000,
 	)
+	// time.Sleep(
+	// 	time.Duration(10000) * time.Millisecond,
+	// )
+	// logrus.Warning("workflows: ", workflows)
 }

@@ -11,7 +11,7 @@ To find out more about Conductor visit: [https://github.com/Netflix/conductor](h
 1. [Run workers](#Run-workers)
 1. [Configuration](#Configuration)
 
-### Setup-conductor-go-package
+### Setup conductor go package
 
 Create a folder to build your package:
 ```shell
@@ -19,29 +19,23 @@ $ mkdir conductor-go/
 $ cd conductor-go/
 ```
 
-Create a `go.mod` file inside this folder, with this content:
-```
-module conductor_test
+Download [go.mod](examples/main/go.mod) file and install dependencies:
 
-go 1.18
-
-require (
-	github.com/conductor-sdk/conductor-go v1.0.8
-)
+```shell
+$ wget "https://github.com/conductor-sdk/conductor-go/blob/main/examples/main/main.go"
+$ go mod tidy
 ```
 
 Now you may be able to create your workers and main function.
 
 ### Write worker as a function
-You can download [this code](examples/task_execute_function/task_execute_function.go) into the repository folder with:
-```shell
-$ wget "https://github.com/conductor-sdk/conductor-go/blob/main/examples/task_execute_function/task_execute_function.go"
-```
+Take a look at this [worker example](examples/task_execute_function/task_execute_function.go)
 
 ### Run workers
-You can download [this code](examples/main/main.go) into the repository folder with:
+You can download a [main.go](examples/main/main.go) example and start running some workers:
 ```shell
 $ wget "https://github.com/conductor-sdk/conductor-go/blob/main/examples/main/main.go"
+$ go run main.go
 ```
 
 ### Running Conductor server locally in 2-minute
@@ -131,9 +125,9 @@ Use if your conductor server requires authentication
 
 ```go
 authenticationSettings := settings.NewAuthenticationSettings(
-    "keyId",
-    "keySecret",
-),
+  "keyId",
+  "keySecret",
+)
 ```
 
 ### External Storage Settings (optional)
@@ -142,9 +136,9 @@ You may define max payload size and threshold for uploading, also with a functio
 
 ```go
 externalStorageSettings := settings.NewExternalStorageSettings(
-	4,  // taskOutputPayloadThresholdKB
-	10, // taskOutputMaxPayloadThresholdKB
-	external_storage_handler.UploadAndGetPath, // External Storage Handler function
+  4,  // taskOutputPayloadThresholdKB
+  10, // taskOutputMaxPayloadThresholdKB
+  external_storage_handler.UploadAndGetPath, // External Storage Handler function
 ),
 ```
 
