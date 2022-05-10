@@ -1,4 +1,4 @@
-package orkestrator
+package worker
 
 import (
 	"context"
@@ -15,37 +15,37 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type WorkerOrkestrator struct {
+type TaskRunner struct {
 	conductorTaskResourceClient *conductor_http_client.TaskResourceApiService
 	waitGroup                   sync.WaitGroup
 }
 
 func NewWorkerOrkestratorWithApiClient(
 	apiClient *conductor_http_client.APIClient,
-) *WorkerOrkestrator {
-	return &WorkerOrkestrator{
+) *TaskRunner {
+	return &TaskRunner{
 		conductorTaskResourceClient: &conductor_http_client.TaskResourceApiService{
 			APIClient: apiClient,
 		},
 	}
 }
 
-func NewWorkerOrkestrator(
+func NewTaskRunner(
 	authenticationSettings *settings.AuthenticationSettings,
 	httpSettings *settings.HttpSettings,
-) *WorkerOrkestrator {
+) *TaskRunner {
 	apiClient := conductor_http_client.NewAPIClient(
 		authenticationSettings,
 		httpSettings,
 	)
-	return &WorkerOrkestrator{
+	return &TaskRunner{
 		conductorTaskResourceClient: &conductor_http_client.TaskResourceApiService{
 			APIClient: apiClient,
 		},
 	}
 }
 
-func (c *WorkerOrkestrator) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, parallelGoRoutinesAmount int, pollingInterval int) {
+func (c *TaskRunner) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, parallelGoRoutinesAmount int, pollingInterval int) {
 	for goRoutines := 1; goRoutines <= parallelGoRoutinesAmount; goRoutines++ {
 		c.waitGroup.Add(1)
 		go c.run(taskType, executeFunction, pollingInterval)
@@ -57,18 +57,18 @@ func (c *WorkerOrkestrator) StartWorker(taskType string, executeFunction model.T
 	)
 }
 
-func (c *WorkerOrkestrator) WaitWorkers() {
+func (c *TaskRunner) WaitWorkers() {
 	c.waitGroup.Wait()
 }
 
-func (c *WorkerOrkestrator) run(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int) {
+func (c *TaskRunner) run(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int) {
 	for {
 		c.runOnce(taskType, executeFunction, pollingInterval)
 	}
 	// c.waitGroup.Done()
 }
 
-func (c *WorkerOrkestrator) runOnce(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int) {
+func (c *TaskRunner) runOnce(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int) {
 	task := c.pollTask(taskType)
 	if task == nil {
 		sleep(pollingInterval)
@@ -78,7 +78,8 @@ func (c *WorkerOrkestrator) runOnce(taskType string, executeFunction model.TaskE
 	c.updateTask(taskType, taskResult)
 }
 
-func (c *WorkerOrkestrator) pollTask(taskType string) *http_model.Task {
+func (c *TaskRunner) pollTask(taskType string) *http_model.Task {
+	log.Debug("Polling for ", taskType)
 	metrics_counter.IncrementTaskPoll(taskType)
 	startTime := time.Now()
 	task, response, err := c.conductorTaskResourceClient.Poll(
@@ -108,7 +109,7 @@ func (c *WorkerOrkestrator) pollTask(taskType string) *http_model.Task {
 	return &task
 }
 
-func (c *WorkerOrkestrator) executeTask(t *http_model.Task, executeFunction model.TaskExecuteFunction) *http_model.TaskResult {
+func (c *TaskRunner) executeTask(t *http_model.Task, executeFunction model.TaskExecuteFunction) *http_model.TaskResult {
 	startTime := time.Now()
 	taskResult, err := executeFunction(t)
 	spentTime := time.Since(startTime)
@@ -131,7 +132,7 @@ func (c *WorkerOrkestrator) executeTask(t *http_model.Task, executeFunction mode
 	return taskResult
 }
 
-func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *http_model.TaskResult) {
+func (c *TaskRunner) updateTask(taskType string, taskResult *http_model.TaskResult) {
 	_, response, err := c.conductorTaskResourceClient.UpdateTask(
 		taskType,
 		context.Background(),

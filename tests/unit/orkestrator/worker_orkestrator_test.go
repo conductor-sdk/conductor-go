@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
-	"github.com/conductor-sdk/conductor-go/pkg/orkestrator"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
+	"github.com/conductor-sdk/conductor-go/pkg/worker"
 )
 
 func TestSimpleWorkerOrkerstrator(t *testing.T) {
-	workerOrkestrator := orkestrator.NewWorkerOrkestrator(nil, nil)
+	workerOrkestrator := worker.NewTaskRunner(nil, nil)
 	if workerOrkestrator == nil {
 		t.Fail()
 	}
@@ -20,7 +20,7 @@ func TestWorkerOrkestratorWithoutAuthenticationSettings(t *testing.T) {
 		nil,
 		settings.NewHttpDefaultSettings(),
 	)
-	workerOrkestrator := orkestrator.NewWorkerOrkestratorWithApiClient(
+	workerOrkestrator := worker.NewWorkerOrkestratorWithApiClient(
 		apiClient,
 	)
 	if workerOrkestrator == nil {
@@ -37,7 +37,7 @@ func TestWorkerOrkestratorWithAuthenticationSettings(t *testing.T) {
 		authenticationSettings,
 		settings.NewHttpDefaultSettings(),
 	)
-	workerOrkestrator := orkestrator.NewWorkerOrkestratorWithApiClient(
+	workerOrkestrator := worker.NewWorkerOrkestratorWithApiClient(
 		apiClient,
 	)
 	if workerOrkestrator == nil {

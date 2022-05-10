@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/conductor-sdk/conductor-go/examples/task_execute_function"
-	"github.com/conductor-sdk/conductor-go/pkg/orkestrator"
+	"github.com/conductor-sdk/conductor-go/pkg/worker"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/conductor_client_tests"
 )
 
@@ -19,7 +19,7 @@ func TestWorkerOrkestratorExecution(t *testing.T) {
 		workflows = append(workflows, workflowId)
 	}
 	apiClient := conductor_client_tests.GetApiClientWithAuthentication()
-	workerOrkestrator := orkestrator.NewWorkerOrkestratorWithApiClient(apiClient)
+	workerOrkestrator := worker.NewWorkerOrkestratorWithApiClient(apiClient)
 	workerOrkestrator.StartWorker(
 		"go_task_example_from_code",
 		task_execute_function.Example1,
