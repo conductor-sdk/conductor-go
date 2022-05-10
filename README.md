@@ -129,3 +129,28 @@ taskRunner.StartWorker(
 	1000,                           // polling interval in milli-seconds
 )
 ```
+### Start a workflow programmatically
+```go
+
+apiClient := conductor_http_client.NewAPIClient(
+    settings.NewAuthenticationSettings(
+        KEY,
+        SECRET,
+    ),
+    settings.NewHttpSettings(
+        "https://play.orkes.io",
+    ),
+)
+
+workflowClient := *&conductor_http_client.WorkflowResourceApiService{
+    APIClient: apiClient,
+}
+workflowId, _, _ := workflowClient.StartWorkflow(
+    context.Background(),
+    map[string]interface{}{},
+    "PopulationMinMax",
+    &conductor_http_client.WorkflowResourceApiStartWorkflowOpts{},
+)
+log.Info("Workflow Id is ", workflowId)
+	
+```
