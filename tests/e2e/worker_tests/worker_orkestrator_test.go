@@ -1,4 +1,4 @@
-package orkestrator_tests
+package worker_tests
 
 import (
 	"testing"

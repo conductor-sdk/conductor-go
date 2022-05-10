@@ -1,4 +1,4 @@
-package orkestrator
+package worker
 
 import (
 	"testing"
