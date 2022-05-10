@@ -1,51 +1,51 @@
 package main
 
 import (
-	"os"
-
-	"github.com/conductor-sdk/conductor-go/examples/task_execute_function"
-	"github.com/conductor-sdk/conductor-go/pkg/metrics"
-	"github.com/conductor-sdk/conductor-go/pkg/orkestrator"
+	"github.com/conductor-sdk/conductor-go/pkg/http_model"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
+	"github.com/conductor-sdk/conductor-go/pkg/worker"
 	log "github.com/sirupsen/logrus"
+	"os"
 )
 
-// Example init function that shows how to configure logging
-// Using json formatter and changing level to Debug
 func init() {
-	// Log as JSON instead of the default ASCII formatter.
 	log.SetFormatter(&log.JSONFormatter{})
-	//Stdout, change to a file for production use case
 	log.SetOutput(os.Stdout)
-	// Set to debug for demonstration.  Change to Info for production use cases.
-	log.SetLevel(log.InfoLevel)
+	log.SetLevel(log.DebugLevel)
 }
 
-// Example main function to start workers
+func Worker(t *http_model.Task) (taskResult *http_model.TaskResult, err error) {
+	taskResult = model.GetTaskResultFromTask(t)
+	taskResult.OutputData = map[string]interface{}{
+		"task": "task_1",
+		"key2": "value2",
+		"key3": 3,
+		"key4": false,
+	}
+	taskResult.Status = task_result_status.COMPLETED
+	err = nil
+	return taskResult, err
+}
+
 func main() {
-	// MetricsSettings is optional,
-	// could be nil instead and use default settings
-	go metrics.ProvideMetrics(nil)
-	// AuthenticationSettings and HttpSettings are optional,
-	// could be nil instead and use default settings
-	workerOrkestrator := orkestrator.NewWorkerOrkestrator(
-		nil,
+	taskRunner := worker.NewTaskRunner(
+		settings.NewAuthenticationSettings(
+			"0067901e-f21d-4e26-ac90-43cfdcdf9bda",
+			"IIxjvw0CmGONRL1h0sd3qNsfdDaMCHEzaxBqoJpKRJHo2zhr",
+		),
 		settings.NewHttpSettings(
-			"http://localhost:8080/api", // conductor http server url
+			"https://perf6.conductorworkflow.net",
 		),
 	)
 
-	THREAD_LIMIT := 10
-	for i := 0; i < THREAD_LIMIT; i++ {
-		workerOrkestrator.StartWorker(
-			"task1",
-			task_execute_function.Example1,
-			10,
-			10,
-		)
+	taskRunner.StartWorker(
+		"go_task_example",
+		Worker,
+		2,
+		10,
+	)
 
-	}
-
-	// Wait for all workers to finish, otherwise would terminate them
-	workerOrkestrator.WaitWorkers()
+	taskRunner.WaitWorkers()
 }
