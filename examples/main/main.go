@@ -30,6 +30,10 @@ func Worker(t *http_model.Task) (taskResult *http_model.TaskResult, err error) {
 
 func main() {
 	taskRunner := worker.NewTaskRunner(
+		//TODO: update the key and secret
+		//To obtain a key / secret for your server, see
+		//https://orkes.io/content/docs/getting-started/concepts/access-control#access-keys
+		//If you are testing against a server that does not require authentication, pass nil
 		settings.NewAuthenticationSettings(
 			"",
 			"",
