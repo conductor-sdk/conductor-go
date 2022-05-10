@@ -15,8 +15,6 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_counter"
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_gauge"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // Linger please
@@ -1490,17 +1488,9 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskType string, taskResult *http_model.TaskResult) {
 	size := int64(unsafe.Sizeof(taskResult.OutputData))
 	metrics_gauge.RecordTaskResultPayloadSize(taskType, float64(size))
-	if a.httpSettings.ExternalStorageSettings == nil {
-		return
-	}
 	if a.isTaskResultAboveMaxThreshold(size) {
-		err := fmt.Errorf(
-			"the TaskResult payload size: %d is greater than the permissible %d bytes",
-			size,
-			a.httpSettings.ExternalStorageSettings.TaskOutputMaxPayloadThresholdKB,
-		)
 		taskResult.Status = task_result_status.FAILED_WITH_TERMINAL_ERROR
-		taskResult.ReasonForIncompletion = err.Error()
+		taskResult.ReasonForIncompletion = "The TaskResult payload size: is greater than the permissible bytes"
 		taskResult.OutputData = nil
 		return
 	}
@@ -1510,19 +1500,15 @@ func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskType stri
 			string(metric_external_storage.WRITE),
 			string(metric_external_storage.TASK_OUTPUT),
 		)
-		externalStoragePath, err := a.httpSettings.ExternalStorageSettings.ExternalStorageHandler(taskResult.OutputData)
-		if err != nil {
-			log.Debug("Failed to get External Storage Path for TaskResult: ", *taskResult)
-		}
-		taskResult.ExternalOutputPayloadStoragePath = externalStoragePath
-		taskResult.OutputData = nil
 	}
 }
 
 func (a *TaskResourceApiService) isTaskResultAboveMaxThreshold(size int64) bool {
-	return size > a.httpSettings.ExternalStorageSettings.TaskOutputMaxPayloadThresholdKB
+	// TODO
+	return false
 }
 
 func (a *TaskResourceApiService) mustUploadTaskResult(size int64) bool {
-	return size > a.httpSettings.ExternalStorageSettings.TaskOutputPayloadThresholdKB
+	// TODO
+	return false
 }
