@@ -45,15 +45,15 @@ func NewTaskRunner(
 	}
 }
 
-func (c *TaskRunner) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, parallelGoRoutinesAmount int, pollingInterval int) {
-	for goRoutines := 1; goRoutines <= parallelGoRoutinesAmount; goRoutines++ {
+func (c *TaskRunner) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, threadCount int, pollIntervalInMillis int) {
+	for goRoutines := 1; goRoutines <= threadCount; goRoutines++ {
 		c.waitGroup.Add(1)
-		go c.run(taskType, executeFunction, pollingInterval)
+		go c.run(taskType, executeFunction, pollIntervalInMillis)
 	}
 	log.Debug(
 		"Started worker for task: ", taskType,
-		", go routines amount: ", parallelGoRoutinesAmount,
-		", polling interval: ", pollingInterval, "ms",
+		", go routines amount: ", threadCount,
+		", polling interval: ", pollIntervalInMillis, "ms",
 	)
 }
 
