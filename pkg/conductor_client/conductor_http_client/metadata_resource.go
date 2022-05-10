@@ -27,7 +27,7 @@ MetadataResourceApiService Create a new workflow definition
  * @param body
 
 */
-func (a *MetadataResourceApiService) Create(ctx context.Context, body http_model.WorkflowDef) (*http.Response, error) {
+func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, body http_model.WorkflowDef) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -440,7 +440,7 @@ MetadataResourceApiService Update an existing task
  * @param body
 
 */
-func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body http_model.TaskDef) (*http.Response, error) {
+func (a *MetadataResourceApiService) UpdateTaskDef(ctx context.Context, body http_model.TaskDef) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -507,7 +507,7 @@ MetadataResourceApiService Create new task definition(s)
  * @param body
 
 */
-func (a *MetadataResourceApiService) RegisterTaskDef1(ctx context.Context, body []http_model.TaskDef) (*http.Response, error) {
+func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body []http_model.TaskDef) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
