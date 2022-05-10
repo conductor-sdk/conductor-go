@@ -31,11 +31,11 @@ func Worker(t *http_model.Task) (taskResult *http_model.TaskResult, err error) {
 func main() {
 	taskRunner := worker.NewTaskRunner(
 		settings.NewAuthenticationSettings(
-			"0067901e-f21d-4e26-ac90-43cfdcdf9bda",
-			"IIxjvw0CmGONRL1h0sd3qNsfdDaMCHEzaxBqoJpKRJHo2zhr",
+			"",
+			"",
 		),
 		settings.NewHttpSettings(
-			"https://perf6.conductorworkflow.net",
+			"https://play.orkes.io",
 		),
 	)
 
