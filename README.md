@@ -29,7 +29,7 @@ require (
 )
 ```
 
-Now, create simple worker implentation
+Now, create simple worker implentation as `main.go`
 ```go
 package main
 
