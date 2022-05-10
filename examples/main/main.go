@@ -20,7 +20,6 @@ func Worker(t *http_model.Task) (taskResult *http_model.TaskResult, err error) {
 	taskResult = model.GetTaskResultFromTask(t)
 	taskResult.OutputData = map[string]interface{}{
 		"task": "task_1",
-		"key2": "value2",
 		"key3": 3,
 		"key4": false,
 	}
