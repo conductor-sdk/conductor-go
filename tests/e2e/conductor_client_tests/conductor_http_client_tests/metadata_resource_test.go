@@ -29,7 +29,7 @@ func TestRegisterWorkflowDefinition(t *testing.T) {
 		context.Background(),
 		getWorkflowDefinition(),
 	)
-	if err != nil && response.Status != "409 Conflict" {
+	if err != nil && response.StatusCode != 409 {
 		t.Error("response:", response)
 	}
 }
