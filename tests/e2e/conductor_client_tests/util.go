@@ -33,14 +33,13 @@ func GetApiClientWithAuthentication() *conductor_http_client.APIClient {
 
 func getAuthenticationSettings() *settings.AuthenticationSettings {
 	return settings.NewAuthenticationSettings(
-		"9efb60ee-a21b-45e4-a5d9-44ea32a249cf",
-		"9RmceL5sByTnFIzIr8VBTiAYwjhPFp43q2MaXbYICezeIP5Q",
+		"",
+		"",
 	)
 }
 
 func getHttpSettingsWithAuth() *settings.HttpSettings {
 	return settings.NewHttpSettings(
 		"https://play.orkes.io",
-		nil,
 	)
 }

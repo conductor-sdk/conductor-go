@@ -32,7 +32,6 @@ func main() {
 		nil,
 		settings.NewHttpSettings(
 			"http://localhost:8080/api", // conductor http server url
-			nil,
 		),
 	)
 
