@@ -129,7 +129,7 @@ taskRunner.StartWorker(
 	1000,                           // polling interval in milli-seconds
 )
 ```
-### Start a workflow programmatically
+### Start a workflow using APIs
 ```go
 
 apiClient := conductor_http_client.NewAPIClient(
