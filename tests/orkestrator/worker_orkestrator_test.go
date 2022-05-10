@@ -8,12 +8,19 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 )
 
+func TestSimpleWorkerOrkerstrator(t *testing.T) {
+	workerOrkestrator := orkestrator.NewWorkerOrkestrator(nil, nil)
+	if workerOrkestrator == nil {
+		t.Fail()
+	}
+}
+
 func TestWorkerOrkestratorWithoutAuthenticationSettings(t *testing.T) {
 	apiClient := conductor_http_client.NewAPIClient(
 		nil,
 		settings.NewHttpDefaultSettings(),
 	)
-	workerOrkestrator := orkestrator.NewWorkerOrkestrator(
+	workerOrkestrator := orkestrator.NewWorkerOrkestratorWithApiClient(
 		apiClient,
 	)
 	if workerOrkestrator == nil {
@@ -30,7 +37,7 @@ func TestWorkerOrkestratorWithAuthenticationSettings(t *testing.T) {
 		authenticationSettings,
 		settings.NewHttpDefaultSettings(),
 	)
-	workerOrkestrator := orkestrator.NewWorkerOrkestrator(
+	workerOrkestrator := orkestrator.NewWorkerOrkestratorWithApiClient(
 		apiClient,
 	)
 	if workerOrkestrator == nil {

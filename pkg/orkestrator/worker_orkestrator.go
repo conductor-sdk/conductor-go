@@ -11,6 +11,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_gauge"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
+	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -19,9 +20,24 @@ type WorkerOrkestrator struct {
 	waitGroup                   sync.WaitGroup
 }
 
-func NewWorkerOrkestrator(
+func NewWorkerOrkestratorWithApiClient(
 	apiClient *conductor_http_client.APIClient,
 ) *WorkerOrkestrator {
+	return &WorkerOrkestrator{
+		conductorTaskResourceClient: &conductor_http_client.TaskResourceApiService{
+			APIClient: apiClient,
+		},
+	}
+}
+
+func NewWorkerOrkestrator(
+	authenticationSettings *settings.AuthenticationSettings,
+	httpSettings *settings.HttpSettings,
+) *WorkerOrkestrator {
+	apiClient := conductor_http_client.NewAPIClient(
+		authenticationSettings,
+		httpSettings,
+	)
 	return &WorkerOrkestrator{
 		conductorTaskResourceClient: &conductor_http_client.TaskResourceApiService{
 			APIClient: apiClient,
