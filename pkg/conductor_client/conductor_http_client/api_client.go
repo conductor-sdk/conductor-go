@@ -35,7 +35,6 @@ type APIClient struct {
 	authenticationToken    *string
 	httpSettings           *settings.HttpSettings
 	httpClient             *http.Client
-	isRefreshingToken      bool
 	mutex                  sync.Mutex
 }
 
@@ -51,7 +50,6 @@ func NewAPIClient(
 		authenticationToken:    nil,
 		httpSettings:           httpSettings,
 		httpClient:             &http.Client{},
-		isRefreshingToken:      false,
 	}
 }
 
@@ -138,9 +136,11 @@ func (c *APIClient) prepareRequest(
 	}
 
 	// Auth
+	c.mutex.Lock()
 	if c.mustRefreshToken() {
 		c.refreshToken()
 	}
+	c.mutex.Unlock()
 	if c.authenticationToken != nil {
 		headerParams["X-Authorization"] = *c.authenticationToken
 	}
@@ -189,9 +189,6 @@ func (c *APIClient) prepareRequest(
 }
 
 func (c *APIClient) mustRefreshToken() bool {
-	if c.isRefreshingToken {
-		return false
-	}
 	if c.authenticationSettings == nil {
 		return false
 	}
@@ -199,9 +196,7 @@ func (c *APIClient) mustRefreshToken() bool {
 }
 
 func (c *APIClient) refreshToken() {
-	c.mutex.Lock()
 	log.Debug("Refreshing authentication token")
-	c.isRefreshingToken = true
 	token, response, err := c.getToken()
 	if err != nil {
 		log.Warn(
@@ -213,8 +208,6 @@ func (c *APIClient) refreshToken() {
 		c.authenticationToken = &token.Token
 		log.Debug("Authentication token refreshed: ", *c.authenticationToken)
 	}
-	c.isRefreshingToken = false
-	c.mutex.Unlock()
 }
 
 func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
@@ -240,7 +233,7 @@ func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 	localVarPostBody = c.authenticationSettings.GetBody()
-	r, err := c.prepareRequest(context.Background(), localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := prepareRequestAux(c.httpSettings.BaseUrl, c.httpSettings.Headers, context.Background(), localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -493,4 +486,125 @@ func (e GenericSwaggerError) Body() []byte {
 // Model returns the unpacked model of the error
 func (e GenericSwaggerError) Model() interface{} {
 	return e.model
+}
+
+func prepareRequestAux(
+	baseUrl string,
+	headers map[string]string,
+	ctx context.Context,
+	path string, method string,
+	postBody interface{},
+	headerParams map[string]string,
+	queryParams url.Values,
+	formParams url.Values,
+	fileName string,
+	fileBytes []byte) (localVarRequest *http.Request, err error) {
+
+	var body *bytes.Buffer
+
+	// Detect postBody type and post.
+	if postBody != nil {
+		contentType := headerParams["Content-Type"]
+		if contentType == "" {
+			contentType = detectContentType(postBody)
+			headerParams["Content-Type"] = contentType
+		}
+
+		body, err = setBody(postBody, contentType)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// add form parameters and file if available.
+	if strings.HasPrefix(headerParams["Content-Type"], "multipart/form-data") && len(formParams) > 0 || (len(fileBytes) > 0 && fileName != "") {
+		if body != nil {
+			return nil, errors.New("cannot specify postBody and multipart form at the same time")
+		}
+		body = &bytes.Buffer{}
+		w := multipart.NewWriter(body)
+
+		for k, v := range formParams {
+			for _, iv := range v {
+				if strings.HasPrefix(k, "@") { // file
+					err = addFile(w, k[1:], iv)
+					if err != nil {
+						return nil, err
+					}
+				} else { // form value
+					w.WriteField(k, iv)
+				}
+			}
+		}
+		if len(fileBytes) > 0 && fileName != "" {
+			w.Boundary()
+			//_, fileNm := filepath.Split(fileName)
+			part, err := w.CreateFormFile("file", filepath.Base(fileName))
+			if err != nil {
+				return nil, err
+			}
+			_, err = part.Write(fileBytes)
+			if err != nil {
+				return nil, err
+			}
+			// Set the Boundary in the Content-Type
+			headerParams["Content-Type"] = w.FormDataContentType()
+		}
+
+		// Set Content-Length
+		headerParams["Content-Length"] = fmt.Sprintf("%d", body.Len())
+		w.Close()
+	}
+
+	if strings.HasPrefix(headerParams["Content-Type"], "application/x-www-form-urlencoded") && len(formParams) > 0 {
+		if body != nil {
+			return nil, errors.New("cannot specify postBody and x-www-form-urlencoded form at the same time")
+		}
+		body = &bytes.Buffer{}
+		body.WriteString(formParams.Encode())
+		// Set Content-Length
+		headerParams["Content-Length"] = fmt.Sprintf("%d", body.Len())
+	}
+
+	// Setup path and query parameters
+	url, err := url.Parse(baseUrl + path)
+	if err != nil {
+		return nil, err
+	}
+
+	// Adding Query Param
+	query := url.Query()
+	for k, v := range queryParams {
+		for _, iv := range v {
+			query.Add(k, iv)
+		}
+	}
+
+	// Encode the parameters.
+	url.RawQuery = query.Encode()
+
+	// Generate a new request
+	if body != nil {
+		localVarRequest, err = http.NewRequest(method, url.String(), body)
+	} else {
+		localVarRequest, err = http.NewRequest(method, url.String(), nil)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	// add header parameters, if any
+	if len(headerParams) > 0 {
+		headers := http.Header{}
+		for h, v := range headerParams {
+			headers.Set(h, v)
+		}
+		localVarRequest.Header = headers
+	}
+
+	for header, value := range headers {
+		localVarRequest.Header.Add(header, value)
+	}
+
+	return localVarRequest, nil
 }
