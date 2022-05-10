@@ -35,7 +35,11 @@ Now you may be able to create your workers and main function.
 ### Write worker as a function
 You can download [this code](examples/task_execute_function/task_execute_function.go) into the repository folder with:
 ```shell
-wget "https://github.com/conductor-sdk/conductor-go/blob/main/examples/task_execute_function/task_execute_function.go"
+wget https://raw.githubusercontent.com/conductor-sdk/conductor-go/main/examples/task_execute_function/task_execute_function.go
+```
+or
+```shell
+curl https://raw.githubusercontent.com/conductor-sdk/conductor-go/main/examples/task_execute_function/task_execute_function.go > task_execute_function.go
 ```
 
 ### Run workers
