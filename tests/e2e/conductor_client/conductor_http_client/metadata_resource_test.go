@@ -6,13 +6,13 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/conductor-sdk/conductor-go/pkg/settings"
+	"github.com/conductor-sdk/conductor-go/tests/e2e/conductor_client"
 )
 
 func TestRegisterTaskDefinition(t *testing.T) {
 	apiClient := conductor_http_client.NewAPIClient(
-		getAuthenticationSettings(),
-		getHttpSettingsWithAuth(),
+		conductor_client.GetAuthenticationSettings(),
+		conductor_client.GetHttpSettingsWithAuth(),
 	)
 	metadataClient := *&conductor_http_client.MetadataResourceApiService{
 		APIClient: apiClient,
@@ -25,15 +25,19 @@ func TestRegisterTaskDefinition(t *testing.T) {
 
 func TestRegisterWorkflowDefinition(t *testing.T) {
 	apiClient := conductor_http_client.NewAPIClient(
-		getAuthenticationSettings(),
-		getHttpSettingsWithAuth(),
+		conductor_client.GetAuthenticationSettings(),
+		conductor_client.GetHttpSettingsWithAuth(),
 	)
 	metadataClient := *&conductor_http_client.MetadataResourceApiService{
 		APIClient: apiClient,
 	}
-	response, err := metadataClient.RegisterWorkflowDef(context.Background(), getWorkflowDefinition())
-	if err != nil {
-		t.Error("response: ", response)
+	response, err := metadataClient.RegisterWorkflowDef(
+		context.Background(),
+		getWorkflowDefinition(),
+	)
+
+	if err != nil && response.Status != "409 Conflict" {
+		t.Error("response:", response)
 	}
 }
 
@@ -87,18 +91,4 @@ func getWorkflowDefinition() http_model.WorkflowDef {
 		TimeoutPolicy:                 "ALERT_ONLY",
 		TimeoutSeconds:                0,
 	}
-}
-
-func getAuthenticationSettings() *settings.AuthenticationSettings {
-	return settings.NewAuthenticationSettings(
-		"",
-		"",
-	)
-}
-
-func getHttpSettingsWithAuth() *settings.HttpSettings {
-	return settings.NewHttpSettings(
-		"https://play.orkes.io",
-		nil,
-	)
 }
