@@ -16,7 +16,7 @@ func TestUpdateTaskRefByName(t *testing.T) {
 		t.Error(err)
 	}
 	apiClient := conductor_client_tests.GetApiClientWithAuthentication()
-	taskClient := *&conductor_http_client.TaskResourceApiService{
+	taskClient := conductor_http_client.TaskResourceApiService{
 		APIClient: apiClient,
 	}
 	_, _, err = taskClient.UpdateTaskByRefName(
@@ -29,5 +29,18 @@ func TestUpdateTaskRefByName(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	// TODO check response and workflow task status
+	workflowClient := conductor_http_client.WorkflowResourceApiService{
+		APIClient: apiClient,
+	}
+	workflow, _, err := workflowClient.GetExecutionStatus(
+		context.Background(),
+		workflowId,
+		nil,
+	)
+	if err != nil {
+		t.Error(err)
+	}
+	if workflow.Status != "COMPLETED" {
+		t.Error("Workflow status is not completed: ", workflow.Status)
+	}
 }
