@@ -15,8 +15,8 @@ To find out more about Conductor visit: [https://github.com/Netflix/conductor](h
 
 Create a folder to build your package:
 ```shell
-$ mkdir conductor-go/
-$ cd conductor-go/
+mkdir conductor-go/
+cd conductor-go/
 ```
 
 Create a `go.mod` file inside this folder, with this content:
@@ -35,13 +35,13 @@ Now you may be able to create your workers and main function.
 ### Write worker as a function
 You can download [this code](examples/task_execute_function/task_execute_function.go) into the repository folder with:
 ```shell
-$ wget "https://github.com/conductor-sdk/conductor-go/blob/main/examples/task_execute_function/task_execute_function.go"
+wget "https://github.com/conductor-sdk/conductor-go/blob/main/examples/task_execute_function/task_execute_function.go"
 ```
 
 ### Run workers
 You can download [this code](examples/main/main.go) into the repository folder with:
 ```shell
-$ wget "https://github.com/conductor-sdk/conductor-go/blob/main/examples/main/main.go"
+wget "https://github.com/conductor-sdk/conductor-go/blob/main/examples/main/main.go"
 ```
 
 ### Running Conductor server locally in 2-minute
