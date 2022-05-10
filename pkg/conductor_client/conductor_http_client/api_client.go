@@ -17,6 +17,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
@@ -35,6 +36,7 @@ type APIClient struct {
 	httpSettings           *settings.HttpSettings
 	httpClient             *http.Client
 	isRefreshingToken      bool
+	mutex                  sync.Mutex
 }
 
 func NewAPIClient(
@@ -136,7 +138,9 @@ func (c *APIClient) prepareRequest(
 	}
 
 	// Auth
-	c.refreshToken()
+	if c.mustRefreshToken() {
+		c.refreshToken()
+	}
 	if c.authenticationToken != nil {
 		headerParams["X-Authorization"] = *c.authenticationToken
 	}
@@ -195,23 +199,25 @@ func (c *APIClient) mustRefreshToken() bool {
 }
 
 func (c *APIClient) refreshToken() {
-	if !c.mustRefreshToken() {
-		return
-	}
+	c.mutex.Lock()
+	log.Debug("Refreshing authentication token")
+	c.isRefreshingToken = true
 	token, response, err := c.getToken()
-	if err == nil {
+	if err != nil {
+		log.Warn(
+			"Failed to refresh authentication token",
+			", response: ", response,
+			", error: ", err,
+		)
+	} else {
 		c.authenticationToken = &token.Token
-		return
+		log.Debug("Authentication token refreshed: ", *c.authenticationToken)
 	}
-	log.Warn(
-		"Failed to refresh authentication token",
-		", response: ", response,
-		", error: ", err,
-	)
+	c.isRefreshingToken = false
+	c.mutex.Unlock()
 }
 
 func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
-	c.isRefreshingToken = true
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
