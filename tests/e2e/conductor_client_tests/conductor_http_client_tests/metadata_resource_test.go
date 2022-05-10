@@ -1,4 +1,4 @@
-package conductor_http_client
+package conductor_http_client_tests
 
 import (
 	"context"
@@ -6,14 +6,11 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/conductor-sdk/conductor-go/tests/e2e/conductor_client"
+	"github.com/conductor-sdk/conductor-go/tests/e2e/conductor_client_tests"
 )
 
 func TestRegisterTaskDefinition(t *testing.T) {
-	apiClient := conductor_http_client.NewAPIClient(
-		conductor_client.GetAuthenticationSettings(),
-		conductor_client.GetHttpSettingsWithAuth(),
-	)
+	apiClient := conductor_client_tests.GetApiClientWithAuthentication()
 	metadataClient := *&conductor_http_client.MetadataResourceApiService{
 		APIClient: apiClient,
 	}
@@ -24,10 +21,7 @@ func TestRegisterTaskDefinition(t *testing.T) {
 }
 
 func TestRegisterWorkflowDefinition(t *testing.T) {
-	apiClient := conductor_http_client.NewAPIClient(
-		conductor_client.GetAuthenticationSettings(),
-		conductor_client.GetHttpSettingsWithAuth(),
-	)
+	apiClient := conductor_client_tests.GetApiClientWithAuthentication()
 	metadataClient := *&conductor_http_client.MetadataResourceApiService{
 		APIClient: apiClient,
 	}
@@ -35,7 +29,6 @@ func TestRegisterWorkflowDefinition(t *testing.T) {
 		context.Background(),
 		getWorkflowDefinition(),
 	)
-
 	if err != nil && response.Status != "409 Conflict" {
 		t.Error("response:", response)
 	}
