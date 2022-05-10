@@ -2,6 +2,7 @@ package conductor_client_tests
 
 import (
 	"context"
+	"os"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
@@ -33,8 +34,8 @@ func GetApiClientWithAuthentication() *conductor_http_client.APIClient {
 
 func getAuthenticationSettings() *settings.AuthenticationSettings {
 	return settings.NewAuthenticationSettings(
-		"",
-		"",
+		os.Getenv("KEY"),
+		os.Getenv("SECRET"),
 	)
 }
 
