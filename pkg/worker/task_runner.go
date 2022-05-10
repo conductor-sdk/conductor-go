@@ -1,4 +1,4 @@
-package orkestrator
+package worker
 
 import (
 	"context"
@@ -7,58 +7,68 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/conductor-sdk/conductor-go/pkg/metrics"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_counter"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_gauge"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	log "github.com/sirupsen/logrus"
 )
 
-type WorkerOrkestrator struct {
+type TaskRunner struct {
 	conductorTaskResourceClient *conductor_http_client.TaskResourceApiService
-	metricsCollector            *metrics.MetricsCollector
 	waitGroup                   sync.WaitGroup
 }
 
-func NewWorkerOrkestrator(
-	authenticationSettings *settings.AuthenticationSettings,
-	httpSettings *settings.HttpSettings,
-) *WorkerOrkestrator {
-	metricsCollector := metrics.NewMetricsCollector()
-	return &WorkerOrkestrator{
-		conductorTaskResourceClient: conductor_http_client.NewTaskResourceApiService(
-			authenticationSettings,
-			httpSettings,
-			metricsCollector,
-		),
-		metricsCollector: metricsCollector,
+func NewWorkerOrkestratorWithApiClient(
+	apiClient *conductor_http_client.APIClient,
+) *TaskRunner {
+	return &TaskRunner{
+		conductorTaskResourceClient: &conductor_http_client.TaskResourceApiService{
+			APIClient: apiClient,
+		},
 	}
 }
 
-func (c *WorkerOrkestrator) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, parallelGoRoutinesAmount int, pollingInterval int) {
-	for goRoutines := 1; goRoutines <= parallelGoRoutinesAmount; goRoutines++ {
+func NewTaskRunner(
+	authenticationSettings *settings.AuthenticationSettings,
+	httpSettings *settings.HttpSettings,
+) *TaskRunner {
+	apiClient := conductor_http_client.NewAPIClient(
+		authenticationSettings,
+		httpSettings,
+	)
+	return &TaskRunner{
+		conductorTaskResourceClient: &conductor_http_client.TaskResourceApiService{
+			APIClient: apiClient,
+		},
+	}
+}
+
+func (c *TaskRunner) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, threadCount int, pollIntervalInMillis int) {
+	for goRoutines := 1; goRoutines <= threadCount; goRoutines++ {
 		c.waitGroup.Add(1)
-		go c.run(taskType, executeFunction, pollingInterval)
+		go c.run(taskType, executeFunction, pollIntervalInMillis)
 	}
 	log.Debug(
 		"Started worker for task: ", taskType,
-		", go routines amount: ", parallelGoRoutinesAmount,
-		", polling interval: ", pollingInterval, "ms",
+		", go routines amount: ", threadCount,
+		", polling interval: ", pollIntervalInMillis, "ms",
 	)
 }
 
-func (c *WorkerOrkestrator) WaitWorkers() {
+func (c *TaskRunner) WaitWorkers() {
 	c.waitGroup.Wait()
 }
 
-func (c *WorkerOrkestrator) run(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int) {
+func (c *TaskRunner) run(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int) {
 	for {
 		c.runOnce(taskType, executeFunction, pollingInterval)
 	}
-	c.waitGroup.Done()
+	// c.waitGroup.Done()
 }
 
-func (c *WorkerOrkestrator) runOnce(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int) {
+func (c *TaskRunner) runOnce(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int) {
 	task := c.pollTask(taskType)
 	if task == nil {
 		sleep(pollingInterval)
@@ -68,8 +78,9 @@ func (c *WorkerOrkestrator) runOnce(taskType string, executeFunction model.TaskE
 	c.updateTask(taskType, taskResult)
 }
 
-func (c *WorkerOrkestrator) pollTask(taskType string) *http_model.Task {
-	c.metricsCollector.IncrementTaskPoll(taskType)
+func (c *TaskRunner) pollTask(taskType string) *http_model.Task {
+	log.Debug("Polling for ", taskType)
+	metrics_counter.IncrementTaskPoll(taskType)
 	startTime := time.Now()
 	task, response, err := c.conductorTaskResourceClient.Poll(
 		context.Background(),
@@ -77,32 +88,32 @@ func (c *WorkerOrkestrator) pollTask(taskType string) *http_model.Task {
 		nil,
 	)
 	spentTime := time.Since(startTime)
-	c.metricsCollector.RecordTaskPollTime(
+	metrics_gauge.RecordTaskPollTime(
 		taskType,
 		spentTime.Seconds(),
 	)
-	if response.StatusCode == 204 {
-		return nil
-	}
 	if err != nil {
 		log.Error(
 			"Error polling for task: ", taskType,
 			", error: ", err.Error(),
 		)
-		c.metricsCollector.IncrementTaskPollError(
+		metrics_counter.IncrementTaskPollError(
 			taskType, err,
 		)
+		return nil
+	}
+	if response.StatusCode == 204 {
 		return nil
 	}
 	log.Debug("Polled task: ", task)
 	return &task
 }
 
-func (c *WorkerOrkestrator) executeTask(t *http_model.Task, executeFunction model.TaskExecuteFunction) *http_model.TaskResult {
+func (c *TaskRunner) executeTask(t *http_model.Task, executeFunction model.TaskExecuteFunction) *http_model.TaskResult {
 	startTime := time.Now()
 	taskResult, err := executeFunction(t)
 	spentTime := time.Since(startTime)
-	c.metricsCollector.RecordTaskExecuteTime(
+	metrics_gauge.RecordTaskExecuteTime(
 		t.TaskDefName, spentTime.Seconds(),
 	)
 	if taskResult == nil {
@@ -113,7 +124,7 @@ func (c *WorkerOrkestrator) executeTask(t *http_model.Task, executeFunction mode
 		log.Error("Error Executing task:", err.Error())
 		taskResult.Status = task_result_status.FAILED
 		taskResult.ReasonForIncompletion = err.Error()
-		c.metricsCollector.IncrementTaskExecuteError(
+		metrics_counter.IncrementTaskExecuteError(
 			t.TaskDefName, err,
 		)
 	}
@@ -121,7 +132,7 @@ func (c *WorkerOrkestrator) executeTask(t *http_model.Task, executeFunction mode
 	return taskResult
 }
 
-func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *http_model.TaskResult) {
+func (c *TaskRunner) updateTask(taskType string, taskResult *http_model.TaskResult) {
 	_, response, err := c.conductorTaskResourceClient.UpdateTask(
 		taskType,
 		context.Background(),
@@ -133,7 +144,7 @@ func (c *WorkerOrkestrator) updateTask(taskType string, taskResult *http_model.T
 			", error: ", err.Error(),
 			", response: ", response,
 		)
-		c.metricsCollector.IncrementTaskUpdateError(taskType, err)
+		metrics_counter.IncrementTaskUpdateError(taskType, err)
 		return
 	}
 	log.Debug("Updated task: ", *taskResult)

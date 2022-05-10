@@ -1,99 +1,103 @@
 package conductor_http_client
 
-// import (
-// 	"context"
-// 	"io/ioutil"
-// 	"net/http"
-// 	"net/url"
-// 	"strings"
-// )
+import (
+	"context"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"strings"
 
-// // Linger please
-// var (
-// 	_ context.Context
-// )
+	"github.com/conductor-sdk/conductor-go/pkg/http_model"
+)
 
-// type HealthCheckResourceApiService service
+// Linger please
+var (
+	_ context.Context
+)
 
-// /*
-// HealthCheckResourceApiService
-//  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-// @return HealthCheckStatus
-// */
-// func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (HealthCheckStatus, *http.Response, error) {
-// 	var (
-// 		localVarHttpMethod  = strings.ToUpper("Get")
-// 		localVarPostBody    interface{}
-// 		localVarFileName    string
-// 		localVarFileBytes   []byte
-// 		localVarReturnValue HealthCheckStatus
-// 	)
+type HealthCheckResourceApiService struct {
+	*APIClient
+}
 
-// 	// create path and map variables
-// 	localVarPath := a.client.cfg.BasePath + "/health"
+/*
+HealthCheckResourceApiService
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+@return http_model.HealthCheckStatus
+*/
+func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (http_model.HealthCheckStatus, *http.Response, error) {
+	var (
+		localVarHttpMethod  = strings.ToUpper("Get")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue http_model.HealthCheckStatus
+	)
 
-// 	localVarHeaderParams := make(map[string]string)
-// 	localVarQueryParams := url.Values{}
-// 	localVarFormParams := url.Values{}
+	// create path and map variables
+	localVarPath := "/health"
 
-// 	// to determine the Content-Type header
-// 	localVarHttpContentTypes := []string{}
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
 
-// 	// set Content-Type header
-// 	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-// 	if localVarHttpContentType != "" {
-// 		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-// 	}
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
 
-// 	// to determine the Accept header
-// 	localVarHttpHeaderAccepts := []string{"*/*"}
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
 
-// 	// set Accept header
-// 	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-// 	if localVarHttpHeaderAccept != "" {
-// 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-// 	}
-// 	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-// 	if err != nil {
-// 		return localVarReturnValue, nil, err
-// 	}
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{"*/*"}
 
-// 	localVarHttpResponse, err := a.client.callAPI(r)
-// 	if err != nil || localVarHttpResponse == nil {
-// 		return localVarReturnValue, localVarHttpResponse, err
-// 	}
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
 
-// 	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-// 	localVarHttpResponse.Body.Close()
-// 	if err != nil {
-// 		return localVarReturnValue, localVarHttpResponse, err
-// 	}
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
 
-// 	if localVarHttpResponse.StatusCode < 300 {
-// 		// If we succeed, return the data, otherwise pass on to decode error.
-// 		err = a.client.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-// 		if err == nil {
-// 			return localVarReturnValue, localVarHttpResponse, err
-// 		}
-// 	}
+	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarHttpResponse.Body.Close()
+	if err != nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
 
-// 	if localVarHttpResponse.StatusCode >= 300 {
-// 		newErr := GenericSwaggerError{
-// 			body:  localVarBody,
-// 			error: localVarHttpResponse.Status,
-// 		}
-// 		if localVarHttpResponse.StatusCode == 200 {
-// 			var v HealthCheckStatus
-// 			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-// 			if err != nil {
-// 				newErr.error = err.Error()
-// 				return localVarReturnValue, localVarHttpResponse, newErr
-// 			}
-// 			newErr.model = v
-// 			return localVarReturnValue, localVarHttpResponse, newErr
-// 		}
-// 		return localVarReturnValue, localVarHttpResponse, newErr
-// 	}
+	if localVarHttpResponse.StatusCode < 300 {
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return localVarReturnValue, localVarHttpResponse, err
+		}
+	}
 
-// 	return localVarReturnValue, localVarHttpResponse, nil
-// }
+	if localVarHttpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  localVarBody,
+			error: localVarHttpResponse.Status,
+		}
+		if localVarHttpResponse.StatusCode == 200 {
+			var v http_model.HealthCheckStatus
+			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHttpResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHttpResponse, newErr
+		}
+		return localVarReturnValue, localVarHttpResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHttpResponse, nil
+}

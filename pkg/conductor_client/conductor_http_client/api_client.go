@@ -16,10 +16,9 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
+	"sync"
 	"time"
-	"unicode/utf8"
 
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
@@ -36,10 +35,13 @@ type APIClient struct {
 	authenticationToken    *string
 	httpSettings           *settings.HttpSettings
 	httpClient             *http.Client
-	isRefreshingToken      bool
+	mutex                  sync.Mutex
 }
 
-func NewAPIClient(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings) *APIClient {
+func NewAPIClient(
+	authenticationSettings *settings.AuthenticationSettings,
+	httpSettings *settings.HttpSettings,
+) *APIClient {
 	if httpSettings == nil {
 		httpSettings = settings.NewHttpDefaultSettings()
 	}
@@ -48,17 +50,16 @@ func NewAPIClient(authenticationSettings *settings.AuthenticationSettings, httpS
 		authenticationToken:    nil,
 		httpSettings:           httpSettings,
 		httpClient:             &http.Client{},
-		isRefreshingToken:      false,
 	}
 }
 
 // callAPI do the request.
-func (c *APIClient) CallAPI(request *http.Request) (*http.Response, error) {
+func (c *APIClient) callAPI(request *http.Request) (*http.Response, error) {
 	return c.httpClient.Do(request)
 }
 
 // prepareRequest build the request
-func (c *APIClient) PrepareRequest(
+func (c *APIClient) prepareRequest(
 	ctx context.Context,
 	path string, method string,
 	postBody interface{},
@@ -87,7 +88,7 @@ func (c *APIClient) PrepareRequest(
 	// add form parameters and file if available.
 	if strings.HasPrefix(headerParams["Content-Type"], "multipart/form-data") && len(formParams) > 0 || (len(fileBytes) > 0 && fileName != "") {
 		if body != nil {
-			return nil, errors.New("Cannot specify postBody and multipart form at the same time.")
+			return nil, errors.New("cannot specify postBody and multipart form at the same time")
 		}
 		body = &bytes.Buffer{}
 		w := multipart.NewWriter(body)
@@ -126,7 +127,7 @@ func (c *APIClient) PrepareRequest(
 
 	if strings.HasPrefix(headerParams["Content-Type"], "application/x-www-form-urlencoded") && len(formParams) > 0 {
 		if body != nil {
-			return nil, errors.New("Cannot specify postBody and x-www-form-urlencoded form at the same time.")
+			return nil, errors.New("cannot specify postBody and x-www-form-urlencoded form at the same time")
 		}
 		body = &bytes.Buffer{}
 		body.WriteString(formParams.Encode())
@@ -135,9 +136,11 @@ func (c *APIClient) PrepareRequest(
 	}
 
 	// Auth
-	if c.mustUpdateToken() {
+	c.mutex.Lock()
+	if c.mustRefreshToken() {
 		c.refreshToken()
 	}
+	c.mutex.Unlock()
 	if c.authenticationToken != nil {
 		headerParams["X-Authorization"] = *c.authenticationToken
 	}
@@ -185,31 +188,29 @@ func (c *APIClient) PrepareRequest(
 	return localVarRequest, nil
 }
 
-func (c *APIClient) mustUpdateToken() bool {
-	if c.isRefreshingToken == true {
+func (c *APIClient) mustRefreshToken() bool {
+	if c.authenticationSettings == nil {
 		return false
 	}
-	if c.authenticationSettings == nil || c.authenticationToken != nil {
-		return false
-	}
-	return true
+	return c.authenticationToken == nil
 }
 
 func (c *APIClient) refreshToken() {
+	log.Debug("Refreshing authentication token")
 	token, response, err := c.getToken()
-	if err == nil {
+	if err != nil {
+		log.Warn(
+			"Failed to refresh authentication token",
+			", response: ", response,
+			", error: ", err,
+		)
+	} else {
 		c.authenticationToken = &token.Token
-		return
+		log.Debug("Authentication token refreshed: ", *c.authenticationToken)
 	}
-	log.Warn(
-		"Failed to refresh authentication token",
-		", response: ", response,
-		", error: ", err,
-	)
 }
 
 func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
-	c.isRefreshingToken = true
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -232,11 +233,11 @@ func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 	localVarPostBody = c.authenticationSettings.GetBody()
-	r, err := c.PrepareRequest(context.Background(), localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := prepareRequestAux(c.httpSettings.BaseUrl, c.httpSettings.Headers, context.Background(), localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
-	localVarHttpResponse, err := c.CallAPI(r)
+	localVarHttpResponse, err := c.callAPI(r)
 	if err != nil || localVarHttpResponse == nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -282,6 +283,13 @@ func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err err
 			return err
 		}
 		return nil
+	} else if strings.Contains(contentType, "text/plain;charset=UTF-8") {
+		rv := reflect.ValueOf(v)
+		if rv.Kind() != reflect.Pointer || rv.IsNil() {
+			return errors.New("undefined response type")
+		}
+		rv.Elem().SetString(string(b))
+		return nil
 	}
 	return errors.New("undefined response type")
 }
@@ -301,10 +309,6 @@ func addFile(w *multipart.Writer, fieldName, path string) error {
 	_, err = io.Copy(part, file)
 
 	return err
-}
-
-func atoi(in string) (int, error) {
-	return strconv.Atoi(in)
 }
 
 // selectHeaderContentType select a content type from the available list.
@@ -329,28 +333,14 @@ func selectHeaderAccept(accepts []string) string {
 	return strings.Join(accepts, ",")
 }
 
-// contains is a case insenstive match, finding needle in a haystack
+// contains is a case insensitive match, finding needle in a haystack
 func contains(haystack []string, needle string) bool {
 	for _, a := range haystack {
-		if strings.ToLower(a) == strings.ToLower(needle) {
+		if strings.EqualFold(a, needle) {
 			return true
 		}
 	}
 	return false
-}
-
-// Verify optional parameters are of the correct type.
-func typeCheckParameter(obj interface{}, expected string, name string) error {
-	// Make sure there is an object.
-	if obj == nil {
-		return nil
-	}
-
-	// Check the type is as expected.
-	if reflect.TypeOf(obj).String() != expected {
-		return fmt.Errorf("Expected %s to be of type %s but received %s.", name, expected, reflect.TypeOf(obj).String())
-	}
-	return nil
 }
 
 // parameterToString convert interface{} parameters to string, using a delimiter if format is provided.
@@ -373,11 +363,6 @@ func parameterToString(obj interface{}, collectionFormat string) string {
 	}
 
 	return fmt.Sprintf("%v", obj)
-}
-
-// Prevent trying to import "fmt"
-func reportError(format string, a ...interface{}) error {
-	return fmt.Errorf(format, a...)
 }
 
 // Set request body from an interface{}
@@ -405,7 +390,7 @@ func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err e
 	}
 
 	if bodyBuf.Len() == 0 {
-		err = fmt.Errorf("Invalid body type %s\n", contentType)
+		err = fmt.Errorf("invalid body type %s", contentType)
 		return nil, err
 	}
 	return bodyBuf, nil
@@ -481,10 +466,6 @@ func CacheExpires(r *http.Response) time.Time {
 	return expires
 }
 
-func strlen(s string) int {
-	return utf8.RuneCountInString(s)
-}
-
 // GenericSwaggerError Provides access to the body, error and model on returned errors.
 type GenericSwaggerError struct {
 	body  []byte
@@ -505,4 +486,125 @@ func (e GenericSwaggerError) Body() []byte {
 // Model returns the unpacked model of the error
 func (e GenericSwaggerError) Model() interface{} {
 	return e.model
+}
+
+func prepareRequestAux(
+	baseUrl string,
+	headers map[string]string,
+	ctx context.Context,
+	path string, method string,
+	postBody interface{},
+	headerParams map[string]string,
+	queryParams url.Values,
+	formParams url.Values,
+	fileName string,
+	fileBytes []byte) (localVarRequest *http.Request, err error) {
+
+	var body *bytes.Buffer
+
+	// Detect postBody type and post.
+	if postBody != nil {
+		contentType := headerParams["Content-Type"]
+		if contentType == "" {
+			contentType = detectContentType(postBody)
+			headerParams["Content-Type"] = contentType
+		}
+
+		body, err = setBody(postBody, contentType)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// add form parameters and file if available.
+	if strings.HasPrefix(headerParams["Content-Type"], "multipart/form-data") && len(formParams) > 0 || (len(fileBytes) > 0 && fileName != "") {
+		if body != nil {
+			return nil, errors.New("cannot specify postBody and multipart form at the same time")
+		}
+		body = &bytes.Buffer{}
+		w := multipart.NewWriter(body)
+
+		for k, v := range formParams {
+			for _, iv := range v {
+				if strings.HasPrefix(k, "@") { // file
+					err = addFile(w, k[1:], iv)
+					if err != nil {
+						return nil, err
+					}
+				} else { // form value
+					w.WriteField(k, iv)
+				}
+			}
+		}
+		if len(fileBytes) > 0 && fileName != "" {
+			w.Boundary()
+			//_, fileNm := filepath.Split(fileName)
+			part, err := w.CreateFormFile("file", filepath.Base(fileName))
+			if err != nil {
+				return nil, err
+			}
+			_, err = part.Write(fileBytes)
+			if err != nil {
+				return nil, err
+			}
+			// Set the Boundary in the Content-Type
+			headerParams["Content-Type"] = w.FormDataContentType()
+		}
+
+		// Set Content-Length
+		headerParams["Content-Length"] = fmt.Sprintf("%d", body.Len())
+		w.Close()
+	}
+
+	if strings.HasPrefix(headerParams["Content-Type"], "application/x-www-form-urlencoded") && len(formParams) > 0 {
+		if body != nil {
+			return nil, errors.New("cannot specify postBody and x-www-form-urlencoded form at the same time")
+		}
+		body = &bytes.Buffer{}
+		body.WriteString(formParams.Encode())
+		// Set Content-Length
+		headerParams["Content-Length"] = fmt.Sprintf("%d", body.Len())
+	}
+
+	// Setup path and query parameters
+	url, err := url.Parse(baseUrl + path)
+	if err != nil {
+		return nil, err
+	}
+
+	// Adding Query Param
+	query := url.Query()
+	for k, v := range queryParams {
+		for _, iv := range v {
+			query.Add(k, iv)
+		}
+	}
+
+	// Encode the parameters.
+	url.RawQuery = query.Encode()
+
+	// Generate a new request
+	if body != nil {
+		localVarRequest, err = http.NewRequest(method, url.String(), body)
+	} else {
+		localVarRequest, err = http.NewRequest(method, url.String(), nil)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	// add header parameters, if any
+	if len(headerParams) > 0 {
+		headers := http.Header{}
+		for h, v := range headerParams {
+			headers.Set(h, v)
+		}
+		localVarRequest.Header = headers
+	}
+
+	for header, value := range headers {
+		localVarRequest.Header.Add(header, value)
+	}
+
+	return localVarRequest, nil
 }

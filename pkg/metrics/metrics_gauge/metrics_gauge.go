@@ -8,14 +8,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-func NewGaugeByName() map[metric_name.MetricName]*prometheus.GaugeVec {
-	gaugeByName := map[metric_name.MetricName]*prometheus.GaugeVec{}
-	for metricName, metricDetails := range gaugeTemplates {
-		gaugeByName[metricName] = newGauge(metricDetails)
-		prometheus.MustRegister(gaugeByName[metricName])
-	}
-	return gaugeByName
-}
+var gaugeByName = map[metric_name.MetricName]*prometheus.GaugeVec{}
 
 var gaugeTemplates = map[metric_name.MetricName]*metric_model.MetricDetails{
 	metric_name.WORKFLOW_INPUT_SIZE: metric_model.NewMetricDetails(
@@ -49,6 +42,54 @@ var gaugeTemplates = map[metric_name.MetricName]*metric_model.MetricDetails{
 	),
 }
 
+func init() {
+	for metricName, metricDetails := range gaugeTemplates {
+		gaugeByName[metricName] = newGauge(metricDetails)
+		prometheus.MustRegister(gaugeByName[metricName])
+	}
+}
+
+func RecordWorkflowInputPayloadSize(workflowType string, version string, payloadSize float64) {
+	setGauge(
+		metric_name.WORKFLOW_INPUT_SIZE,
+		[]string{
+			workflowType,
+			version,
+		},
+		payloadSize,
+	)
+}
+
+func RecordTaskResultPayloadSize(taskType string, payloadSize float64) {
+	setGauge(
+		metric_name.TASK_RESULT_SIZE,
+		[]string{
+			taskType,
+		},
+		payloadSize,
+	)
+}
+
+func RecordTaskPollTime(taskType string, timeSpent float64) {
+	setGauge(
+		metric_name.TASK_POLL_TIME,
+		[]string{
+			taskType,
+		},
+		timeSpent,
+	)
+}
+
+func RecordTaskExecuteTime(taskType string, timeSpent float64) {
+	setGauge(
+		metric_name.TASK_EXECUTE_TIME,
+		[]string{
+			taskType,
+		},
+		timeSpent,
+	)
+}
+
 func newGauge(metricDetails *metric_model.MetricDetails) *prometheus.GaugeVec {
 	return prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -57,4 +98,22 @@ func newGauge(metricDetails *metric_model.MetricDetails) *prometheus.GaugeVec {
 		},
 		metricDetails.Labels,
 	)
+}
+
+func setGauge(metricName metric_name.MetricName, labelValues []string, value float64) {
+	gauge := getGauge(metricName, labelValues)
+	if gauge != nil {
+		(*gauge).Set(value)
+	}
+}
+
+func getGauge(metricName metric_name.MetricName, labelValues []string) *prometheus.Gauge {
+	gaugeVec, ok := gaugeByName[metricName]
+	if !ok {
+		return nil
+	}
+	gauge, _ := gaugeVec.GetMetricWithLabelValues(
+		labelValues...,
+	)
+	return &gauge
 }
