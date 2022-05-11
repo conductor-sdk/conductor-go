@@ -12,6 +12,7 @@ var (
 	BASE_URL = "https://play.orkes.io"
 
 	WORKFLOW_NAME       = "workflow_with_go_task_example_from_code"
+	TASK_NAME           = "go_task_example_from_code"
 	TASK_REFERENCE_NAME = "go_task_example_from_code_ref_0"
 
 	TASK_OUTPUT = map[string]interface{}{"hello": "world"}
@@ -22,13 +23,13 @@ var (
 
 var WORKFLOW_DEFINITION = http_model.WorkflowDef{
 	UpdateTime:  1650595431465,
-	Name:        "workflow_with_go_task_example_from_code",
+	Name:        WORKFLOW_NAME,
 	Description: "Workflow with go task example from code",
 	Version:     1,
 	Tasks: []http_model.WorkflowTask{
 		{
-			Name:              "go_task_example_from_code",
-			TaskReferenceName: "go_task_example_from_code_ref_0",
+			Name:              TASK_NAME,
+			TaskReferenceName: TASK_REFERENCE_NAME,
 			Type_:             "SIMPLE",
 			StartDelay:        0,
 			Optional:          false,
@@ -49,7 +50,7 @@ var WORKFLOW_DEFINITION = http_model.WorkflowDef{
 var TASK_DEFINITION = http_model.TaskDef{
 	CreateTime:                  1650595379661,
 	CreatedBy:                   "",
-	Name:                        "go_task_example_from_code",
+	Name:                        TASK_NAME,
 	Description:                 "Go task example from code",
 	RetryCount:                  3,
 	TimeoutSeconds:              300,
