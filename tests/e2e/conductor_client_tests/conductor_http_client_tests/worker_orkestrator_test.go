@@ -21,11 +21,11 @@ func TestWorkerOrkestratorExecution(t *testing.T) {
 		WORKFLOW_DEFINITION,
 	)
 	workflowQty := 10
-	workflowIdList := make([]string, 0)
-	for i := 0; i < workflowQty; i += 1 {
-		workflowId := startWorkflow(t, WORKFLOW_NAME)
-		workflowIdList = append(workflowIdList, workflowId)
-	}
+	workflowIdList := startWorkflows(
+		t,
+		workflowQty,
+		WORKFLOW_NAME,
+	)
 	taskRunner := worker.NewWorkerOrkestratorWithApiClient(
 		apiClient,
 	)

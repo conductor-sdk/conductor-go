@@ -12,6 +12,14 @@ var workflowClient = conductor_http_client.WorkflowResourceApiService{
 	APIClient: apiClient,
 }
 
+func startWorkflows(t *testing.T, workflowQty int, workflowName string) []string {
+	workflowIdList := make([]string, workflowQty)
+	for i := 0; i < workflowQty; i += 1 {
+		workflowIdList[i] = startWorkflow(t, workflowName)
+	}
+	return workflowIdList
+}
+
 func startWorkflow(t *testing.T, workflowName string) string {
 	workflowId, response, err := workflowClient.StartWorkflow(
 		context.Background(),
