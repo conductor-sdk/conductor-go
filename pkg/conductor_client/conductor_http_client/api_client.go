@@ -206,7 +206,6 @@ func (c *APIClient) refreshToken() {
 		)
 	} else {
 		c.authenticationToken = &token.Token
-		log.Debug("Authentication token refreshed: ", *c.authenticationToken)
 	}
 }
 
