@@ -1,4 +1,4 @@
-package worker
+package unit_tests
 
 import (
 	"testing"

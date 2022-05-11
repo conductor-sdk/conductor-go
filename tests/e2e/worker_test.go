@@ -1,4 +1,4 @@
-package conductor_http_client_tests
+package e2e
 
 import (
 	"testing"
