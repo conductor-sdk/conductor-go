@@ -5,42 +5,37 @@ import (
 	"testing"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
-	"github.com/conductor-sdk/conductor-go/tests/e2e/conductor_client_tests"
 )
 
+var taskClient = conductor_http_client.TaskResourceApiService{
+	APIClient: apiClient,
+}
+
 func TestUpdateTaskRefByName(t *testing.T) {
-	workflowName := "workflow_with_go_task_example_from_code"
-	taskReferenceName := "go_task_example_from_code_ref_0"
-	workflowId, err := conductor_client_tests.StartWorkflow(workflowName)
-	if err != nil {
-		t.Error(err)
-	}
-	apiClient := conductor_client_tests.GetApiClientWithAuthentication()
-	taskClient := conductor_http_client.TaskResourceApiService{
-		APIClient: apiClient,
-	}
-	_, _, err = taskClient.UpdateTaskByRefName(
-		context.Background(),
-		map[string]interface{}{"hello": "world"},
+	workflowId := startWorkflow(t, WORKFLOW_NAME)
+	_ = updateTaskByRefName(
+		t,
+		TASK_OUTPUT,
 		workflowId,
-		taskReferenceName,
+		TASK_REFERENCE_NAME,
 		"COMPLETED",
 	)
-	if err != nil {
-		t.Error(err)
-	}
-	workflowClient := conductor_http_client.WorkflowResourceApiService{
-		APIClient: apiClient,
-	}
-	workflow, _, err := workflowClient.GetExecutionStatus(
-		context.Background(),
-		workflowId,
-		nil,
-	)
-	if err != nil {
-		t.Error(err)
-	}
+	workflow := getWorkflowExecutionStatus(t, workflowId)
 	if workflow.Status != "COMPLETED" {
 		t.Error("Workflow status is not completed: ", workflow.Status)
 	}
+}
+
+func updateTaskByRefName(t *testing.T, taskOutput map[string]interface{}, workflowId string, taskReferenceName string, status string) string {
+	returnValue, response, err := taskClient.UpdateTaskByRefName(
+		context.Background(),
+		taskOutput,
+		workflowId,
+		taskReferenceName,
+		status,
+	)
+	if err != nil {
+		t.Error("returnValue: ", returnValue, ", response: ", response, ", error: ", err)
+	}
+	return returnValue
 }
