@@ -69,5 +69,14 @@ func (task *decision) DefaultCase(tasks ...Task) *decision {
 	return task
 }
 func (task *decision) toWorkflowTask() WorkflowTask {
-	return WorkflowTask{}
+	return WorkflowTask{
+		DecisionCases:            struct{}{},
+		DefaultCase:              nil,
+		ForkTasks:                nil,
+		StartDelay:               0,
+		JoinOn:                   nil,
+		DefaultExclusiveJoinTask: nil,
+		AsyncComplete:            false,
+		LoopOver:                 nil,
+	}
 }

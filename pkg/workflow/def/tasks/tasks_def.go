@@ -23,13 +23,56 @@ type TaskDef struct {
 
 // WorkflowTask Represents the WorkflowTask inside the workflow
 type WorkflowTask struct {
-	DecisionCases struct{}      `json:"decisionCases"`
-	DefaultCase   []interface{} `json:"defaultCase"`
-	ForkTasks     []interface{} `json:"forkTasks"`
-	StartDelay    int           `json:"startDelay"`
-	JoinOn        []interface{} `json:"joinOn"`
+	Name                           interface{}   `json:"name"`
+	TaskReferenceName              interface{}   `json:"taskReferenceName"`
+	Description                    interface{}   `json:"description"`
+	InputParameters                struct{}      `json:"inputParameters"`
+	Type                           string        `json:"type"`
+	DynamicTaskNameParam           interface{}   `json:"dynamicTaskNameParam"`
+	CaseValueParam                 interface{}   `json:"caseValueParam"`
+	CaseExpression                 interface{}   `json:"caseExpression"`
+	ScriptExpression               interface{}   `json:"scriptExpression"`
+	DecisionCases                  struct{}      `json:"decisionCases"`
+	DynamicForkJoinTasksParam      interface{}   `json:"dynamicForkJoinTasksParam"`
+	DynamicForkTasksParam          interface{}   `json:"dynamicForkTasksParam"`
+	DynamicForkTasksInputParamName interface{}   `json:"dynamicForkTasksInputParamName"`
+	DefaultCase                    []interface{} `json:"defaultCase"`
+	ForkTasks                      []interface{} `json:"forkTasks"`
+	StartDelay                     int           `json:"startDelay"`
+	SubWorkflowParam               interface{}   `json:"subWorkflowParam"`
+	JoinOn                         []interface{} `json:"joinOn"`
+	Sink                           interface{}   `json:"sink"`
+	Optional                       bool          `json:"optional"`
+	TaskDefinition                 interface{}   `json:"taskDefinition"`
+	RateLimited                    interface{}   `json:"rateLimited"`
+	DefaultExclusiveJoinTask       []interface{} `json:"defaultExclusiveJoinTask"`
+	AsyncComplete                  bool          `json:"asyncComplete"`
+	LoopCondition                  interface{}   `json:"loopCondition"`
+	LoopOver                       []interface{} `json:"loopOver"`
+	RetryCount                     interface{}   `json:"retryCount"`
+	EvaluatorType                  interface{}   `json:"evaluatorType"`
+	Expression                     interface{}   `json:"expression"`
+}
 
-	DefaultExclusiveJoinTask []interface{} `json:"defaultExclusiveJoinTask"`
-	AsyncComplete            bool          `json:"asyncComplete"`
-	LoopOver                 []interface{} `json:"loopOver"`
+type WorkflowDef struct {
+	OwnerApp                      interface{}   `json:"ownerApp"`
+	CreateTime                    interface{}   `json:"createTime"`
+	UpdateTime                    interface{}   `json:"updateTime"`
+	CreatedBy                     interface{}   `json:"createdBy"`
+	UpdatedBy                     interface{}   `json:"updatedBy"`
+	Name                          interface{}   `json:"name"`
+	Description                   interface{}   `json:"description"`
+	Version                       int           `json:"version"`
+	Tasks                         []interface{} `json:"tasks"`
+	InputParameters               []interface{} `json:"inputParameters"`
+	OutputParameters              struct{}      `json:"outputParameters"`
+	FailureWorkflow               interface{}   `json:"failureWorkflow"`
+	SchemaVersion                 int           `json:"schemaVersion"`
+	Restartable                   bool          `json:"restartable"`
+	WorkflowStatusListenerEnabled bool          `json:"workflowStatusListenerEnabled"`
+	OwnerEmail                    interface{}   `json:"ownerEmail"`
+	TimeoutPolicy                 string        `json:"timeoutPolicy"`
+	TimeoutSeconds                int           `json:"timeoutSeconds"`
+	Variables                     struct{}      `json:"variables"`
+	InputTemplate                 struct{}      `json:"inputTemplate"`
 }
