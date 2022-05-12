@@ -29,18 +29,13 @@ func TestWorkerOrkestratorExecution(t *testing.T) {
 	taskRunner := worker.NewWorkerOrkestratorWithApiClient(
 		apiClient,
 	)
-	workerThreadCount := 5
-	workerPollingInterval := 1000
 	taskRunner.StartWorker(
 		TASK_NAME,
 		task_execute_function.Example1,
-		workerThreadCount,
-		workerPollingInterval,
+		WORKER_THREAD_COUNT,
+		WORKER_POLLING_INTERVAL,
 	)
-	total := workflowQty * workerPollingInterval / workerThreadCount
-	time.Sleep(
-		time.Duration(total<<1) * time.Millisecond,
-	)
+	time.Sleep(5 * time.Second)
 	for i := range workflowIdList {
 		workflow := getWorkflowExecutionStatus(
 			t,
