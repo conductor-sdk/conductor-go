@@ -29,15 +29,21 @@ type Task interface {
 }
 
 type task struct {
-	Name              string   `json:"name"`
-	TaskReferenceName string   `json:"taskReferenceName"`
-	Type              TaskType `json:"type"`
-	Optional          bool     `json:"optional"`
-	InputParameters   struct{} `json:"inputParameters"`
+	name              string `json:"name"`
+	taskReferenceName string `json:"taskReferenceName"`
+	description       string
+	taskType          TaskType `json:"type"`
+	optional          bool     `json:"optional"`
+	inputParameters   struct{} `json:"inputParameters"`
 }
 
 type simpleTask struct {
 	task
+}
+
+func (t *simpleTask) Description(description string) *simpleTask {
+	t.description = description
+	return t
 }
 
 func (task *simpleTask) toWorkflowTask() WorkflowTask {
@@ -54,6 +60,12 @@ type decision struct {
 	defaultCase    []Task
 	caseExpression string
 	useJavascript  bool
+	evaluatorType  string
+}
+
+func (t *decision) Description(description string) *decision {
+	t.description = description
+	return t
 }
 
 func (task *decision) UseJavascript(use bool) {
@@ -70,13 +82,21 @@ func (task *decision) DefaultCase(tasks ...Task) *decision {
 }
 func (task *decision) toWorkflowTask() WorkflowTask {
 	return WorkflowTask{
-		DecisionCases:            struct{}{},
-		DefaultCase:              nil,
-		ForkTasks:                nil,
-		StartDelay:               0,
-		JoinOn:                   nil,
-		DefaultExclusiveJoinTask: nil,
-		AsyncComplete:            false,
-		LoopOver:                 nil,
+		Name:                           task.name,
+		TaskReferenceName:              task.taskReferenceName,
+		Description:                    task.description,
+		InputParameters:                struct{}{},
+		Type:                           string(task.taskType),
+		CaseExpression:                 nil,
+		ScriptExpression:               nil,
+		DecisionCases:                  struct{}{},
+		DynamicForkJoinTasksParam:      nil,
+		DynamicForkTasksParam:          nil,
+		DynamicForkTasksInputParamName: nil,
+		DefaultCase:                    nil,
+		StartDelay:                     0,
+		Optional:                       false,
+		EvaluatorType:                  task.evaluatorType,
+		Expression:                     nil,
 	}
 }

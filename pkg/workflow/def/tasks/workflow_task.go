@@ -1,28 +1,29 @@
 package tasks
 
 func SimpleTask(name string, taskRefName string) *simpleTask {
-	return &simpleTask{
-		task{
-			Name:              name,
-			TaskReferenceName: taskRefName,
-			Type:              SIMPLE,
-			Optional:          false,
-			InputParameters:   struct{}{},
-		},
-	}
+	return &simpleTask{task{
+		name:              name,
+		taskReferenceName: taskRefName,
+		taskType:          SIMPLE,
+		optional:          false,
+		inputParameters:   struct{}{},
+	}}
 }
 func Switch(taskRefName string, caseExpression string) *decision {
 	return &decision{
 		task: task{
-			Name:              taskRefName,
-			TaskReferenceName: taskRefName,
-			Type:              SWITCH,
-			Optional:          false,
-			InputParameters:   struct{}{},
+			name:              taskRefName,
+			taskReferenceName: taskRefName,
+			description:       "",
+			taskType:          SWITCH,
+			optional:          false,
+			inputParameters:   struct{}{},
 		},
-		decisionCases: map[string][]Task{},
-		defaultCase:   []Task{},
-		useJavascript: false,
+		decisionCases:  nil,
+		defaultCase:    nil,
+		caseExpression: caseExpression,
+		useJavascript:  false,
+		evaluatorType:  "value-param",
 	}
 }
 
