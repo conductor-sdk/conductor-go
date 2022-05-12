@@ -13,11 +13,16 @@ func SimpleTask(name string, taskRefName string) *simpleTask {
 }
 func Switch(taskRefName string, caseExpression string) *decision {
 	return &decision{
-		task:           task{},
-		decisionCases:  map[string][]Task{},
-		defaultCase:    []Task{},
-		caseExpression: caseExpression,
-		useJavascript:  false,
+		task: task{
+			Name:              taskRefName,
+			TaskReferenceName: taskRefName,
+			Type:              SWITCH,
+			Optional:          false,
+			InputParameters:   struct{}{},
+		},
+		decisionCases: map[string][]Task{},
+		defaultCase:   []Task{},
+		useJavascript: false,
 	}
 }
 
