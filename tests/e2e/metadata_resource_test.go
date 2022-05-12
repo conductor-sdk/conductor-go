@@ -9,7 +9,7 @@ import (
 )
 
 var metadataClient = conductor_http_client.MetadataResourceApiService{
-	APIClient: apiClient,
+	APIClient: API_CLIENT,
 }
 
 func TestRegisterTaskDefinition(t *testing.T) {

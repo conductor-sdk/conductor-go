@@ -114,7 +114,7 @@ authenticationSettings := settings.NewAuthenticationSettings(
 
 ### Worker Settings
 
-You can create a new worker by calling `workerOrkestrator.StartWorker` with:
+You can create a new worker by calling `taskRunner.StartWorker` with:
 * taskType : Task definition name (e.g `"go_task_example"`)
 * executeFunction : Task Execution Function (e.g. `example.TaskExecuteFunctionExample1` from `example` folder)
 * threadCount : Amount of Go routines to be executed in parallel for new worker (e.g. `1`, single thread)

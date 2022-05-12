@@ -8,7 +8,7 @@ import (
 )
 
 var taskClient = conductor_http_client.TaskResourceApiService{
-	APIClient: apiClient,
+	APIClient: API_CLIENT,
 }
 
 func TestUpdateTaskRefByName(t *testing.T) {

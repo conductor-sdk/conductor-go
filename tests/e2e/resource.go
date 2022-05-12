@@ -11,17 +11,20 @@ import (
 var (
 	BASE_URL = "https://play.orkes.io"
 
-	WORKFLOW_NAME       = "workflow_with_go_task_example_from_code"
 	TASK_NAME           = "go_task_example_from_code"
 	TASK_REFERENCE_NAME = "go_task_example_from_code_ref_0"
-
-	TASK_OUTPUT = map[string]interface{}{"hello": "world"}
+	TASK_OUTPUT         = map[string]interface{}{"hello": "world"}
 
 	AUTHENTICATION_KEY_ID     = "KEY"
 	AUTHENTICATION_KEY_SECRET = "SECRET"
 
 	WORKER_THREAD_COUNT     = 5
 	WORKER_POLLING_INTERVAL = 100
+
+	WORKFLOW_EXECUTION_AMOUNT = 5
+	WORKFLOW_NAME             = "workflow_with_go_task_example_from_code"
+
+	API_CLIENT = getApiClientWithAuthentication()
 )
 
 var WORKFLOW_DEFINITION = http_model.WorkflowDef{
@@ -69,8 +72,6 @@ var TASK_DEFINITION = http_model.TaskDef{
 	OwnerEmail:                  "gustavo.gardusi@orkes.io",
 	BackoffScaleFactor:          1,
 }
-
-var apiClient = getApiClientWithAuthentication()
 
 func getApiClientWithAuthentication() *conductor_http_client.APIClient {
 	return conductor_http_client.NewAPIClient(

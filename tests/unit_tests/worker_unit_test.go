@@ -8,27 +8,27 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/worker"
 )
 
-func TestSimpleWorkerOrkerstrator(t *testing.T) {
-	workerOrkestrator := worker.NewTaskRunner(nil, nil)
-	if workerOrkestrator == nil {
+func TestSimpleTaskRunner(t *testing.T) {
+	taskRunner := worker.NewTaskRunner(nil, nil)
+	if taskRunner == nil {
 		t.Fail()
 	}
 }
 
-func TestWorkerOrkestratorWithoutAuthenticationSettings(t *testing.T) {
+func TestTaskRunnerWithoutAuthenticationSettings(t *testing.T) {
 	apiClient := conductor_http_client.NewAPIClient(
 		nil,
 		settings.NewHttpDefaultSettings(),
 	)
-	workerOrkestrator := worker.NewWorkerOrkestratorWithApiClient(
+	taskRunner := worker.NewTaskRunnerWithApiClient(
 		apiClient,
 	)
-	if workerOrkestrator == nil {
+	if taskRunner == nil {
 		t.Fail()
 	}
 }
 
-func TestWorkerOrkestratorWithAuthenticationSettings(t *testing.T) {
+func TestTaskRunnerWithAuthenticationSettings(t *testing.T) {
 	authenticationSettings := settings.NewAuthenticationSettings(
 		"keyId",
 		"keySecret",
@@ -37,10 +37,10 @@ func TestWorkerOrkestratorWithAuthenticationSettings(t *testing.T) {
 		authenticationSettings,
 		settings.NewHttpDefaultSettings(),
 	)
-	workerOrkestrator := worker.NewWorkerOrkestratorWithApiClient(
+	taskRunner := worker.NewTaskRunnerWithApiClient(
 		apiClient,
 	)
-	if workerOrkestrator == nil {
+	if taskRunner == nil {
 		t.Fail()
 	}
 }

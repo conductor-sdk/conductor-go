@@ -9,7 +9,7 @@ import (
 )
 
 var workflowClient = conductor_http_client.WorkflowResourceApiService{
-	APIClient: apiClient,
+	APIClient: API_CLIENT,
 }
 
 func startWorkflows(t *testing.T, workflowQty int, workflowName string) []string {

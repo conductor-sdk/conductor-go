@@ -9,7 +9,18 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/worker"
 )
 
-func TestWorkerOrkestratorExecution(t *testing.T) {
+var taskRunner = worker.NewTaskRunnerWithApiClient(API_CLIENT)
+
+func init() {
+	taskRunner.StartWorker(
+		TASK_NAME,
+		task_execute_function.Example1,
+		WORKER_THREAD_COUNT,
+		WORKER_POLLING_INTERVAL,
+	)
+}
+
+func TestTaskRunnerExecution(t *testing.T) {
 	registerTaskDefinition(
 		t,
 		[]http_model.TaskDef{
@@ -25,15 +36,6 @@ func TestWorkerOrkestratorExecution(t *testing.T) {
 		t,
 		workflowQty,
 		WORKFLOW_NAME,
-	)
-	taskRunner := worker.NewWorkerOrkestratorWithApiClient(
-		apiClient,
-	)
-	taskRunner.StartWorker(
-		TASK_NAME,
-		task_execute_function.Example1,
-		WORKER_THREAD_COUNT,
-		WORKER_POLLING_INTERVAL,
 	)
 	time.Sleep(5 * time.Second)
 	for i := range workflowIdList {

@@ -20,7 +20,7 @@ type TaskRunner struct {
 	waitGroup                   sync.WaitGroup
 }
 
-func NewWorkerOrkestratorWithApiClient(
+func NewTaskRunnerWithApiClient(
 	apiClient *conductor_http_client.APIClient,
 ) *TaskRunner {
 	return &TaskRunner{
