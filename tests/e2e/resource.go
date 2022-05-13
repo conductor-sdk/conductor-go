@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
@@ -8,6 +9,10 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	log "github.com/sirupsen/logrus"
 )
+
+type TreasureChest struct {
+	ImportantValue string `json:"importantValue"`
+}
 
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
@@ -31,7 +36,19 @@ var (
 	WORKFLOW_EXECUTION_AMOUNT = 5
 	WORKFLOW_NAME             = "workflow_with_go_task_example_from_code"
 
+	TREASURE_CHEST_WORKFLOW_NAME = "treasure_chest_workflow"
+	TREASURE_CHEST_TASK_NAME     = "treasure_chest_task"
+
 	IMPORTANT_VALUE = "Go is really nice :)"
+
+	WORKFLOW_DEFINITIONS = []http_model.WorkflowDef{
+		WORKFLOW_DEFINITION,
+		TREASURE_WORKFLOW_DEFINITION,
+	}
+	TASK_DEFINITIONS = []http_model.TaskDef{
+		TASK_DEFINITION,
+		TREASURE_TASK_DEFINITION,
+	}
 )
 
 var API_CLIENT = getApiClientWithAuthentication()
@@ -76,6 +93,53 @@ var TASK_DEFINITION = http_model.TaskDef{
 	RetryDelaySeconds:           10,
 	ResponseTimeoutSeconds:      180,
 	InputTemplate:               make(map[string]interface{}),
+	RateLimitPerFrequency:       0,
+	RateLimitFrequencyInSeconds: 1,
+	OwnerEmail:                  "gustavo.gardusi@orkes.io",
+	BackoffScaleFactor:          1,
+}
+
+var TREASURE_WORKFLOW_DEFINITION = http_model.WorkflowDef{
+	UpdateTime:  1650595431465,
+	Name:        TREASURE_CHEST_WORKFLOW_NAME,
+	Description: "What's inside the treasure chest?",
+	Version:     1,
+	Tasks: []http_model.WorkflowTask{
+		{
+			Name:              TREASURE_CHEST_TASK_NAME,
+			TaskReferenceName: TREASURE_CHEST_TASK_NAME,
+			Type_:             "SIMPLE",
+			StartDelay:        0,
+			Optional:          false,
+			AsyncComplete:     false,
+			InputParameters: map[string]interface{}{
+				"importantValue": "${workflow.input.importantValue}",
+			},
+		},
+	},
+	InputParameters: []string{"importantValue"},
+	OutputParameters: map[string]interface{}{
+		"workerOutput": fmt.Sprintf("${%s.output}", TREASURE_CHEST_TASK_NAME),
+	},
+	SchemaVersion:                 2,
+	Restartable:                   true,
+	WorkflowStatusListenerEnabled: false,
+	OwnerEmail:                    "gustavo.gardusi@orkes.io",
+	TimeoutPolicy:                 "ALERT_ONLY",
+	TimeoutSeconds:                0,
+}
+
+var TREASURE_TASK_DEFINITION = http_model.TaskDef{
+	Name:                        TREASURE_CHEST_TASK_NAME,
+	Description:                 "Go task example from code",
+	RetryCount:                  3,
+	TimeoutSeconds:              300,
+	InputKeys:                   []string{"importantValue"},
+	OutputKeys:                  make([]string, 0),
+	TimeoutPolicy:               "TIME_OUT_WF",
+	RetryLogic:                  "FIXED",
+	RetryDelaySeconds:           10,
+	ResponseTimeoutSeconds:      180,
 	RateLimitPerFrequency:       0,
 	RateLimitFrequencyInSeconds: 1,
 	OwnerEmail:                  "gustavo.gardusi@orkes.io",

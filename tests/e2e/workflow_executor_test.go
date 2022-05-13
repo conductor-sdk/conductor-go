@@ -12,25 +12,38 @@ import (
 
 var workflowExecutor = executor.NewWorkflowExecutor(API_CLIENT)
 
-type Treasure struct {
-	ImportantValue string `json:"importantValue"`
-}
-
 type WorkflowValidator func(*http_model.Workflow) bool
 
 func TestWorkflowExecutor(t *testing.T) {
+	workflowExecutionChannelList := getWorkflowExecutionChannelList(
+		t,
+		WORKFLOW_NAME,
+		1,
+		nil,
+	)
+	waitForCompletionOfWorkflows(
+		t,
+		workflowExecutionChannelList,
+	)
+}
+
+func getWorkflowExecutionChannelList(t *testing.T, workflowName string, version int32, input interface{}) []executor.WorkflowExecutionChannel {
 	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, WORKFLOW_EXECUTION_AMOUNT)
 	for i := 0; i < WORKFLOW_EXECUTION_AMOUNT; i += 1 {
 		workflowExecutionChannel, err := workflowExecutor.ExecuteWorkflow(
-			WORKFLOW_NAME,
-			1,
-			nil,
+			workflowName,
+			version,
+			input,
 		)
 		if err != nil {
 			t.Error(err)
 		}
 		workflowExecutionChannelList[i] = workflowExecutionChannel
 	}
+	return workflowExecutionChannelList
+}
+
+func waitForCompletionOfWorkflows(t *testing.T, workflowExecutionChannelList []executor.WorkflowExecutionChannel) {
 	var waitGroup sync.WaitGroup
 	for _, workflowExecutionChannel := range workflowExecutionChannelList {
 		waitGroup.Add(1)

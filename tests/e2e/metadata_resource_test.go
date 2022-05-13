@@ -13,19 +13,13 @@ var metadataClient = conductor_http_client.MetadataResourceApiService{
 }
 
 func TestRegisterTaskDefinition(t *testing.T) {
-	registerTaskDefinition(
-		t,
-		[]http_model.TaskDef{
-			TASK_DEFINITION,
-		},
-	)
+	registerTaskDefinition(t, TASK_DEFINITIONS)
 }
 
 func TestRegisterWorkflowDefinition(t *testing.T) {
-	registerWorkflowDefinition(
-		t,
-		WORKFLOW_DEFINITION,
-	)
+	for _, workflowDefinition := range WORKFLOW_DEFINITIONS {
+		registerWorkflowDefinition(t, workflowDefinition)
+	}
 }
 
 func registerTaskDefinition(t *testing.T, taskDefinitionList []http_model.TaskDef) {
