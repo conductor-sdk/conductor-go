@@ -63,9 +63,9 @@ func (e *WorkflowExecutor) ExecuteWorkflow(name string, version int32, input int
 }
 
 func (e *WorkflowExecutor) RegisterWorkflow(workflow *http_model.WorkflowDef) error {
-	response, error := e.metadataClient.RegisterWorkflowDef(context.Background(), *workflow)
+	response, err := e.metadataClient.RegisterWorkflowDef(context.Background(), *workflow)
 	if response.StatusCode != 200 {
-		return error
+		return err
 	}
 	return nil
 }
@@ -80,7 +80,7 @@ func (e *WorkflowExecutor) monitorRunningWorkflows() {
 func (e *WorkflowExecutor) notifyFinishedWorkflows() {
 	for _, workflowId := range e.getRunningWorkflowIdList() {
 		if workflow := e.getWorkflowIfFinished(workflowId); workflow != nil {
-			e.notifyFinishedWorkflow(workflowId, workflow)
+			go e.notifyFinishedWorkflow(workflowId, workflow)
 		}
 	}
 }
@@ -107,25 +107,18 @@ func (e *WorkflowExecutor) getWorkflowIfFinished(workflowId string) *http_model.
 }
 
 func (e *WorkflowExecutor) notifyFinishedWorkflow(workflowId string, workflow *http_model.Workflow) {
-	e.mutex.Lock()
-	defer e.mutex.Unlock()
 	logrus.Debug("Workflow finished: ", workflowId)
-	if workflowExecutionChannel, ok := e.runningWorkflowById[workflowId]; ok {
-		logrus.Debug("notifyWorkflowExecutionStatus, workflow: ", workflow)
-
-		e.mutex.Unlock()
+	if workflowExecutionChannel, ok := e.getWorkflowExecutionChannel(workflowId); ok {
 		workflowExecutionChannel <- *workflow
-		e.mutex.Lock()
-
 		close(workflowExecutionChannel)
-		delete(e.runningWorkflowById, workflowId)
+		e.removeWorkflowExecutionChannel(workflowId)
 	}
 }
 
 func (e *WorkflowExecutor) addWorkflowExecutionChannel(workflowId string, workflowExecutionChannel WorkflowExecutionChannel) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
-	logrus.Debug("addWorkflowExecutionChannel, workflowId: ", workflowId)
+	logrus.Debug("Add WorkflowExecutionChannel, workflowId: ", workflowId)
 	e.runningWorkflowById[workflowId] = workflowExecutionChannel
 }
 
@@ -139,6 +132,19 @@ func (e *WorkflowExecutor) getRunningWorkflowIdList() []string {
 		i += 1
 	}
 	return runningWorkflowIdList
+}
+
+func (e *WorkflowExecutor) getWorkflowExecutionChannel(workflowId string) (WorkflowExecutionChannel, bool) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+	workflowExecutionChannel, ok := e.runningWorkflowById[workflowId]
+	return workflowExecutionChannel, ok
+}
+
+func (e *WorkflowExecutor) removeWorkflowExecutionChannel(workflowId string) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+	delete(e.runningWorkflowById, workflowId)
 }
 
 func isWorkflowFinished(workflow http_model.Workflow) bool {
