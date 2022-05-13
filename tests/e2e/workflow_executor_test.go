@@ -27,6 +27,19 @@ func TestWorkflowExecutor(t *testing.T) {
 	)
 }
 
+func TestWorkflowExecutorWithCustomInput(t *testing.T) {
+	workflowExecutionChannelList := getWorkflowExecutionChannelList(
+		t,
+		TREASURE_CHEST_WORKFLOW_NAME,
+		1,
+		TREASURE_WORKFLOW_INPUT,
+	)
+	waitForCompletionOfWorkflows(
+		t,
+		workflowExecutionChannelList,
+	)
+}
+
 func getWorkflowExecutionChannelList(t *testing.T, workflowName string, version int32, input interface{}) []executor.WorkflowExecutionChannel {
 	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, WORKFLOW_EXECUTION_AMOUNT)
 	for i := 0; i < WORKFLOW_EXECUTION_AMOUNT; i += 1 {

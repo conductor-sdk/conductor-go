@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/conductor-sdk/conductor-go/examples/task_execute_function"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/worker"
 )
@@ -13,12 +12,14 @@ import (
 var taskRunner = worker.NewTaskRunnerWithApiClient(API_CLIENT)
 
 func init() {
-	taskRunner.StartWorker(
-		TASK_NAME,
-		task_execute_function.Example1,
-		WORKER_THREAD_COUNT,
-		WORKER_POLLING_INTERVAL,
-	)
+	for taskName, taskExecuteFunction := range TASK_DEFINITION_TO_WORKER {
+		taskRunner.StartWorker(
+			taskName,
+			taskExecuteFunction,
+			WORKER_THREAD_COUNT,
+			WORKER_POLLING_INTERVAL,
+		)
+	}
 }
 
 func TestTaskRunnerExecution(t *testing.T) {
