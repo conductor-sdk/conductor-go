@@ -60,6 +60,14 @@ func (e *WorkflowExecutor) ExecuteWorkflow(name string, version int32, input int
 	return workflowExecutionChannel, nil
 }
 
+func (e *WorkflowExecutor) RegisterWorkflow(workflow *http_model.WorkflowDef) error {
+	response, error := e.metadataClient.RegisterWorkflowDef(context.Background(), *workflow)
+	if response.StatusCode != 200 {
+		return error
+	}
+	return nil
+}
+
 func (e *WorkflowExecutor) monitorRunningWorkflows() {
 	for {
 		finishedWorkflowIdList := e.getFinishedWorkflowIdList()
