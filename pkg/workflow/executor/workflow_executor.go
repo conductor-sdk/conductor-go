@@ -3,6 +3,7 @@ package executor
 import (
 	"context"
 	"encoding/json"
+	"sync"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
@@ -17,6 +18,7 @@ var (
 type WorkflowExecutionChannel chan http_model.Workflow
 
 type WorkflowExecutor struct {
+	mutex               sync.Mutex
 	runningWorkflowById map[string]WorkflowExecutionChannel
 
 	taskClient     conductor_http_client.TaskResourceApiService
@@ -70,24 +72,20 @@ func (e *WorkflowExecutor) RegisterWorkflow(workflow *http_model.WorkflowDef) er
 
 func (e *WorkflowExecutor) monitorRunningWorkflows() {
 	for {
-		finishedWorkflowIdList := e.getFinishedWorkflowIdList()
-		e.removeFinishedWorkflows(finishedWorkflowIdList)
+		e.notifyFinishedWorkflows()
 		time.Sleep(RUNNING_WORKFLOWS_REFRESH_INTERVAL)
 	}
 }
 
-func (e *WorkflowExecutor) getFinishedWorkflowIdList() []string {
-	finishedWorkflowIdList := make([]string, 0)
+func (e *WorkflowExecutor) notifyFinishedWorkflows() {
 	for _, workflowId := range e.getRunningWorkflowIdList() {
-		if e.isWorkflowFinished(workflowId) {
-			logrus.Debug("Workflow finished: ", workflowId)
-			finishedWorkflowIdList = append(finishedWorkflowIdList, workflowId)
+		if workflow := e.getWorkflowIfFinished(workflowId); workflow != nil {
+			e.notifyFinishedWorkflow(workflowId, workflow)
 		}
 	}
-	return finishedWorkflowIdList
 }
 
-func (e *WorkflowExecutor) isWorkflowFinished(workflowId string) bool {
+func (e *WorkflowExecutor) getWorkflowIfFinished(workflowId string) *http_model.Workflow {
 	workflow, response, err := e.workflowClient.GetExecutionStatus(
 		context.Background(),
 		workflowId,
@@ -100,35 +98,40 @@ func (e *WorkflowExecutor) isWorkflowFinished(workflowId string) bool {
 			"response: ", response,
 			"error: ", err.Error(),
 		)
-		return false
+		return nil
 	}
 	if !isWorkflowFinished(workflow) {
-		return false
+		return nil
 	}
-	e.notifyWorkflowExecutionStatus(workflowId, workflow)
-	return true
+	return &workflow
 }
 
-func (e *WorkflowExecutor) removeFinishedWorkflows(finishedWorkflowIdList []string) {
-	for _, workflowId := range finishedWorkflowIdList {
+func (e *WorkflowExecutor) notifyFinishedWorkflow(workflowId string, workflow *http_model.Workflow) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+	logrus.Debug("Workflow finished: ", workflowId)
+	if workflowExecutionChannel, ok := e.runningWorkflowById[workflowId]; ok {
+		logrus.Debug("notifyWorkflowExecutionStatus, workflow: ", workflow)
+
+		e.mutex.Unlock()
+		workflowExecutionChannel <- *workflow
+		e.mutex.Lock()
+
+		close(workflowExecutionChannel)
 		delete(e.runningWorkflowById, workflowId)
 	}
 }
 
-func (e *WorkflowExecutor) notifyWorkflowExecutionStatus(workflowId string, workflow http_model.Workflow) {
-	logrus.Debug("notifyWorkflowExecutionStatus, workflow: ", workflow)
-	if workflowExecutionChannel, ok := e.runningWorkflowById[workflowId]; ok {
-		workflowExecutionChannel <- workflow
-		close(workflowExecutionChannel)
-	}
-}
-
 func (e *WorkflowExecutor) addWorkflowExecutionChannel(workflowId string, workflowExecutionChannel WorkflowExecutionChannel) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
 	logrus.Debug("addWorkflowExecutionChannel, workflowId: ", workflowId)
 	e.runningWorkflowById[workflowId] = workflowExecutionChannel
 }
 
 func (e *WorkflowExecutor) getRunningWorkflowIdList() []string {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
 	i := 0
 	runningWorkflowIdList := make([]string, len(e.runningWorkflowById))
 	for workflowId := range e.runningWorkflowById {
