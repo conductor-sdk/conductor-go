@@ -42,7 +42,7 @@ func (workflow *conductorWorkflow) execute() (string, error) {
 }
 
 func (workflow *conductorWorkflow) ToWorkflowDef() *http_model.WorkflowDef {
-	workflowTasks := make([]http_model.WorkflowTask, len(workflow.tasks)-1)
+	workflowTasks := make([]http_model.WorkflowTask, 0)
 	for _, task := range workflow.tasks {
 		workflowTask := task.ToWorkflowTask()
 		workflowTasks = append(workflowTasks, *workflowTask)
