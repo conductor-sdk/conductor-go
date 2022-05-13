@@ -4,9 +4,10 @@ func SimpleTask(name string, taskRefName string) *simpleTask {
 	return &simpleTask{task{
 		name:              name,
 		taskReferenceName: taskRefName,
+		description:       "",
 		taskType:          SIMPLE,
 		optional:          false,
-		inputParameters:   struct{}{},
+		inputParameters:   map[string]interface{}{},
 	}}
 }
 func Switch(taskRefName string, caseExpression string) *decision {
@@ -17,10 +18,10 @@ func Switch(taskRefName string, caseExpression string) *decision {
 			description:       "",
 			taskType:          SWITCH,
 			optional:          false,
-			inputParameters:   struct{}{},
+			inputParameters:   map[string]interface{}{},
 		},
-		decisionCases:  nil,
-		defaultCase:    nil,
+		decisionCases:  map[string][]Task{},
+		defaultCase:    []Task{},
 		caseExpression: caseExpression,
 		useJavascript:  false,
 		evaluatorType:  "value-param",

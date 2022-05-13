@@ -1,5 +1,7 @@
 package tasks
 
+import "github.com/conductor-sdk/conductor-go/pkg/http_model"
+
 type TaskType string
 
 const (
@@ -25,16 +27,16 @@ const (
 )
 
 type Task interface {
-	toWorkflowTask() WorkflowTask
+	ToWorkflowTask() *http_model.WorkflowTask
 }
 
 type task struct {
-	name              string `json:"name"`
-	taskReferenceName string `json:"taskReferenceName"`
+	name              string
+	taskReferenceName string
 	description       string
-	taskType          TaskType `json:"type"`
-	optional          bool     `json:"optional"`
-	inputParameters   struct{} `json:"inputParameters"`
+	taskType          TaskType
+	optional          bool
+	inputParameters   map[string]interface{}
 }
 
 type simpleTask struct {
@@ -45,9 +47,21 @@ func (t *simpleTask) Description(description string) *simpleTask {
 	t.description = description
 	return t
 }
+func (t *simpleTask) Optional(optional bool) *simpleTask {
+	t.optional = optional
+	return t
+}
 
-func (task *simpleTask) toWorkflowTask() WorkflowTask {
-	return WorkflowTask{}
+func (task *simpleTask) ToWorkflowTask() *http_model.WorkflowTask {
+	return &http_model.WorkflowTask{
+		Name:              task.name,
+		TaskReferenceName: task.taskReferenceName,
+		Description:       task.description,
+		InputParameters:   task.inputParameters,
+		Type_:             string(SIMPLE),
+		Optional:          false,
+		TaskDefinition:    nil,
+	}
 }
 
 type wait struct {
@@ -80,23 +94,18 @@ func (task *decision) DefaultCase(tasks ...Task) *decision {
 	task.defaultCase = append(task.defaultCase, tasks...)
 	return task
 }
-func (task *decision) toWorkflowTask() WorkflowTask {
-	return WorkflowTask{
-		Name:                           task.name,
-		TaskReferenceName:              task.taskReferenceName,
-		Description:                    task.description,
-		InputParameters:                struct{}{},
-		Type:                           string(task.taskType),
-		CaseExpression:                 nil,
-		ScriptExpression:               nil,
-		DecisionCases:                  struct{}{},
-		DynamicForkJoinTasksParam:      nil,
-		DynamicForkTasksParam:          nil,
-		DynamicForkTasksInputParamName: nil,
-		DefaultCase:                    nil,
-		StartDelay:                     0,
-		Optional:                       false,
-		EvaluatorType:                  task.evaluatorType,
-		Expression:                     nil,
+func (task *decision) ToWorkflowTask() *http_model.WorkflowTask {
+	return &http_model.WorkflowTask{
+		Name:              task.name,
+		TaskReferenceName: task.taskReferenceName,
+		Description:       task.description,
+		InputParameters:   map[string]interface{}{},
+		Type_:             string(task.taskType),
+		CaseExpression:    task.caseExpression,
+		DecisionCases:     map[string][]http_model.WorkflowTask{},
+		DefaultCase:       nil,
+		Optional:          false,
+		EvaluatorType:     task.evaluatorType,
+		Expression:        "",
 	}
 }
