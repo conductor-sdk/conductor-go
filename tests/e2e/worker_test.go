@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"sync"
 	"testing"
 	"time"
 
@@ -31,20 +32,27 @@ func TestTaskRunnerExecution(t *testing.T) {
 		t,
 		WORKFLOW_DEFINITION,
 	)
-	workflowQty := 10
 	workflowIdList := startWorkflows(
 		t,
-		workflowQty,
+		WORKFLOW_EXECUTION_AMOUNT,
 		WORKFLOW_NAME,
 	)
-	time.Sleep(5 * time.Second)
-	for i := range workflowIdList {
-		workflow := getWorkflowExecutionStatus(
-			t,
-			workflowIdList[i],
-		)
-		if workflow.Status != "COMPLETED" {
-			t.Error("Incomplete workflow: ", workflowIdList[i])
-		}
+	var waitGroup sync.WaitGroup
+	for _, workflowId := range workflowIdList {
+		waitGroup.Add(1)
+		go validateWorkflow(t, &waitGroup, workflowId)
+	}
+	waitGroup.Wait()
+}
+
+func validateWorkflow(t *testing.T, waitGroup *sync.WaitGroup, workflowId string) {
+	defer waitGroup.Done()
+	time.Sleep(3 * time.Second)
+	workflow := getWorkflowExecutionStatus(
+		t,
+		workflowId,
+	)
+	if workflow.Status != "COMPLETED" {
+		t.Error("Incomplete workflow: ", workflowId)
 	}
 }

@@ -2,7 +2,7 @@ package executor
 
 import (
 	"context"
-	"sync"
+	"encoding/json"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
@@ -17,7 +17,6 @@ var (
 type WorkflowExecutionChannel chan http_model.Workflow
 
 type WorkflowExecutor struct {
-	mutex               sync.Mutex
 	runningWorkflowById map[string]WorkflowExecutionChannel
 
 	taskClient     conductor_http_client.TaskResourceApiService
@@ -42,11 +41,11 @@ func NewWorkflowExecutor(apiClient *conductor_http_client.APIClient) *WorkflowEx
 	return &workflowExecutor
 }
 
-func (e *WorkflowExecutor) ExecuteWorkflow(name string, version int32, input map[string]interface{}) (WorkflowExecutionChannel, error) {
+func (e *WorkflowExecutor) ExecuteWorkflow(name string, version int32, input interface{}) (WorkflowExecutionChannel, error) {
 	startWorkflowRequest := http_model.StartWorkflowRequest{
 		Name:    name,
 		Version: version,
-		Input:   input,
+		Input:   getInputAsMap(input),
 	}
 	workflowId, _, err := e.workflowClient.StartWorkflow1(
 		context.Background(),
@@ -55,6 +54,7 @@ func (e *WorkflowExecutor) ExecuteWorkflow(name string, version int32, input map
 	if err != nil {
 		return nil, err
 	}
+	logrus.Debug("Workflow started: ", workflowId)
 	workflowExecutionChannel := make(WorkflowExecutionChannel)
 	e.addWorkflowExecutionChannel(workflowId, workflowExecutionChannel)
 	return workflowExecutionChannel, nil
@@ -72,6 +72,7 @@ func (e *WorkflowExecutor) getFinishedWorkflowIdList() []string {
 	finishedWorkflowIdList := make([]string, 0)
 	for _, workflowId := range e.getRunningWorkflowIdList() {
 		if e.isWorkflowFinished(workflowId) {
+			logrus.Debug("Workflow finished: ", workflowId)
 			finishedWorkflowIdList = append(finishedWorkflowIdList, workflowId)
 		}
 	}
@@ -101,30 +102,25 @@ func (e *WorkflowExecutor) isWorkflowFinished(workflowId string) bool {
 }
 
 func (e *WorkflowExecutor) removeFinishedWorkflows(finishedWorkflowIdList []string) {
-	e.mutex.Lock()
-	defer e.mutex.Unlock()
 	for _, workflowId := range finishedWorkflowIdList {
 		delete(e.runningWorkflowById, workflowId)
 	}
 }
 
 func (e *WorkflowExecutor) notifyWorkflowExecutionStatus(workflowId string, workflow http_model.Workflow) {
-	e.mutex.Lock()
-	defer e.mutex.Unlock()
+	logrus.Debug("notifyWorkflowExecutionStatus, workflow: ", workflow)
 	if workflowExecutionChannel, ok := e.runningWorkflowById[workflowId]; ok {
 		workflowExecutionChannel <- workflow
+		close(workflowExecutionChannel)
 	}
 }
 
 func (e *WorkflowExecutor) addWorkflowExecutionChannel(workflowId string, workflowExecutionChannel WorkflowExecutionChannel) {
-	e.mutex.Lock()
-	defer e.mutex.Unlock()
+	logrus.Debug("addWorkflowExecutionChannel, workflowId: ", workflowId)
 	e.runningWorkflowById[workflowId] = workflowExecutionChannel
 }
 
 func (e *WorkflowExecutor) getRunningWorkflowIdList() []string {
-	e.mutex.Lock()
-	defer e.mutex.Unlock()
 	i := 0
 	runningWorkflowIdList := make([]string, len(e.runningWorkflowById))
 	for workflowId := range e.runningWorkflowById {
@@ -136,4 +132,14 @@ func (e *WorkflowExecutor) getRunningWorkflowIdList() []string {
 
 func isWorkflowFinished(workflow http_model.Workflow) bool {
 	return workflow.Status != "PAUSED" && workflow.Status != "RUNNING"
+}
+
+func getInputAsMap(input interface{}) map[string]interface{} {
+	if input == nil {
+		return nil
+	}
+	data, _ := json.Marshal(input)
+	var parsedInput map[string]interface{}
+	json.Unmarshal(data, &parsedInput)
+	return parsedInput
 }

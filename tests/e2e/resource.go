@@ -24,8 +24,10 @@ var (
 	WORKFLOW_EXECUTION_AMOUNT = 5
 	WORKFLOW_NAME             = "workflow_with_go_task_example_from_code"
 
-	API_CLIENT = getApiClientWithAuthentication()
+	IMPORTANT_VALUE = "Go is really nice :)"
 )
+
+var API_CLIENT = getApiClientWithAuthentication()
 
 var WORKFLOW_DEFINITION = http_model.WorkflowDef{
 	UpdateTime:  1650595431465,
