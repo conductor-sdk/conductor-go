@@ -33,8 +33,16 @@ func (task *fork) toWorkflowTask() []http_model.WorkflowTask {
 	}
 	return []http_model.WorkflowTask{
 		forkWorkflowTask,
-		task.joinTask.toWorkflowTask()[0],
+		task.getJoinTask(),
 	}
+}
+
+func (task *fork) getJoinTask() http_model.WorkflowTask {
+	if task.joinTask != nil {
+		return (task.joinTask.toWorkflowTask())[0]
+	}
+	join := Join(task.taskReferenceName + "_join")
+	return (join.toWorkflowTask())[0]
 }
 
 func (task *fork) Input(key string, value interface{}) *fork {

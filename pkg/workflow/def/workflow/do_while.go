@@ -21,7 +21,7 @@ func DoWhile(taskRefName string, terminationCondition string, tasks ...Task) *do
 }
 
 //Loop N times when N is specified as loopValue
-// can be  static number e.g. 5 or a parameter experession like ${task_ref.output.some_value} that is a number
+// can be  static number e.g. 5 or a parameter expression like ${task_ref.output.some_value} that is a number
 func Loop(taskRefName string, loopValue interface{}, tasks ...Task) *doWhile {
 	loop := &doWhile{
 		task: task{
