@@ -5,8 +5,8 @@ import (
 	workflow_status "github.com/conductor-sdk/conductor-go/pkg/model/enum"
 )
 
-func Terminate(taskRefName string, terminationReason string, status workflow_status.WorkflowStatus) *decision {
-	decision := &decision{
+func Terminate(taskRefName string, terminationReason string, status workflow_status.WorkflowStatus) *terminate {
+	terminate := &terminate{
 		task: task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
@@ -16,9 +16,9 @@ func Terminate(taskRefName string, terminationReason string, status workflow_sta
 			inputParameters:   map[string]interface{}{},
 		},
 	}
-	decision.task.Input("terminationStatus", status)
-	decision.task.Input("terminationReason", terminationReason)
-	return decision
+	terminate.task.Input("terminationStatus", status)
+	terminate.task.Input("terminationReason", terminationReason)
+	return terminate
 }
 
 type terminate struct {

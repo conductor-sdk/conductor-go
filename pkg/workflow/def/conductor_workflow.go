@@ -28,7 +28,7 @@ func (workflow *conductorWorkflow) Version(version int32) *conductorWorkflow {
 	workflow.version = version
 	return workflow
 }
-func (workflow *conductorWorkflow) AddTask(task tasks.Task) *conductorWorkflow {
+func (workflow *conductorWorkflow) Add(task tasks.Task) *conductorWorkflow {
 	workflow.tasks = append(workflow.tasks, task)
 	return workflow
 }
