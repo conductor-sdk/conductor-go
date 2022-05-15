@@ -26,3 +26,7 @@ func (task *setVariable) Optional(optional bool) *setVariable {
 	task.task.Optional(optional)
 	return task
 }
+func (task *setVariable) Input(key string, value interface{}) *setVariable {
+	task.task.Input(key, value)
+	return task
+}

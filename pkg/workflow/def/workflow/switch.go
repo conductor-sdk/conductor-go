@@ -29,21 +29,6 @@ type decision struct {
 	evaluatorType string
 }
 
-func (task *decision) Description(description string) *decision {
-	task.task.Description(description)
-	return task
-}
-
-func (task *decision) Optional(optional bool) *decision {
-	task.task.Optional(optional)
-	return task
-}
-
-func (task *decision) UseJavascript(use bool) *decision {
-	task.useJavascript = use
-	return task
-}
-
 func (task *decision) SwitchCase(caseName string, tasks ...Task) *decision {
 	task.decisionCases[caseName] = append(task.decisionCases[caseName], tasks...)
 	return task
@@ -88,5 +73,19 @@ func (task *decision) toWorkflowTask() []http_model.WorkflowTask {
 // Input to the task
 func (task *decision) Input(key string, value interface{}) *decision {
 	task.task.Input(key, value)
+	return task
+}
+func (task *decision) Description(description string) *decision {
+	task.task.Description(description)
+	return task
+}
+
+func (task *decision) Optional(optional bool) *decision {
+	task.task.Optional(optional)
+	return task
+}
+
+func (task *decision) UseJavascript(use bool) *decision {
+	task.useJavascript = use
 	return task
 }

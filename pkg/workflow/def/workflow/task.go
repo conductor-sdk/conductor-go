@@ -52,14 +52,6 @@ func (task *task) toWorkflowTask() []http_model.WorkflowTask {
 	}
 }
 
-func (task *task) Description(description string) *task {
-	task.description = description
-	return task
-}
-func (task *task) Optional(optional bool) *task {
-	task.optional = optional
-	return task
-}
 func (task *task) ReferenceName() string {
 	return task.taskReferenceName
 }
@@ -70,5 +62,13 @@ func (task *task) OutputRef(path string) string {
 // Input to the task
 func (task *task) Input(key string, value interface{}) *task {
 	task.inputParameters[key] = value
+	return task
+}
+func (task *task) Description(description string) *task {
+	task.description = description
+	return task
+}
+func (task *task) Optional(optional bool) *task {
+	task.optional = optional
 	return task
 }

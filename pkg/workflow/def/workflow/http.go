@@ -47,3 +47,11 @@ func (task *httpTask) Input(key string, value *interface{}) *httpTask {
 	task.inputParameters[key] = value
 	return task
 }
+func (task *httpTask) Description(description string) *httpTask {
+	task.task.Description(description)
+	return task
+}
+func (task *httpTask) Optional(optional bool) *httpTask {
+	task.task.Optional(optional)
+	return task
+}

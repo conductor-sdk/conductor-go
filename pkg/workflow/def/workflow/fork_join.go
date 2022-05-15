@@ -44,8 +44,3 @@ func (task *fork) getJoinTask() http_model.WorkflowTask {
 	join := Join(task.taskReferenceName + "_join")
 	return (join.toWorkflowTask())[0]
 }
-
-func (task *fork) Input(key string, value interface{}) *fork {
-	task.task.Input(key, value)
-	return task
-}
