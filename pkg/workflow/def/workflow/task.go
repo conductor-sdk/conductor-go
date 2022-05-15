@@ -9,7 +9,6 @@ const (
 	DYNAMIC           TaskType = "DYNAMIC"
 	FORK_JOIN         TaskType = "FORK_JOIN"
 	FORK_JOIN_DYNAMIC TaskType = "FORK_JOIN_DYNAMIC"
-	DECISION          TaskType = "DECISION"
 	SWITCH            TaskType = "SWITCH"
 	JOIN              TaskType = "JOIN"
 	DO_WHILE          TaskType = "DO_WHILE"
