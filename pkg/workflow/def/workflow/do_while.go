@@ -67,3 +67,7 @@ func (task *doWhile) toWorkflowTask() []http_model.WorkflowTask {
 	}
 	return workflowTasks
 }
+func (task *doWhile) Optional(optional bool) *doWhile {
+	task.task.Optional(optional)
+	return task
+}
