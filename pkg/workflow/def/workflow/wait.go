@@ -1,7 +1,5 @@
 package workflow
 
-import "github.com/conductor-sdk/conductor-go/pkg/http_model"
-
 func Wait(taskRefName string) *decision {
 	return &decision{
 		task: task{
@@ -13,22 +11,4 @@ func Wait(taskRefName string) *decision {
 			inputParameters:   map[string]interface{}{},
 		},
 	}
-}
-
-type wait struct {
-	task
-}
-
-func (task *wait) Description(description string) *wait {
-	task.task.Description(description)
-	return task
-}
-
-func (task *wait) Optional(optional bool) *wait {
-	task.task.Optional(optional)
-	return task
-}
-
-func (task *wait) toWorkflowTask() *[]http_model.WorkflowTask {
-	return task.task.toWorkflowTask()
 }

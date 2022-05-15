@@ -2,7 +2,12 @@ package workflow
 
 import "github.com/conductor-sdk/conductor-go/pkg/http_model"
 
-func Join(taskRefName string, joinOn ...string) *join {
+type join struct {
+	task
+	joinOn []string
+}
+
+func Join(taskRefName string, joinOn []string) *join {
 	return &join{
 		task: task{
 			name:              taskRefName,
@@ -16,23 +21,8 @@ func Join(taskRefName string, joinOn ...string) *join {
 	}
 }
 
-type join struct {
-	task
-	joinOn []string
-}
-
-func (task *join) Description(description string) *join {
-	task.task.Description(description)
-	return task
-}
-
-func (task *join) Optional(optional bool) *join {
-	task.task.Optional(optional)
-	return task
-}
-
-func (task *join) toWorkflowTask() *[]http_model.WorkflowTask {
+func (task *join) toWorkflowTask() []http_model.WorkflowTask {
 	workflowTasks := task.task.toWorkflowTask()
-	(*workflowTasks)[0].JoinOn = task.joinOn
+	workflowTasks[0].JoinOn = task.joinOn
 	return workflowTasks
 }

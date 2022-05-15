@@ -49,30 +49,21 @@ type doWhile struct {
 	loopOver      []Task
 }
 
-func (task *doWhile) Description(description string) *doWhile {
-	task.task.Description(description)
-	return task
-}
-
-func (task *doWhile) Optional(optional bool) *doWhile {
-	task.task.Optional(optional)
-	return task
-}
-
 // Input to the task
 func (task *doWhile) Input(key string, value interface{}) *doWhile {
 	task.task.Input(key, value)
 	return task
 }
 
-func (task *doWhile) toWorkflowTask() *[]http_model.WorkflowTask {
+func (task *doWhile) toWorkflowTask() []http_model.WorkflowTask {
 	workflowTasks := task.task.toWorkflowTask()
-	(*workflowTasks)[0].LoopCondition = task.loopCondition
-	(*workflowTasks)[0].LoopOver = []http_model.WorkflowTask{}
+	workflowTasks[0].LoopCondition = task.loopCondition
+	workflowTasks[0].LoopOver = []http_model.WorkflowTask{}
 	for _, loopTask := range task.loopOver {
-		for _, loopWorkflowTask := range *loopTask.toWorkflowTask() {
-			(*workflowTasks)[0].LoopOver = append((*workflowTasks)[0].LoopOver, loopWorkflowTask)
-		}
+		workflowTasks[0].LoopOver = append(
+			workflowTasks[0].LoopOver,
+			loopTask.toWorkflowTask()...,
+		)
 	}
 	return workflowTasks
 }

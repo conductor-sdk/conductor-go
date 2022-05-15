@@ -27,7 +27,7 @@ const (
 )
 
 type Task interface {
-	toWorkflowTask() *[]http_model.WorkflowTask
+	toWorkflowTask() []http_model.WorkflowTask
 }
 
 type task struct {
@@ -39,18 +39,17 @@ type task struct {
 	inputParameters   map[string]interface{}
 }
 
-//Returns a pointer to the slice since the caller will modify the slice
-func (task *task) toWorkflowTask() *[]http_model.WorkflowTask {
-
-	workflowTask := http_model.WorkflowTask{
-		Name:              task.name,
-		TaskReferenceName: task.taskReferenceName,
-		Description:       task.description,
-		InputParameters:   task.inputParameters,
-		Optional:          task.optional,
-		Type_:             string(task.taskType),
+func (task *task) toWorkflowTask() []http_model.WorkflowTask {
+	return []http_model.WorkflowTask{
+		{
+			Name:              task.name,
+			TaskReferenceName: task.taskReferenceName,
+			Description:       task.description,
+			InputParameters:   task.inputParameters,
+			Optional:          task.optional,
+			Type_:             string(task.taskType),
+		},
 	}
-	return &[]http_model.WorkflowTask{workflowTask}
 }
 
 func (task *task) Description(description string) *task {

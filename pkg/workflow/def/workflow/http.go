@@ -1,8 +1,8 @@
 package workflow
 
-import (
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-)
+type httpTask struct {
+	task
+}
 
 type HttpMethod string
 
@@ -40,24 +40,6 @@ type HttpInput struct {
 	ConnectionTimeOut int16               `json:"ConnectionTimeOut,omitempty"`
 	ReadTimeout       int16               `json:"readTimeout,omitempty"`
 	Body              interface{}         `json:"body,omitempty"`
-}
-
-type httpTask struct {
-	task
-}
-
-func (task *httpTask) Description(description string) *httpTask {
-	task.task.Description(description)
-	return task
-}
-
-func (task *httpTask) Optional(optional bool) *httpTask {
-	task.task.Optional(optional)
-	return task
-}
-
-func (task *httpTask) toWorkflowTask() *[]http_model.WorkflowTask {
-	return task.task.toWorkflowTask()
 }
 
 // Input to the task

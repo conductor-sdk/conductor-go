@@ -1,9 +1,10 @@
 package workflow
 
 import (
+	"net/http"
+
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
-	"net/http"
 )
 
 func NewConductorWorkflow(executor *executor.WorkflowExecutor) *conductorWorkflow {
@@ -32,29 +33,26 @@ func (workflow *conductorWorkflow) Add(task Task) *conductorWorkflow {
 	return workflow
 }
 
-func (workflow *conductorWorkflow) Register(overwrite bool) (*http.Response, error) {
-	response, error := workflow.executor.RegisterWorkflow(workflow.ToWorkflowDef())
-	return response, error
+func (workflow *conductorWorkflow) Register() (*http.Response, error) {
+	return workflow.executor.RegisterWorkflow(
+		workflow.toWorkflowDef(),
+	)
 }
 
-func (workflow *conductorWorkflow) execute() (string, error) {
-	return "", nil
+func (workflow *conductorWorkflow) Start(input interface{}) (executor.WorkflowExecutionChannel, error) {
+	return workflow.executor.ExecuteWorkflow(
+		workflow.name,
+		workflow.version,
+		input,
+	)
 }
 
-func (workflow *conductorWorkflow) ToWorkflowDef() *http_model.WorkflowDef {
-	workflowTasks := make([]http_model.WorkflowTask, 0)
-	for _, task := range workflow.tasks {
-		workflowTasks2 := task.toWorkflowTask()
-		for _, workflowTask := range *workflowTasks2 {
-			workflowTasks = append(workflowTasks, workflowTask)
-		}
-	}
-
-	def := &http_model.WorkflowDef{
+func (workflow *conductorWorkflow) toWorkflowDef() *http_model.WorkflowDef {
+	return &http_model.WorkflowDef{
 		Name:             workflow.name,
 		Description:      "",
 		Version:          workflow.version,
-		Tasks:            workflowTasks,
+		Tasks:            getWorkflowTasksFromConductorWorkflow(workflow),
 		InputParameters:  nil,
 		OutputParameters: nil,
 		FailureWorkflow:  "",
@@ -65,5 +63,15 @@ func (workflow *conductorWorkflow) ToWorkflowDef() *http_model.WorkflowDef {
 		Variables:        nil,
 		InputTemplate:    nil,
 	}
-	return def
+}
+
+func getWorkflowTasksFromConductorWorkflow(workflow *conductorWorkflow) []http_model.WorkflowTask {
+	workflowTasks := make([]http_model.WorkflowTask, 0)
+	for _, task := range workflow.tasks {
+		workflowTasks = append(
+			workflowTasks,
+			task.toWorkflowTask()...,
+		)
+	}
+	return workflowTasks
 }

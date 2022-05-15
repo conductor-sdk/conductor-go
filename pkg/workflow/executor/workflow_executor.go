@@ -64,8 +64,12 @@ func (e *WorkflowExecutor) ExecuteWorkflow(name string, version int32, input int
 }
 
 func (e *WorkflowExecutor) RegisterWorkflow(workflow *http_model.WorkflowDef) (*http.Response, error) {
-	response, err := e.metadataClient.Update(context.Background(), []http_model.WorkflowDef{*workflow})
-	return response, err
+	return e.metadataClient.Update(
+		context.Background(),
+		[]http_model.WorkflowDef{
+			*workflow,
+		},
+	)
 }
 
 func (e *WorkflowExecutor) monitorRunningWorkflows() {

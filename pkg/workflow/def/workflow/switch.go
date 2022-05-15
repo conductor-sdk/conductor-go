@@ -53,8 +53,7 @@ func (task *decision) DefaultCase(tasks ...Task) *decision {
 	return task
 }
 
-func (task *decision) toWorkflowTask() *[]http_model.WorkflowTask {
-
+func (task *decision) toWorkflowTask() []http_model.WorkflowTask {
 	if task.useJavascript {
 		task.evaluatorType = "javascript"
 	} else {
@@ -66,24 +65,23 @@ func (task *decision) toWorkflowTask() *[]http_model.WorkflowTask {
 	var decisionCases = map[string][]http_model.WorkflowTask{}
 	for caseValue, tasks := range task.decisionCases {
 		for _, task := range tasks {
-			for _, caseTask := range *task.toWorkflowTask() {
+			for _, caseTask := range task.toWorkflowTask() {
 				decisionCases[caseValue] = append([]http_model.WorkflowTask{}, caseTask)
 			}
 		}
 	}
 	var defaultCase []http_model.WorkflowTask
 	for _, task := range task.defaultCase {
-		for _, defaultTask := range *task.toWorkflowTask() {
+		for _, defaultTask := range task.toWorkflowTask() {
 			defaultCase = append([]http_model.WorkflowTask{}, defaultTask)
 		}
 	}
 
 	workflowTasks := task.task.toWorkflowTask()
-	(*workflowTasks)[0].DecisionCases = decisionCases
-	(*workflowTasks)[0].DefaultCase = defaultCase
-	(*workflowTasks)[0].EvaluatorType = task.evaluatorType
-	(*workflowTasks)[0].Expression = task.expression
-
+	workflowTasks[0].DecisionCases = decisionCases
+	workflowTasks[0].DefaultCase = defaultCase
+	workflowTasks[0].EvaluatorType = task.evaluatorType
+	workflowTasks[0].Expression = task.expression
 	return workflowTasks
 }
 
