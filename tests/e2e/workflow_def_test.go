@@ -30,5 +30,6 @@ func TestWorkflowDefWithSimpleTask(t *testing.T) {
 		[]executor.WorkflowExecutionChannel{
 			workflowExecutionChannel,
 		},
+		isWorkflowCompleted,
 	)
 }

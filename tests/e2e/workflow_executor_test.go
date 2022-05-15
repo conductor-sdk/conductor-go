@@ -24,6 +24,7 @@ func TestWorkflowExecutor(t *testing.T) {
 	waitForCompletionOfWorkflows(
 		t,
 		workflowExecutionChannelList,
+		isWorkflowCompleted,
 	)
 }
 
@@ -37,6 +38,7 @@ func TestWorkflowExecutorWithCustomInput(t *testing.T) {
 	waitForCompletionOfWorkflows(
 		t,
 		workflowExecutionChannelList,
+		isWorkflowCompleted,
 	)
 }
 
@@ -56,7 +58,7 @@ func getWorkflowExecutionChannelList(t *testing.T, workflowName string, version 
 	return workflowExecutionChannelList
 }
 
-func waitForCompletionOfWorkflows(t *testing.T, workflowExecutionChannelList []executor.WorkflowExecutionChannel) {
+func waitForCompletionOfWorkflows(t *testing.T, workflowExecutionChannelList []executor.WorkflowExecutionChannel, isWorkflowValid WorkflowValidator) {
 	var waitGroup sync.WaitGroup
 	for _, workflowExecutionChannel := range workflowExecutionChannelList {
 		waitGroup.Add(1)
@@ -68,10 +70,6 @@ func waitForCompletionOfWorkflows(t *testing.T, workflowExecutionChannelList []e
 		)
 	}
 	waitGroup.Wait()
-}
-
-func isWorkflowCompleted(workflow *http_model.Workflow) bool {
-	return workflow.Status == "COMPLETED"
 }
 
 func getWorkflowAndValidate(t *testing.T, waitGroup *sync.WaitGroup, workflowExecutionChannel executor.WorkflowExecutionChannel, isWorkflowValid WorkflowValidator) {

@@ -180,3 +180,7 @@ func getHttpSettingsWithAuth() *settings.HttpSettings {
 		BASE_URL,
 	)
 }
+
+func isWorkflowCompleted(workflow *http_model.Workflow) bool {
+	return workflow.Status == "COMPLETED"
+}
