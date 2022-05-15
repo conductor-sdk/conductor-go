@@ -3,6 +3,7 @@ package executor
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 	"sync"
 	"time"
 
@@ -62,12 +63,9 @@ func (e *WorkflowExecutor) ExecuteWorkflow(name string, version int32, input int
 	return workflowExecutionChannel, nil
 }
 
-func (e *WorkflowExecutor) RegisterWorkflow(workflow *http_model.WorkflowDef) error {
-	response, err := e.metadataClient.RegisterWorkflowDef(context.Background(), *workflow)
-	if response.StatusCode != 200 {
-		return err
-	}
-	return nil
+func (e *WorkflowExecutor) RegisterWorkflow(workflow *http_model.WorkflowDef) (*http.Response, error) {
+	response, err := e.metadataClient.Update(context.Background(), []http_model.WorkflowDef{*workflow})
+	return response, err
 }
 
 func (e *WorkflowExecutor) monitorRunningWorkflows() {

@@ -4,6 +4,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/tasks"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
+	"net/http"
 )
 
 func NewConductorWorkflow(executor *executor.WorkflowExecutor) *conductorWorkflow {
@@ -32,9 +33,9 @@ func (workflow *conductorWorkflow) AddTask(task tasks.Task) *conductorWorkflow {
 	return workflow
 }
 
-func (workflow *conductorWorkflow) Register(overwrite bool) error {
-	error := workflow.executor.RegisterWorkflow(workflow.ToWorkflowDef())
-	return error
+func (workflow *conductorWorkflow) Register(overwrite bool) (*http.Response, error) {
+	response, error := workflow.executor.RegisterWorkflow(workflow.ToWorkflowDef())
+	return response, error
 }
 
 func (workflow *conductorWorkflow) execute() (string, error) {
