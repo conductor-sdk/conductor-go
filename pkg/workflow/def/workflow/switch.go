@@ -1,4 +1,4 @@
-package tasks
+package workflow
 
 import "github.com/conductor-sdk/conductor-go/pkg/http_model"
 
@@ -52,7 +52,8 @@ func (task *decision) DefaultCase(tasks ...Task) *decision {
 	task.defaultCase = append(task.defaultCase, tasks...)
 	return task
 }
-func (task *decision) ToWorkflowTask() *http_model.WorkflowTask {
+
+func (task *decision) toWorkflowTask() *[]http_model.WorkflowTask {
 
 	if task.useJavascript {
 		task.evaluatorType = "javascript"
@@ -65,24 +66,28 @@ func (task *decision) ToWorkflowTask() *http_model.WorkflowTask {
 	var decisionCases = map[string][]http_model.WorkflowTask{}
 	for caseValue, tasks := range task.decisionCases {
 		for _, task := range tasks {
-			decisionCases[caseValue] = append([]http_model.WorkflowTask{}, *task.ToWorkflowTask())
+			for _, caseTask := range *task.toWorkflowTask() {
+				decisionCases[caseValue] = append([]http_model.WorkflowTask{}, caseTask)
+			}
 		}
 	}
 	var defaultCase []http_model.WorkflowTask
 	for _, task := range task.defaultCase {
-		defaultCase = append([]http_model.WorkflowTask{}, *task.ToWorkflowTask())
+		for _, defaultTask := range *task.toWorkflowTask() {
+			defaultCase = append([]http_model.WorkflowTask{}, defaultTask)
+		}
 	}
 
-	workflowTask := task.task.ToWorkflowTask()
-	workflowTask.DecisionCases = decisionCases
-	workflowTask.DefaultCase = defaultCase
-	workflowTask.EvaluatorType = task.evaluatorType
-	workflowTask.Expression = task.expression
+	workflowTasks := task.task.toWorkflowTask()
+	(*workflowTasks)[0].DecisionCases = decisionCases
+	(*workflowTasks)[0].DefaultCase = defaultCase
+	(*workflowTasks)[0].EvaluatorType = task.evaluatorType
+	(*workflowTasks)[0].Expression = task.expression
 
-	return workflowTask
+	return workflowTasks
 }
 
-// Input input to the task
+// Input to the task
 func (task *decision) Input(key string, value interface{}) *decision {
 	task.task.Input(key, value)
 	return task

@@ -1,4 +1,4 @@
-package tasks
+package workflow
 
 import (
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
@@ -24,7 +24,9 @@ func Http(taskRefName string, input *HttpInput) *httpTask {
 		optional:          false,
 		inputParameters:   map[string]interface{}{},
 	}}
-
+	if input.Method == "" {
+		input.Method = GET
+	}
 	httpTask.inputParameters["http_request"] = input
 	return httpTask
 }
@@ -54,8 +56,8 @@ func (task *httpTask) Optional(optional bool) *httpTask {
 	return task
 }
 
-func (task *httpTask) ToWorkflowTask() *http_model.WorkflowTask {
-	return task.task.ToWorkflowTask()
+func (task *httpTask) toWorkflowTask() *[]http_model.WorkflowTask {
+	return task.task.toWorkflowTask()
 }
 
 // Input to the task

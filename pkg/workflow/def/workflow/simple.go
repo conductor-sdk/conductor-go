@@ -1,4 +1,4 @@
-package tasks
+package workflow
 
 import "github.com/conductor-sdk/conductor-go/pkg/http_model"
 
@@ -27,6 +27,7 @@ func (task *simpleTask) Optional(optional bool) *simpleTask {
 	return task
 }
 
-func (task *simpleTask) ToWorkflowTask() *http_model.WorkflowTask {
-	return task.task.ToWorkflowTask()
+func (task *simpleTask) toWorkflowTask() *[]http_model.WorkflowTask {
+	return task.task.toWorkflowTask()
+
 }

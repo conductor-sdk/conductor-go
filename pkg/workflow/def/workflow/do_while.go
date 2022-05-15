@@ -1,4 +1,4 @@
-package tasks
+package workflow
 
 import (
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
@@ -21,7 +21,7 @@ func DoWhile(taskRefName string, terminationCondition string, tasks ...Task) *do
 }
 
 //Loop N times when N is specified as loopValue
-//loopValue can be  static number e.g. 5 or a parameter experession like ${task_ref.output.some_value} that is a number
+// can be  static number e.g. 5 or a parameter experession like ${task_ref.output.some_value} that is a number
 func Loop(taskRefName string, loopValue interface{}, tasks ...Task) *doWhile {
 	loop := &doWhile{
 		task: task{
@@ -59,18 +59,20 @@ func (task *doWhile) Optional(optional bool) *doWhile {
 	return task
 }
 
-// Input input to the task
+// Input to the task
 func (task *doWhile) Input(key string, value interface{}) *doWhile {
 	task.task.Input(key, value)
 	return task
 }
 
-func (task *doWhile) ToWorkflowTask() *http_model.WorkflowTask {
-	workflowTask := task.task.ToWorkflowTask()
-	workflowTask.LoopCondition = task.loopCondition
-	workflowTask.LoopOver = []http_model.WorkflowTask{}
+func (task *doWhile) toWorkflowTask() *[]http_model.WorkflowTask {
+	workflowTasks := task.task.toWorkflowTask()
+	(*workflowTasks)[0].LoopCondition = task.loopCondition
+	(*workflowTasks)[0].LoopOver = []http_model.WorkflowTask{}
 	for _, loopTask := range task.loopOver {
-		workflowTask.LoopOver = append(workflowTask.LoopOver, *loopTask.ToWorkflowTask())
+		for _, loopWorkflowTask := range *loopTask.toWorkflowTask() {
+			(*workflowTasks)[0].LoopOver = append((*workflowTasks)[0].LoopOver, loopWorkflowTask)
+		}
 	}
-	return workflowTask
+	return workflowTasks
 }

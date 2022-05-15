@@ -1,4 +1,4 @@
-package tasks
+package workflow
 
 import "github.com/conductor-sdk/conductor-go/pkg/http_model"
 
@@ -27,9 +27,7 @@ const (
 )
 
 type Task interface {
-	ToWorkflowTask() *http_model.WorkflowTask
-	//Future methods
-	//validate() error_string each task should implement this to check for correctness
+	toWorkflowTask() *[]http_model.WorkflowTask
 }
 
 type task struct {
@@ -41,18 +39,20 @@ type task struct {
 	inputParameters   map[string]interface{}
 }
 
-func (task *task) ToWorkflowTask() *http_model.WorkflowTask {
+//Returns a pointer to the slice since the caller will modify the slice
+func (task *task) toWorkflowTask() *[]http_model.WorkflowTask {
 
-	return &http_model.WorkflowTask{
+	workflowTask := http_model.WorkflowTask{
 		Name:              task.name,
 		TaskReferenceName: task.taskReferenceName,
 		Description:       task.description,
 		InputParameters:   task.inputParameters,
 		Optional:          task.optional,
-		TaskDefinition:    nil,
 		Type_:             string(task.taskType),
 	}
+	return &[]http_model.WorkflowTask{workflowTask}
 }
+
 func (task *task) Description(description string) *task {
 	task.description = description
 	return task
@@ -61,8 +61,14 @@ func (task *task) Optional(optional bool) *task {
 	task.optional = optional
 	return task
 }
+func (task *task) ReferenceName() string {
+	return task.taskReferenceName
+}
+func (task *task) OutputRef(path string) string {
+	return "${" + task.taskReferenceName + ".output." + path + "}"
+}
 
-// Input input to the task
+// Input to the task
 func (task *task) Input(key string, value interface{}) *task {
 	task.inputParameters[key] = value
 	return task

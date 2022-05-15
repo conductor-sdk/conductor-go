@@ -1,8 +1,7 @@
-package def
+package workflow
 
 import (
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/tasks"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 	"net/http"
 )
@@ -17,7 +16,7 @@ type conductorWorkflow struct {
 	executor *executor.WorkflowExecutor
 	name     string
 	version  int32
-	tasks    []tasks.Task
+	tasks    []Task
 }
 
 func (workflow *conductorWorkflow) Name(name string) *conductorWorkflow {
@@ -28,7 +27,7 @@ func (workflow *conductorWorkflow) Version(version int32) *conductorWorkflow {
 	workflow.version = version
 	return workflow
 }
-func (workflow *conductorWorkflow) Add(task tasks.Task) *conductorWorkflow {
+func (workflow *conductorWorkflow) Add(task Task) *conductorWorkflow {
 	workflow.tasks = append(workflow.tasks, task)
 	return workflow
 }
@@ -45,12 +44,13 @@ func (workflow *conductorWorkflow) execute() (string, error) {
 func (workflow *conductorWorkflow) ToWorkflowDef() *http_model.WorkflowDef {
 	workflowTasks := make([]http_model.WorkflowTask, 0)
 	for _, task := range workflow.tasks {
-		workflowTask := task.ToWorkflowTask()
-		workflowTasks = append(workflowTasks, *workflowTask)
+		workflowTasks2 := task.toWorkflowTask()
+		for _, workflowTask := range *workflowTasks2 {
+			workflowTasks = append(workflowTasks, workflowTask)
+		}
 	}
 
 	def := &http_model.WorkflowDef{
-		OwnerApp:         "",
 		Name:             workflow.name,
 		Description:      "",
 		Version:          workflow.version,
