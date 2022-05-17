@@ -1,12 +1,10 @@
-package tests
+package http_client_e2e_properties
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/conductor-sdk/conductor-go/examples"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/conductor-sdk/conductor-go/pkg/model"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -37,10 +35,6 @@ var (
 	TASK_DEFINITIONS = []http_model.TaskDef{
 		TASK_DEFINITION,
 		TREASURE_TASK_DEFINITION,
-	}
-	TASK_DEFINITION_TO_WORKER = map[string]model.TaskExecuteFunction{
-		TASK_DEFINITION.Name:     examples.SimpleWorker,
-		TREASURE_CHEST_TASK_NAME: examples.OpenTreasureChest,
 	}
 )
 

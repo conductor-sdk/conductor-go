@@ -1,4 +1,4 @@
-package e2e
+package e2e_properties
 
 import (
 	"os"
@@ -7,6 +7,8 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 )
+
+type WorkflowValidator func(*http_model.Workflow) bool
 
 var (
 	AUTHENTICATION_KEY_ID     = "KEY"
@@ -34,8 +36,4 @@ func getHttpSettingsWithAuth() *settings.HttpSettings {
 	return settings.NewHttpSettings(
 		BASE_URL,
 	)
-}
-
-func isWorkflowCompleted(workflow *http_model.Workflow) bool {
-	return workflow.Status == "COMPLETED"
 }
