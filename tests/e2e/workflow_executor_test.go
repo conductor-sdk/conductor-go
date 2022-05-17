@@ -43,8 +43,8 @@ func TestWorkflowExecutorWithCustomInput(t *testing.T) {
 	)
 }
 
-func getWorkflowExecutionChannelList(t *testing.T, workflowName string, version int32, input interface{}) []executor.WorkflowExecutionChannel {
-	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, tests.WORKFLOW_EXECUTION_AMOUNT)
+func getWorkflowExecutionChannelList(t *testing.T, workflowName string, version int32, input interface{}) []*executor.WorkflowExecutionChannel {
+	workflowExecutionChannelList := make([]*executor.WorkflowExecutionChannel, tests.WORKFLOW_EXECUTION_AMOUNT)
 	for i := 0; i < tests.WORKFLOW_EXECUTION_AMOUNT; i += 1 {
 		workflowExecutionChannel, err := workflowExecutor.ExecuteWorkflow(
 			workflowName,
@@ -54,12 +54,12 @@ func getWorkflowExecutionChannelList(t *testing.T, workflowName string, version 
 		if err != nil {
 			t.Error(err)
 		}
-		workflowExecutionChannelList[i] = workflowExecutionChannel
+		workflowExecutionChannelList[i] = &workflowExecutionChannel
 	}
 	return workflowExecutionChannelList
 }
 
-func waitForCompletionOfWorkflows(t *testing.T, workflowExecutionChannelList []executor.WorkflowExecutionChannel, isWorkflowValid WorkflowValidator) {
+func waitForCompletionOfWorkflows(t *testing.T, workflowExecutionChannelList []*executor.WorkflowExecutionChannel, isWorkflowValid WorkflowValidator) {
 	var waitGroup sync.WaitGroup
 	for _, workflowExecutionChannel := range workflowExecutionChannelList {
 		waitGroup.Add(1)
@@ -73,7 +73,7 @@ func waitForCompletionOfWorkflows(t *testing.T, workflowExecutionChannelList []e
 	waitGroup.Wait()
 }
 
-func getWorkflowAndValidate(t *testing.T, waitGroup *sync.WaitGroup, workflowExecutionChannel executor.WorkflowExecutionChannel, isWorkflowValid WorkflowValidator) {
+func getWorkflowAndValidate(t *testing.T, waitGroup *sync.WaitGroup, workflowExecutionChannel *executor.WorkflowExecutionChannel, isWorkflowValid WorkflowValidator) {
 	defer waitGroup.Done()
 	workflow, err := getWorkflow(workflowExecutionChannel)
 	if err != nil {
@@ -84,9 +84,9 @@ func getWorkflowAndValidate(t *testing.T, waitGroup *sync.WaitGroup, workflowExe
 	}
 }
 
-func getWorkflow(workflowExecutionChannel executor.WorkflowExecutionChannel) (*http_model.Workflow, error) {
+func getWorkflow(workflowExecutionChannel *executor.WorkflowExecutionChannel) (*http_model.Workflow, error) {
 	select {
-	case workflow := <-workflowExecutionChannel:
+	case workflow := <-*workflowExecutionChannel:
 		return &workflow, nil
 	case <-time.After(5 * time.Second):
 		return nil, fmt.Errorf("Timeout waiting for workflow")

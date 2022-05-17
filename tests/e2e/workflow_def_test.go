@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
+	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 	"github.com/conductor-sdk/conductor-go/tests"
 )
 
@@ -31,6 +32,20 @@ func TestWorkflowDefWithSimpleTask(t *testing.T) {
 
 func TestWorkflowDefWithHttpTask(t *testing.T) {
 	getConductorWorkflowWithHttpTask(t)
+}
+
+func TestWorkflowDefExecution(t *testing.T) {
+	workflowExecutionChannelList := []*executor.WorkflowExecutionChannel{
+		getWorkflowExecutionChannel(
+			t,
+			getConductorWorkflowWithHttpTask(t),
+		),
+		getWorkflowExecutionChannel(
+			t,
+			getConductorWorkflowWithSimpleTask(t),
+		),
+	}
+	waitForCompletionOfWorkflows(t, workflowExecutionChannelList, isWorkflowCompleted)
 }
 
 func getConductorWorkflowWithSimpleTask(t *testing.T) *workflow.ConductorWorkflow {
@@ -66,4 +81,12 @@ func validateWorkflowRegistration(t *testing.T, conductorWorkflow *workflow.Cond
 	if err != nil {
 		t.Error(err)
 	}
+}
+
+func getWorkflowExecutionChannel(t *testing.T, conductorWorkflow *workflow.ConductorWorkflow) *executor.WorkflowExecutionChannel {
+	workflowExecutionChannel, err := getConductorWorkflowWithHttpTask(t).Start(nil)
+	if err != nil {
+		t.Error(err)
+	}
+	return &workflowExecutionChannel
 }
