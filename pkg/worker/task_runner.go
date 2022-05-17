@@ -2,6 +2,10 @@ package worker
 
 import (
 	"context"
+	"os"
+	"sync"
+	"time"
+
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
@@ -11,14 +15,11 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	log "github.com/sirupsen/logrus"
-	"os"
-	"sync"
-	"time"
 )
 
 type TaskRunner struct {
 	conductorTaskResourceClient *conductor_http_client.TaskResourceApiService
-	waitGroup                   sync.WaitGroup
+	workers                     sync.WaitGroup
 	hostName                    string
 }
 
@@ -49,20 +50,20 @@ func NewTaskRunner(authenticationSettings *settings.AuthenticationSettings, http
 	}
 }
 
-func (c *TaskRunner) StartWorkerWithDomain(taskType string, executeFunction model.TaskExecuteFunction,
-	threadCount int, pollIntervalInMillis int, domain string) {
+func (c *TaskRunner) StartWorkerWithDomain(taskType string, executeFunction model.TaskExecuteFunction, threadCount int, pollIntervalInMillis int, domain string) {
 	c.startWorker(taskType, executeFunction, threadCount, pollIntervalInMillis, domain)
 }
+
 func (c *TaskRunner) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, threadCount int, pollIntervalInMillis int) {
 	c.startWorker(taskType, executeFunction, threadCount, pollIntervalInMillis, "")
 }
 
 func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExecuteFunction, threadCount int, pollIntervalInMillis int, taskDomain string) {
-	c.waitGroup.Add(1)
 	var domain optional.String
 	if taskDomain != "" {
 		domain = optional.NewString(taskDomain)
 	}
+	c.workers.Add(1)
 	go c.pollAndExecute(taskType, executeFunction, pollIntervalInMillis, threadCount, domain)
 	log.Info(
 		"Started worker for task: ", taskType,
@@ -72,12 +73,13 @@ func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExec
 }
 
 func (c *TaskRunner) WaitWorkers() {
-	c.waitGroup.Wait()
+	c.workers.Wait()
 }
 
 func (c *TaskRunner) pollAndExecute(taskType string, executeFunction model.TaskExecuteFunction,
 	pollingInterval int, batchSize int, domain optional.String,
 ) {
+	defer c.workers.Done()
 	for {
 		c.runBatch(taskType, executeFunction, pollingInterval, batchSize, domain)
 	}
@@ -88,60 +90,29 @@ func (c *TaskRunner) runBatch(
 	pollingInterval int, batchSize int,
 	domain optional.String,
 ) {
-
 	tasks := c.batchPoll(taskType, batchSize, pollingInterval, domain)
-	if tasks == nil || len(tasks) == 0 {
+	if len(tasks) == 0 {
 		sleep(pollingInterval)
 		return
 	}
+	var tasksProcessing sync.WaitGroup
+	tasksProcessing.Add(len(tasks))
 	for _, task := range tasks {
-		c.waitGroup.Add(1)
-		go c.executeAndUpdateTask(taskType, task, executeFunction)
+		go c.executeAndUpdateTask(&tasksProcessing, taskType, task, executeFunction)
 	}
+	tasksProcessing.Wait()
 }
 
-func (c *TaskRunner) executeAndUpdateTask(taskType string, task http_model.Task, executeFunction model.TaskExecuteFunction) {
+func (c *TaskRunner) executeAndUpdateTask(tasksProcessing *sync.WaitGroup, taskType string, task http_model.Task, executeFunction model.TaskExecuteFunction) {
+	defer tasksProcessing.Done()
 	taskResult := c.executeTask(&task, executeFunction)
 	c.updateTask(taskType, taskResult)
-}
-
-func (c *TaskRunner) pollTask(taskType string) *http_model.Task {
-	log.Debug("Polling for ", taskType)
-	metrics_counter.IncrementTaskPoll(taskType)
-	startTime := time.Now()
-
-	task, response, err := c.conductorTaskResourceClient.Poll(
-		context.Background(),
-		taskType,
-		nil,
-	)
-	spentTime := time.Since(startTime)
-	metrics_gauge.RecordTaskPollTime(
-		taskType,
-		spentTime.Seconds(),
-	)
-	if err != nil {
-		log.Error(
-			"Error polling for task: ", taskType,
-			", error: ", err.Error(),
-		)
-		metrics_counter.IncrementTaskPollError(
-			taskType, err,
-		)
-		return nil
-	}
-	if response.StatusCode == 204 {
-		return nil
-	}
-	log.Debug("Polled task: ", task)
-	return &task
 }
 
 func (c *TaskRunner) batchPoll(taskType string, count int, pollingInterval int, domain optional.String) []http_model.Task {
 	log.Debug("Polling for ", taskType, ", batchSize, ", count)
 	metrics_counter.IncrementTaskPoll(taskType)
 	startTime := time.Now()
-
 	tasks, response, err := c.conductorTaskResourceClient.BatchPoll(
 		context.Background(),
 		taskType,
@@ -170,7 +141,7 @@ func (c *TaskRunner) batchPoll(taskType string, count int, pollingInterval int, 
 	if response.StatusCode == 204 {
 		return nil
 	}
-	log.Debug("Polled task: ", len(tasks))
+	log.Debug("Polled tasks: ", tasks)
 	return tasks
 }
 
