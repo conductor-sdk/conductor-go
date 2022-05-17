@@ -24,6 +24,7 @@ type TaskRunner struct {
 	maxAllowedWorkersByTaskType map[string]int
 	runningWorkersByTaskType    map[string]int
 	mutex                       sync.Mutex
+	workerWaitGroup             sync.WaitGroup
 }
 
 func NewTaskRunner(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings) *TaskRunner {
@@ -69,6 +70,10 @@ func (c *TaskRunner) RemoveWorker(taskType string, threadCount int) {
 	}
 }
 
+func (c *TaskRunner) WaitWorkers() {
+	c.workerWaitGroup.Wait()
+}
+
 func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExecuteFunction, threadCount int, pollIntervalInMillis int, taskDomain string) {
 	var domain optional.String
 	if taskDomain != "" {
@@ -77,6 +82,7 @@ func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExec
 	previousMaxAllowedWorkers := c.getMaxAllowedWorkers(taskType)
 	c.increaseMaxAllowedWorkers(taskType, threadCount)
 	if previousMaxAllowedWorkers == 0 {
+		c.workerWaitGroup.Add(1)
 		go c.pollAndExecute(taskType, executeFunction, pollIntervalInMillis, domain)
 	}
 	log.Info(
@@ -87,6 +93,7 @@ func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExec
 }
 
 func (c *TaskRunner) pollAndExecute(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int, domain optional.String) {
+	defer c.workerWaitGroup.Done()
 	for c.isWorkerAlive(taskType) {
 		c.runBatch(taskType, executeFunction, pollingInterval, domain)
 	}
@@ -100,18 +107,13 @@ func (c *TaskRunner) runBatch(taskType string, executeFunction model.TaskExecute
 		return
 	}
 	tasks := c.batchPoll(taskType, batchSize, pollingInterval, domain)
+	if len(tasks) < 1 {
+		sleep(pollingInterval)
+		return
+	}
 	c.increaseRunningWorkers(taskType, len(tasks))
 	for _, task := range tasks {
 		go c.executeAndUpdateTask(taskType, task, executeFunction)
-	}
-	if len(tasks) < batchSize {
-		log.Debug(
-			"Polled less tasks than requested for task: ", taskType,
-			", requested: ", batchSize,
-			", received: ", len(tasks),
-		)
-		sleep(pollingInterval)
-		return
 	}
 }
 
