@@ -7,7 +7,7 @@ type ForkTask struct {
 	forkedTasks [][]TaskInterface
 }
 
-func Fork(taskRefName string, tasks [][]TaskInterface) *ForkTask {
+func Fork(taskRefName string, tasks ...[]TaskInterface) *ForkTask {
 	return &ForkTask{
 		Task: Task{
 			name:              taskRefName,
