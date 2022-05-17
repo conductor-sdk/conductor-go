@@ -27,6 +27,7 @@ const (
 
 type TaskInterface interface {
 	toWorkflowTask() []http_model.WorkflowTask
+	OutputRef(path string) string
 }
 
 type Task struct {

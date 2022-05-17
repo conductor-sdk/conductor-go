@@ -4,10 +4,10 @@ import "github.com/conductor-sdk/conductor-go/pkg/http_model"
 
 type ForkTask struct {
 	Task
-	forkedTasks [][]Task
+	forkedTasks [][]TaskInterface
 }
 
-func Fork(taskRefName string, tasks ...[]Task) *ForkTask {
+func Fork(taskRefName string, tasks ...[]TaskInterface) *ForkTask {
 	return &ForkTask{
 		Task: Task{
 			name:              taskRefName,

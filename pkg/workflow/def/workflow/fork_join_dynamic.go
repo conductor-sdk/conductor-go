@@ -4,11 +4,11 @@ import "github.com/conductor-sdk/conductor-go/pkg/http_model"
 
 type DynamicForkTask struct {
 	Task
-	preForkTask *Task
-	join        *JoinTask
+	preForkTask TaskInterface
+	join        JoinTask
 }
 
-func DynamicFork(taskRefName string, forkPrepareTask *Task) *DynamicForkTask {
+func DynamicFork(taskRefName string, forkPrepareTask TaskInterface) *DynamicForkTask {
 	return &DynamicForkTask{
 		Task: Task{
 			name:              taskRefName,
@@ -16,13 +16,13 @@ func DynamicFork(taskRefName string, forkPrepareTask *Task) *DynamicForkTask {
 			description:       "",
 			taskType:          FORK_JOIN_DYNAMIC,
 			optional:          false,
-			inputParameters:   nil,
+			inputParameters:   map[string]interface{}{},
 		},
 		preForkTask: forkPrepareTask,
 	}
 }
 
-func DynamicForkWithJoin(taskRefName string, forkPrepareTask *Task, join *JoinTask) *DynamicForkTask {
+func DynamicForkWithJoin(taskRefName string, forkPrepareTask TaskInterface, join JoinTask) *DynamicForkTask {
 	return &DynamicForkTask{
 		Task: Task{
 			name:              taskRefName,
@@ -30,7 +30,7 @@ func DynamicForkWithJoin(taskRefName string, forkPrepareTask *Task, join *JoinTa
 			description:       "",
 			taskType:          FORK_JOIN_DYNAMIC,
 			optional:          false,
-			inputParameters:   nil,
+			inputParameters:   map[string]interface{}{},
 		},
 		preForkTask: forkPrepareTask,
 		join:        join,

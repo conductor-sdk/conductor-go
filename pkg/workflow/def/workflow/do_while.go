@@ -13,10 +13,10 @@ var (
 type DoWhileTask struct {
 	Task
 	loopCondition string
-	loopOver      []Task
+	loopOver      []TaskInterface
 }
 
-func DoWhile(taskRefName string, terminationCondition string, tasks ...Task) *DoWhileTask {
+func DoWhile(taskRefName string, terminationCondition string, tasks ...TaskInterface) *DoWhileTask {
 	return &DoWhileTask{
 		Task: Task{
 			name:              taskRefName,
@@ -33,7 +33,7 @@ func DoWhile(taskRefName string, terminationCondition string, tasks ...Task) *Do
 
 // Loop over N times when N is specified as iterations
 // can be  static number e.g. 5 or a parameter expression like ${task_ref.output.some_value} that is a number
-func Loop(taskRefName string, iterations string, tasks ...Task) *DoWhileTask {
+func Loop(taskRefName string, iterations int32, tasks ...TaskInterface) *DoWhileTask {
 	return &DoWhileTask{
 		Task: Task{
 			name:              taskRefName,

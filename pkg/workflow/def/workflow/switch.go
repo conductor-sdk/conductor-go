@@ -4,8 +4,8 @@ import "github.com/conductor-sdk/conductor-go/pkg/http_model"
 
 type Decision struct {
 	Task
-	DecisionCases map[string][]Task
-	defaultCase   []Task
+	DecisionCases map[string][]TaskInterface
+	defaultCase   []TaskInterface
 	expression    string
 	useJavascript bool
 	evaluatorType string
@@ -21,19 +21,19 @@ func Switch(taskRefName string, caseExpression string) *Decision {
 			optional:          false,
 			inputParameters:   map[string]interface{}{},
 		},
-		DecisionCases: make(map[string][]Task),
-		defaultCase:   make([]Task, 0),
+		DecisionCases: make(map[string][]TaskInterface),
+		defaultCase:   make([]TaskInterface, 0),
 		expression:    caseExpression,
 		useJavascript: false,
 		evaluatorType: "value-param",
 	}
 }
 
-func (task *Decision) SwitchCase(caseName string, tasks ...Task) *Decision {
+func (task *Decision) SwitchCase(caseName string, tasks ...TaskInterface) *Decision {
 	task.DecisionCases[caseName] = tasks
 	return task
 }
-func (task *Decision) DefaultCase(tasks ...Task) *Decision {
+func (task *Decision) DefaultCase(tasks ...TaskInterface) *Decision {
 	task.defaultCase = tasks
 	return task
 }
