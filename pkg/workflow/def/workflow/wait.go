@@ -1,8 +1,12 @@
 package workflow
 
-func WaitTask(taskRefName string) *Decision {
-	return &Decision{
-		task: Task{
+type WaitTask struct {
+	Task
+}
+
+func Wait(taskRefName string) *WaitTask {
+	return &WaitTask{
+		Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",

@@ -8,10 +8,14 @@ import (
 )
 
 type ConductorWorkflow struct {
-	executor *executor.WorkflowExecutor
-	name     string
-	version  int32
-	tasks    []TaskInterface
+	executor        *executor.WorkflowExecutor
+	name            string
+	version         int32
+	failureWorkflow string
+	restartable     bool
+	ownerEmail      bool
+
+	tasks []TaskInterface
 }
 
 func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflow {
@@ -23,6 +27,14 @@ func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflo
 func (workflow *ConductorWorkflow) Name(name string) *ConductorWorkflow {
 	workflow.name = name
 	return workflow
+}
+
+func (workflow *ConductorWorkflow) GetName() string {
+	return workflow.name
+}
+
+func (workflow *ConductorWorkflow) GetVersion() int32 {
+	return workflow.version
 }
 
 func (workflow *ConductorWorkflow) Version(version int32) *ConductorWorkflow {
@@ -67,6 +79,7 @@ func (workflow *ConductorWorkflow) toWorkflowDef() *http_model.WorkflowDef {
 	}
 }
 
+//todo: should this be a method on ConductorWorkflow?
 func getWorkflowTasksFromConductorWorkflow(workflow *ConductorWorkflow) []http_model.WorkflowTask {
 	workflowTasks := make([]http_model.WorkflowTask, 0)
 	for _, task := range workflow.tasks {

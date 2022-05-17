@@ -5,12 +5,12 @@ import (
 )
 
 type TerminateTask struct {
-	task Task
+	Task
 }
 
 func Terminate(taskRefName string, status workflow_status.WorkflowStatus, terminationReason string) *TerminateTask {
 	return &TerminateTask{
-		task: Task{
+		Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",

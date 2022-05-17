@@ -1,8 +1,12 @@
 package workflow
 
-func SetVariable(taskRefName string) *setVariable {
-	return &setVariable{
-		task: Task{
+type SetVariableTask struct {
+	Task
+}
+
+func SetVariable(taskRefName string) *SetVariableTask {
+	return &SetVariableTask{
+		Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",
@@ -11,22 +15,4 @@ func SetVariable(taskRefName string) *setVariable {
 			inputParameters:   map[string]interface{}{},
 		},
 	}
-}
-
-type setVariable struct {
-	task Task
-}
-
-func (task *setVariable) Description(description string) *setVariable {
-	task.task.Description(description)
-	return task
-}
-
-func (task *setVariable) Optional(optional bool) *setVariable {
-	task.task.Optional(optional)
-	return task
-}
-func (task *setVariable) Input(key string, value interface{}) *setVariable {
-	task.task.Input(key, value)
-	return task
 }

@@ -3,7 +3,7 @@ package workflow
 import "github.com/conductor-sdk/conductor-go/pkg/http_model"
 
 type Decision struct {
-	task          Task
+	Task
 	DecisionCases map[string][]Task
 	defaultCase   []Task
 	expression    string
@@ -13,7 +13,7 @@ type Decision struct {
 
 func Switch(taskRefName string, caseExpression string) *Decision {
 	return &Decision{
-		task: Task{
+		Task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",
@@ -29,11 +29,11 @@ func Switch(taskRefName string, caseExpression string) *Decision {
 	}
 }
 
-func (task *Decision) SwitchCase(caseName string, tasks []Task) *Decision {
+func (task *Decision) SwitchCase(caseName string, tasks ...Task) *Decision {
 	task.DecisionCases[caseName] = tasks
 	return task
 }
-func (task *Decision) DefaultCase(tasks []Task) *Decision {
+func (task *Decision) DefaultCase(tasks ...Task) *Decision {
 	task.defaultCase = tasks
 	return task
 }
@@ -43,7 +43,7 @@ func (task *Decision) toWorkflowTask() []http_model.WorkflowTask {
 		task.evaluatorType = "javascript"
 	} else {
 		task.evaluatorType = "value-param"
-		task.task.inputParameters["switchCaseValue"] = task.expression
+		task.Task.inputParameters["switchCaseValue"] = task.expression
 		task.expression = "switchCaseValue"
 	}
 	var DecisionCases = map[string][]http_model.WorkflowTask{}
@@ -60,7 +60,7 @@ func (task *Decision) toWorkflowTask() []http_model.WorkflowTask {
 			defaultCase = append([]http_model.WorkflowTask{}, defaultTask)
 		}
 	}
-	workflowTasks := task.task.toWorkflowTask()
+	workflowTasks := task.Task.toWorkflowTask()
 	workflowTasks[0].DecisionCases = DecisionCases
 	workflowTasks[0].DefaultCase = defaultCase
 	workflowTasks[0].EvaluatorType = task.evaluatorType
@@ -70,16 +70,16 @@ func (task *Decision) toWorkflowTask() []http_model.WorkflowTask {
 
 // Input to the task
 func (task *Decision) Input(key string, value interface{}) *Decision {
-	task.task.Input(key, value)
+	task.Task.Input(key, value)
 	return task
 }
 func (task *Decision) Description(description string) *Decision {
-	task.task.Description(description)
+	task.Task.Description(description)
 	return task
 }
 
 func (task *Decision) Optional(optional bool) *Decision {
-	task.task.Optional(optional)
+	task.Task.Optional(optional)
 	return task
 }
 

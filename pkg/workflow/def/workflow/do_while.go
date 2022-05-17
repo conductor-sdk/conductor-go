@@ -7,18 +7,18 @@ import (
 )
 
 var (
-	LOOP_CONDITION = "VALUE"
+	LOOP_CONDITION = "loop_count"
 )
 
 type DoWhileTask struct {
-	task          Task
+	Task
 	loopCondition string
 	loopOver      []Task
 }
 
-func DoWhile(taskRefName string, terminationCondition string, tasks []Task) *DoWhileTask {
+func DoWhile(taskRefName string, terminationCondition string, tasks ...Task) *DoWhileTask {
 	return &DoWhileTask{
-		task: Task{
+		Task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",
@@ -33,31 +33,31 @@ func DoWhile(taskRefName string, terminationCondition string, tasks []Task) *DoW
 
 // Loop over N times when N is specified as iterations
 // can be  static number e.g. 5 or a parameter expression like ${task_ref.output.some_value} that is a number
-func Loop(taskRefName string, iterations string, tasks []Task) *DoWhileTask {
+func Loop(taskRefName string, iterations string, tasks ...Task) *DoWhileTask {
 	return &DoWhileTask{
-		task: Task{
+		Task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",
 			taskType:          DO_WHILE,
 			optional:          false,
 			inputParameters: map[string]interface{}{
-				"value": iterations,
+				LOOP_CONDITION: iterations,
 			},
 		},
-		loopCondition: getForLoopCondition(LOOP_CONDITION, iterations),
+		loopCondition: getForLoopCondition(taskRefName, LOOP_CONDITION),
 		loopOver:      tasks,
 	}
 }
 
 // Input to the task
 func (task *DoWhileTask) Input(key string, value interface{}) *DoWhileTask {
-	task.task.Input(key, value)
+	task.Task.Input(key, value)
 	return task
 }
 
 func (task *DoWhileTask) toWorkflowTask() []http_model.WorkflowTask {
-	workflowTasks := task.task.toWorkflowTask()
+	workflowTasks := task.Task.toWorkflowTask()
 	workflowTasks[0].LoopCondition = task.loopCondition
 	workflowTasks[0].LoopOver = []http_model.WorkflowTask{}
 	for _, loopTask := range task.loopOver {
@@ -69,13 +69,13 @@ func (task *DoWhileTask) toWorkflowTask() []http_model.WorkflowTask {
 	return workflowTasks
 }
 func (task *DoWhileTask) Optional(optional bool) *DoWhileTask {
-	task.task.Optional(optional)
+	task.Task.Optional(optional)
 	return task
 }
 
-func getForLoopCondition(taskReferencename string, iterations string) string {
+func getForLoopCondition(loopValue string, taskReferencename string) string {
 	return fmt.Sprintf(
 		"if ( $.%s['iteration'] < $.%s ) { true; } else { false; }",
-		taskReferencename, iterations,
+		taskReferencename, loopValue,
 	)
 }

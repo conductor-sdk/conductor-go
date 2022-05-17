@@ -58,6 +58,11 @@ func (task *Task) OutputRef(path string) string {
 	return "${" + task.taskReferenceName + ".output." + path + "}"
 }
 
+//Note: All the below method should be implemented by the
+//Implementing interface given its a fluent interface
+//If not, the return type is a Task which makes it impossible to use fluent interface
+//For the tasks like Switch which has other methods too - quirks with Golang!
+
 // Input to the task
 func (task *Task) Input(key string, value interface{}) *Task {
 	task.inputParameters[key] = value

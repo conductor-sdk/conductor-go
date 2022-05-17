@@ -2,9 +2,17 @@ package workflow
 
 import "github.com/conductor-sdk/conductor-go/pkg/http_model"
 
-func SubWorkflow(taskRefName string, workflowName string, version *int32) *subWorkflow {
-	return &subWorkflow{
-		task: Task{
+type SubWorkflowTask struct {
+	Task
+	workflowName    string
+	version         *int32
+	taskToDomainMap map[string]string
+	workflow        *ConductorWorkflow
+}
+
+func SubWorkflow(taskRefName string, workflowName string, version *int32) *SubWorkflowTask {
+	return &SubWorkflowTask{
+		Task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",
@@ -17,9 +25,9 @@ func SubWorkflow(taskRefName string, workflowName string, version *int32) *subWo
 	}
 }
 
-func SubWorkflowInline(taskRefName string, workflow *ConductorWorkflow) *subWorkflow {
-	return &subWorkflow{
-		task: Task{
+func SubWorkflowInline(taskRefName string, workflow *ConductorWorkflow) *SubWorkflowTask {
+	return &SubWorkflowTask{
+		Task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",
@@ -31,33 +39,25 @@ func SubWorkflowInline(taskRefName string, workflow *ConductorWorkflow) *subWork
 	}
 }
 
-type subWorkflow struct {
-	task            Task
-	workflowName    string
-	version         *int32
-	taskToDomainMap map[string]string
-	workflow        *ConductorWorkflow
-}
-
-func (task *subWorkflow) Description(description string) *subWorkflow {
-	task.task.Description(description)
+func (task *SubWorkflowTask) Description(description string) *SubWorkflowTask {
+	task.Task.Description(description)
 	return task
 }
 
-func (task *subWorkflow) Optional(optional bool) *subWorkflow {
-	task.task.Optional(optional)
+func (task *SubWorkflowTask) Optional(optional bool) *SubWorkflowTask {
+	task.Task.Optional(optional)
 	return task
 }
-func (task *subWorkflow) Input(key string, value interface{}) *subWorkflow {
-	task.task.Input(key, value)
+func (task *SubWorkflowTask) Input(key string, value interface{}) *SubWorkflowTask {
+	task.Task.Input(key, value)
 	return task
 }
-func (task *subWorkflow) TaskToDomain(taskToDomainMap map[string]string) *subWorkflow {
+func (task *SubWorkflowTask) TaskToDomain(taskToDomainMap map[string]string) *SubWorkflowTask {
 	task.taskToDomainMap = taskToDomainMap
 	return task
 }
-func (task *subWorkflow) toWorkflowTask() []http_model.WorkflowTask {
-	workflowTasks := task.task.toWorkflowTask()
+func (task *SubWorkflowTask) toWorkflowTask() []http_model.WorkflowTask {
+	workflowTasks := task.Task.toWorkflowTask()
 	if task.workflow != nil {
 		workflowTasks[0].SubWorkflowParam = &http_model.SubWorkflowParams{
 			Name:               task.workflow.name,
