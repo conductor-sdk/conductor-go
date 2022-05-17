@@ -18,7 +18,7 @@ var taskRunner = worker.NewTaskRunnerWithApiClient(e2e_properties.API_CLIENT)
 var (
 	workflowExecutorList = []*workflow.ConductorWorkflow{
 		workflow_task_e2e.HTTP_WORKFLOW,
-		workflow_task_e2e.SIMPLE_WORKFLOW,
+		// workflow_task_e2e.SIMPLE_WORKFLOW,
 	}
 )
 
@@ -33,9 +33,9 @@ func init() {
 
 func TestValidateWorkflowDefinitions(t *testing.T) {
 	for _, conductorWorkflow := range workflowExecutorList {
-		_, err := conductorWorkflow.Register()
+		response, err := conductorWorkflow.Register()
 		if err != nil {
-			t.Error(err)
+			t.Error("Response: ", response, ", error: ", err)
 		}
 	}
 }
