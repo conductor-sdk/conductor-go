@@ -11,9 +11,6 @@ import (
 
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_external_storage"
-	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_counter"
-	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_gauge"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 )
 
@@ -1310,8 +1307,8 @@ TaskResourceApiService Update a task
  * @param body
 @return string
 */
-func (a *TaskResourceApiService) UpdateTask(taskType string, ctx context.Context, taskResult *http_model.TaskResult) (string, *http.Response, error) {
-	a.evaluateTaskResultExternalStorage(taskType, taskResult)
+func (a *TaskResourceApiService) UpdateTask(ctx context.Context, taskResult *http_model.TaskResult) (string, *http.Response, error) {
+	a.evaluateTaskResultExternalStorage(taskResult)
 
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
@@ -1485,9 +1482,8 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 	return localVarReturnValue, localVarHttpResponse, nil
 }
 
-func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskType string, taskResult *http_model.TaskResult) {
+func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskResult *http_model.TaskResult) {
 	size := int64(unsafe.Sizeof(taskResult.OutputData))
-	metrics_gauge.RecordTaskResultPayloadSize(taskType, float64(size))
 	if a.isTaskResultAboveMaxThreshold(size) {
 		taskResult.Status = task_result_status.FAILED_WITH_TERMINAL_ERROR
 		taskResult.ReasonForIncompletion = "The TaskResult payload size: is greater than the permissible bytes"
@@ -1495,11 +1491,7 @@ func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskType stri
 		return
 	}
 	if a.mustUploadTaskResult(size) {
-		metrics_counter.IncrementExternalPayloadUsed(
-			taskType,
-			string(metric_external_storage.WRITE),
-			string(metric_external_storage.TASK_OUTPUT),
-		)
+
 	}
 }
 
