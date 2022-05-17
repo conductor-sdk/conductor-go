@@ -20,7 +20,7 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 	decide.
 		Input("number", "${get_data.output.number}").
 		UseJavascript(true).
-		SwitchCase("LONG", workflow.Simple("simple_task_4", "simple_task_4")).
+		SwitchCase("LONG", workflow.Simple("simple_task_4", "simple_task_4"), workflow.Simple("simple_task_4", "simple_task_4")).
 		SwitchCase("SHORT", workflow.Terminate("too_short", workflow_status.FAILED, "value too short"))
 
 	doWhile := workflow.Loop("loop_until_success", 2, decide).Optional(true)
@@ -40,8 +40,9 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 	fmt.Println(setVariable)
 
 	workflow := workflow.NewConductorWorkflow(executor).
-		Name("sdk_kitchen_sink").
+		Name("sdk_kitchen_sink2").
 		Version(1).
+		Add(task1).
 		Add(task1).
 		Add(setVariable).
 		Add(subWorkflow).
