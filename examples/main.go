@@ -78,5 +78,5 @@ func startWorkers() {
 		2,
 		10,
 	)
-	taskRunner.WaitWorkers()
+	// taskRunner.WaitWorkers()
 }
