@@ -2,7 +2,7 @@ package workflow
 
 func SetVariable(taskRefName string) *setVariable {
 	return &setVariable{
-		task: task{
+		task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",
@@ -14,7 +14,7 @@ func SetVariable(taskRefName string) *setVariable {
 }
 
 type setVariable struct {
-	task
+	task Task
 }
 
 func (task *setVariable) Description(description string) *setVariable {

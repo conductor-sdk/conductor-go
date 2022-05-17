@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
+	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
+	"github.com/conductor-sdk/conductor-go/tests"
 )
 
 var taskClient = conductor_http_client.TaskResourceApiService{
@@ -12,16 +14,16 @@ var taskClient = conductor_http_client.TaskResourceApiService{
 }
 
 func TestUpdateTaskRefByName(t *testing.T) {
-	workflowId := startWorkflow(t, WORKFLOW_NAME)
+	workflowId := startWorkflow(t, tests.WORKFLOW_NAME)
 	_ = updateTaskByRefName(
 		t,
-		TASK_OUTPUT,
+		tests.TASK_OUTPUT,
 		workflowId,
-		TASK_REFERENCE_NAME,
-		"COMPLETED",
+		tests.TASK_REFERENCE_NAME,
+		string(task_result_status.COMPLETED),
 	)
 	workflow := getWorkflowExecutionStatus(t, workflowId)
-	if workflow.Status != "COMPLETED" {
+	if workflow.Status != string(task_result_status.COMPLETED) {
 		t.Error("Workflow status is not completed: ", workflow.Status)
 	}
 }

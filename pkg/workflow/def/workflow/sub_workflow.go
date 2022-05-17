@@ -4,7 +4,7 @@ import "github.com/conductor-sdk/conductor-go/pkg/http_model"
 
 func SubWorkflow(taskRefName string, workflowName string, version *int32) *subWorkflow {
 	return &subWorkflow{
-		task: task{
+		task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",
@@ -17,9 +17,9 @@ func SubWorkflow(taskRefName string, workflowName string, version *int32) *subWo
 	}
 }
 
-func SubWorkflowInline(taskRefName string, workflow *conductorWorkflow) *subWorkflow {
+func SubWorkflowInline(taskRefName string, workflow *ConductorWorkflow) *subWorkflow {
 	return &subWorkflow{
-		task: task{
+		task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",
@@ -32,11 +32,11 @@ func SubWorkflowInline(taskRefName string, workflow *conductorWorkflow) *subWork
 }
 
 type subWorkflow struct {
-	task
+	task            Task
 	workflowName    string
 	version         *int32
 	taskToDomainMap map[string]string
-	workflow        *conductorWorkflow
+	workflow        *ConductorWorkflow
 }
 
 func (task *subWorkflow) Description(description string) *subWorkflow {

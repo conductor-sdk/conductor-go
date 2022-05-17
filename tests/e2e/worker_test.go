@@ -7,17 +7,18 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/worker"
+	"github.com/conductor-sdk/conductor-go/tests"
 )
 
 var taskRunner = worker.NewTaskRunnerWithApiClient(API_CLIENT)
 
 func init() {
-	for taskName, taskExecuteFunction := range TASK_DEFINITION_TO_WORKER {
+	for taskName, taskExecuteFunction := range tests.TASK_DEFINITION_TO_WORKER {
 		taskRunner.StartWorker(
 			taskName,
 			taskExecuteFunction,
-			WORKER_THREAD_COUNT,
-			WORKER_POLLING_INTERVAL,
+			tests.WORKER_THREAD_COUNT,
+			tests.WORKER_POLLING_INTERVAL,
 		)
 	}
 }
@@ -26,17 +27,17 @@ func TestTaskRunnerExecution(t *testing.T) {
 	registerTaskDefinition(
 		t,
 		[]http_model.TaskDef{
-			TASK_DEFINITION,
+			tests.TASK_DEFINITION,
 		},
 	)
 	registerWorkflowDefinition(
 		t,
-		WORKFLOW_DEFINITION,
+		tests.WORKFLOW_DEFINITION,
 	)
 	workflowIdList := startWorkflows(
 		t,
-		WORKFLOW_EXECUTION_AMOUNT,
-		WORKFLOW_NAME,
+		tests.WORKFLOW_EXECUTION_AMOUNT,
+		tests.WORKFLOW_NAME,
 	)
 	var waitGroup sync.WaitGroup
 	for _, workflowId := range workflowIdList {

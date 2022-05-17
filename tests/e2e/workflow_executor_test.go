@@ -8,6 +8,7 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
+	"github.com/conductor-sdk/conductor-go/tests"
 )
 
 var workflowExecutor = executor.NewWorkflowExecutor(API_CLIENT)
@@ -17,7 +18,7 @@ type WorkflowValidator func(*http_model.Workflow) bool
 func TestWorkflowExecutor(t *testing.T) {
 	workflowExecutionChannelList := getWorkflowExecutionChannelList(
 		t,
-		WORKFLOW_NAME,
+		tests.WORKFLOW_NAME,
 		1,
 		nil,
 	)
@@ -31,9 +32,9 @@ func TestWorkflowExecutor(t *testing.T) {
 func TestWorkflowExecutorWithCustomInput(t *testing.T) {
 	workflowExecutionChannelList := getWorkflowExecutionChannelList(
 		t,
-		TREASURE_CHEST_WORKFLOW_NAME,
+		tests.TREASURE_CHEST_WORKFLOW_NAME,
 		1,
-		TREASURE_WORKFLOW_INPUT,
+		tests.TREASURE_WORKFLOW_INPUT,
 	)
 	waitForCompletionOfWorkflows(
 		t,
@@ -43,8 +44,8 @@ func TestWorkflowExecutorWithCustomInput(t *testing.T) {
 }
 
 func getWorkflowExecutionChannelList(t *testing.T, workflowName string, version int32, input interface{}) []executor.WorkflowExecutionChannel {
-	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, WORKFLOW_EXECUTION_AMOUNT)
-	for i := 0; i < WORKFLOW_EXECUTION_AMOUNT; i += 1 {
+	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, tests.WORKFLOW_EXECUTION_AMOUNT)
+	for i := 0; i < tests.WORKFLOW_EXECUTION_AMOUNT; i += 1 {
 		workflowExecutionChannel, err := workflowExecutor.ExecuteWorkflow(
 			workflowName,
 			version,

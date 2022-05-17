@@ -2,9 +2,18 @@ package workflow
 
 import "github.com/conductor-sdk/conductor-go/pkg/http_model"
 
-func Switch(taskRefName string, caseExpression string) *decision {
-	return &decision{
-		task: task{
+type Decision struct {
+	task          Task
+	DecisionCases map[string][]Task
+	defaultCase   []Task
+	expression    string
+	useJavascript bool
+	evaluatorType string
+}
+
+func Switch(taskRefName string, caseExpression string) *Decision {
+	return &Decision{
+		task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",
@@ -12,46 +21,36 @@ func Switch(taskRefName string, caseExpression string) *decision {
 			optional:          false,
 			inputParameters:   map[string]interface{}{},
 		},
-		decisionCases: map[string][]Task{},
-		defaultCase:   []Task{},
+		DecisionCases: make(map[string][]Task),
+		defaultCase:   make([]Task, 0),
 		expression:    caseExpression,
 		useJavascript: false,
 		evaluatorType: "value-param",
 	}
 }
 
-type decision struct {
-	task
-	decisionCases map[string][]Task
-	defaultCase   []Task
-	expression    string
-	useJavascript bool
-	evaluatorType string
-}
-
-func (task *decision) SwitchCase(caseName string, tasks ...Task) *decision {
-	task.decisionCases[caseName] = append(task.decisionCases[caseName], tasks...)
+func (task *Decision) SwitchCase(caseName string, tasks []Task) *Decision {
+	task.DecisionCases[caseName] = tasks
 	return task
 }
-func (task *decision) DefaultCase(tasks ...Task) *decision {
-	task.defaultCase = append(task.defaultCase, tasks...)
+func (task *Decision) DefaultCase(tasks []Task) *Decision {
+	task.defaultCase = tasks
 	return task
 }
 
-func (task *decision) toWorkflowTask() []http_model.WorkflowTask {
+func (task *Decision) toWorkflowTask() []http_model.WorkflowTask {
 	if task.useJavascript {
 		task.evaluatorType = "javascript"
 	} else {
 		task.evaluatorType = "value-param"
-		task.inputParameters["switchCaseValue"] = task.expression
+		task.task.inputParameters["switchCaseValue"] = task.expression
 		task.expression = "switchCaseValue"
 	}
-
-	var decisionCases = map[string][]http_model.WorkflowTask{}
-	for caseValue, tasks := range task.decisionCases {
+	var DecisionCases = map[string][]http_model.WorkflowTask{}
+	for caseValue, tasks := range task.DecisionCases {
 		for _, task := range tasks {
 			for _, caseTask := range task.toWorkflowTask() {
-				decisionCases[caseValue] = append([]http_model.WorkflowTask{}, caseTask)
+				DecisionCases[caseValue] = append([]http_model.WorkflowTask{}, caseTask)
 			}
 		}
 	}
@@ -61,9 +60,8 @@ func (task *decision) toWorkflowTask() []http_model.WorkflowTask {
 			defaultCase = append([]http_model.WorkflowTask{}, defaultTask)
 		}
 	}
-
 	workflowTasks := task.task.toWorkflowTask()
-	workflowTasks[0].DecisionCases = decisionCases
+	workflowTasks[0].DecisionCases = DecisionCases
 	workflowTasks[0].DefaultCase = defaultCase
 	workflowTasks[0].EvaluatorType = task.evaluatorType
 	workflowTasks[0].Expression = task.expression
@@ -71,21 +69,21 @@ func (task *decision) toWorkflowTask() []http_model.WorkflowTask {
 }
 
 // Input to the task
-func (task *decision) Input(key string, value interface{}) *decision {
+func (task *Decision) Input(key string, value interface{}) *Decision {
 	task.task.Input(key, value)
 	return task
 }
-func (task *decision) Description(description string) *decision {
+func (task *Decision) Description(description string) *Decision {
 	task.task.Description(description)
 	return task
 }
 
-func (task *decision) Optional(optional bool) *decision {
+func (task *Decision) Optional(optional bool) *Decision {
 	task.task.Optional(optional)
 	return task
 }
 
-func (task *decision) UseJavascript(use bool) *decision {
+func (task *Decision) UseJavascript(use bool) *Decision {
 	task.useJavascript = use
 	return task
 }

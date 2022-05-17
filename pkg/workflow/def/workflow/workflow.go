@@ -7,39 +7,41 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 )
 
-func NewConductorWorkflow(executor *executor.WorkflowExecutor) *conductorWorkflow {
-	return &conductorWorkflow{
+type ConductorWorkflow struct {
+	executor *executor.WorkflowExecutor
+	name     string
+	version  int32
+	tasks    []TaskInterface
+}
+
+func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflow {
+	return &ConductorWorkflow{
 		executor: executor,
 	}
 }
 
-type conductorWorkflow struct {
-	executor *executor.WorkflowExecutor
-	name     string
-	version  int32
-	tasks    []Task
-}
-
-func (workflow *conductorWorkflow) Name(name string) *conductorWorkflow {
+func (workflow *ConductorWorkflow) Name(name string) *ConductorWorkflow {
 	workflow.name = name
 	return workflow
 }
-func (workflow *conductorWorkflow) Version(version int32) *conductorWorkflow {
+
+func (workflow *ConductorWorkflow) Version(version int32) *ConductorWorkflow {
 	workflow.version = version
 	return workflow
 }
-func (workflow *conductorWorkflow) Add(task Task) *conductorWorkflow {
+
+func (workflow *ConductorWorkflow) Add(task TaskInterface) *ConductorWorkflow {
 	workflow.tasks = append(workflow.tasks, task)
 	return workflow
 }
 
-func (workflow *conductorWorkflow) Register() (*http.Response, error) {
+func (workflow *ConductorWorkflow) Register() (*http.Response, error) {
 	return workflow.executor.RegisterWorkflow(
 		workflow.toWorkflowDef(),
 	)
 }
 
-func (workflow *conductorWorkflow) Start(input interface{}) (executor.WorkflowExecutionChannel, error) {
+func (workflow *ConductorWorkflow) Start(input interface{}) (executor.WorkflowExecutionChannel, error) {
 	return workflow.executor.ExecuteWorkflow(
 		workflow.name,
 		workflow.version,
@@ -47,7 +49,7 @@ func (workflow *conductorWorkflow) Start(input interface{}) (executor.WorkflowEx
 	)
 }
 
-func (workflow *conductorWorkflow) toWorkflowDef() *http_model.WorkflowDef {
+func (workflow *ConductorWorkflow) toWorkflowDef() *http_model.WorkflowDef {
 	return &http_model.WorkflowDef{
 		Name:             workflow.name,
 		Description:      "",
@@ -65,7 +67,7 @@ func (workflow *conductorWorkflow) toWorkflowDef() *http_model.WorkflowDef {
 	}
 }
 
-func getWorkflowTasksFromConductorWorkflow(workflow *conductorWorkflow) []http_model.WorkflowTask {
+func getWorkflowTasksFromConductorWorkflow(workflow *ConductorWorkflow) []http_model.WorkflowTask {
 	workflowTasks := make([]http_model.WorkflowTask, 0)
 	for _, task := range workflow.tasks {
 		workflowTasks = append(

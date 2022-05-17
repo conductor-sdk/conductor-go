@@ -1,7 +1,9 @@
 package workflow
 
-type httpTask struct {
-	task
+import "github.com/conductor-sdk/conductor-go/pkg/http_model"
+
+type HttpTask struct {
+	task Task
 }
 
 type HttpMethod string
@@ -15,20 +17,22 @@ const (
 	OPTIONS HttpMethod = "OPTIONS"
 )
 
-func Http(taskRefName string, input *HttpInput) *httpTask {
-	httpTask := &httpTask{task{
-		name:              taskRefName,
-		taskReferenceName: taskRefName,
-		description:       "",
-		taskType:          HTTP,
-		optional:          false,
-		inputParameters:   map[string]interface{}{},
-	}}
+func Http(taskRefName string, input *HttpInput) *HttpTask {
 	if input.Method == "" {
 		input.Method = GET
 	}
-	httpTask.inputParameters["http_request"] = input
-	return httpTask
+	return &HttpTask{
+		Task{
+			name:              taskRefName,
+			taskReferenceName: taskRefName,
+			description:       "",
+			taskType:          HTTP,
+			optional:          false,
+			inputParameters: map[string]interface{}{
+				"http_request": input,
+			},
+		},
+	}
 }
 
 type HttpInput struct {
@@ -43,15 +47,21 @@ type HttpInput struct {
 }
 
 // Input to the task
-func (task *httpTask) Input(key string, value *interface{}) *httpTask {
-	task.inputParameters[key] = value
+func (task *HttpTask) Input(key string, value interface{}) *HttpTask {
+	task.task.inputParameters[key] = value
 	return task
 }
-func (task *httpTask) Description(description string) *httpTask {
+
+func (task *HttpTask) Description(description string) *HttpTask {
 	task.task.Description(description)
 	return task
 }
-func (task *httpTask) Optional(optional bool) *httpTask {
+
+func (task *HttpTask) Optional(optional bool) *HttpTask {
 	task.task.Optional(optional)
 	return task
+}
+
+func (task *HttpTask) toWorkflowTask() []http_model.WorkflowTask {
+	return task.task.toWorkflowTask()
 }

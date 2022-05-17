@@ -1,12 +1,14 @@
 package workflow
 
-type simpleTask struct {
-	task
+import "github.com/conductor-sdk/conductor-go/pkg/http_model"
+
+type SimpleTask struct {
+	task Task
 }
 
-func Simple(name string, taskRefName string) *simpleTask {
-	return &simpleTask{
-		task{
+func Simple(name string, taskRefName string) *SimpleTask {
+	return &SimpleTask{
+		task: Task{
 			name:              name,
 			taskReferenceName: taskRefName,
 			description:       "",
@@ -15,4 +17,8 @@ func Simple(name string, taskRefName string) *simpleTask {
 			inputParameters:   map[string]interface{}{},
 		},
 	}
+}
+
+func (task *SimpleTask) toWorkflowTask() []http_model.WorkflowTask {
+	return task.task.toWorkflowTask()
 }

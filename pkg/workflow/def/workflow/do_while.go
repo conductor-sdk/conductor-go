@@ -1,61 +1,62 @@
 package workflow
 
 import (
+	"fmt"
+
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 )
 
-func DoWhile(taskRefName string, terminationCondition string, tasks ...Task) *doWhile {
-	loop := &doWhile{
-		task: task{
-			name:              taskRefName,
-			taskReferenceName: taskRefName,
-			description:       "",
-			taskType:          DO_WHILE,
-			optional:          false,
-			inputParameters:   map[string]interface{}{},
-		},
-	}
-	loop.loopCondition = terminationCondition
-	loop.loopOver = tasks
-	return loop
-}
+var (
+	LOOP_CONDITION = "VALUE"
+)
 
-//Loop N times when N is specified as loopValue
-// can be  static number e.g. 5 or a parameter expression like ${task_ref.output.some_value} that is a number
-func Loop(taskRefName string, loopValue interface{}, tasks ...Task) *doWhile {
-	loop := &doWhile{
-		task: task{
-			name:              taskRefName,
-			taskReferenceName: taskRefName,
-			description:       "",
-			taskType:          DO_WHILE,
-			optional:          false,
-			inputParameters:   map[string]interface{}{},
-		},
-	}
-	loop.task.Input("value", loopValue)
-	loop.loopCondition = getForLoopCondition("value", taskRefName)
-	loop.loopOver = tasks
-	return loop
-}
-
-func getForLoopCondition(loopValue string, taskReferencename string) string {
-	return "if ( $." + taskReferencename + "['iteration'] < $." + loopValue + ") { true; } else { false; }"
-}
-
-type doWhile struct {
-	task
+type DoWhileTask struct {
+	task          Task
 	loopCondition string
 	loopOver      []Task
 }
 
+func DoWhile(taskRefName string, terminationCondition string, tasks []Task) *DoWhileTask {
+	return &DoWhileTask{
+		task: Task{
+			name:              taskRefName,
+			taskReferenceName: taskRefName,
+			description:       "",
+			taskType:          DO_WHILE,
+			optional:          false,
+			inputParameters:   map[string]interface{}{},
+		},
+		loopCondition: terminationCondition,
+		loopOver:      tasks,
+	}
+}
+
+// Loop over N times when N is specified as iterations
+// can be  static number e.g. 5 or a parameter expression like ${task_ref.output.some_value} that is a number
+func Loop(taskRefName string, iterations string, tasks []Task) *DoWhileTask {
+	return &DoWhileTask{
+		task: Task{
+			name:              taskRefName,
+			taskReferenceName: taskRefName,
+			description:       "",
+			taskType:          DO_WHILE,
+			optional:          false,
+			inputParameters: map[string]interface{}{
+				"value": iterations,
+			},
+		},
+		loopCondition: getForLoopCondition(LOOP_CONDITION, iterations),
+		loopOver:      tasks,
+	}
+}
+
 // Input to the task
-func (task *doWhile) Input(key string, value interface{}) *doWhile {
+func (task *DoWhileTask) Input(key string, value interface{}) *DoWhileTask {
 	task.task.Input(key, value)
 	return task
 }
 
-func (task *doWhile) toWorkflowTask() []http_model.WorkflowTask {
+func (task *DoWhileTask) toWorkflowTask() []http_model.WorkflowTask {
 	workflowTasks := task.task.toWorkflowTask()
 	workflowTasks[0].LoopCondition = task.loopCondition
 	workflowTasks[0].LoopOver = []http_model.WorkflowTask{}
@@ -67,7 +68,14 @@ func (task *doWhile) toWorkflowTask() []http_model.WorkflowTask {
 	}
 	return workflowTasks
 }
-func (task *doWhile) Optional(optional bool) *doWhile {
+func (task *DoWhileTask) Optional(optional bool) *DoWhileTask {
 	task.task.Optional(optional)
 	return task
+}
+
+func getForLoopCondition(taskReferencename string, iterations string) string {
+	return fmt.Sprintf(
+		"if ( $.%s['iteration'] < $.%s ) { true; } else { false; }",
+		taskReferencename, iterations,
+	)
 }

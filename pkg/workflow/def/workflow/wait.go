@@ -1,8 +1,8 @@
 package workflow
 
-func Wait(taskRefName string) *decision {
-	return &decision{
-		task: task{
+func WaitTask(taskRefName string) *Decision {
+	return &Decision{
+		task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",

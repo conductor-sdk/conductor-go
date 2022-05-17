@@ -6,6 +6,7 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
+	"github.com/conductor-sdk/conductor-go/tests"
 )
 
 var metadataClient = conductor_http_client.MetadataResourceApiService{
@@ -13,11 +14,11 @@ var metadataClient = conductor_http_client.MetadataResourceApiService{
 }
 
 func TestRegisterTaskDefinition(t *testing.T) {
-	registerTaskDefinition(t, TASK_DEFINITIONS)
+	registerTaskDefinition(t, tests.TASK_DEFINITIONS)
 }
 
 func TestRegisterWorkflowDefinition(t *testing.T) {
-	for _, workflowDefinition := range WORKFLOW_DEFINITIONS {
+	for _, workflowDefinition := range tests.WORKFLOW_DEFINITIONS {
 		registerWorkflowDefinition(t, workflowDefinition)
 	}
 }

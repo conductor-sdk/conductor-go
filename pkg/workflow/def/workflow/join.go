@@ -2,26 +2,26 @@ package workflow
 
 import "github.com/conductor-sdk/conductor-go/pkg/http_model"
 
-type join struct {
-	task
+type JoinTask struct {
+	task   Task
 	joinOn []string
 }
 
-func Join(taskRefName string, joinOn ...string) *join {
-	return &join{
-		task: task{
+func Join(taskRefName string, joinOn []string, inputParameters map[string]interface{}) *JoinTask {
+	return &JoinTask{
+		task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",
 			taskType:          JOIN,
 			optional:          false,
-			inputParameters:   map[string]interface{}{},
+			inputParameters:   inputParameters,
 		},
 		joinOn: joinOn,
 	}
 }
 
-func (task *join) toWorkflowTask() []http_model.WorkflowTask {
+func (task *JoinTask) toWorkflowTask() []http_model.WorkflowTask {
 	workflowTasks := task.task.toWorkflowTask()
 	workflowTasks[0].JoinOn = task.joinOn
 	return workflowTasks

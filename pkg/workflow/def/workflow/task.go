@@ -25,11 +25,11 @@ const (
 	SET_VARIABLE      TaskType = "SET_VARIABLE"
 )
 
-type Task interface {
+type TaskInterface interface {
 	toWorkflowTask() []http_model.WorkflowTask
 }
 
-type task struct {
+type Task struct {
 	name              string
 	taskReferenceName string
 	description       string
@@ -38,7 +38,7 @@ type task struct {
 	inputParameters   map[string]interface{}
 }
 
-func (task *task) toWorkflowTask() []http_model.WorkflowTask {
+func (task *Task) toWorkflowTask() []http_model.WorkflowTask {
 	return []http_model.WorkflowTask{
 		{
 			Name:              task.name,
@@ -51,23 +51,24 @@ func (task *task) toWorkflowTask() []http_model.WorkflowTask {
 	}
 }
 
-func (task *task) ReferenceName() string {
+func (task *Task) ReferenceName() string {
 	return task.taskReferenceName
 }
-func (task *task) OutputRef(path string) string {
+func (task *Task) OutputRef(path string) string {
 	return "${" + task.taskReferenceName + ".output." + path + "}"
 }
 
 // Input to the task
-func (task *task) Input(key string, value interface{}) *task {
+func (task *Task) Input(key string, value interface{}) *Task {
 	task.inputParameters[key] = value
 	return task
 }
-func (task *task) Description(description string) *task {
+
+func (task *Task) Description(description string) *Task {
 	task.description = description
 	return task
 }
-func (task *task) Optional(optional bool) *task {
+func (task *Task) Optional(optional bool) *Task {
 	task.optional = optional
 	return task
 }
