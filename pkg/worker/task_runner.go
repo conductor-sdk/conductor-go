@@ -83,7 +83,8 @@ func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExec
 	c.increaseMaxAllowedWorkers(taskType, threadCount)
 	if previousMaxAllowedWorkers == 0 {
 		c.workerWaitGroup.Add(1)
-		go c.pollAndExecute(taskType, executeFunction, pollIntervalInMillis, domain)
+		go recover.GoSafe(c.pollAndExecute, taskType, executeFunction, pollIntervalInMillis, domain)
+		// go c.pollAndExecute(taskType, executeFunction, pollIntervalInMillis, domain)
 	}
 	log.Info(
 		"Started worker for task: ", taskType,
