@@ -16,7 +16,7 @@ const (
 )
 
 func NewHttpTask(taskRefName string, input *HttpInput) *HttpTask {
-	if input.Method == "" {
+	if len(input.Method) == 0 {
 		input.Method = GET
 	}
 	return &HttpTask{

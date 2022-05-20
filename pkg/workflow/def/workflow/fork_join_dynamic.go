@@ -8,6 +8,11 @@ type DynamicForkTask struct {
 	join        JoinTask
 }
 
+const (
+	forkedTasks       = "forkedTasks"
+	forkedTasksInputs = "forkedTasksInputs"
+)
+
 func NewDynamicForkTask(taskRefName string, forkPrepareTask TaskInterface) *DynamicForkTask {
 	return &DynamicForkTask{
 		Task: Task{
@@ -39,10 +44,10 @@ func NewDynamicForkWithJoinTask(taskRefName string, forkPrepareTask TaskInterfac
 
 func (task *DynamicForkTask) toWorkflowTask() []http_model.WorkflowTask {
 	forkWorkflowTask := task.Task.toWorkflowTask()[0]
-	forkWorkflowTask.DynamicForkTasksParam = "forkedTasks"
-	forkWorkflowTask.DynamicForkTasksInputParamName = "forkedTasksInputs"
-	forkWorkflowTask.InputParameters["forkedTasks"] = (task.preForkTask).OutputRef("forkedTasks")
-	forkWorkflowTask.InputParameters["forkedTasksInputs"] = (task.preForkTask).OutputRef("forkedTasksInputs")
+	forkWorkflowTask.DynamicForkTasksParam = forkedTasks
+	forkWorkflowTask.DynamicForkTasksInputParamName = forkedTasksInputs
+	forkWorkflowTask.InputParameters[forkedTasks] = (task.preForkTask).OutputRef(forkedTasks)
+	forkWorkflowTask.InputParameters[forkedTasksInputs] = (task.preForkTask).OutputRef(forkedTasksInputs)
 	tasks := (task.preForkTask).toWorkflowTask()
 	tasks = append(tasks, forkWorkflowTask, task.getJoinTask())
 
