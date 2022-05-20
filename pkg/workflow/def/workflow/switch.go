@@ -11,7 +11,7 @@ type Decision struct {
 	evaluatorType string
 }
 
-func Switch(taskRefName string, caseExpression string) *Decision {
+func NewSwitchTask(taskRefName string, caseExpression string) *Decision {
 	return &Decision{
 		Task: Task{
 			name:              taskRefName,

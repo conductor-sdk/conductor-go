@@ -15,7 +15,7 @@ const (
 	OPTIONS HttpMethod = "OPTIONS"
 )
 
-func Http(taskRefName string, input *HttpInput) *HttpTask {
+func NewHttpTask(taskRefName string, input *HttpInput) *HttpTask {
 	if input.Method == "" {
 		input.Method = GET
 	}

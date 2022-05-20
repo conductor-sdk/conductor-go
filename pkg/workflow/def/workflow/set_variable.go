@@ -4,7 +4,7 @@ type SetVariableTask struct {
 	Task
 }
 
-func SetVariable(taskRefName string) *SetVariableTask {
+func NewSetVariableTask(taskRefName string) *SetVariableTask {
 	return &SetVariableTask{
 		Task{
 			name:              taskRefName,

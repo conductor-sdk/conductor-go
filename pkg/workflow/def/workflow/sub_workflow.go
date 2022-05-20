@@ -10,7 +10,7 @@ type SubWorkflowTask struct {
 	workflow        *ConductorWorkflow
 }
 
-func SubWorkflow(taskRefName string, workflowName string, version *int32) *SubWorkflowTask {
+func NewSubWorkflowTask(taskRefName string, workflowName string, version *int32) *SubWorkflowTask {
 	return &SubWorkflowTask{
 		Task: Task{
 			name:              taskRefName,
@@ -25,7 +25,7 @@ func SubWorkflow(taskRefName string, workflowName string, version *int32) *SubWo
 	}
 }
 
-func SubWorkflowInline(taskRefName string, workflow *ConductorWorkflow) *SubWorkflowTask {
+func NewSubWorkflowInlineTask(taskRefName string, workflow *ConductorWorkflow) *SubWorkflowTask {
 	return &SubWorkflowTask{
 		Task: Task{
 			name:              taskRefName,

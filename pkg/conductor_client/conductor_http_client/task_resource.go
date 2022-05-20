@@ -7,11 +7,9 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"unsafe"
 
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 )
 
 // Linger please
@@ -1308,8 +1306,6 @@ TaskResourceApiService Update a task
 @return string
 */
 func (a *TaskResourceApiService) UpdateTask(ctx context.Context, taskResult *http_model.TaskResult) (string, *http.Response, error) {
-	a.evaluateTaskResultExternalStorage(taskResult)
-
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -1480,27 +1476,4 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 	}
 
 	return localVarReturnValue, localVarHttpResponse, nil
-}
-
-func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskResult *http_model.TaskResult) {
-	size := int64(unsafe.Sizeof(taskResult.OutputData))
-	if a.isTaskResultAboveMaxThreshold(size) {
-		taskResult.Status = task_result_status.FAILED_WITH_TERMINAL_ERROR
-		taskResult.ReasonForIncompletion = "The TaskResult payload size: is greater than the permissible bytes"
-		taskResult.OutputData = nil
-		return
-	}
-	if a.mustUploadTaskResult(size) {
-
-	}
-}
-
-func (a *TaskResourceApiService) isTaskResultAboveMaxThreshold(size int64) bool {
-	// TODO
-	return false
-}
-
-func (a *TaskResourceApiService) mustUploadTaskResult(size int64) bool {
-	// TODO
-	return false
 }

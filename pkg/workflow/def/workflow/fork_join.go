@@ -7,7 +7,7 @@ type ForkTask struct {
 	forkedTasks [][]TaskInterface
 }
 
-func Fork(taskRefName string, tasks ...[]TaskInterface) *ForkTask {
+func NewForkTask(taskRefName string, tasks ...[]TaskInterface) *ForkTask {
 	return &ForkTask{
 		Task: Task{
 			name:              taskRefName,
@@ -37,6 +37,6 @@ func (task *ForkTask) toWorkflowTask() []http_model.WorkflowTask {
 }
 
 func (task *ForkTask) getJoinTask() http_model.WorkflowTask {
-	join := Join(task.taskReferenceName + "_join")
+	join := NewJoinTask(task.taskReferenceName + "_join")
 	return (join.toWorkflowTask())[0]
 }

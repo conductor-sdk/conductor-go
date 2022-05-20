@@ -4,7 +4,7 @@ type WaitTask struct {
 	Task
 }
 
-func Wait(taskRefName string) *WaitTask {
+func NewWaitTask(taskRefName string) *WaitTask {
 	return &WaitTask{
 		Task{
 			name:              taskRefName,

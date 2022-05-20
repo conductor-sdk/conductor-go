@@ -9,7 +9,7 @@ var (
 	HTTP_TASK_WORKFLOW_NAME = "GO_WORKFLOW_WITH_HTTP_TASK"
 	HTTP_TASK_NAME          = "GO_TASK_OF_HTTP_TYPE"
 
-	HTTP_TASK = workflow.Http(
+	HTTP_TASK = workflow.NewHttpTask(
 		HTTP_TASK_NAME,
 		&workflow.HttpInput{
 			Uri: "https://catfact.ninja/fact",

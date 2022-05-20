@@ -6,8 +6,8 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 )
 
-var (
-	LOOP_CONDITION = "loop_count"
+const (
+	loopCondition = "loop_count"
 )
 
 type DoWhileTask struct {
@@ -16,7 +16,7 @@ type DoWhileTask struct {
 	loopOver      []TaskInterface
 }
 
-func DoWhile(taskRefName string, terminationCondition string, tasks ...TaskInterface) *DoWhileTask {
+func NewDoWhileTask(taskRefName string, terminationCondition string, tasks ...TaskInterface) *DoWhileTask {
 	return &DoWhileTask{
 		Task: Task{
 			name:              taskRefName,
@@ -33,7 +33,7 @@ func DoWhile(taskRefName string, terminationCondition string, tasks ...TaskInter
 
 // Loop over N times when N is specified as iterations
 // can be  static number e.g. 5 or a parameter expression like ${task_ref.output.some_value} that is a number
-func Loop(taskRefName string, iterations int32, tasks ...TaskInterface) *DoWhileTask {
+func NewLoopTask(taskRefName string, iterations int32, tasks ...TaskInterface) *DoWhileTask {
 	return &DoWhileTask{
 		Task: Task{
 			name:              taskRefName,
@@ -42,10 +42,10 @@ func Loop(taskRefName string, iterations int32, tasks ...TaskInterface) *DoWhile
 			taskType:          DO_WHILE,
 			optional:          false,
 			inputParameters: map[string]interface{}{
-				LOOP_CONDITION: iterations,
+				loopCondition: iterations,
 			},
 		},
-		loopCondition: getForLoopCondition(taskRefName, LOOP_CONDITION),
+		loopCondition: getForLoopCondition(taskRefName, loopCondition),
 		loopOver:      tasks,
 	}
 }
@@ -73,9 +73,9 @@ func (task *DoWhileTask) Optional(optional bool) *DoWhileTask {
 	return task
 }
 
-func getForLoopCondition(loopValue string, taskReferencename string) string {
+func getForLoopCondition(loopValue string, taskReferenceName string) string {
 	return fmt.Sprintf(
 		"if ( $.%s['iteration'] < $.%s ) { true; } else { false; }",
-		taskReferencename, loopValue,
+		taskReferenceName, loopValue,
 	)
 }

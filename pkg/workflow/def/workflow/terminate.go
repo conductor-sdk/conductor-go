@@ -8,7 +8,7 @@ type TerminateTask struct {
 	Task
 }
 
-func Terminate(taskRefName string, status workflow_status.WorkflowStatus, terminationReason string) *TerminateTask {
+func NewTerminateTask(taskRefName string, status workflow_status.WorkflowStatus, terminationReason string) *TerminateTask {
 	return &TerminateTask{
 		Task{
 			name:              taskRefName,

@@ -6,7 +6,7 @@ type SimpleTask struct {
 	Task
 }
 
-func Simple(name string, taskRefName string) *SimpleTask {
+func NewSimpleTask(name string, taskRefName string) *SimpleTask {
 	return &SimpleTask{
 		Task{
 			name:              name,

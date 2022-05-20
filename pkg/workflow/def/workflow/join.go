@@ -7,7 +7,7 @@ type JoinTask struct {
 	joinOn []string
 }
 
-func Join(taskRefName string, joinOn ...string) *JoinTask {
+func NewJoinTask(taskRefName string, joinOn ...string) *JoinTask {
 	return &JoinTask{
 		Task: Task{
 			name:              taskRefName,
