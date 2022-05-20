@@ -2,11 +2,13 @@ package worker
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"sync"
 	"time"
 
 	"github.com/antihax/optional"
+	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_counter"
@@ -83,8 +85,7 @@ func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExec
 	c.increaseMaxAllowedWorkers(taskType, threadCount)
 	if previousMaxAllowedWorkers == 0 {
 		c.workerWaitGroup.Add(1)
-		go recover.GoSafe(c.pollAndExecute, taskType, executeFunction, pollIntervalInMillis, domain)
-		// go c.pollAndExecute(taskType, executeFunction, pollIntervalInMillis, domain)
+		go c.pollAndExecute(taskType, executeFunction, pollIntervalInMillis, domain)
 	}
 	log.Info(
 		"Started worker for task: ", taskType,
@@ -94,7 +95,16 @@ func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExec
 }
 
 func (c *TaskRunner) pollAndExecute(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int, domain optional.String) {
-	defer c.workerWaitGroup.Done()
+	defer func() {
+		c.workerWaitGroup.Done()
+		concurrency.OnError(
+			fmt.Sprintf("pollAndExecute, taskType: %s, pollingInterval: %d, domain: %s",
+				taskType,
+				pollingInterval,
+				domain.Value(),
+			),
+		)
+	}()
 	for c.isWorkerAlive(taskType) {
 		c.runBatch(taskType, executeFunction, pollingInterval, domain)
 	}
@@ -119,7 +129,15 @@ func (c *TaskRunner) runBatch(taskType string, executeFunction model.TaskExecute
 }
 
 func (c *TaskRunner) executeAndUpdateTask(taskType string, task http_model.Task, executeFunction model.TaskExecuteFunction) {
-	defer c.runningWorkerDone(taskType)
+	defer func() {
+		c.runningWorkerDone(taskType)
+		concurrency.OnError(
+			fmt.Sprintf("executeAndUpdateTask, taskType: %s, task: %s",
+				taskType,
+				fmt.Sprint(task),
+			),
+		)
+	}()
 	taskResult := c.executeTask(&task, executeFunction)
 	c.updateTask(taskType, taskResult)
 }

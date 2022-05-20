@@ -28,7 +28,9 @@ var counterTemplates = map[metric_name.MetricName]*metric_model.MetricDetails{
 	metric_name.THREAD_UNCAUGHT_EXCEPTION: metric_model.NewMetricDetails(
 		metric_name.THREAD_UNCAUGHT_EXCEPTION,
 		metric_documentation.THREAD_UNCAUGHT_EXCEPTION,
-		[]metric_label.MetricLabel{},
+		[]metric_label.MetricLabel{
+			metric_label.EXCEPTION,
+		},
 	),
 	metric_name.TASK_POLL_ERROR: metric_model.NewMetricDetails(
 		metric_name.TASK_POLL_ERROR,
@@ -120,10 +122,12 @@ func IncrementTaskExecutionQueueFull(taskType string) {
 	)
 }
 
-func IncrementUncaughtException() {
+func IncrementUncaughtException(message string) {
 	incrementCounter(
 		metric_name.THREAD_UNCAUGHT_EXCEPTION,
-		[]string{},
+		[]string{
+			message,
+		},
 	)
 }
 

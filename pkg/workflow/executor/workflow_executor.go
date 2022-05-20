@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/sirupsen/logrus"
@@ -73,6 +74,7 @@ func (e *WorkflowExecutor) RegisterWorkflow(workflow *http_model.WorkflowDef) (*
 }
 
 func (e *WorkflowExecutor) monitorRunningWorkflows() {
+	defer concurrency.OnError("monitorRunningWorkflows")
 	for {
 		e.notifyFinishedWorkflows()
 		time.Sleep(RUNNING_WORKFLOWS_REFRESH_INTERVAL)

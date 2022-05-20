@@ -1,19 +1,16 @@
 package concurrency
 
 import (
+	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_counter"
 	log "github.com/sirupsen/logrus"
 )
 
-func GoSafe(callable func(...interface{}), args ...interface{}) {
-	defer onError(callable, args...)
-	callable(args...)
-}
-
-func onError(callable func(...interface{}), args ...interface{}) {
+func OnError(message string) {
 	if err := recover(); err != nil {
+		metrics_counter.IncrementUncaughtException(message)
 		log.Error(
-			"Uncaught error, with function: ", callable,
-			", args: ", args,
+			"Uncaught error",
+			", message: ", message,
 			", error: ", err,
 		)
 	}
