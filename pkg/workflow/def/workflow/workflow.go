@@ -8,11 +8,11 @@ import (
 )
 
 type ConductorWorkflow struct {
-	executor *executor.WorkflowExecutor
-	name     string
-	version  int32
-
-	tasks []TaskInterface
+	executor   *executor.WorkflowExecutor
+	name       string
+	version    int32
+	ownerEmail string
+	tasks      []TaskInterface
 }
 
 func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflow {
@@ -23,6 +23,11 @@ func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflo
 
 func (workflow *ConductorWorkflow) Name(name string) *ConductorWorkflow {
 	workflow.name = name
+	return workflow
+}
+
+func (workflow *ConductorWorkflow) OwnerEmail(ownerEmail string) *ConductorWorkflow {
+	workflow.ownerEmail = ownerEmail
 	return workflow
 }
 
@@ -68,7 +73,7 @@ func (workflow *ConductorWorkflow) toWorkflowDef() *http_model.WorkflowDef {
 		OutputParameters: nil,
 		FailureWorkflow:  "",
 		SchemaVersion:    2,
-		OwnerEmail:       "",
+		OwnerEmail:       workflow.ownerEmail,
 		TimeoutPolicy:    "",
 		TimeoutSeconds:   0,
 		Variables:        nil,
