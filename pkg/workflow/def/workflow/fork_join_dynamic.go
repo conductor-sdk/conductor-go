@@ -22,7 +22,7 @@ func NewDynamicForkTask(taskRefName string, forkPrepareTask TaskInterface) *Dyna
 	}
 }
 
-func NewDynamicForkWithJoin(taskRefName string, forkPrepareTask TaskInterface, join JoinTask) *DynamicForkTask {
+func NewDynamicForkWithJoinTask(taskRefName string, forkPrepareTask TaskInterface, join JoinTask) *DynamicForkTask {
 	return &DynamicForkTask{
 		Task: Task{
 			name:              taskRefName,
