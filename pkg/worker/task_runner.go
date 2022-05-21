@@ -157,7 +157,7 @@ func (c *TaskRunner) batchPoll(taskType string, count int, pollingInterval int, 
 		},
 	)
 	spentTime := time.Since(startTime)
-	log.Debug("Task Poll Time ", spentTime)
+	log.Debug("Task Poll Time ", spentTime.Milliseconds())
 	metrics_gauge.RecordTaskPollTime(
 		taskType,
 		spentTime.Seconds(),
@@ -218,7 +218,7 @@ func (c *TaskRunner) _updateTask(taskType string, taskResult *http_model.TaskRes
 	startTime := time.Now()
 	_, response, err := c.conductorTaskResourceClient.UpdateTask(context.Background(), taskResult)
 	spentTime := time.Since(startTime)
-	log.Debug("Task Update Time ", spentTime)
+	log.Debug("Task Update Time ", spentTime.Milliseconds())
 	if err != nil {
 		log.Error(
 			"Error on task update. taskResult: ", *taskResult,
