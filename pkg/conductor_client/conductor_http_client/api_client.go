@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"mime/multipart"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -45,11 +46,28 @@ func NewAPIClient(
 	if httpSettings == nil {
 		httpSettings = settings.NewHttpDefaultSettings()
 	}
+
+	baseDialer := &net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 3 * time.Minute,
+	}
+
+	netTransport := &http.Transport{
+		DialContext:         baseDialer.DialContext,
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 100,
+	}
+	client := http.Client{
+		Transport:     netTransport,
+		CheckRedirect: nil,
+		Jar:           nil,
+		Timeout:       30 * time.Second,
+	}
 	return &APIClient{
 		authenticationSettings: authenticationSettings,
 		authenticationToken:    nil,
 		httpSettings:           httpSettings,
-		httpClient:             &http.Client{},
+		httpClient:             &client,
 	}
 }
 
