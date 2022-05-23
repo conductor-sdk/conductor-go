@@ -2,10 +2,10 @@ package workflow
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
-	"github.com/sirupsen/logrus"
 )
 
 type ConductorWorkflow struct {
@@ -59,17 +59,40 @@ func (workflow *ConductorWorkflow) Start(input interface{}) (executor.WorkflowEx
 	)
 }
 
-func (workflow *ConductorWorkflow) StartMany(amount int) []executor.WorkflowExecutionChannel {
+func (workflow *ConductorWorkflow) StartWithTimeout(input interface{}, timeout time.Duration) (executor.WorkflowExecutionChannel, error) {
+	return workflow.executor.ExecuteWorkflowWithTimeout(
+		workflow.name,
+		workflow.version,
+		input,
+		timeout,
+	)
+}
+
+func (workflow *ConductorWorkflow) StartMany(amount int) ([]executor.WorkflowExecutionChannel, error) {
 	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, amount)
 	for i := 0; i < amount; i += 1 {
 		workflowExecutionChannel, err := workflow.Start(nil)
 		if err != nil {
-			logrus.Warning("Failed to start workflow, reason: ", err)
-		} else {
-			workflowExecutionChannelList[i] = workflowExecutionChannel
+			return nil, err
 		}
+		workflowExecutionChannelList[i] = workflowExecutionChannel
 	}
-	return workflowExecutionChannelList
+	return workflowExecutionChannelList, nil
+}
+
+func (workflow *ConductorWorkflow) StartManyWithTimeout(amount int, timeout time.Duration) ([]executor.WorkflowExecutionChannel, error) {
+	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, amount)
+	for i := 0; i < amount; i += 1 {
+		workflowExecutionChannel, err := workflow.StartWithTimeout(
+			nil,
+			timeout,
+		)
+		if err != nil {
+			return nil, err
+		}
+		workflowExecutionChannelList[i] = workflowExecutionChannel
+	}
+	return workflowExecutionChannelList, nil
 }
 
 func (workflow *ConductorWorkflow) toWorkflowDef() *http_model.WorkflowDef {

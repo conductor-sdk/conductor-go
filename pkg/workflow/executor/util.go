@@ -2,36 +2,9 @@ package executor
 
 import (
 	"encoding/json"
-	"sync"
-	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/sirupsen/logrus"
 )
-
-func WaitForCompletionOfWorkflows(workflowExecutionChannelList []WorkflowExecutionChannel, workflowCompletionTimeout time.Duration) {
-	var waitGroup sync.WaitGroup
-	for _, workflowExecutionChannel := range workflowExecutionChannelList {
-		go getWorkflowFromExecutionChannel(
-			&waitGroup,
-			workflowExecutionChannel,
-			workflowCompletionTimeout,
-		)
-	}
-	waitGroup.Wait()
-}
-
-func getWorkflowFromExecutionChannel(waitGroup *sync.WaitGroup, workflowExecutionChannel WorkflowExecutionChannel, workflowCompletionTimeout time.Duration) *http_model.Workflow {
-	defer waitGroup.Done()
-	select {
-	case workflow := <-workflowExecutionChannel:
-		return workflow
-	case <-time.After(workflowCompletionTimeout):
-		logrus.Warning("Timeout waiting for workflow completion")
-		close(workflowExecutionChannel)
-	}
-	return nil
-}
 
 func getInputAsMap(input interface{}) map[string]interface{} {
 	if input == nil {
