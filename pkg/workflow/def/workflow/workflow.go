@@ -5,6 +5,7 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
+	"github.com/sirupsen/logrus"
 )
 
 type ConductorWorkflow struct {
@@ -56,6 +57,19 @@ func (workflow *ConductorWorkflow) Start(input interface{}) (executor.WorkflowEx
 		workflow.version,
 		input,
 	)
+}
+
+func (workflow *ConductorWorkflow) StartMany(amount int) []executor.WorkflowExecutionChannel {
+	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, amount)
+	for i := 0; i < amount; i += 1 {
+		workflowExecutionChannel, err := workflow.Start(nil)
+		if err != nil {
+			logrus.Warning("Failed to start workflow, reason: ", err)
+		} else {
+			workflowExecutionChannelList[i] = workflowExecutionChannel
+		}
+	}
+	return workflowExecutionChannelList
 }
 
 func (workflow *ConductorWorkflow) toWorkflowDef() *http_model.WorkflowDef {
