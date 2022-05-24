@@ -3,7 +3,6 @@ package conductor_http_client
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -70,8 +69,8 @@ func (a *WorkflowResourceApiService) Decide(ctx context.Context, workflowId stri
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -146,8 +145,8 @@ func (a *WorkflowResourceApiService) Delete(ctx context.Context, workflowId stri
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -223,8 +222,8 @@ func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, wor
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -312,8 +311,8 @@ func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Cont
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -417,8 +416,8 @@ func (a *WorkflowResourceApiService) GetRunningWorkflow(ctx context.Context, nam
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -520,8 +519,8 @@ func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []st
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -622,8 +621,8 @@ func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name str
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -706,8 +705,8 @@ func (a *WorkflowResourceApiService) PauseWorkflow(ctx context.Context, workflow
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -776,8 +775,8 @@ func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body http_model.
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -860,8 +859,8 @@ func (a *WorkflowResourceApiService) ResetWorkflow(ctx context.Context, workflow
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -936,8 +935,8 @@ func (a *WorkflowResourceApiService) Restart(ctx context.Context, workflowId str
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -1002,8 +1001,8 @@ func (a *WorkflowResourceApiService) ResumeWorkflow(ctx context.Context, workflo
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -1078,8 +1077,8 @@ func (a *WorkflowResourceApiService) Retry(ctx context.Context, workflowId strin
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -1174,8 +1173,8 @@ func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptiona
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1288,8 +1287,8 @@ func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptio
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1402,8 +1401,8 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context,
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1516,8 +1515,8 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Contex
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1604,8 +1603,8 @@ func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, w
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -1694,8 +1693,8 @@ func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1780,8 +1779,8 @@ func (a *WorkflowResourceApiService) StartWorkflow1(ctx context.Context, body ht
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1874,8 +1873,8 @@ func (a *WorkflowResourceApiService) Terminate1(ctx context.Context, workflowId 
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
