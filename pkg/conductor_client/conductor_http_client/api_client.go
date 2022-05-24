@@ -252,7 +252,7 @@ func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 	localVarPostBody = c.authenticationSettings.GetBody()
-	r, err := prepareRequestAux(c.httpSettings.BaseUrl, context.Background(), localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := c.prepareRefreshTokenRequest(context.Background(), localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -507,8 +507,7 @@ func (e GenericSwaggerError) Model() interface{} {
 	return e.model
 }
 
-func prepareRequestAux(
-	baseUrl string,
+func (c *APIClient) prepareRefreshTokenRequest(
 	ctx context.Context,
 	path string, method string,
 	postBody interface{},
@@ -575,7 +574,7 @@ func prepareRequestAux(
 	}
 
 	// Setup path and query parameters
-	url, err := url.Parse(baseUrl + path)
+	url, err := url.Parse(c.httpSettings.BaseUrl + path)
 	if err != nil {
 		return nil, err
 	}
@@ -585,9 +584,8 @@ func prepareRequestAux(
 		return nil, err
 	}
 
-	localVarRequest.Header = map[string][]string{
-		"Content-Type": {"application/json"},
-		"Accept":       {"application/json"},
+	for header, value := range c.httpSettings.Headers {
+		localVarRequest.Header.Add(header, value)
 	}
 
 	return localVarRequest, nil
