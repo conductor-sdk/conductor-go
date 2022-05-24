@@ -15,11 +15,13 @@ import (
 var taskRunner = worker.NewTaskRunnerWithApiClient(e2e_properties.API_CLIENT)
 
 func TestTaskRunnerExecution(t *testing.T) {
-	workflowIdList := http_client_e2e.StartWorkflows(
-		t,
+	workflowIdList, err := http_client_e2e.StartWorkflows(
 		http_client_e2e_properties.WORKFLOW_EXECUTION_AMOUNT,
 		http_client_e2e_properties.WORKFLOW_NAME,
 	)
+	if err != nil {
+		t.Error(err)
+	}
 
 	taskRunner.StartWorker(
 		http_client_e2e_properties.TASK_NAME,
@@ -44,10 +46,12 @@ func TestTaskRunnerExecution(t *testing.T) {
 func validateWorkflow(t *testing.T, waitGroup *sync.WaitGroup, workflowId string) {
 	defer waitGroup.Done()
 	time.Sleep(3 * time.Second)
-	workflow := http_client_e2e.GetWorkflowExecutionStatus(
-		t,
+	workflow, _, err := http_client_e2e.GetWorkflowExecutionStatus(
 		workflowId,
 	)
+	if err != nil {
+		t.Error(err)
+	}
 	if workflow.Status != "COMPLETED" {
 		t.Error("Incomplete workflow: ", workflowId)
 	}

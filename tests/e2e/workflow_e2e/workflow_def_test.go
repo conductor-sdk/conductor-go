@@ -1,6 +1,7 @@
 package workflow_e2e
 
 import (
+	"os"
 	"testing"
 
 	"github.com/conductor-sdk/conductor-go/examples"
@@ -10,6 +11,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e/http_client_e2e_properties"
+	log "github.com/sirupsen/logrus"
 )
 
 var taskRunner = worker.NewTaskRunnerWithApiClient(e2e_properties.API_CLIENT)
@@ -18,9 +20,47 @@ var workflowExecutor = executor.NewWorkflowExecutor(e2e_properties.API_CLIENT)
 var (
 	workflows = []*workflow.ConductorWorkflow{
 		HTTP_WORKFLOW,
-		// SIMPLE_WORKFLOW,
+		SIMPLE_WORKFLOW,
 	}
 )
+
+var (
+	HTTP_TASK_WORKFLOW_NAME = "GO_WORKFLOW_WITH_HTTP_TASK"
+	HTTP_TASK_NAME          = "GO_TASK_OF_HTTP_TYPE"
+
+	HTTP_TASK = workflow.NewHttpTask(
+		HTTP_TASK_NAME,
+		&workflow.HttpInput{
+			Uri: "https://catfact.ninja/fact",
+		},
+	)
+
+	HTTP_WORKFLOW = workflow.NewConductorWorkflow(workflowExecutor).
+			Name(HTTP_TASK_WORKFLOW_NAME).
+			Version(1).
+			Add(HTTP_TASK)
+)
+
+var (
+	SIMPLE_TASK_WORKFLOW_NAME = "GO_WORKFLOW_WITH_SIMPLE_TASK"
+	SIMPLE_TASK_NAME          = "GO_TASK_OF_SIMPLE_TYPE"
+
+	SIMPLE_TASK = workflow.NewSimpleTask(
+		SIMPLE_TASK_NAME,
+		SIMPLE_TASK_NAME,
+	)
+
+	SIMPLE_WORKFLOW = workflow.NewConductorWorkflow(workflowExecutor).
+			Name(SIMPLE_TASK_WORKFLOW_NAME).
+			Version(1).
+			Add(SIMPLE_TASK)
+)
+
+func init() {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.DebugLevel)
+}
 
 func TestValidateWorkflowDefinitions(t *testing.T) {
 	for _, conductorWorkflow := range workflows {
@@ -49,7 +89,7 @@ func TestWorkflowDefExecutionWithSingleStart(t *testing.T) {
 	}
 
 	taskRunner.StartWorker(
-		SIMPLE_WORKFLOW.GetName(),
+		SIMPLE_TASK_NAME,
 		examples.SimpleWorker,
 		http_client_e2e_properties.WORKER_THREAD_COUNT,
 		http_client_e2e_properties.WORKER_POLLING_INTERVAL,

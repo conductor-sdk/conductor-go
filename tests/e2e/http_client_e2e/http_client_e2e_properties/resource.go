@@ -41,8 +41,7 @@ var (
 var (
 	WORKFLOW_NAME = "workflow_with_go_task_example_from_code"
 
-	TASK_NAME           = "go_task_example_from_code"
-	TASK_REFERENCE_NAME = "go_task_example_from_code_ref_0"
+	TASK_NAME = "go_task_example_from_code"
 
 	WORKFLOW_DEFINITION = http_model.WorkflowDef{
 		UpdateTime:  1650595431465,
@@ -52,7 +51,7 @@ var (
 		Tasks: []http_model.WorkflowTask{
 			{
 				Name:              TASK_NAME,
-				TaskReferenceName: TASK_REFERENCE_NAME,
+				TaskReferenceName: TASK_NAME,
 				Type_:             "SIMPLE",
 				StartDelay:        0,
 				Optional:          false,

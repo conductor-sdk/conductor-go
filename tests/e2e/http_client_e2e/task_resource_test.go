@@ -8,7 +8,6 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e/http_client_e2e_properties"
-	"github.com/sirupsen/logrus"
 )
 
 var taskClient = conductor_http_client.TaskResourceApiService{
@@ -16,20 +15,39 @@ var taskClient = conductor_http_client.TaskResourceApiService{
 }
 
 func TestUpdateTaskRefByName(t *testing.T) {
-	workflowId := StartWorkflow(t, http_client_e2e_properties.WORKFLOW_NAME)
-	logrus.Warning("workflowId: ", workflowId)
-	_, _, err := taskClient.UpdateTaskByRefName(
+	workflowId, response, err := StartWorkflow(http_client_e2e_properties.WORKFLOW_NAME)
+	if err != nil {
+		t.Error(
+			"workflowId: ", workflowId,
+			", response:, ", response,
+			", error: ", err.Error(),
+		)
+	}
+	value, response, err := taskClient.UpdateTaskByRefName(
 		context.Background(),
 		http_client_e2e_properties.TASK_OUTPUT,
 		workflowId,
-		http_client_e2e_properties.TASK_REFERENCE_NAME,
+		http_client_e2e_properties.TASK_NAME,
 		string(task_result_status.COMPLETED),
 	)
 	if err != nil {
-		t.Error(err)
+		t.Error(
+			"value: ", value,
+			", response:, ", response,
+			", error: ", err.Error(),
+		)
 	}
-	workflow := GetWorkflowExecutionStatus(t, workflowId)
+	workflow, response, err := GetWorkflowExecutionStatus(workflowId)
+	if err != nil {
+		t.Error(
+			"workflow: ", workflow,
+			", response:, ", response,
+			", error: ", err.Error(),
+		)
+	}
 	if workflow.Status != string(task_result_status.COMPLETED) {
-		t.Error("Workflow status is not completed: ", workflow.Status)
+		t.Error(
+			"Workflow status is not completed: ", workflow.Status,
+		)
 	}
 }
