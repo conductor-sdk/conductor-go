@@ -44,7 +44,7 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 	workflow := workflow.NewConductorWorkflow(executor).
 		Name("sdk_kitchen_sink2").
 		Version(1).
-		Add(task1).
+		OwnerEmail("viren@orkes.io").
 		Add(task1).
 		Add(setVariable).
 		Add(subWorkflow).

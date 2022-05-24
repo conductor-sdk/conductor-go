@@ -31,7 +31,7 @@ func NewDoWhileTask(taskRefName string, terminationCondition string, tasks ...Ta
 	}
 }
 
-// Loop over N times when N is specified as iterations
+// NewLoopTask Loop over N times when N is specified as iterations
 // can be  static number e.g. 5 or a parameter expression like ${task_ref.output.some_value} that is a number
 func NewLoopTask(taskRefName string, iterations int32, tasks ...TaskInterface) *DoWhileTask {
 	return &DoWhileTask{

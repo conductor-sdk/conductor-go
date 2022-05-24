@@ -97,12 +97,12 @@ func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExec
 func (c *TaskRunner) pollAndExecute(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int, domain optional.String) {
 	defer func() {
 		c.workerWaitGroup.Done()
-		concurrency.OnError(
-			fmt.Sprintf("pollAndExecute, taskType: %s, pollingInterval: %d, domain: %s",
-				taskType,
-				pollingInterval,
-				domain.Value(),
-			),
+		concurrency.OnError("poll_and_execute")
+		log.Warning(
+			"Panic at pollAndExecute",
+			", taskType: ", taskType,
+			", pollingInterval: ", pollingInterval,
+			", domain: ", domain.Value(),
 		)
 	}()
 	for c.isWorkerAlive(taskType) {
@@ -157,6 +157,7 @@ func (c *TaskRunner) batchPoll(taskType string, count int, pollingInterval int, 
 		},
 	)
 	spentTime := time.Since(startTime)
+	log.Debug("Task Poll Time ", spentTime.Milliseconds())
 	metrics_gauge.RecordTaskPollTime(
 		taskType,
 		spentTime.Seconds(),
@@ -214,7 +215,10 @@ func (c *TaskRunner) updateTask(taskType string, taskResult *http_model.TaskResu
 }
 
 func (c *TaskRunner) _updateTask(taskType string, taskResult *http_model.TaskResult) error {
+	startTime := time.Now()
 	_, response, err := c.conductorTaskResourceClient.UpdateTask(context.Background(), taskResult)
+	spentTime := time.Since(startTime)
+	log.Debug("Task Update Time ", spentTime.Milliseconds())
 	if err != nil {
 		log.Error(
 			"Error on task update. taskResult: ", *taskResult,

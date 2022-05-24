@@ -2,7 +2,7 @@ package workflow
 
 import "github.com/conductor-sdk/conductor-go/pkg/http_model"
 
-type Decision struct {
+type SwitchTask struct {
 	Task
 	DecisionCases map[string][]TaskInterface
 	defaultCase   []TaskInterface
@@ -11,8 +11,8 @@ type Decision struct {
 	evaluatorType string
 }
 
-func NewSwitchTask(taskRefName string, caseExpression string) *Decision {
-	return &Decision{
+func NewSwitchTask(taskRefName string, caseExpression string) *SwitchTask {
+	return &SwitchTask{
 		Task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
@@ -29,16 +29,16 @@ func NewSwitchTask(taskRefName string, caseExpression string) *Decision {
 	}
 }
 
-func (task *Decision) SwitchCase(caseName string, tasks ...TaskInterface) *Decision {
+func (task *SwitchTask) SwitchCase(caseName string, tasks ...TaskInterface) *SwitchTask {
 	task.DecisionCases[caseName] = tasks
 	return task
 }
-func (task *Decision) DefaultCase(tasks ...TaskInterface) *Decision {
+func (task *SwitchTask) DefaultCase(tasks ...TaskInterface) *SwitchTask {
 	task.defaultCase = tasks
 	return task
 }
 
-func (task *Decision) toWorkflowTask() []http_model.WorkflowTask {
+func (task *SwitchTask) toWorkflowTask() []http_model.WorkflowTask {
 	if task.useJavascript {
 		task.evaluatorType = "javascript"
 	} else {
@@ -69,21 +69,21 @@ func (task *Decision) toWorkflowTask() []http_model.WorkflowTask {
 }
 
 // Input to the task
-func (task *Decision) Input(key string, value interface{}) *Decision {
+func (task *SwitchTask) Input(key string, value interface{}) *SwitchTask {
 	task.Task.Input(key, value)
 	return task
 }
-func (task *Decision) Description(description string) *Decision {
+func (task *SwitchTask) Description(description string) *SwitchTask {
 	task.Task.Description(description)
 	return task
 }
 
-func (task *Decision) Optional(optional bool) *Decision {
+func (task *SwitchTask) Optional(optional bool) *SwitchTask {
 	task.Task.Optional(optional)
 	return task
 }
 
-func (task *Decision) UseJavascript(use bool) *Decision {
+func (task *SwitchTask) UseJavascript(use bool) *SwitchTask {
 	task.useJavascript = use
 	return task
 }
