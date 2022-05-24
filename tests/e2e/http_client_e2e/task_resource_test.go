@@ -8,6 +8,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e/http_client_e2e_properties"
+	"github.com/sirupsen/logrus"
 )
 
 var taskClient = conductor_http_client.TaskResourceApiService{
@@ -16,6 +17,7 @@ var taskClient = conductor_http_client.TaskResourceApiService{
 
 func TestUpdateTaskRefByName(t *testing.T) {
 	workflowId := StartWorkflow(t, http_client_e2e_properties.WORKFLOW_NAME)
+	logrus.Warning("workflowId: ", workflowId)
 	_, _, err := taskClient.UpdateTaskByRefName(
 		context.Background(),
 		http_client_e2e_properties.TASK_OUTPUT,

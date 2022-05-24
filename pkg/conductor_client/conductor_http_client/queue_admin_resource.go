@@ -3,7 +3,6 @@ package conductor_http_client
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -66,8 +65,8 @@ func (a *QueueAdminResourceApiService) Names(ctx context.Context) (map[string]st
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -149,8 +148,8 @@ func (a *QueueAdminResourceApiService) Size1(ctx context.Context) (map[string]in
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -240,8 +239,8 @@ func (a *QueueAdminResourceApiService) Update1(ctx context.Context, body map[str
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -313,8 +312,8 @@ func (a *QueueAdminResourceApiService) UpdateByTaskId(ctx context.Context, body 
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}

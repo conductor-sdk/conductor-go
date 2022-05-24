@@ -2,6 +2,7 @@ package conductor_http_client
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"encoding/xml"
@@ -56,6 +57,7 @@ func NewAPIClient(
 		DialContext:         baseDialer.DialContext,
 		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: 100,
+		DisableCompression:  false,
 	}
 	client := http.Client{
 		Transport:     netTransport,
@@ -250,7 +252,7 @@ func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 	localVarPostBody = c.authenticationSettings.GetBody()
-	r, err := prepareRequestAux(c.httpSettings.BaseUrl, c.httpSettings.Headers, context.Background(), localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := prepareRequestAux(c.httpSettings.BaseUrl, context.Background(), localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -258,8 +260,8 @@ func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
 	if err != nil || localVarHttpResponse == nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -507,7 +509,6 @@ func (e GenericSwaggerError) Model() interface{} {
 
 func prepareRequestAux(
 	baseUrl string,
-	headers map[string]string,
 	ctx context.Context,
 	path string, method string,
 	postBody interface{},
@@ -573,55 +574,37 @@ func prepareRequestAux(
 		w.Close()
 	}
 
-	if strings.HasPrefix(headerParams["Content-Type"], "application/x-www-form-urlencoded") && len(formParams) > 0 {
-		if body != nil {
-			return nil, errors.New("cannot specify postBody and x-www-form-urlencoded form at the same time")
-		}
-		body = &bytes.Buffer{}
-		body.WriteString(formParams.Encode())
-		// Set Content-Length
-		headerParams["Content-Length"] = fmt.Sprintf("%d", body.Len())
-	}
-
 	// Setup path and query parameters
 	url, err := url.Parse(baseUrl + path)
 	if err != nil {
 		return nil, err
 	}
 
-	// Adding Query Param
-	query := url.Query()
-	for k, v := range queryParams {
-		for _, iv := range v {
-			query.Add(k, iv)
-		}
-	}
-
-	// Encode the parameters.
-	url.RawQuery = query.Encode()
-
-	// Generate a new request
-	if body != nil {
-		localVarRequest, err = http.NewRequest(method, url.String(), body)
-	} else {
-		localVarRequest, err = http.NewRequest(method, url.String(), nil)
-	}
+	localVarRequest, err = http.NewRequest(method, url.String(), body)
 	if err != nil {
 		return nil, err
 	}
 
-	// add header parameters, if any
-	if len(headerParams) > 0 {
-		headers := http.Header{}
-		for h, v := range headerParams {
-			headers.Set(h, v)
-		}
-		localVarRequest.Header = headers
-	}
-
-	for header, value := range headers {
-		localVarRequest.Header.Add(header, value)
+	localVarRequest.Header = map[string][]string{
+		"Content-Type": {"application/json"},
+		"Accept":       {"application/json"},
 	}
 
 	return localVarRequest, nil
+}
+
+func getDecompressedBody(response *http.Response) ([]byte, error) {
+	defer response.Body.Close()
+	if response.Uncompressed {
+		return ioutil.ReadAll(response.Body)
+	}
+	reader, err := gzip.NewReader(response.Body)
+	if err != nil {
+		if err == io.EOF {
+			return nil, nil
+		}
+		return nil, err
+	}
+	defer reader.Close()
+	return ioutil.ReadAll(reader)
 }

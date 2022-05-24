@@ -2,7 +2,6 @@ package conductor_http_client
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -67,8 +66,8 @@ func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (http_model
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}

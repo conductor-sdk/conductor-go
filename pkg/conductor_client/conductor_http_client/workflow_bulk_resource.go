@@ -2,7 +2,6 @@ package conductor_http_client
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -71,8 +70,8 @@ func (a *WorkflowBulkResourceApiService) PauseWorkflow1(ctx context.Context, bod
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -167,8 +166,8 @@ func (a *WorkflowBulkResourceApiService) Restart1(ctx context.Context, body []st
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -253,8 +252,8 @@ func (a *WorkflowBulkResourceApiService) ResumeWorkflow1(ctx context.Context, bo
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -339,8 +338,8 @@ func (a *WorkflowBulkResourceApiService) Retry1(ctx context.Context, body []stri
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -435,8 +434,8 @@ func (a *WorkflowBulkResourceApiService) Terminate(ctx context.Context, body []s
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
