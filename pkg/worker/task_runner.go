@@ -97,12 +97,12 @@ func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExec
 func (c *TaskRunner) pollAndExecute(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int, domain optional.String) {
 	defer func() {
 		c.workerWaitGroup.Done()
-		concurrency.OnError(
-			fmt.Sprintf("pollAndExecute, taskType: %s, pollingInterval: %d, domain: %s",
-				taskType,
-				pollingInterval,
-				domain.Value(),
-			),
+		concurrency.OnError("poll_and_execute")
+		log.Warning(
+			"Panic at pollAndExecute",
+			", taskType: ", taskType,
+			", pollingInterval: ", pollingInterval,
+			", domain: ", domain.Value(),
 		)
 	}()
 	for c.isWorkerAlive(taskType) {
