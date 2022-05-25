@@ -1,6 +1,7 @@
 package worker_e2e
 
 import (
+	"os"
 	"sync"
 	"testing"
 	"time"
@@ -10,9 +11,16 @@ import (
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e/http_client_e2e_properties"
+	"github.com/sirupsen/logrus"
 )
 
 var taskRunner = worker.NewTaskRunnerWithApiClient(e2e_properties.API_CLIENT)
+
+func init() {
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetOutput(os.Stdout)
+	logrus.SetLevel(logrus.DebugLevel)
+}
 
 func TestTaskRunnerExecution(t *testing.T) {
 	workflowIdList, err := http_client_e2e.StartWorkflows(
@@ -20,30 +28,33 @@ func TestTaskRunnerExecution(t *testing.T) {
 		http_client_e2e_properties.WORKFLOW_NAME,
 	)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
-
-	taskRunner.StartWorker(
+	err = taskRunner.StartWorker(
 		http_client_e2e_properties.TASK_NAME,
 		examples.SimpleWorker,
 		http_client_e2e_properties.WORKER_THREAD_COUNT,
 		http_client_e2e_properties.WORKER_POLLING_INTERVAL,
 	)
-
+	if err != nil {
+		t.Fatal(err)
+	}
 	var waitGroup sync.WaitGroup
 	waitGroup.Add(len(workflowIdList))
 	for _, workflowId := range workflowIdList {
-		go validateWorkflow(t, &waitGroup, workflowId)
+		go testValidateWorkflow(t, &waitGroup, workflowId)
 	}
 	waitGroup.Wait()
-
-	taskRunner.RemoveWorker(
+	err = taskRunner.RemoveWorker(
 		http_client_e2e_properties.TASK_NAME,
 		http_client_e2e_properties.WORKER_THREAD_COUNT,
 	)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
-func validateWorkflow(t *testing.T, waitGroup *sync.WaitGroup, workflowId string) {
+func testValidateWorkflow(t *testing.T, waitGroup *sync.WaitGroup, workflowId string) {
 	defer waitGroup.Done()
 	time.Sleep(3 * time.Second)
 	workflow, _, err := http_client_e2e.GetWorkflowExecutionStatus(
@@ -53,6 +64,6 @@ func validateWorkflow(t *testing.T, waitGroup *sync.WaitGroup, workflowId string
 		t.Error(err)
 	}
 	if workflow.Status != "COMPLETED" {
-		t.Error("Incomplete workflow: ", workflowId)
+		t.Errorf("Workflow finished with invalid terminal state, workflow: %+v", workflow)
 	}
 }

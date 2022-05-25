@@ -39,7 +39,7 @@ func NewWorkflowMonitor(workflowClient *conductor_http_client.WorkflowResourceAp
 }
 
 func (w *WorkflowMonitor) MonitorRunningWorkflows() {
-	defer concurrency.OnError("monitor_running_workflows")
+	defer concurrency.HandlePanicError("monitor_running_workflows")
 	for {
 		err := w.monitorRunningWorkflows()
 		if err != nil {
@@ -106,12 +106,18 @@ func (w *WorkflowMonitor) getWorkflowsInTerminalState() ([]*http_model.Workflow,
 	}
 	workflowsInTerminalState := make([]*http_model.Workflow, 0)
 	for _, workflowId := range runningWorkflowIdList {
-		workflow, _, err := w.workflowClient.GetExecutionStatus(
+		workflow, response, err := w.workflowClient.GetExecutionStatus(
 			context.Background(),
 			workflowId,
 			nil,
 		)
 		if err != nil {
+			logrus.Debug(
+				"Failed to get workflow execution status",
+				", reason: ", err.Error(),
+				", workflowId: ", workflowId,
+				", response: ", response,
+			)
 			return nil, err
 		}
 		if isWorkflowInTerminalState(&workflow) {
@@ -122,20 +128,13 @@ func (w *WorkflowMonitor) getWorkflowsInTerminalState() ([]*http_model.Workflow,
 }
 
 func (w *WorkflowMonitor) waitForWorkflowCompletionUntilTimeout(workflowId string, timeoutWorkflowExecutionChannel chan bool, timeout time.Duration) {
-	defer concurrency.OnError(
-		fmt.Sprint(
-			"Failed to waitForWorkflowCompletionUntilTimeout",
-			", workflowId: ", workflowId,
-			", timeout: ", timeout,
-		),
-	)
+	defer concurrency.HandlePanicError("wait_for_workflow_completion_until_timeout")
 	select {
 	case <-timeoutWorkflowExecutionChannel:
 		logrus.Debug(
-			"Stopped waiting for workflow completion",
-			", workflowId: ", workflowId,
+			"Signal received from workflowId: ", workflowId,
+			", stop waiting for completion",
 		)
-		break
 	case <-time.After(timeout):
 		logrus.Debug(
 			fmt.Sprint(
@@ -170,31 +169,22 @@ func (w *WorkflowMonitor) getRunningWorkflowIdList() ([]string, error) {
 		runningWorkflowIdList[i] = workflowId
 		i += 1
 	}
-	logrus.Debug("Got running workflowId list")
 	return runningWorkflowIdList, nil
 }
 
 func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *http_model.Workflow) error {
-	executionChannel, err := w.getExecutionChannel(workflowId)
-	if err != nil {
-		return err
+	w.mutex.Lock()
+	defer w.mutex.Unlock()
+	logrus.Debug(fmt.Sprintf("Notifying finished workflow: %+v", *workflow))
+	executionChannel, ok := w.executionChannelByWorkflowId[workflowId]
+	if !ok {
+		return fmt.Errorf("execution channel not found for workflowId: %s", workflowId)
 	}
-	logrus.Debug("Notifying finished workflow: ", *workflow)
 	executionChannel.ClientWorkflowExecutionChannel <- workflow
 	logrus.Debug("Sent workflow through client channel")
 	executionChannel.TimeoutWorkflowExecutionChannel <- true
 	logrus.Debug("Sent signal to stop waiting for workflow execution")
 	return w.removeExecutionChannel(workflowId)
-}
-
-func (w *WorkflowMonitor) getExecutionChannel(workflowId string) (executionChannel, error) {
-	w.mutex.Lock()
-	defer w.mutex.Unlock()
-	executionChannel, ok := w.executionChannelByWorkflowId[workflowId]
-	if !ok {
-		return executionChannel, fmt.Errorf("execution channel not found for workflowId: %s", workflowId)
-	}
-	return executionChannel, nil
 }
 
 func (w *WorkflowMonitor) removeExecutionChannel(workflowId string) error {

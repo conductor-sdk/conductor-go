@@ -1,111 +1,104 @@
 package workflow_e2e
 
 import (
+	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/conductor-sdk/conductor-go/examples"
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
+	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/worker"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e/http_client_e2e_properties"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var taskRunner = worker.NewTaskRunnerWithApiClient(e2e_properties.API_CLIENT)
 var workflowExecutor = executor.NewWorkflowExecutor(e2e_properties.API_CLIENT)
 
 var (
-	workflows = []*workflow.ConductorWorkflow{
-		HTTP_WORKFLOW,
-		SIMPLE_WORKFLOW,
-	}
-)
-
-var (
-	HTTP_TASK_WORKFLOW_NAME = "GO_WORKFLOW_WITH_HTTP_TASK"
-	HTTP_TASK_NAME          = "GO_TASK_OF_HTTP_TYPE"
-
-	HTTP_TASK = workflow.NewHttpTask(
-		HTTP_TASK_NAME,
+	httpTask = workflow.NewHttpTask(
+		"GO_TASK_OF_HTTP_TYPE",
 		&workflow.HttpInput{
 			Uri: "https://catfact.ninja/fact",
 		},
 	)
 
-	HTTP_WORKFLOW = workflow.NewConductorWorkflow(workflowExecutor).
-			Name(HTTP_TASK_WORKFLOW_NAME).
-			Version(1).
-			Add(HTTP_TASK)
+	httpTaskWorkflow = workflow.NewConductorWorkflow(workflowExecutor).
+				Name("GO_WORKFLOW_WITH_HTTP_TASK").
+				Version(1).
+				Add(httpTask)
 )
 
 var (
-	SIMPLE_TASK_WORKFLOW_NAME = "GO_WORKFLOW_WITH_SIMPLE_TASK"
-	SIMPLE_TASK_NAME          = "GO_TASK_OF_SIMPLE_TYPE"
-
-	SIMPLE_TASK = workflow.NewSimpleTask(
-		SIMPLE_TASK_NAME,
-		SIMPLE_TASK_NAME,
+	simpleTask = workflow.NewSimpleTask(
+		http_client_e2e_properties.TASK_NAME,
+		http_client_e2e_properties.TASK_NAME,
 	)
 
-	SIMPLE_WORKFLOW = workflow.NewConductorWorkflow(workflowExecutor).
-			Name(SIMPLE_TASK_WORKFLOW_NAME).
-			Version(1).
-			Add(SIMPLE_TASK)
+	simpleTaskWorkflow = workflow.NewConductorWorkflow(workflowExecutor).
+				Name(http_client_e2e_properties.WORKFLOW_NAME).
+				Version(1).
+				Add(simpleTask)
 )
 
 func init() {
-	log.SetFormatter(&log.JSONFormatter{})
-	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetOutput(os.Stdout)
+	logrus.SetLevel(logrus.DebugLevel)
 }
 
-func TestValidateWorkflowDefinitions(t *testing.T) {
-	for _, conductorWorkflow := range workflows {
-		response, err := conductorWorkflow.Register()
-		if err != nil {
-			t.Error("Response: ", response, ", error: ", err)
-		}
+func TestHttpTask(t *testing.T) {
+	_, err := httpTaskWorkflow.Register()
+	if err != nil {
+		t.Error(err)
+	}
+	workflowExecutionChannel, err := httpTaskWorkflow.Start(nil)
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = waitUntilTimeout(workflowExecutionChannel, 5*time.Second)
+	if err != nil {
+		t.Error(err)
 	}
 }
 
-func TestWorkflowDefExecutionWithSingleStart(t *testing.T) {
-	workflowExecutionChannelList := make(
-		[][]executor.WorkflowExecutionChannel,
-		len(workflows),
-	)
-	for i, conductorWorkflow := range workflows {
-		qty := 5
-		workflowExecutionChannelList[i] = make([]executor.WorkflowExecutionChannel, qty)
-		for j := 0; j < qty; j += 1 {
-			workflowExecutionChannel, err := conductorWorkflow.Start(nil)
-			if err != nil {
-				t.Error(err)
-			}
-			workflowExecutionChannelList[i][j] = workflowExecutionChannel
-		}
+func TestSimpleTask(t *testing.T) {
+	_, err := simpleTaskWorkflow.Register()
+	if err != nil {
+		t.Error(err)
 	}
-
-	taskRunner.StartWorker(
-		SIMPLE_TASK_NAME,
+	workflowExecutionChannel, err := simpleTaskWorkflow.Start(nil)
+	if err != nil {
+		t.Error(err)
+	}
+	err = taskRunner.StartWorker(
+		simpleTask.ReferenceName(),
 		examples.SimpleWorker,
 		http_client_e2e_properties.WORKER_THREAD_COUNT,
 		http_client_e2e_properties.WORKER_POLLING_INTERVAL,
 	)
-
-	for _, channels := range workflowExecutionChannelList {
-		for _, channel := range channels {
-			workflow := <-channel
-			if workflow == nil || workflow.Status != string(task_result_status.COMPLETED) {
-				t.Error()
-			}
-		}
+	if err != nil {
+		t.Error(err)
 	}
-
+	_, err = waitUntilTimeout(workflowExecutionChannel, 5*time.Second)
+	if err != nil {
+		t.Error(err)
+	}
 	taskRunner.RemoveWorker(
-		SIMPLE_WORKFLOW.GetName(),
+		simpleTask.ReferenceName(),
 		http_client_e2e_properties.WORKER_THREAD_COUNT,
 	)
+}
+
+func waitUntilTimeout(channel executor.WorkflowExecutionChannel, timeout time.Duration) (*http_model.Workflow, error) {
+	select {
+	case value := <-channel:
+		return value, nil
+	case <-time.After(timeout):
+		return nil, fmt.Errorf("timeout waiting for channel")
+	}
 }

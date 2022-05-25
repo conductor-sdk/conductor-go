@@ -10,7 +10,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	"github.com/conductor-sdk/conductor-go/pkg/worker"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -28,9 +28,9 @@ var (
 )
 
 func init() {
-	log.SetFormatter(&log.JSONFormatter{})
-	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetOutput(os.Stdout)
+	logrus.SetLevel(logrus.DebugLevel)
 }
 
 func main() {

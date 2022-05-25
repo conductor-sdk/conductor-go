@@ -11,7 +11,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e/http_client_e2e_properties"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -32,12 +32,12 @@ const (
 )
 
 func init() {
-	log.SetFormatter(&log.JSONFormatter{})
-	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetOutput(os.Stdout)
+	logrus.SetLevel(logrus.DebugLevel)
 }
 
-func TestBenchmark(t *testing.T) {
+func benchmark(t *testing.T) {
 	for exponent := 0; exponent < 3; exponent += 1 {
 		qty := 1 << exponent
 		taskRunner.StartWorker(

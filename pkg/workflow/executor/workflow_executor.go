@@ -18,10 +18,16 @@ type WorkflowExecutor struct {
 }
 
 func NewWorkflowExecutor(apiClient *conductor_http_client.APIClient) *WorkflowExecutor {
-	workflowClient := &conductor_http_client.WorkflowResourceApiService{apiClient}
+	workflowClient := &conductor_http_client.WorkflowResourceApiService{
+		APIClient: apiClient,
+	}
 	workflowExecutor := WorkflowExecutor{
-		metadataClient:  &conductor_http_client.MetadataResourceApiService{apiClient},
-		taskClient:      &conductor_http_client.TaskResourceApiService{apiClient},
+		metadataClient: &conductor_http_client.MetadataResourceApiService{
+			APIClient: apiClient,
+		},
+		taskClient: &conductor_http_client.TaskResourceApiService{
+			APIClient: apiClient,
+		},
 		workflowClient:  workflowClient,
 		workflowMonitor: NewWorkflowMonitor(workflowClient),
 	}
@@ -63,23 +69,36 @@ func (e *WorkflowExecutor) RegisterWorkflow(workflow *http_model.WorkflowDef) (*
 }
 
 func (e *WorkflowExecutor) startWorkflow(name string, version int32, input interface{}) (string, error) {
+	inputAsMap, err := getInputAsMap(input)
+	if err != nil {
+		return "", err
+	}
 	startWorkflowRequest := http_model.StartWorkflowRequest{
 		Name:    name,
 		Version: version,
-		Input:   getInputAsMap(input),
+		Input:   inputAsMap,
 	}
-	workflowId, _, err := e.workflowClient.StartWorkflow1(
+	workflowId, response, err := e.workflowClient.StartWorkflow1(
 		context.Background(),
 		startWorkflowRequest,
 	)
 	if err != nil {
+		logrus.Debug(
+			"Failed to start workflow",
+			", reason: ", err.Error(),
+			", name: ", name,
+			", version: ", version,
+			", input: ", input,
+			", workflowId: ", workflowId,
+			", response: ", response,
+		)
 		return "", err
 	}
 	logrus.Debug(
 		"Started workflow",
 		", name: ", name,
 		", version: ", version,
-		", input: ", getInputAsMap(input),
+		", input: ", input,
 		", workflowId: ", workflowId,
 	)
 	return workflowId, err

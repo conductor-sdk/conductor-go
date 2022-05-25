@@ -24,7 +24,7 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -216,10 +216,10 @@ func (c *APIClient) mustRefreshToken() bool {
 }
 
 func (c *APIClient) refreshToken() {
-	log.Debug("Refreshing authentication token")
+	logrus.Debug("Refreshing authentication token")
 	token, response, err := c.getToken()
 	if err != nil {
-		log.Warn(
+		logrus.Warning(
 			"Failed to refresh authentication token",
 			", response: ", response,
 			", error: ", err,
