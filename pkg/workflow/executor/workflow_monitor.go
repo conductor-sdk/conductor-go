@@ -17,13 +17,8 @@ type WorkflowExecutionChannel chan *http_model.Workflow
 type WorkflowMonitor struct {
 	mutex                        sync.Mutex
 	refreshInterval              time.Duration
-	executionChannelByWorkflowId map[string]executionChannel
+	executionChannelByWorkflowId map[string]WorkflowExecutionChannel
 	workflowClient               *conductor_http_client.WorkflowResourceApiService
-}
-
-type executionChannel struct {
-	ClientWorkflowExecutionChannel  WorkflowExecutionChannel
-	TimeoutWorkflowExecutionChannel chan bool
 }
 
 const (
@@ -31,14 +26,22 @@ const (
 )
 
 func NewWorkflowMonitor(workflowClient *conductor_http_client.WorkflowResourceApiService) *WorkflowMonitor {
-	return &WorkflowMonitor{
+	workflowMonitor := &WorkflowMonitor{
 		refreshInterval:              defaultMonitorRunningWorkflowsRefreshInterval,
-		executionChannelByWorkflowId: make(map[string]executionChannel),
+		executionChannelByWorkflowId: make(map[string]WorkflowExecutionChannel),
 		workflowClient:               workflowClient,
 	}
+	go workflowMonitor.monitorRunningWorkflowsDaemon()
+	return workflowMonitor
 }
 
-func (w *WorkflowMonitor) MonitorRunningWorkflows() {
+func (w *WorkflowMonitor) GenerateWorkflowExecutionChannel(workflowId string) (WorkflowExecutionChannel, error) {
+	channel := make(WorkflowExecutionChannel, 1)
+	w.addWorkflowExecutionChannel(workflowId, channel)
+	return channel, nil
+}
+
+func (w *WorkflowMonitor) monitorRunningWorkflowsDaemon() {
 	defer concurrency.HandlePanicError("monitor_running_workflows")
 	for {
 		err := w.monitorRunningWorkflows()
@@ -50,39 +53,6 @@ func (w *WorkflowMonitor) MonitorRunningWorkflows() {
 		}
 		time.Sleep(w.refreshInterval)
 	}
-}
-
-func (w *WorkflowMonitor) GenerateWorkflowExecutionChannel(workflowId string) (WorkflowExecutionChannel, error) {
-	workflowExecutionChannel := make(WorkflowExecutionChannel, 1)
-	w.addWorkflowExecutionChannel(
-		workflowId,
-		executionChannel{
-			ClientWorkflowExecutionChannel:  workflowExecutionChannel,
-			TimeoutWorkflowExecutionChannel: nil,
-		},
-	)
-	return workflowExecutionChannel, nil
-}
-
-func (w *WorkflowMonitor) GenerateWorkflowExecutionChannelWithTimeout(workflowId string, timeout time.Duration) (WorkflowExecutionChannel, error) {
-	workflowExecutionChannel := make(WorkflowExecutionChannel, 1)
-	timeoutExecutionChannel := make(chan bool, 1)
-	err := w.addWorkflowExecutionChannel(
-		workflowId,
-		executionChannel{
-			ClientWorkflowExecutionChannel:  workflowExecutionChannel,
-			TimeoutWorkflowExecutionChannel: timeoutExecutionChannel,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	go w.waitForWorkflowCompletionUntilTimeout(
-		workflowId,
-		timeoutExecutionChannel,
-		timeout,
-	)
-	return workflowExecutionChannel, nil
 }
 
 func (w *WorkflowMonitor) monitorRunningWorkflows() error {
@@ -120,37 +90,17 @@ func (w *WorkflowMonitor) getWorkflowsInTerminalState() ([]*http_model.Workflow,
 			)
 			return nil, err
 		}
-		if isWorkflowInTerminalState(&workflow) {
+		if IsWorkflowInTerminalState(&workflow) {
 			workflowsInTerminalState = append(workflowsInTerminalState, &workflow)
 		}
 	}
 	return workflowsInTerminalState, nil
 }
 
-func (w *WorkflowMonitor) waitForWorkflowCompletionUntilTimeout(workflowId string, timeoutWorkflowExecutionChannel chan bool, timeout time.Duration) {
-	defer concurrency.HandlePanicError("wait_for_workflow_completion_until_timeout")
-	select {
-	case <-timeoutWorkflowExecutionChannel:
-		logrus.Debug(
-			"Signal received from workflowId: ", workflowId,
-			", stop waiting for completion",
-		)
-	case <-time.After(timeout):
-		logrus.Debug(
-			fmt.Sprint(
-				"Timeout waiting for completion of workflow",
-				", with id: ", workflowId,
-			),
-		)
-		w.notifyFinishedWorkflow(workflowId, nil)
-		break
-	}
-}
-
-func (w *WorkflowMonitor) addWorkflowExecutionChannel(workflowId string, ec executionChannel) error {
+func (w *WorkflowMonitor) addWorkflowExecutionChannel(workflowId string, executionChannel WorkflowExecutionChannel) error {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
-	w.executionChannelByWorkflowId[workflowId] = ec
+	w.executionChannelByWorkflowId[workflowId] = executionChannel
 	logrus.Debug(
 		fmt.Sprint(
 			"Added workflow execution channel",
@@ -180,22 +130,11 @@ func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *ht
 	if !ok {
 		return fmt.Errorf("execution channel not found for workflowId: %s", workflowId)
 	}
-	executionChannel.ClientWorkflowExecutionChannel <- workflow
-	logrus.Debug("Sent workflow through client channel")
-	executionChannel.TimeoutWorkflowExecutionChannel <- true
-	logrus.Debug("Sent signal to stop waiting for workflow execution")
-	return w.removeExecutionChannel(workflowId)
-}
-
-func (w *WorkflowMonitor) removeExecutionChannel(workflowId string) error {
-	w.mutex.Lock()
-	defer w.mutex.Unlock()
+	executionChannel <- workflow
+	logrus.Debug("Sent finished workflow through channel")
+	close(executionChannel)
+	logrus.Debug("Closed client workflow execution channel")
 	delete(w.executionChannelByWorkflowId, workflowId)
-	logrus.Debug(
-		fmt.Sprint(
-			"Deleted workflow execution channel",
-			", workflowId: ", workflowId,
-		),
-	)
+	logrus.Debug("Deleted workflow execution channel")
 	return nil
 }

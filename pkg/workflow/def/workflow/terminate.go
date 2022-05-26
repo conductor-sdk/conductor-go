@@ -1,8 +1,6 @@
 package workflow
 
-import (
-	workflow_status "github.com/conductor-sdk/conductor-go/pkg/model/enum"
-)
+import "github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 
 type TerminateTask struct {
 	Task

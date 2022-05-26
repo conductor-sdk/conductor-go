@@ -3,7 +3,6 @@ package executor
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
@@ -31,32 +30,23 @@ func NewWorkflowExecutor(apiClient *conductor_http_client.APIClient) *WorkflowEx
 		workflowClient:  workflowClient,
 		workflowMonitor: NewWorkflowMonitor(workflowClient),
 	}
-	go workflowExecutor.workflowMonitor.MonitorRunningWorkflows()
 	return &workflowExecutor
 }
 
-func (e *WorkflowExecutor) ExecuteWorkflow(name string, version int32, input interface{}) (WorkflowExecutionChannel, error) {
+func (e *WorkflowExecutor) ExecuteWorkflow(name string, version int32, input interface{}) (string, WorkflowExecutionChannel, error) {
 	workflowId, err := e.startWorkflow(
 		name,
 		version,
 		input,
 	)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
-	return e.workflowMonitor.GenerateWorkflowExecutionChannel(workflowId)
-}
-
-func (e *WorkflowExecutor) ExecuteWorkflowWithTimeout(name string, version int32, input interface{}, timeout time.Duration) (WorkflowExecutionChannel, error) {
-	workflowId, err := e.startWorkflow(
-		name,
-		version,
-		input,
-	)
+	executionChannel, err := e.workflowMonitor.GenerateWorkflowExecutionChannel(workflowId)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
-	return e.workflowMonitor.GenerateWorkflowExecutionChannelWithTimeout(workflowId, timeout)
+	return workflowId, executionChannel, nil
 }
 
 func (e *WorkflowExecutor) RegisterWorkflow(workflow *http_model.WorkflowDef) (*http.Response, error) {
@@ -69,7 +59,7 @@ func (e *WorkflowExecutor) RegisterWorkflow(workflow *http_model.WorkflowDef) (*
 }
 
 func (e *WorkflowExecutor) startWorkflow(name string, version int32, input interface{}) (string, error) {
-	inputAsMap, err := getInputAsMap(input)
+	inputAsMap, err := GetInputAsMap(input)
 	if err != nil {
 		return "", err
 	}
@@ -96,10 +86,10 @@ func (e *WorkflowExecutor) startWorkflow(name string, version int32, input inter
 	}
 	logrus.Debug(
 		"Started workflow",
+		", workflowId: ", workflowId,
 		", name: ", name,
 		", version: ", version,
 		", input: ", input,
-		", workflowId: ", workflowId,
 	)
 	return workflowId, err
 }

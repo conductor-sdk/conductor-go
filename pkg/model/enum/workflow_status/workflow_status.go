@@ -10,3 +10,12 @@ const (
 	TERMINATED WorkflowStatus = "TERMINATED"
 	PAUSED     WorkflowStatus = "PAUSED"
 )
+
+var (
+	WorkflowTerminalStates = []WorkflowStatus{
+		COMPLETED,
+		FAILED,
+		TIMED_OUT,
+		TERMINATED,
+	}
+)
