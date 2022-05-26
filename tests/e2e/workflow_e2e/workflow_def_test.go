@@ -54,26 +54,26 @@ func init() {
 func TestHttpTask(t *testing.T) {
 	_, err := httpTaskWorkflow.Register()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	workflowExecutionChannel, err := httpTaskWorkflow.Start(nil)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	_, err = waitUntilTimeout(workflowExecutionChannel, 5*time.Second)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 }
 
 func TestSimpleTask(t *testing.T) {
 	_, err := simpleTaskWorkflow.Register()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	workflowExecutionChannel, err := simpleTaskWorkflow.Start(nil)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	err = taskRunner.StartWorker(
 		simpleTask.ReferenceName(),
@@ -82,11 +82,11 @@ func TestSimpleTask(t *testing.T) {
 		http_client_e2e_properties.WORKER_POLLING_INTERVAL,
 	)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	_, err = waitUntilTimeout(workflowExecutionChannel, 5*time.Second)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	taskRunner.RemoveWorker(
 		simpleTask.ReferenceName(),

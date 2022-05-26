@@ -17,9 +17,9 @@ var taskClient = conductor_http_client.TaskResourceApiService{
 func TestUpdateTaskRefByName(t *testing.T) {
 	workflowId, response, err := StartWorkflow(http_client_e2e_properties.WORKFLOW_NAME)
 	if err != nil {
-		t.Error(
+		t.Fatal(
 			"workflowId: ", workflowId,
-			", response:, ", response,
+			", response:, ", *response,
 			", error: ", err.Error(),
 		)
 	}
@@ -31,22 +31,22 @@ func TestUpdateTaskRefByName(t *testing.T) {
 		string(task_result_status.COMPLETED),
 	)
 	if err != nil {
-		t.Error(
+		t.Fatal(
 			"value: ", value,
-			", response:, ", response,
+			", response:, ", *response,
 			", error: ", err.Error(),
 		)
 	}
 	workflow, response, err := GetWorkflowExecutionStatus(workflowId)
 	if err != nil {
-		t.Error(
+		t.Fatal(
 			"workflow: ", workflow,
-			", response:, ", response,
+			", response:, ", *response,
 			", error: ", err.Error(),
 		)
 	}
 	if workflow.Status != string(task_result_status.COMPLETED) {
-		t.Error(
+		t.Fatal(
 			"Workflow status is not completed: ", workflow.Status,
 		)
 	}
