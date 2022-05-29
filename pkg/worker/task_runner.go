@@ -180,7 +180,7 @@ func (c *TaskRunner) batchPoll(taskType string, count int, pollingInterval int, 
 	if response.StatusCode == 204 {
 		return nil
 	}
-	log.Debug("Polled tasks: ", tasks)
+	log.Debug("Polled tasks: ", len(tasks), " for taskType ", taskType)
 	return tasks
 }
 
