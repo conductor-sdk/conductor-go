@@ -141,7 +141,7 @@ func (c *TaskRunner) runBatch(taskType string, executeFunction model.TaskExecute
 	}
 	if batchSize < 1 {
 		// TODO wait until there is available workers
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(1 * time.Millisecond)
 		return false, nil
 	}
 	tasks, err := c.batchPoll(taskType, batchSize, pollInterval, domain)
