@@ -54,12 +54,23 @@ func NewTaskRunnerWithApiClient(
 	}
 }
 
+// StartWorkerWithDomain
+//  - taskType Task Type to poll and execute the work
+//  - executeFunction Task execution function
+//  - batchSize No. of tasks to poll for.  Each polled task is executed in a goroutine.  Batching improves the throughput
+//  - pollInterval Time to wait for between polls if there are no tasks available.  Reduces excessive polling on the server when there is no work
+//  - domain Task domain. Optional for polling
 func (c *TaskRunner) StartWorkerWithDomain(taskType string, executeFunction model.TaskExecuteFunction, threadCount int, pollInterval time.Duration, domain string) error {
 	return c.startWorker(taskType, executeFunction, threadCount, pollInterval, domain)
 }
 
-func (c *TaskRunner) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, threadCount int, pollInterval time.Duration) error {
-	return c.startWorker(taskType, executeFunction, threadCount, pollInterval, "")
+// StartWorker
+//  - taskType Task Type to poll and execute the work
+//  - executeFunction Task execution function
+//  - batchSize No. of tasks to poll for.  Each polled task is executed in a goroutine.  Batching improves the throughput
+//  - pollInterval Time to wait for between polls if there are no tasks available.  Reduces excessive polling on the server when there is no work
+func (c *TaskRunner) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, batchSize int, pollInterval time.Duration) error {
+	return c.startWorker(taskType, executeFunction, batchSize, pollInterval, "")
 }
 
 func (c *TaskRunner) RemoveWorker(taskType string, threadCount int) error {
@@ -105,7 +116,7 @@ func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExec
 func (c *TaskRunner) pollAndExecute(taskType string, executeFunction model.TaskExecuteFunction, pollInterval time.Duration, domain optional.String) error {
 	defer concurrency.HandlePanicError("poll_and_execute")
 	for c.isWorkerAlive(taskType) {
-		err := c.runBatch(taskType, executeFunction, pollInterval, domain)
+		isTaskQueueEmpty, err := c.runBatch(taskType, executeFunction, pollInterval, domain)
 		if err != nil {
 			logrus.Warning(
 				"Failed to poll and execute",
@@ -114,36 +125,37 @@ func (c *TaskRunner) pollAndExecute(taskType string, executeFunction model.TaskE
 				", pollInterval: ", pollInterval.Milliseconds(), "ms",
 				", domain: ", domain,
 			)
+		} else if isTaskQueueEmpty {
+			logrus.Debug("No tasks available for: ", taskType)
+			time.Sleep(pollInterval)
 		}
 	}
 	c.workerWaitGroup.Done()
 	return nil
 }
 
-func (c *TaskRunner) runBatch(taskType string, executeFunction model.TaskExecuteFunction, pollInterval time.Duration, domain optional.String) error {
+func (c *TaskRunner) runBatch(taskType string, executeFunction model.TaskExecuteFunction, pollInterval time.Duration, domain optional.String) (bool, error) {
 	batchSize, err := c.getAvailableWorkerAmount(taskType)
 	if err != nil {
-		return err
+		return false, err
 	}
 	if batchSize < 1 {
-		logrus.Debug("No available worker for task: ", taskType)
-		time.Sleep(pollInterval)
-		return nil
+		// TODO wait until there is available workers
+		time.Sleep(10 * time.Millisecond)
+		return false, nil
 	}
 	tasks, err := c.batchPoll(taskType, batchSize, pollInterval, domain)
 	if err != nil {
-		return err
+		return false, err
 	}
 	if len(tasks) < 1 {
-		logrus.Debug("No tasks polled for task: ", taskType)
-		time.Sleep(pollInterval)
-		return nil
+		return true, nil
 	}
 	c.increaseRunningWorkers(taskType, len(tasks))
 	for _, task := range tasks {
 		go c.executeAndUpdateTask(taskType, task, executeFunction)
 	}
-	return nil
+	return false, nil
 }
 
 func (c *TaskRunner) executeAndUpdateTask(taskType string, task http_model.Task, executeFunction model.TaskExecuteFunction) error {
@@ -190,7 +202,7 @@ func (c *TaskRunner) batchPoll(taskType string, count int, timeout time.Duration
 	if response.StatusCode == 204 {
 		return nil, nil
 	}
-	logrus.Debug(fmt.Sprintf("Polled tasks: %+v", tasks))
+	logrus.Debug("Polled tasks: ", len(tasks), " for taskType ", taskType)
 	return tasks, nil
 }
 
@@ -247,9 +259,7 @@ func (c *TaskRunner) _updateTask(taskType string, taskResult *http_model.TaskRes
 		)
 		return err
 	}
-	logrus.Debug(
-		fmt.Sprintf("Updated task: %+v", *taskResult),
-	)
+	logrus.Debug("Updated task: ", taskResult.TaskId, ",", taskResult.Status)
 	return nil
 }
 
