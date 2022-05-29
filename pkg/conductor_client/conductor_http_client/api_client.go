@@ -592,17 +592,25 @@ func (c *APIClient) prepareRefreshTokenRequest(
 }
 
 func getDecompressedBody(response *http.Response) ([]byte, error) {
+
 	defer response.Body.Close()
-	if response.Uncompressed {
-		return ioutil.ReadAll(response.Body)
-	}
-	reader, err := gzip.NewReader(response.Body)
-	if err != nil {
-		if err == io.EOF {
-			return nil, nil
+	var reader io.ReadCloser
+	var err error
+	switch response.Header.Get("Content-Encoding") {
+	case "gzip":
+		log.Info("Data is compressed, going to un-compress")
+		reader, err = gzip.NewReader(response.Body)
+		if err != nil {
+			log.Error("Unable to decompress the response ", err.Error())
+			if err == io.EOF {
+				return nil, nil
+			}
+			return nil, err
 		}
-		return nil, err
+	default:
+		reader = response.Body
 	}
 	defer reader.Close()
 	return ioutil.ReadAll(reader)
+
 }
