@@ -50,7 +50,7 @@ func NewAPIClient(
 
 	baseDialer := &net.Dialer{
 		Timeout:   30 * time.Second,
-		KeepAlive: 3 * time.Minute,
+		KeepAlive: 30 * time.Second,
 	}
 
 	netTransport := &http.Transport{

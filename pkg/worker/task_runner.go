@@ -58,8 +58,13 @@ func (c *TaskRunner) StartWorkerWithDomain(taskType string, executeFunction mode
 	c.startWorker(taskType, executeFunction, threadCount, pollIntervalInMillis, domain)
 }
 
-func (c *TaskRunner) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, threadCount int, pollIntervalInMillis int) {
-	c.startWorker(taskType, executeFunction, threadCount, pollIntervalInMillis, "")
+// StartWorker
+//  - taskType Task Type to poll and execute the work
+//  - executeFunction Task execution function
+//  - batchSize No. of tasks to poll for.  Each polled task is executed in a goroutine.  Batching improves the throughput
+//  - pollIntervalInMillis Time to wait for between polls if there are no tasks available.  Reduces excessive polling on the server when there is no work
+func (c *TaskRunner) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, batchSize int, pollIntervalInMillis int) {
+	c.startWorker(taskType, executeFunction, batchSize, pollIntervalInMillis, "")
 }
 
 func (c *TaskRunner) RemoveWorker(taskType string, threadCount int) {
@@ -113,12 +118,12 @@ func (c *TaskRunner) pollAndExecute(taskType string, executeFunction model.TaskE
 func (c *TaskRunner) runBatch(taskType string, executeFunction model.TaskExecuteFunction, pollingInterval int, domain optional.String) {
 	batchSize := c.getAvailableWorkerAmount(taskType)
 	if batchSize < 1 {
-		log.Debug("No available worker for task: ", taskType)
-		sleep(pollingInterval)
+		sleep(1)
 		return
 	}
 	tasks := c.batchPoll(taskType, batchSize, pollingInterval, domain)
 	if len(tasks) < 1 {
+		log.Debug("No tasks available for: ", taskType)
 		sleep(pollingInterval)
 		return
 	}
@@ -228,7 +233,7 @@ func (c *TaskRunner) _updateTask(taskType string, taskResult *http_model.TaskRes
 		metrics_counter.IncrementTaskUpdateError(taskType, err)
 		return err
 	}
-	log.Debug("Updated task: ", *taskResult)
+	log.Debug("Updated task: ", (*taskResult).TaskId, ",", (*taskResult).Status)
 	return nil
 }
 
@@ -261,7 +266,7 @@ func (c *TaskRunner) increaseRunningWorkers(taskType string, amount int) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.runningWorkersByTaskType[taskType] += amount
-	log.Debug("Increased running workers of task: ", taskType, ", by: ", amount)
+	log.Trace("Increased running workers of task: ", taskType, ", by: ", amount)
 }
 
 func (c *TaskRunner) runningWorkerDone(taskType string) {
