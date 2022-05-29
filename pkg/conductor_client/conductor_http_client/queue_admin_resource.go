@@ -32,7 +32,7 @@ func (a *QueueAdminResourceApiService) Names(ctx context.Context) (map[string]st
 	)
 
 	// create path and map variables
-	localVarPath := "/api/queue/"
+	localVarPath := "/queue/"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -115,7 +115,7 @@ func (a *QueueAdminResourceApiService) Size1(ctx context.Context) (map[string]in
 	)
 
 	// create path and map variables
-	localVarPath := "/api/queue/size"
+	localVarPath := "/queue/size"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -201,7 +201,7 @@ func (a *QueueAdminResourceApiService) Update1(ctx context.Context, body map[str
 	)
 
 	// create path and map variables
-	localVarPath := "/api/queue/update/{workflowId}/{taskRefName}/{status}"
+	localVarPath := "/queue/update/{workflowId}/{taskRefName}/{status}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"taskRefName"+"}", fmt.Sprintf("%v", taskRefName), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"status"+"}", fmt.Sprintf("%v", status), -1)
@@ -274,7 +274,7 @@ func (a *QueueAdminResourceApiService) UpdateByTaskId(ctx context.Context, body 
 	)
 
 	// create path and map variables
-	localVarPath := "/api/queue/update/{workflowId}/task/{taskId}/{status}"
+	localVarPath := "/queue/update/{workflowId}/task/{taskId}/{status}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"status"+"}", fmt.Sprintf("%v", status), -1)

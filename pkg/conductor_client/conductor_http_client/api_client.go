@@ -237,7 +237,7 @@ func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
 		localVarFileBytes   []byte
 		localVarReturnValue http_model.Token
 	)
-	localVarPath := "/api/token"
+	localVarPath := "/token"
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}

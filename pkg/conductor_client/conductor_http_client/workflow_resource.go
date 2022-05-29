@@ -35,7 +35,7 @@ func (a *WorkflowResourceApiService) Decide(ctx context.Context, workflowId stri
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/decide/{workflowId}"
+	localVarPath := "/workflow/decide/{workflowId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -108,7 +108,7 @@ func (a *WorkflowResourceApiService) Delete(ctx context.Context, workflowId stri
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/remove"
+	localVarPath := "/workflow/{workflowId}/remove"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -185,7 +185,7 @@ func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, wor
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}"
+	localVarPath := "/workflow/{workflowId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -275,7 +275,7 @@ func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Cont
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/externalstoragelocation"
+	localVarPath := "/workflow/externalstoragelocation"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -373,7 +373,7 @@ func (a *WorkflowResourceApiService) GetRunningWorkflow(ctx context.Context, nam
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/running/{name}"
+	localVarPath := "/workflow/running/{name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -477,7 +477,7 @@ func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []st
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{name}/correlated"
+	localVarPath := "/workflow/{name}/correlated"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -580,7 +580,7 @@ func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name str
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{name}/correlated/{correlationId}"
+	localVarPath := "/workflow/{name}/correlated/{correlationId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"correlationId"+"}", fmt.Sprintf("%v", correlationId), -1)
 
@@ -671,7 +671,7 @@ func (a *WorkflowResourceApiService) PauseWorkflow(ctx context.Context, workflow
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/pause"
+	localVarPath := "/workflow/{workflowId}/pause"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -739,7 +739,7 @@ func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body http_model.
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/rerun"
+	localVarPath := "/workflow/{workflowId}/rerun"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -825,7 +825,7 @@ func (a *WorkflowResourceApiService) ResetWorkflow(ctx context.Context, workflow
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/resetcallbacks"
+	localVarPath := "/workflow/{workflowId}/resetcallbacks"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -898,7 +898,7 @@ func (a *WorkflowResourceApiService) Restart(ctx context.Context, workflowId str
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/restart"
+	localVarPath := "/workflow/{workflowId}/restart"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -967,7 +967,7 @@ func (a *WorkflowResourceApiService) ResumeWorkflow(ctx context.Context, workflo
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/resume"
+	localVarPath := "/workflow/{workflowId}/resume"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1040,7 +1040,7 @@ func (a *WorkflowResourceApiService) Retry(ctx context.Context, workflowId strin
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/retry"
+	localVarPath := "/workflow/{workflowId}/retry"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1125,7 +1125,7 @@ func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptiona
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/search"
+	localVarPath := "/workflow/search"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1239,7 +1239,7 @@ func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptio
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/search-v2"
+	localVarPath := "/workflow/search-v2"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1353,7 +1353,7 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context,
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/search-by-tasks"
+	localVarPath := "/workflow/search-by-tasks"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1467,7 +1467,7 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Contex
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/search-by-tasks-v2"
+	localVarPath := "/workflow/search-by-tasks-v2"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1567,7 +1567,7 @@ func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, w
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/skiptask/{taskReferenceName}"
+	localVarPath := "/workflow/{workflowId}/skiptask/{taskReferenceName}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"taskReferenceName"+"}", fmt.Sprintf("%v", taskReferenceName), -1)
 
@@ -1648,7 +1648,7 @@ func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{name}"
+	localVarPath := "/workflow/{name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1744,7 +1744,7 @@ func (a *WorkflowResourceApiService) StartWorkflow1(ctx context.Context, body ht
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow"
+	localVarPath := "/workflow"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1836,7 +1836,7 @@ func (a *WorkflowResourceApiService) Terminate1(ctx context.Context, workflowId 
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}"
+	localVarPath := "/workflow/{workflowId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)

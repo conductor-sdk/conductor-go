@@ -35,7 +35,7 @@ func (a *TaskResourceApiService) All(ctx context.Context) (map[string]int64, *ht
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/queue/all"
+	localVarPath := "/tasks/queue/all"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -118,7 +118,7 @@ func (a *TaskResourceApiService) AllVerbose(ctx context.Context) (map[string]map
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/queue/all/verbose"
+	localVarPath := "/tasks/queue/all/verbose"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -215,7 +215,7 @@ func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string,
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/poll/batch/{tasktype}"
+	localVarPath := "/tasks/poll/batch/{tasktype}"
 	localVarPath = strings.Replace(localVarPath, "{"+"tasktype"+"}", fmt.Sprintf("%v", tasktype), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -311,7 +311,7 @@ func (a *TaskResourceApiService) GetAllPollData(ctx context.Context) ([]http_mod
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/queue/polldata/all"
+	localVarPath := "/tasks/queue/polldata/all"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -397,7 +397,7 @@ func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/externalstoragelocation"
+	localVarPath := "/tasks/externalstoragelocation"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -484,7 +484,7 @@ func (a *TaskResourceApiService) GetPollData(ctx context.Context, taskType strin
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/queue/polldata"
+	localVarPath := "/tasks/queue/polldata"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -569,7 +569,7 @@ func (a *TaskResourceApiService) GetTask(ctx context.Context, taskId string) (ht
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/{taskId}"
+	localVarPath := "/tasks/{taskId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -654,7 +654,7 @@ func (a *TaskResourceApiService) GetTaskLogs(ctx context.Context, taskId string)
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/{taskId}/log"
+	localVarPath := "/tasks/{taskId}/log"
 	localVarPath = strings.Replace(localVarPath, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -739,7 +739,7 @@ func (a *TaskResourceApiService) Log(ctx context.Context, body string, taskId st
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/{taskId}/log"
+	localVarPath := "/tasks/{taskId}/log"
 	localVarPath = strings.Replace(localVarPath, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -817,7 +817,7 @@ func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, loca
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/poll/{tasktype}"
+	localVarPath := "/tasks/poll/{tasktype}"
 	localVarPath = strings.Replace(localVarPath, "{"+"tasktype"+"}", fmt.Sprintf("%v", tasktype), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -908,7 +908,7 @@ func (a *TaskResourceApiService) RequeuePendingTask(ctx context.Context, taskTyp
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/queue/requeue/{taskType}"
+	localVarPath := "/tasks/queue/requeue/{taskType}"
 	localVarPath = strings.Replace(localVarPath, "{"+"taskType"+"}", fmt.Sprintf("%v", taskType), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1008,7 +1008,7 @@ func (a *TaskResourceApiService) Search1(ctx context.Context, localVarOptionals 
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/search"
+	localVarPath := "/tasks/search"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1122,7 +1122,7 @@ func (a *TaskResourceApiService) SearchV21(ctx context.Context, localVarOptional
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/search-v2"
+	localVarPath := "/tasks/search-v2"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1227,7 +1227,7 @@ func (a *TaskResourceApiService) Size(ctx context.Context, localVarOptionals *Ta
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/queue/sizes"
+	localVarPath := "/tasks/queue/sizes"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1314,7 +1314,7 @@ func (a *TaskResourceApiService) UpdateTask(ctx context.Context, taskResult *htt
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks"
+	localVarPath := "/tasks"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1404,7 +1404,7 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/{workflowId}/{taskRefName}/{status}"
+	localVarPath := "/tasks/{workflowId}/{taskRefName}/{status}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"taskRefName"+"}", fmt.Sprintf("%v", taskRefName), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"status"+"}", fmt.Sprintf("%v", status), -1)
