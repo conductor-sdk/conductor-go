@@ -24,7 +24,7 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -216,10 +216,10 @@ func (c *APIClient) mustRefreshToken() bool {
 }
 
 func (c *APIClient) refreshToken() {
-	logrus.Debug("Refreshing authentication token")
+	log.Debug("Refreshing authentication token")
 	token, response, err := c.getToken()
 	if err != nil {
-		logrus.Warning(
+		log.Warning(
 			"Failed to refresh authentication token",
 			", response: ", response,
 			", error: ", err,
@@ -598,10 +598,10 @@ func getDecompressedBody(response *http.Response) ([]byte, error) {
 	var err error
 	switch response.Header.Get("Content-Encoding") {
 	case "gzip":
-		logrus.Info("Data is compressed, going to un-compress")
+		log.Info("Data is compressed, going to un-compress")
 		reader, err = gzip.NewReader(response.Body)
 		if err != nil {
-			logrus.Error("Unable to decompress the response ", err.Error())
+			log.Error("Unable to decompress the response ", err.Error())
 			if err == io.EOF {
 				return nil, nil
 			}

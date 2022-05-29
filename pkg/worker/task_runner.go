@@ -16,7 +16,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type TaskRunner struct {
@@ -105,7 +105,7 @@ func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExec
 		c.workerWaitGroup.Add(1)
 		go c.pollAndExecute(taskType, executeFunction, pollInterval, domain)
 	}
-	logrus.Debug(
+	log.Debug(
 		"Started worker for task: ", taskType,
 		", threadCount / batchSize: ", threadCount,
 		", polling interval: ", pollInterval.Milliseconds(), "ms",
@@ -118,7 +118,7 @@ func (c *TaskRunner) pollAndExecute(taskType string, executeFunction model.TaskE
 	for c.isWorkerAlive(taskType) {
 		isTaskQueueEmpty, err := c.runBatch(taskType, executeFunction, pollInterval, domain)
 		if err != nil {
-			logrus.Warning(
+			log.Warning(
 				"Failed to poll and execute",
 				", reason: ", err.Error(),
 				", taskType: ", taskType,
@@ -126,7 +126,7 @@ func (c *TaskRunner) pollAndExecute(taskType string, executeFunction model.TaskE
 				", domain: ", domain,
 			)
 		} else if isTaskQueueEmpty {
-			logrus.Debug("No tasks available for: ", taskType)
+			log.Debug("No tasks available for: ", taskType)
 			time.Sleep(pollInterval)
 		}
 	}
@@ -172,7 +172,7 @@ func (c *TaskRunner) executeAndUpdateTask(taskType string, task http_model.Task,
 }
 
 func (c *TaskRunner) batchPoll(taskType string, count int, timeout time.Duration, domain optional.String) ([]http_model.Task, error) {
-	logrus.Debug(
+	log.Debug(
 		"Polling for task: ", taskType,
 		", in batches of size: ", count,
 	)
@@ -202,7 +202,7 @@ func (c *TaskRunner) batchPoll(taskType string, count int, timeout time.Duration
 	if response.StatusCode == 204 {
 		return nil, nil
 	}
-	logrus.Debug("Polled tasks: ", len(tasks), " for taskType ", taskType)
+	log.Debug("Polled tasks: ", len(tasks), " for taskType ", taskType)
 	return tasks, nil
 }
 
@@ -224,7 +224,7 @@ func (c *TaskRunner) executeTask(t *http_model.Task, executeFunction model.TaskE
 	if taskResult == nil {
 		return nil, fmt.Errorf("task result cannot be nil")
 	}
-	logrus.Debug(fmt.Sprintf("Polled task: %+v", *t))
+	log.Debug(fmt.Sprintf("Polled task: %+v", *t))
 	return taskResult, nil
 }
 
@@ -250,7 +250,7 @@ func (c *TaskRunner) _updateTask(taskType string, taskResult *http_model.TaskRes
 	)
 	if err != nil {
 		metrics_counter.IncrementTaskUpdateError(taskType, err)
-		logrus.Debug(
+		log.Debug(
 			"Failed to update task",
 			", reason: ", err.Error(),
 			", task type: ", taskType,
@@ -259,7 +259,7 @@ func (c *TaskRunner) _updateTask(taskType string, taskResult *http_model.TaskRes
 		)
 		return err
 	}
-	logrus.Debug("Updated task: ", taskResult.TaskId, ",", taskResult.Status)
+	log.Debug("Updated task: ", taskResult.TaskId, ",", taskResult.Status)
 	return nil
 }
 
@@ -306,7 +306,7 @@ func (c *TaskRunner) increaseRunningWorkers(taskType string, amount int) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.runningWorkersByTaskType[taskType] += amount
-	logrus.Debug("Increased running workers for task: ", taskType, ", by: ", amount)
+	log.Debug("Increased running workers for task: ", taskType, ", by: ", amount)
 	return nil
 }
 
@@ -314,7 +314,7 @@ func (c *TaskRunner) runningWorkerDone(taskType string) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.runningWorkersByTaskType[taskType] -= 1
-	logrus.Debug("Running worker done for task: ", taskType)
+	log.Debug("Running worker done for task: ", taskType)
 	return nil
 }
 
@@ -322,6 +322,6 @@ func (c *TaskRunner) increaseMaxAllowedWorkers(taskType string, threadCount int)
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.maxAllowedWorkersByTaskType[taskType] += threadCount
-	logrus.Debug("Increased max allowed workers of task: ", taskType, ", by: ", threadCount)
+	log.Debug("Increased max allowed workers of task: ", taskType, ", by: ", threadCount)
 	return nil
 }

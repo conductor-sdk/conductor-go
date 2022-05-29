@@ -7,7 +7,7 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 func GetInputAsMap(input interface{}) (map[string]interface{}, error) {
@@ -16,7 +16,7 @@ func GetInputAsMap(input interface{}) (map[string]interface{}, error) {
 	}
 	data, err := json.Marshal(input)
 	if err != nil {
-		logrus.Debug(
+		log.Debug(
 			"Failed to parse input",
 			", reason: ", err.Error(),
 		)

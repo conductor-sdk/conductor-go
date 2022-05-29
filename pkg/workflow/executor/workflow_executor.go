@@ -6,7 +6,7 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type WorkflowExecutor struct {
@@ -73,7 +73,7 @@ func (e *WorkflowExecutor) startWorkflow(name string, version int32, input inter
 		startWorkflowRequest,
 	)
 	if err != nil {
-		logrus.Debug(
+		log.Debug(
 			"Failed to start workflow",
 			", reason: ", err.Error(),
 			", name: ", name,
@@ -84,7 +84,7 @@ func (e *WorkflowExecutor) startWorkflow(name string, version int32, input inter
 		)
 		return "", err
 	}
-	logrus.Debug(
+	log.Debug(
 		"Started workflow",
 		", workflowId: ", workflowId,
 		", name: ", name,

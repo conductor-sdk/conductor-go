@@ -9,7 +9,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type WorkflowExecutionChannel chan *http_model.Workflow
@@ -46,7 +46,7 @@ func (w *WorkflowMonitor) monitorRunningWorkflowsDaemon() {
 	for {
 		err := w.monitorRunningWorkflows()
 		if err != nil {
-			logrus.Warning(
+			log.Warning(
 				"Failed to monitor running workflows",
 				", error: ", err.Error(),
 			)
@@ -82,7 +82,7 @@ func (w *WorkflowMonitor) getWorkflowsInTerminalState() ([]*http_model.Workflow,
 			nil,
 		)
 		if err != nil {
-			logrus.Debug(
+			log.Debug(
 				"Failed to get workflow execution status",
 				", reason: ", err.Error(),
 				", workflowId: ", workflowId,
@@ -101,7 +101,7 @@ func (w *WorkflowMonitor) addWorkflowExecutionChannel(workflowId string, executi
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 	w.executionChannelByWorkflowId[workflowId] = executionChannel
-	logrus.Debug(
+	log.Debug(
 		fmt.Sprint(
 			"Added workflow execution channel",
 			", workflowId: ", workflowId,
@@ -125,16 +125,16 @@ func (w *WorkflowMonitor) getRunningWorkflowIdList() ([]string, error) {
 func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *http_model.Workflow) error {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
-	logrus.Debug(fmt.Sprintf("Notifying finished workflow: %+v", *workflow))
+	log.Debug(fmt.Sprintf("Notifying finished workflow: %+v", *workflow))
 	executionChannel, ok := w.executionChannelByWorkflowId[workflowId]
 	if !ok {
 		return fmt.Errorf("execution channel not found for workflowId: %s", workflowId)
 	}
 	executionChannel <- workflow
-	logrus.Debug("Sent finished workflow through channel")
+	log.Debug("Sent finished workflow through channel")
 	close(executionChannel)
-	logrus.Debug("Closed client workflow execution channel")
+	log.Debug("Closed client workflow execution channel")
 	delete(w.executionChannelByWorkflowId, workflowId)
-	logrus.Debug("Deleted workflow execution channel")
+	log.Debug("Deleted workflow execution channel")
 	return nil
 }

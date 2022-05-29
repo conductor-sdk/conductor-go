@@ -2,7 +2,7 @@ package concurrency
 
 import (
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_counter"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 func HandlePanicError(message string) {
@@ -11,7 +11,7 @@ func HandlePanicError(message string) {
 		return
 	}
 	metrics_counter.IncrementUncaughtException(message)
-	logrus.Warning(
+	log.Warning(
 		"Uncaught panic",
 		", message: ", message,
 		", error: ", err,

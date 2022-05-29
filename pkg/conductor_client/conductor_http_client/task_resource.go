@@ -654,7 +654,7 @@ func (a *TaskResourceApiService) GetTaskLogs(ctx context.Context, taskId string)
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/{taskId}/logrus"
+	localVarPath := "/api/tasks/{taskId}/log"
 	localVarPath = strings.Replace(localVarPath, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -739,7 +739,7 @@ func (a *TaskResourceApiService) Log(ctx context.Context, body string, taskId st
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/{taskId}/logrus"
+	localVarPath := "/api/tasks/{taskId}/log"
 	localVarPath = strings.Replace(localVarPath, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	localVarHeaderParams := make(map[string]string)
