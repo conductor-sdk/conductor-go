@@ -598,7 +598,6 @@ func getDecompressedBody(response *http.Response) ([]byte, error) {
 	var err error
 	switch response.Header.Get("Content-Encoding") {
 	case "gzip":
-		log.Info("Data is compressed, going to un-compress")
 		reader, err = gzip.NewReader(response.Body)
 		if err != nil {
 			log.Error("Unable to decompress the response ", err.Error())

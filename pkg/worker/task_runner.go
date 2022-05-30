@@ -224,7 +224,7 @@ func (c *TaskRunner) executeTask(t *http_model.Task, executeFunction model.TaskE
 	if taskResult == nil {
 		return nil, fmt.Errorf("task result cannot be nil")
 	}
-	log.Debug(fmt.Sprintf("Polled task: %+v", *t))
+	log.Trace(fmt.Sprintf("Polled task: %+v", *t))
 	return taskResult, nil
 }
 
@@ -306,7 +306,7 @@ func (c *TaskRunner) increaseRunningWorkers(taskType string, amount int) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.runningWorkersByTaskType[taskType] += amount
-	log.Debug("Increased running workers for task: ", taskType, ", by: ", amount)
+	log.Trace("Increased running workers for task: ", taskType, ", by: ", amount)
 	return nil
 }
 
@@ -314,7 +314,7 @@ func (c *TaskRunner) runningWorkerDone(taskType string) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.runningWorkersByTaskType[taskType] -= 1
-	log.Debug("Running worker done for task: ", taskType)
+	log.Trace("Running worker done for task: ", taskType)
 	return nil
 }
 
