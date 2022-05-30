@@ -5,13 +5,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func OnError(message string) {
-	if err := recover(); err != nil {
-		metrics_counter.IncrementUncaughtException(message)
-		log.Error(
-			"Uncaught error",
-			", message: ", message,
-			", error: ", err,
-		)
+func HandlePanicError(message string) {
+	err := recover()
+	if err == nil {
+		return
 	}
+	metrics_counter.IncrementUncaughtException(message)
+	log.Warning(
+		"Uncaught panic",
+		", message: ", message,
+		", error: ", err,
+	)
 }

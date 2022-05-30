@@ -19,7 +19,7 @@ func TestRegisterTaskDefinition(t *testing.T) {
 		http_client_e2e_properties.TASK_DEFINITIONS,
 	)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 }
 
@@ -29,6 +29,6 @@ func TestRegisterWorkflowDefinition(t *testing.T) {
 		http_client_e2e_properties.WORKFLOW_DEFINITION,
 	)
 	if err != nil && response.StatusCode != 409 {
-		t.Error(err)
+		t.Fatal(err)
 	}
 }

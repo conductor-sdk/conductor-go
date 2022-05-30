@@ -35,7 +35,7 @@ func (a *WorkflowBulkResourceApiService) PauseWorkflow1(ctx context.Context, bod
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/bulk/pause"
+	localVarPath := "/workflow/bulk/pause"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -128,7 +128,7 @@ func (a *WorkflowBulkResourceApiService) Restart1(ctx context.Context, body []st
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/bulk/restart"
+	localVarPath := "/workflow/bulk/restart"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -217,7 +217,7 @@ func (a *WorkflowBulkResourceApiService) ResumeWorkflow1(ctx context.Context, bo
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/bulk/resume"
+	localVarPath := "/workflow/bulk/resume"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -303,7 +303,7 @@ func (a *WorkflowBulkResourceApiService) Retry1(ctx context.Context, body []stri
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/bulk/retry"
+	localVarPath := "/workflow/bulk/retry"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -396,7 +396,7 @@ func (a *WorkflowBulkResourceApiService) Terminate(ctx context.Context, body []s
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/bulk/terminate"
+	localVarPath := "/workflow/bulk/terminate"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}

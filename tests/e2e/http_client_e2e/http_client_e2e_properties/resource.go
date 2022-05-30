@@ -3,6 +3,7 @@ package http_client_e2e_properties
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	log "github.com/sirupsen/logrus"
@@ -24,7 +25,7 @@ var (
 	}
 
 	WORKER_THREAD_COUNT     = 5
-	WORKER_POLLING_INTERVAL = 100
+	WORKER_POLLING_INTERVAL = 500 * time.Millisecond
 
 	WORKFLOW_EXECUTION_AMOUNT = 5
 
@@ -41,8 +42,7 @@ var (
 var (
 	WORKFLOW_NAME = "workflow_with_go_task_example_from_code"
 
-	TASK_NAME           = "go_task_example_from_code"
-	TASK_REFERENCE_NAME = "go_task_example_from_code_ref_0"
+	TASK_NAME = "GO_TASK_OF_SIMPLE_TYPE"
 
 	WORKFLOW_DEFINITION = http_model.WorkflowDef{
 		UpdateTime:  1650595431465,
@@ -52,7 +52,7 @@ var (
 		Tasks: []http_model.WorkflowTask{
 			{
 				Name:              TASK_NAME,
-				TaskReferenceName: TASK_REFERENCE_NAME,
+				TaskReferenceName: TASK_NAME,
 				Type_:             "SIMPLE",
 				StartDelay:        0,
 				Optional:          false,
@@ -69,9 +69,8 @@ var (
 		TimeoutPolicy:                 "ALERT_ONLY",
 		TimeoutSeconds:                0,
 	}
+
 	TASK_DEFINITION = http_model.TaskDef{
-		CreateTime:                  1650595379661,
-		CreatedBy:                   "",
 		Name:                        TASK_NAME,
 		Description:                 "Go task example from code",
 		RetryCount:                  3,

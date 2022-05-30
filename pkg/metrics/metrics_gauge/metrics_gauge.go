@@ -40,6 +40,13 @@ var gaugeTemplates = map[metric_name.MetricName]*metric_model.MetricDetails{
 			metric_label.TASK_TYPE,
 		},
 	),
+	metric_name.TASK_UPDATE_TIME: metric_model.NewMetricDetails(
+		metric_name.TASK_UPDATE_TIME,
+		metric_documentation.TASK_UPDATE_TIME,
+		[]metric_label.MetricLabel{
+			metric_label.TASK_TYPE,
+		},
+	),
 }
 
 func init() {
@@ -73,6 +80,16 @@ func RecordTaskResultPayloadSize(taskType string, payloadSize float64) {
 func RecordTaskPollTime(taskType string, timeSpent float64) {
 	setGauge(
 		metric_name.TASK_POLL_TIME,
+		[]string{
+			taskType,
+		},
+		timeSpent,
+	)
+}
+
+func RecordTaskUpdateTime(taskType string, timeSpent float64) {
+	setGauge(
+		metric_name.TASK_UPDATE_TIME,
 		[]string{
 			taskType,
 		},

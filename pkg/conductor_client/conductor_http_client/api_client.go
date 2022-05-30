@@ -219,7 +219,7 @@ func (c *APIClient) refreshToken() {
 	log.Debug("Refreshing authentication token")
 	token, response, err := c.getToken()
 	if err != nil {
-		log.Warn(
+		log.Warning(
 			"Failed to refresh authentication token",
 			", response: ", response,
 			", error: ", err,
@@ -237,7 +237,7 @@ func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
 		localVarFileBytes   []byte
 		localVarReturnValue http_model.Token
 	)
-	localVarPath := "/api/token"
+	localVarPath := "/token"
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}

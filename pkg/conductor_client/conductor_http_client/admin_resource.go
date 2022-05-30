@@ -55,7 +55,7 @@ func (a *AdminResourceApiService) GetAllConfig(ctx context.Context) (map[string]
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(ctx, "/api/admin/config", localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, "/admin/config", localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -122,7 +122,7 @@ func (a *AdminResourceApiService) GetEventQueues(ctx context.Context, localVarOp
 	)
 
 	// create path and map variables
-	localVarPath := "/api/admin/queues"
+	localVarPath := "/admin/queues"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -209,7 +209,7 @@ func (a *AdminResourceApiService) RequeueSweep(ctx context.Context, workflowId s
 	)
 
 	// create path and map variables
-	localVarPath := "/api/admin/sweep/requeue/{workflowId}"
+	localVarPath := "/admin/sweep/requeue/{workflowId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -294,7 +294,7 @@ func (a *AdminResourceApiService) VerifyAndRepairWorkflowConsistency(ctx context
 	)
 
 	// create path and map variables
-	localVarPath := "/api/admin/consistency/verifyAndRepair/{workflowId}"
+	localVarPath := "/admin/consistency/verifyAndRepair/{workflowId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -388,7 +388,7 @@ func (a *AdminResourceApiService) View(ctx context.Context, tasktype string, loc
 	)
 
 	// create path and map variables
-	localVarPath := "/api/admin/task/{tasktype}"
+	localVarPath := "/admin/task/{tasktype}"
 	localVarPath = strings.Replace(localVarPath, "{"+"tasktype"+"}", fmt.Sprintf("%v", tasktype), -1)
 
 	localVarHeaderParams := make(map[string]string)

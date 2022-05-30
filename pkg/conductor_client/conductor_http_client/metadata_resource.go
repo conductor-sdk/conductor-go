@@ -35,7 +35,7 @@ func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, bo
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/workflow"
+	localVarPath := "/metadata/workflow"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -110,7 +110,7 @@ func (a *MetadataResourceApiService) Get(ctx context.Context, name string, local
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/workflow/{name}"
+	localVarPath := "/metadata/workflow/{name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -197,7 +197,7 @@ func (a *MetadataResourceApiService) GetAll(ctx context.Context) ([]http_model.W
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/workflow"
+	localVarPath := "/metadata/workflow"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -281,7 +281,7 @@ func (a *MetadataResourceApiService) GetTaskDef(ctx context.Context, tasktype st
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/taskdefs/{tasktype}"
+	localVarPath := "/metadata/taskdefs/{tasktype}"
 	localVarPath = strings.Replace(localVarPath, "{"+"tasktype"+"}", fmt.Sprintf("%v", tasktype), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -365,7 +365,7 @@ func (a *MetadataResourceApiService) GetTaskDefs(ctx context.Context) ([]http_mo
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/taskdefs"
+	localVarPath := "/metadata/taskdefs"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -448,7 +448,7 @@ func (a *MetadataResourceApiService) UpdateTaskDef(ctx context.Context, body htt
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/taskdefs"
+	localVarPath := "/metadata/taskdefs"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -515,7 +515,7 @@ func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body [
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/taskdefs"
+	localVarPath := "/metadata/taskdefs"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -582,7 +582,7 @@ func (a *MetadataResourceApiService) UnregisterTaskDef(ctx context.Context, task
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/taskdefs/{tasktype}"
+	localVarPath := "/metadata/taskdefs/{tasktype}"
 	localVarPath = strings.Replace(localVarPath, "{"+"tasktype"+"}", fmt.Sprintf("%v", tasktype), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -649,7 +649,7 @@ func (a *MetadataResourceApiService) UnregisterWorkflowDef(ctx context.Context, 
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/workflow/{name}/{version}"
+	localVarPath := "/metadata/workflow/{name}/{version}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"version"+"}", fmt.Sprintf("%v", version), -1)
 
@@ -716,7 +716,7 @@ func (a *MetadataResourceApiService) Update(ctx context.Context, body []http_mod
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/workflow"
+	localVarPath := "/metadata/workflow"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}

@@ -3,7 +3,7 @@ package examples
 import (
 	"fmt"
 
-	workflow_status "github.com/conductor-sdk/conductor-go/pkg/model/enum"
+	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 )

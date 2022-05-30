@@ -1,6 +1,7 @@
 package worker_e2e
 
 import (
+	"os"
 	"sync"
 	"testing"
 	"time"
@@ -10,47 +11,59 @@ import (
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e/http_client_e2e_properties"
+	log "github.com/sirupsen/logrus"
 )
 
 var taskRunner = worker.NewTaskRunnerWithApiClient(e2e_properties.API_CLIENT)
 
 func init() {
-	taskRunner.StartWorker(
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.DebugLevel)
+}
+
+func TestTaskRunnerExecution(t *testing.T) {
+	workflowIdList, err := http_client_e2e.StartWorkflows(
+		http_client_e2e_properties.WORKFLOW_EXECUTION_AMOUNT,
+		http_client_e2e_properties.WORKFLOW_NAME,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = taskRunner.StartWorker(
 		http_client_e2e_properties.TASK_NAME,
 		examples.SimpleWorker,
 		http_client_e2e_properties.WORKER_THREAD_COUNT,
 		http_client_e2e_properties.WORKER_POLLING_INTERVAL,
 	)
-	taskRunner.StartWorker(
-		http_client_e2e_properties.TREASURE_CHEST_TASK_NAME,
-		examples.OpenTreasureChest,
-		http_client_e2e_properties.WORKER_THREAD_COUNT,
-		http_client_e2e_properties.WORKER_POLLING_INTERVAL,
-	)
-}
-
-func TestTaskRunnerExecution(t *testing.T) {
-	workflowIdList := http_client_e2e.StartWorkflows(
-		t,
-		http_client_e2e_properties.WORKFLOW_EXECUTION_AMOUNT,
-		http_client_e2e_properties.WORKFLOW_NAME,
-	)
+	if err != nil {
+		t.Fatal(err)
+	}
 	var waitGroup sync.WaitGroup
+	waitGroup.Add(len(workflowIdList))
 	for _, workflowId := range workflowIdList {
-		waitGroup.Add(1)
-		go validateWorkflow(t, &waitGroup, workflowId)
+		go testValidateWorkflow(t, &waitGroup, workflowId)
 	}
 	waitGroup.Wait()
+	err = taskRunner.RemoveWorker(
+		http_client_e2e_properties.TASK_NAME,
+		http_client_e2e_properties.WORKER_THREAD_COUNT,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
-func validateWorkflow(t *testing.T, waitGroup *sync.WaitGroup, workflowId string) {
+func testValidateWorkflow(t *testing.T, waitGroup *sync.WaitGroup, workflowId string) {
 	defer waitGroup.Done()
 	time.Sleep(3 * time.Second)
-	workflow := http_client_e2e.GetWorkflowExecutionStatus(
-		t,
+	workflow, _, err := http_client_e2e.GetWorkflowExecutionStatus(
 		workflowId,
 	)
+	if err != nil {
+		t.Error(err)
+	}
 	if workflow.Status != "COMPLETED" {
-		t.Error("Incomplete workflow: ", workflowId)
+		t.Errorf("Workflow finished with invalid terminal state, workflow: %+v", workflow)
 	}
 }

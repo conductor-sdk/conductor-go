@@ -10,26 +10,25 @@ import (
 type TimeoutPolicy string
 
 const (
-	TimeOutWorkflow = "TIME_OUT_WF"
-	AlertOnly       = "ALERT_ONLY"
+	TimeOutWorkflow TimeoutPolicy = "TIME_OUT_WF"
+	AlertOnly       TimeoutPolicy = "ALERT_ONLY"
 )
 
 type ConductorWorkflow struct {
-	executor                      *executor.WorkflowExecutor
-	name                          string
-	version                       int32
-	description                   string
-	ownerEmail                    string
-	tasks                         []TaskInterface
-	timeoutPolicy                 TimeoutPolicy
-	timeoutSeconds                int64
-	failureWorkflow               string
-	inputParameters               []string
-	outputParameters              map[string]interface{}
-	inputTemplate                 map[string]interface{}
-	variables                     map[string]interface{}
-	restartable                   bool
-	workflowStatusListenerEnabled bool
+	executor         *executor.WorkflowExecutor
+	name             string
+	version          int32
+	description      string
+	ownerEmail       string
+	tasks            []TaskInterface
+	timeoutPolicy    TimeoutPolicy
+	timeoutSeconds   int64
+	failureWorkflow  string
+	inputParameters  []string
+	outputParameters map[string]interface{}
+	inputTemplate    map[string]interface{}
+	variables        map[string]interface{}
+	restartable      bool
 }
 
 func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflow {
@@ -118,12 +117,24 @@ func (workflow *ConductorWorkflow) Register() (*http.Response, error) {
 	)
 }
 
-func (workflow *ConductorWorkflow) Start(input interface{}) (executor.WorkflowExecutionChannel, error) {
+func (workflow *ConductorWorkflow) Start(input interface{}) (string, executor.WorkflowExecutionChannel, error) {
 	return workflow.executor.ExecuteWorkflow(
 		workflow.name,
 		workflow.version,
 		input,
 	)
+}
+
+func (workflow *ConductorWorkflow) StartMany(amount int) ([]executor.WorkflowExecutionChannel, error) {
+	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, amount)
+	for i := 0; i < amount; i += 1 {
+		_, workflowExecutionChannel, err := workflow.Start(nil)
+		if err != nil {
+			return nil, err
+		}
+		workflowExecutionChannelList[i] = workflowExecutionChannel
+	}
+	return workflowExecutionChannelList, nil
 }
 
 func (workflow *ConductorWorkflow) toWorkflowDef() *http_model.WorkflowDef {

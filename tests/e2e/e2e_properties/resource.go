@@ -10,10 +10,10 @@ import (
 
 type WorkflowValidator func(*http_model.Workflow) bool
 
-var (
+const (
 	AUTHENTICATION_KEY_ID     = "KEY"
 	AUTHENTICATION_KEY_SECRET = "SECRET"
-	BASE_URL                  = "https://play.orkes.io"
+	BASE_URL                  = "https://play.orkes.io/api"
 )
 
 var API_CLIENT = getApiClientWithAuthentication()

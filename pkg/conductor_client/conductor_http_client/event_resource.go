@@ -35,7 +35,7 @@ func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body http
 	)
 
 	// create path and map variables
-	localVarPath := "/api/event"
+	localVarPath := "/event"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -102,7 +102,7 @@ func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]http_
 	)
 
 	// create path and map variables
-	localVarPath := "/api/event"
+	localVarPath := "/event"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -193,7 +193,7 @@ func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, 
 	)
 
 	// create path and map variables
-	localVarPath := "/api/event/{event}"
+	localVarPath := "/event/{event}"
 	localVarPath = strings.Replace(localVarPath, "{"+"event"+"}", fmt.Sprintf("%v", event), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -280,7 +280,7 @@ func (a *EventResourceApiService) RemoveEventHandlerStatus(ctx context.Context, 
 	)
 
 	// create path and map variables
-	localVarPath := "/api/event/{name}"
+	localVarPath := "/event/{name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -346,7 +346,7 @@ func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body h
 	)
 
 	// create path and map variables
-	localVarPath := "/api/event"
+	localVarPath := "/event"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
