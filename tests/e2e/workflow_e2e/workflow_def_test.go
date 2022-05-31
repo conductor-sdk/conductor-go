@@ -97,10 +97,6 @@ func TestSimpleTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	taskRunner.RemoveWorker(
-		simpleTask.ReferenceName(),
-		http_client_e2e_properties.WORKER_THREAD_COUNT,
-	)
 	if !executor.IsWorkflowCompleted(workflow) {
 		t.Fatal("Workflow finished with incomplete status, workflow: ", workflow.Status)
 	}

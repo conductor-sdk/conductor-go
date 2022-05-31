@@ -45,10 +45,6 @@ func TestTaskRunnerExecution(t *testing.T) {
 		go testValidateWorkflow(t, &waitGroup, workflowId)
 	}
 	waitGroup.Wait()
-	err = taskRunner.RemoveWorker(
-		http_client_e2e_properties.TASK_NAME,
-		http_client_e2e_properties.WORKER_THREAD_COUNT,
-	)
 	if err != nil {
 		t.Fatal(err)
 	}
