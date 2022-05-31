@@ -260,7 +260,7 @@ func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
 	if err != nil || localVarHttpResponse == nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	localVarBody, err := getBody(localVarHttpResponse)
 
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
@@ -591,26 +591,23 @@ func (c *APIClient) prepareRefreshTokenRequest(
 	return localVarRequest, nil
 }
 
-func getDecompressedBody(response *http.Response) ([]byte, error) {
-
+func getBody(response *http.Response) ([]byte, error) {
 	defer response.Body.Close()
-	var reader io.ReadCloser
-	var err error
-	switch response.Header.Get("Content-Encoding") {
-	case "gzip":
-		log.Info("Data is compressed, going to un-compress")
-		reader, err = gzip.NewReader(response.Body)
-		if err != nil {
-			log.Error("Unable to decompress the response ", err.Error())
-			if err == io.EOF {
-				return nil, nil
-			}
-			return nil, err
-		}
-	default:
-		reader = response.Body
+	reader := response.Body
+	if response.Header.Get("Content-Encoding") == "gzip" {
+		return getDecompresseBody(reader)
 	}
-	defer reader.Close()
 	return ioutil.ReadAll(reader)
+}
 
+func getDecompresseBody(reader io.ReadCloser) ([]byte, error) {
+	gzipReader, err := gzip.NewReader(reader)
+	if err != nil {
+		if err == io.EOF {
+			return nil, nil
+		}
+		return nil, err
+	}
+	defer gzipReader.Close()
+	return ioutil.ReadAll(gzipReader)
 }

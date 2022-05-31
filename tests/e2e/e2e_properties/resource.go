@@ -6,6 +6,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
+	log "github.com/sirupsen/logrus"
 )
 
 type WorkflowValidator func(*http_model.Workflow) bool
@@ -16,7 +17,15 @@ const (
 	BASE_URL                  = "https://play.orkes.io/api"
 )
 
-var API_CLIENT = getApiClientWithAuthentication()
+var (
+	API_CLIENT = getApiClientWithAuthentication()
+)
+
+func init() {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.DebugLevel)
+}
 
 func getApiClientWithAuthentication() *conductor_http_client.APIClient {
 	return conductor_http_client.NewAPIClient(

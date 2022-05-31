@@ -70,7 +70,7 @@ func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body http
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	localVarBody, err := getBody(localVarHttpResponse)
 
 	if err != nil {
 		return localVarHttpResponse, err
@@ -135,7 +135,7 @@ func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]http_
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	localVarBody, err := getBody(localVarHttpResponse)
 
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
@@ -230,7 +230,7 @@ func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, 
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	localVarBody, err := getBody(localVarHttpResponse)
 
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
@@ -314,7 +314,7 @@ func (a *EventResourceApiService) RemoveEventHandlerStatus(ctx context.Context, 
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	localVarBody, err := getBody(localVarHttpResponse)
 
 	if err != nil {
 		return localVarHttpResponse, err
@@ -381,7 +381,7 @@ func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body h
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	localVarBody, err := getBody(localVarHttpResponse)
 
 	if err != nil {
 		return localVarHttpResponse, err

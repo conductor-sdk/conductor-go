@@ -65,7 +65,7 @@ func (a *AdminResourceApiService) GetAllConfig(ctx context.Context) (map[string]
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	localVarBody, err := getBody(localVarHttpResponse)
 
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
@@ -158,7 +158,7 @@ func (a *AdminResourceApiService) GetEventQueues(ctx context.Context, localVarOp
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	localVarBody, err := getBody(localVarHttpResponse)
 
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
@@ -243,7 +243,7 @@ func (a *AdminResourceApiService) RequeueSweep(ctx context.Context, workflowId s
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	localVarBody, err := getBody(localVarHttpResponse)
 
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
@@ -328,7 +328,7 @@ func (a *AdminResourceApiService) VerifyAndRepairWorkflowConsistency(ctx context
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	localVarBody, err := getBody(localVarHttpResponse)
 
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
@@ -428,7 +428,7 @@ func (a *AdminResourceApiService) View(ctx context.Context, tasktype string, loc
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	localVarBody, err := getBody(localVarHttpResponse)
 
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err

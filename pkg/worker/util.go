@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -20,11 +21,8 @@ const updateTaskRetryAttempts = 3
 
 var hostname, _ = os.Hostname()
 
-func batchPoll(taskType string, count int, timeout time.Duration, domain optional.String, conductorClient conductor_http_client.TaskResourceApiService) ([]http_model.Task, error) {
-	log.Debug(
-		"Polling for task: ", taskType,
-		", in batches of size: ", count,
-	)
+func batchPoll(taskType string, count int, timeout time.Duration, domain optional.String, conductorClient *conductor_http_client.TaskResourceApiService) ([]http_model.Task, error) {
+	log.Debug("Polling for task: ", taskType, ", in batches of size: ", count)
 	metrics_counter.IncrementTaskPoll(taskType)
 	startTime := time.Now()
 	tasks, response, err := conductorClient.BatchPoll(
@@ -51,11 +49,17 @@ func batchPoll(taskType string, count int, timeout time.Duration, domain optiona
 	if response.StatusCode == 204 {
 		return nil, nil
 	}
-	log.Debug("Polled tasks: ", len(tasks), " for taskType ", taskType)
+	log.Debug("Polled ", len(tasks), " tasks of taskType ", taskType)
 	return tasks, nil
 }
 
 func executeTask(t *http_model.Task, executeFunction model.TaskExecuteFunction) (*http_model.TaskResult, error) {
+	log.Debug(
+		"Executing task",
+		", taskType: ", t.TaskType,
+		", workflowId: ", t.WorkflowInstanceId,
+		", taskId: ", t.TaskId,
+	)
 	startTime := time.Now()
 	taskResult, err := executeFunction(t)
 	spentTime := time.Since(startTime)
@@ -73,23 +77,47 @@ func executeTask(t *http_model.Task, executeFunction model.TaskExecuteFunction) 
 	if taskResult == nil {
 		return nil, fmt.Errorf("task result cannot be nil")
 	}
-	log.Debug(fmt.Sprintf("Executed task: %+v", *t))
+	log.Debug(
+		"Executed task",
+		", taskType: ", t.TaskType,
+		", workflowId: ", t.WorkflowInstanceId,
+		", taskId: ", t.TaskId,
+	)
 	return taskResult, nil
 }
 
-func updateTaskWithRetry(taskType string, taskResult *http_model.TaskResult, conductorClient conductor_http_client.TaskResourceApiService) error {
-	for attempts := 0; attempts < updateTaskRetryAttempts; attempts++ {
-		err := updateTask(taskType, taskResult, conductorClient)
+func updateTaskWithRetry(taskType string, taskResult *http_model.TaskResult, conductorClient *conductor_http_client.TaskResourceApiService) error {
+	log.Debug(
+		"Updating task with retry",
+		", taskType: ", taskType,
+		", workflowId: ", taskResult.WorkflowInstanceId,
+		", taskId: ", taskResult.TaskId,
+	)
+	for attempts := 0; attempts < updateTaskRetryAttempts; attempts += 1 {
+		response, err := updateTask(taskType, taskResult, conductorClient)
 		if err == nil {
+			log.Debug(
+				"Updated task",
+				", taskType: ", taskType,
+				", workflowId: ", taskResult.WorkflowInstanceId,
+				", taskId: ", taskResult.TaskId,
+			)
 			return nil
 		}
+		log.Debug(
+			"Failed to update task. Reason: ", err.Error(),
+			", attempt: ", attempts+1, " of ", updateTaskRetryAttempts,
+			", taskType: ", taskType,
+			", taskResult: ", fmt.Sprintf("%+v", taskResult),
+			", response: ", response,
+		)
 		amount := (1 << attempts)
 		time.Sleep(time.Duration(amount) * time.Second)
 	}
-	return fmt.Errorf("failed to update taskType: %s, after %d attempts", taskType, updateTaskRetryAttempts)
+	return fmt.Errorf("failed to update task after %d attempts", updateTaskRetryAttempts)
 }
 
-func updateTask(taskType string, taskResult *http_model.TaskResult, conductorClient conductor_http_client.TaskResourceApiService) error {
+func updateTask(taskType string, taskResult *http_model.TaskResult, conductorClient *conductor_http_client.TaskResourceApiService) (*http.Response, error) {
 	startTime := time.Now()
 	_, response, err := conductorClient.UpdateTask(context.Background(), taskResult)
 	spentTime := time.Since(startTime)
@@ -98,15 +126,7 @@ func updateTask(taskType string, taskResult *http_model.TaskResult, conductorCli
 	)
 	if err != nil {
 		metrics_counter.IncrementTaskUpdateError(taskType, err)
-		log.Debug(
-			"Failed to update task",
-			", reason: ", err.Error(),
-			", task type: ", taskType,
-			", task result: ", *taskResult,
-			", response: ", response,
-		)
-		return err
+		return response, err
 	}
-	log.Debug("Updated task: ", taskResult.TaskId, ",", taskResult.Status)
-	return nil
+	return response, nil
 }

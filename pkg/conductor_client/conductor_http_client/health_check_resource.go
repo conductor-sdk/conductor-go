@@ -66,7 +66,7 @@ func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (http_model
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	localVarBody, err := getBody(localVarHttpResponse)
 
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err

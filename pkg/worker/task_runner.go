@@ -1,7 +1,6 @@
 package worker
 
 import (
-	"sync"
 	"time"
 
 	"github.com/antihax/optional"
@@ -12,27 +11,25 @@ import (
 )
 
 type TaskRunner struct {
-	conductorTaskResourceClient conductor_http_client.TaskResourceApiService
-	workerManagerByTaskType     map[string]AvailableWorkerChannel
-	runningWorkers              sync.WaitGroup
+	conductorTaskResourceClient *conductor_http_client.TaskResourceApiService
+	workerManagerByTaskType     map[string]*WorkerManager
 }
 
 func NewTaskRunner(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings) *TaskRunner {
-	apiClient := conductor_http_client.NewAPIClient(
-		authenticationSettings,
-		httpSettings,
+	return NewTaskRunnerWithApiClient(
+		conductor_http_client.NewAPIClient(
+			authenticationSettings,
+			httpSettings,
+		),
 	)
-	return NewTaskRunnerWithApiClient(apiClient)
 }
 
-func NewTaskRunnerWithApiClient(
-	apiClient *conductor_http_client.APIClient,
-) *TaskRunner {
+func NewTaskRunnerWithApiClient(apiClient *conductor_http_client.APIClient) *TaskRunner {
 	return &TaskRunner{
-		conductorTaskResourceClient: conductor_http_client.TaskResourceApiService{
+		conductorTaskResourceClient: &conductor_http_client.TaskResourceApiService{
 			APIClient: apiClient,
 		},
-		workerManagerByTaskType: make(map[string]AvailableWorkerChannel),
+		workerManagerByTaskType: make(map[string]*WorkerManager),
 	}
 }
 
@@ -56,26 +53,30 @@ func (c *TaskRunner) StartWorker(taskType string, executeFunction model.TaskExec
 }
 
 func (c *TaskRunner) WaitWorkers() {
-	c.runningWorkers.Wait()
+	for taskType, workerManager := range c.workerManagerByTaskType {
+		log.Debug("Waiting for workerManager of taskType: ", taskType)
+		workerManager.Wait()
+		log.Debug("Done waiting for workerManager of taskType: ", taskType)
+	}
 }
 
 func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExecuteFunction, threadCount int, pollInterval time.Duration, taskDomain optional.String) error {
-	availableWorkerChannel, ok := c.workerManagerByTaskType[taskType]
+	workerManager, ok := c.workerManagerByTaskType[taskType]
 	if !ok {
-		c.runningWorkers.Add(1)
-		availableWorkerChannel, err := startWorkerManager(
+		workerManager = NewWorkerManager(
 			taskType,
 			executeFunction,
 			pollInterval,
 			taskDomain,
 			c.conductorTaskResourceClient,
 		)
+		err := workerManager.Start()
 		if err != nil {
 			return err
 		}
-		c.workerManagerByTaskType[taskType] = availableWorkerChannel
+		c.workerManagerByTaskType[taskType] = workerManager
 	}
-	availableWorkerChannel <- threadCount
+	workerManager.IncreaseWorkers(threadCount)
 	log.Debug(
 		"Started worker for task: ", taskType,
 		", polling in batches of: ", threadCount,
