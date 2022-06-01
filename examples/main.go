@@ -3,6 +3,7 @@ package examples
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
@@ -23,19 +24,29 @@ var (
 	)
 
 	httpSettings = settings.NewHttpSettings(
-		"https://play.orkes.io", // baseUrl
+		"https://play.orkes.io/api", // baseUrl
 	)
+)
+
+var (
+	apiClient = conductor_http_client.NewAPIClient(
+		authenticationSettings,
+		httpSettings,
+	)
+
+	taskRunner = worker.NewTaskRunnerWithApiClient(
+		apiClient,
+	)
+
+	workflowClient = conductor_http_client.WorkflowResourceApiService{
+		APIClient: apiClient,
+	}
 )
 
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.DebugLevel)
-}
-
-func main() {
-	startWorkflows()
-	startWorkers()
 }
 
 func Worker(t *http_model.Task) (taskResult *http_model.TaskResult, err error) {
@@ -46,36 +57,29 @@ func Worker(t *http_model.Task) (taskResult *http_model.TaskResult, err error) {
 		"key4": false,
 	}
 	taskResult.Status = task_result_status.COMPLETED
-	err = nil
-	return taskResult, err
+	return taskResult, nil
 }
 
 func startWorkflows() {
-	apiClient := conductor_http_client.NewAPIClient(
-		authenticationSettings,
-		httpSettings,
-	)
-	workflowClient := conductor_http_client.WorkflowResourceApiService{
-		APIClient: apiClient,
-	}
 	workflowClient.StartWorkflow(
-		context.Background(),
-		nil,
-		"workflow_name",
-		nil,
+		context.Background(), // context
+		nil,                  // body
+		"workflow_name",      // name
+		nil,                  // optionalParameters
 	)
 }
 
 func startWorkers() {
-	taskRunner := worker.NewTaskRunner(
-		authenticationSettings,
-		httpSettings,
-	)
 	taskRunner.StartWorker(
-		"go_task_example",
-		Worker,
-		2,
-		10,
+		"go_task_example",    // taskType
+		Worker,               // taskExecuteFunction
+		2,                    // batchSize
+		100*time.Millisecond, // pollingInterval
 	)
 	taskRunner.WaitWorkers()
+}
+
+func main() {
+	startWorkflows()
+	startWorkers()
 }
