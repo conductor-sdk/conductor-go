@@ -16,29 +16,38 @@ mkdir conductor-go/
 cd conductor-go/
 ```
 
-Create a go.mod file for dependencies
+Create a `go.mod` file for dependencies
 ```go
-module conductor_test
+module conductor_go_test
 
-go 1.18
+go 1.17
 
 require (
 	github.com/conductor-sdk/conductor-go v1.1.1
 )
 ```
 
-Now, create simple worker implentation as `main.go`
+In the case you would like to use another version (e.g. a specific branch), you can use this command:
+
+```shell
+go get github.com/conductor-sdk/conductor-go@BRANCH_NAME
+```
+
+Now, create simple worker implementation as `main.go`
 ```go
-package main
+package examples
 
 import (
+	"context"
+	"os"
+
+	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	"github.com/conductor-sdk/conductor-go/pkg/worker"
 	log "github.com/sirupsen/logrus"
-	"os"
 )
 
 func init() {
@@ -55,28 +64,25 @@ func Worker(t *http_model.Task) (taskResult *http_model.TaskResult, err error) {
 		"key4": false,
 	}
 	taskResult.Status = task_result_status.COMPLETED
-	err = nil
-	return taskResult, err
+	return taskResult, nil
 }
 
 func main() {
 	taskRunner := worker.NewTaskRunner(
 		settings.NewAuthenticationSettings(
-			__KEY__,
-			__SECRET__,
+			__KEY__,    // KeyId
+			__SECRET__, // KeySecret
 		),
 		settings.NewHttpSettings(
-			"https://play.orkes.io",
+			"https://play.orkes.io/api", // BaseUrl
 		),
 	)
-
 	taskRunner.StartWorker(
-		"go_task_example",
-		Worker,
-		2,
-		10,
+		"go_task_example", // TaskType
+		Worker,            // TaskExecutionFunction
+		2,                 // WorkerAmount
+		10,                // PollingInterval
 	)
-
 	taskRunner.WaitWorkers()
 }
 
