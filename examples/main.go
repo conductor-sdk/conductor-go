@@ -1,7 +1,7 @@
 package examples
 
 import (
-	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -11,6 +11,8 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	"github.com/conductor-sdk/conductor-go/pkg/worker"
+	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
+	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -34,13 +36,32 @@ var (
 		httpSettings,
 	)
 
-	taskRunner = worker.NewTaskRunnerWithApiClient(
-		apiClient,
-	)
+	taskRunner       = worker.NewTaskRunnerWithApiClient(apiClient)
+	workflowExecutor = executor.NewWorkflowExecutor(apiClient)
+)
 
-	workflowClient = conductor_http_client.WorkflowResourceApiService{
-		APIClient: apiClient,
-	}
+var (
+	httpTask = workflow.NewHttpTask(
+		"GO_TASK_OF_HTTP_TYPE",
+		&workflow.HttpInput{
+			Uri: "https://catfact.ninja/fact",
+		},
+	)
+	httpTaskWorkflow = workflow.NewConductorWorkflow(workflowExecutor).
+				Name("GO_WORKFLOW_WITH_HTTP_TASK").
+				Version(1).
+				Add(httpTask)
+)
+
+var (
+	simpleTask = workflow.NewSimpleTask(
+		"GO_TASK_OF_SIMPLE_TYPE", // taskName
+		"GO_TASK_OF_SIMPLE_TYPE", // taskReferenceName
+	)
+	simpleTaskWorkflow = workflow.NewConductorWorkflow(workflowExecutor).
+				Name("GO_WORKFLOW_WITH_SIMPLE_TASK").
+				Version(1).
+				Add(simpleTask)
 )
 
 func init() {
@@ -60,26 +81,66 @@ func Worker(t *http_model.Task) (taskResult *http_model.TaskResult, err error) {
 	return taskResult, nil
 }
 
-func startWorkflows() {
-	workflowClient.StartWorkflow(
-		context.Background(), // context
-		nil,                  // body
-		"workflow_name",      // name
-		nil,                  // optionalParameters
+func runHttpWorkflowExample() error {
+	_, err := httpTaskWorkflow.Register()
+	if err != nil {
+		return err
+	}
+	workflowId, workflowExecutionChannel, err := httpTaskWorkflow.Start(nil)
+	if err != nil {
+		return err
+	}
+	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
+		workflowId,
+		workflowExecutionChannel,
+		5*time.Second,
 	)
+	if err != nil {
+		return err
+	}
+	if !executor.IsWorkflowCompleted(workflow) {
+		return fmt.Errorf("failed to get completed workflow")
+	}
+	return nil
 }
 
-func startWorkers() {
-	taskRunner.StartWorker(
-		"go_task_example",    // taskType
-		Worker,               // taskExecuteFunction
-		2,                    // batchSize
-		100*time.Millisecond, // pollingInterval
+func runSimpleWorkflowExample() error {
+	_, err := simpleTaskWorkflow.Register()
+	if err != nil {
+		return err
+	}
+	workflowId, workflowExecutionChannel, err := simpleTaskWorkflow.Start(nil)
+	if err != nil {
+		return err
+	}
+	err = taskRunner.StartWorker(
+		simpleTask.ReferenceName(),
+		Worker,
+		2,
+		500*time.Millisecond,
 	)
-	taskRunner.WaitWorkers()
+	if err != nil {
+		return err
+	}
+	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
+		workflowId,
+		workflowExecutionChannel,
+		5*time.Second,
+	)
+	if err != nil {
+		return err
+	}
+	taskRunner.RemoveWorker(
+		simpleTask.ReferenceName(),
+		2,
+	)
+	if !executor.IsWorkflowCompleted(workflow) {
+		return fmt.Errorf("failed to get completed workflow")
+	}
+	return nil
 }
 
 func main() {
-	startWorkflows()
-	startWorkers()
+	runHttpWorkflowExample()
+	runSimpleWorkflowExample()
 }
