@@ -11,18 +11,18 @@ func IsWorkflowCompleted(workflow *http_model.Workflow) bool {
 	return workflow.Status == string(workflow_status.COMPLETED)
 }
 
-func NewHttpTaskConductorWorkflow(workflowName string, workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
+func NewHttpTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
 	return newConductorWorkflow(
 		workflowExecutor,
-		workflowName,
+		"GO_WORKFLOW_WITH_HTTP_TASK",
 		HttpTask,
 	)
 }
 
-func NewSimpleTaskConductorWorkflow(workflowName string, workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
+func NewSimpleTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
 	return newConductorWorkflow(
 		workflowExecutor,
-		workflowName,
+		"GO_WORKFLOW_WITH_SIMPLE_TASK",
 		SimpleTask,
 	)
 }
