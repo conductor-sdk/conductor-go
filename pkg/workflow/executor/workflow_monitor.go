@@ -126,7 +126,7 @@ func (w *WorkflowMonitor) getRunningWorkflowIdList() ([]string, error) {
 func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *http_model.Workflow) error {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
-	log.Debug(fmt.Sprintf("Notifying finished workflow: %+v", *workflow))
+	log.Debug(fmt.Sprintf("Notifying finished workflowId: %s", workflowId))
 	executionChannel, ok := w.executionChannelByWorkflowId[workflowId]
 	if !ok {
 		return fmt.Errorf("execution channel not found for workflowId: %s", workflowId)
