@@ -130,6 +130,7 @@ func runSimpleWorkflowExample() error {
 	if err != nil {
 		return err
 	}
+	log.Warning("Workflow with simple task example is finished")
 	taskRunner.RemoveWorker(
 		examples.SimpleTask.ReferenceName(),
 		10,
@@ -149,40 +150,54 @@ func main() {
 Run your `main.go` file, example using [Orkes Playground Conductor Server](https://play.orkes.io/):
 ```shell
 $ go run main.go
-{"level":"debug","msg":"Refreshing authentication token","time":"2022-06-02T00:27:15-03:00"}
-{"level":"debug","msg":"Registered workflow with http task example","time":"2022-06-02T00:27:16-03:00"}
-{"level":"debug","msg":"Started workflow, workflowId: e6e54301-e223-11ec-a6d8-32508b865be6, name: GO_WORKFLOW_WITH_HTTP_TASK, version: 1, input: \u003cnil\u003e","time":"2022-06-02T00:27:16-03:00"}
-{"level":"debug","msg":"Added workflow execution channel, workflowId: e6e54301-e223-11ec-a6d8-32508b865be6","time":"2022-06-02T00:27:16-03:00"}
-{"level":"info","msg":"Started workflow http task example, workflowId: e6e54301-e223-11ec-a6d8-32508b865be6","time":"2022-06-02T00:27:16-03:00"}
-{"level":"debug","msg":"Notifying finished workflowId: e6e54301-e223-11ec-a6d8-32508b865be6","time":"2022-06-02T00:27:17-03:00"}
-{"level":"debug","msg":"Sent finished workflow through channel","time":"2022-06-02T00:27:17-03:00"}
-{"level":"debug","msg":"Closed client workflow execution channel","time":"2022-06-02T00:27:17-03:00"}
-{"level":"debug","msg":"Deleted workflow execution channel","time":"2022-06-02T00:27:17-03:00"}
-{"level":"warning","msg":"Workflow with http task example is finished","time":"2022-06-02T00:27:17-03:00"}
-{"level":"debug","msg":"Registered workflow with simple task example","time":"2022-06-02T00:27:17-03:00"}
-{"level":"debug","msg":"Started workflow, workflowId: e79c0fd3-e223-11ec-9c27-368389356974, name: GO_WORKFLOW_WITH_SIMPLE_TASK, version: 1, input: \u003cnil\u003e","time":"2022-06-02T00:27:17-03:00"}
-{"level":"debug","msg":"Added workflow execution channel, workflowId: e79c0fd3-e223-11ec-9c27-368389356974","time":"2022-06-02T00:27:17-03:00"}
-{"level":"info","msg":"Started workflow with simple task example, workflowId: e79c0fd3-e223-11ec-9c27-368389356974","time":"2022-06-02T00:27:17-03:00"}
-{"level":"debug","msg":"Increased max allowed workers of task: GO_TASK_OF_SIMPLE_TYPE, by: 10","time":"2022-06-02T00:27:17-03:00"}
-{"level":"info","msg":"Started 10 worker(s) for taskType GO_TASK_OF_SIMPLE_TYPE, polling in interval of 500 ms","time":"2022-06-02T00:27:17-03:00"}
-{"level":"debug","msg":"Polling for task: GO_TASK_OF_SIMPLE_TYPE, in batches of size: 10","time":"2022-06-02T00:27:17-03:00"}
-{"level":"debug","msg":"Polled 1 tasks for taskType: GO_TASK_OF_SIMPLE_TYPE","time":"2022-06-02T00:27:18-03:00"}
-{"level":"debug","msg":"Polling for task: GO_TASK_OF_SIMPLE_TYPE, in batches of size: 9","time":"2022-06-02T00:27:18-03:00"}
-{"level":"debug","msg":"Updating task of type: GO_TASK_OF_SIMPLE_TYPE, taskId: e79cd324-e223-11ec-9c27-368389356974, workflowId: e79c0fd3-e223-11ec-9c27-368389356974","time":"2022-06-02T00:27:18-03:00"}
-{"level":"debug","msg":"Updated task of type: GO_TASK_OF_SIMPLE_TYPE, taskId: e79cd324-e223-11ec-9c27-368389356974, workflowId: e79c0fd3-e223-11ec-9c27-368389356974","time":"2022-06-02T00:27:18-03:00"}
-{"level":"debug","msg":"Notifying finished workflowId: e79c0fd3-e223-11ec-9c27-368389356974","time":"2022-06-02T00:27:18-03:00"}
-{"level":"debug","msg":"Sent finished workflow through channel","time":"2022-06-02T00:27:18-03:00"}
-{"level":"debug","msg":"Closed client workflow execution channel","time":"2022-06-02T00:27:18-03:00"}
-{"level":"debug","msg":"Deleted workflow execution channel","time":"2022-06-02T00:27:18-03:00"}
-{"level":"debug","msg":"Decreased workers for task: GO_TASK_OF_SIMPLE_TYPE, by: 10","time":"2022-06-02T00:27:18-03:00"}
+{"level":"debug","msg":"Refreshing authentication token","time":"2022-06-02T00:43:36-03:00"}
+{"level":"debug","msg":"Registered workflow with http task example","time":"2022-06-02T00:43:37-03:00"}
+{"level":"debug","msg":"Started workflow, workflowId: 301a5767-e226-11ec-9c27-368389356974, name: GO_WORKFLOW_WITH_HTTP_TASK, version: 1, input: \u003cnil\u003e","time":"2022-06-02T00:43:38-03:00"}
+{"level":"debug","msg":"Added workflow execution channel, workflowId: 301a5767-e226-11ec-9c27-368389356974","time":"2022-06-02T00:43:38-03:00"}
+{"level":"info","msg":"Started workflow http task example, workflowId: 301a5767-e226-11ec-9c27-368389356974","time":"2022-06-02T00:43:38-03:00"}
+{"level":"debug","msg":"Notifying finished workflowId: 301a5767-e226-11ec-9c27-368389356974","time":"2022-06-02T00:43:39-03:00"}
+{"level":"debug","msg":"Sent finished workflow through channel","time":"2022-06-02T00:43:39-03:00"}
+{"level":"debug","msg":"Closed client workflow execution channel","time":"2022-06-02T00:43:39-03:00"}
+{"level":"debug","msg":"Deleted workflow execution channel","time":"2022-06-02T00:43:39-03:00"}
+{"level":"warning","msg":"Workflow with http task example is finished","time":"2022-06-02T00:43:39-03:00"}
+{"level":"debug","msg":"Registered workflow with simple task example","time":"2022-06-02T00:43:39-03:00"}
+{"level":"debug","msg":"Started workflow, workflowId: 30f10859-e226-11ec-9c27-368389356974, name: GO_WORKFLOW_WITH_SIMPLE_TASK, version: 1, input: \u003cnil\u003e","time":"2022-06-02T00:43:39-03:00"}
+{"level":"debug","msg":"Added workflow execution channel, workflowId: 30f10859-e226-11ec-9c27-368389356974","time":"2022-06-02T00:43:39-03:00"}
+{"level":"info","msg":"Started workflow with simple task example, workflowId: 30f10859-e226-11ec-9c27-368389356974","time":"2022-06-02T00:43:39-03:00"}
+{"level":"debug","msg":"Increased max allowed workers of task: GO_TASK_OF_SIMPLE_TYPE, by: 10","time":"2022-06-02T00:43:39-03:00"}
+{"level":"info","msg":"Started 10 worker(s) for taskType GO_TASK_OF_SIMPLE_TYPE, polling in interval of 500 ms","time":"2022-06-02T00:43:39-03:00"}
+{"level":"debug","msg":"Polling for task: GO_TASK_OF_SIMPLE_TYPE, in batches of size: 10","time":"2022-06-02T00:43:39-03:00"}
+{"level":"debug","msg":"Polled 1 tasks for taskType: GO_TASK_OF_SIMPLE_TYPE","time":"2022-06-02T00:43:40-03:00"}
+{"level":"debug","msg":"Polling for task: GO_TASK_OF_SIMPLE_TYPE, in batches of size: 9","time":"2022-06-02T00:43:40-03:00"}
+{"level":"debug","msg":"Updating task of type: GO_TASK_OF_SIMPLE_TYPE, taskId: 30f1a49a-e226-11ec-9c27-368389356974, workflowId: 30f10859-e226-11ec-9c27-368389356974","time":"2022-06-02T00:43:40-03:00"}
+{"level":"debug","msg":"Updated task of type: GO_TASK_OF_SIMPLE_TYPE, taskId: 30f1a49a-e226-11ec-9c27-368389356974, workflowId: 30f10859-e226-11ec-9c27-368389356974","time":"2022-06-02T00:43:40-03:00"}
+{"level":"debug","msg":"Notifying finished workflowId: 30f10859-e226-11ec-9c27-368389356974","time":"2022-06-02T00:43:40-03:00"}
+{"level":"debug","msg":"Sent finished workflow through channel","time":"2022-06-02T00:43:40-03:00"}
+{"level":"debug","msg":"Closed client workflow execution channel","time":"2022-06-02T00:43:40-03:00"}
+{"level":"debug","msg":"Deleted workflow execution channel","time":"2022-06-02T00:43:40-03:00"}
+{"level":"warning","msg":"Workflow with simple task example is finished","time":"2022-06-02T00:43:40-03:00"}
+{"level":"debug","msg":"Decreased workers for task: GO_TASK_OF_SIMPLE_TYPE, by: 10","time":"2022-06-02T00:43:40-03:00"}
 ```
 
 Explanation:
-// TODO
+* Run workflow with:
+  * A single HTTP task:
+    * Create workflow with a single HTTP task
+    * Start workflow and get the `workflowId` and `workflowExecutionChannel` as response
+    * Wait until the workflow is either in terminal state or timeout
+    * Validate finished workflow status
+  * A single SIMPLE task:
+    * Create workflow with a single SIMPLE task
+    * Start workflow and get the `workflowId` and `workflowExecutionChannel` as response
+    * Start workers for SIMPLE task
+    * Wait until the workflow is either in terminal state or timeout
+    * Validate finished workflow status
+    * Stop workers for SIMPLE task
 
 ### Configuration
 
 #### Authentication settings (optional)
+<!-- TODO -->
 Use if your conductor server requires authentication
 * keyId: Key
 * keySecret: Secret for the Key
@@ -195,13 +210,7 @@ settings.NewAuthenticationSettings(
 ```
 
 ### Worker Settings
-
-You can create a new worker by calling `taskRunner.StartWorker` with:
-* taskType : Task definition name (e.g `"go_task_example"`)
-* executeFunction : Task Execution Function (e.g. `example.TaskExecuteFunctionExample1` from `example` folder)
-* threadCount : Amount of Go routines to be executed in parallel for new worker (e.g. `1`, single thread)
-* pollIntervalInMillis : Amount of ms to wait between polling for task
-
+<!-- TODO -->
 ```go
 taskRunner.StartWorker(
 	"go_task_example",              // task definition name
