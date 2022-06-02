@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/examples"
+	"github.com/conductor-sdk/conductor-go/pkg/http_model"
+	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 	"github.com/conductor-sdk/conductor-go/pkg/worker"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
@@ -14,8 +16,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var taskRunner = worker.NewTaskRunnerWithApiClient(e2e_properties.API_CLIENT)
-var workflowExecutor = executor.NewWorkflowExecutor(e2e_properties.API_CLIENT)
+var (
+	taskRunner       = worker.NewTaskRunnerWithApiClient(e2e_properties.API_CLIENT)
+	workflowExecutor = executor.NewWorkflowExecutor(e2e_properties.API_CLIENT)
+)
 
 var (
 	httpTask = workflow.NewHttpTask(
@@ -54,19 +58,18 @@ func TestHttpTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	workflowId, workflowExecutionChannel, err := httpTaskWorkflow.Start(nil)
+	_, workflowExecutionChannel, err := httpTaskWorkflow.Start(nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
-		workflowId,
 		workflowExecutionChannel,
 		5*time.Second,
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !executor.IsWorkflowCompleted(workflow) {
+	if !isWorkflowCompleted(workflow) {
 		t.Fatal("Workflow finished with incomplete status, workflow: ", workflow.Status)
 	}
 }
@@ -76,7 +79,7 @@ func TestSimpleTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	workflowId, workflowExecutionChannel, err := simpleTaskWorkflow.Start(nil)
+	_, workflowExecutionChannel, err := simpleTaskWorkflow.Start(nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -90,7 +93,6 @@ func TestSimpleTask(t *testing.T) {
 		t.Fatal(err)
 	}
 	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
-		workflowId,
 		workflowExecutionChannel,
 		5*time.Second,
 	)
@@ -101,7 +103,11 @@ func TestSimpleTask(t *testing.T) {
 		simpleTask.ReferenceName(),
 		http_client_e2e_properties.WORKER_THREAD_COUNT,
 	)
-	if !executor.IsWorkflowCompleted(workflow) {
+	if !isWorkflowCompleted(workflow) {
 		t.Fatal("Workflow finished with incomplete status, workflow: ", workflow.Status)
 	}
+}
+
+func isWorkflowCompleted(workflow *http_model.Workflow) bool {
+	return workflow.Status == string(workflow_status.COMPLETED)
 }
