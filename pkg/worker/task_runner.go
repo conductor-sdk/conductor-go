@@ -81,6 +81,10 @@ func (c *TaskRunner) RemoveWorker(taskType string, threadCount int) error {
 	} else {
 		c.maxAllowedWorkersByTaskType[taskType] -= threadCount
 	}
+	log.Debug(
+		"Decreased workers for task: ", taskType,
+		", by: ", threadCount,
+	)
 	return nil
 }
 
@@ -105,10 +109,13 @@ func (c *TaskRunner) startWorker(taskType string, executeFunction model.TaskExec
 		c.workerWaitGroup.Add(1)
 		go c.pollAndExecute(taskType, executeFunction, pollInterval, domain)
 	}
-	log.Debug(
-		"Started worker for task: ", taskType,
-		", threadCount / batchSize: ", threadCount,
-		", polling interval: ", pollInterval.Milliseconds(), "ms",
+	log.Info(
+		fmt.Sprintf(
+			"Started %d worker(s) for taskType %s, polling in interval of %d ms",
+			threadCount,
+			taskType,
+			pollInterval.Milliseconds(),
+		),
 	)
 	return nil
 }
@@ -122,7 +129,7 @@ func (c *TaskRunner) pollAndExecute(taskType string, executeFunction model.TaskE
 				"Failed to poll and execute",
 				", reason: ", err.Error(),
 				", taskType: ", taskType,
-				", pollInterval: ", pollInterval.Milliseconds(), "ms",
+				", pollInterval: ", pollInterval.Milliseconds(), " ms",
 				", domain: ", domain,
 			)
 		} else if isTaskQueueEmpty {
@@ -202,11 +209,16 @@ func (c *TaskRunner) batchPoll(taskType string, count int, timeout time.Duration
 	if response.StatusCode == 204 {
 		return nil, nil
 	}
-	log.Debug("Polled tasks: ", len(tasks), " for taskType ", taskType)
+	log.Debug(fmt.Sprintf("Polled %d tasks for taskType: %s", len(tasks), taskType))
 	return tasks, nil
 }
 
 func (c *TaskRunner) executeTask(t *http_model.Task, executeFunction model.TaskExecuteFunction) (*http_model.TaskResult, error) {
+	log.Trace(
+		"Executing task of type: ", t.TaskDefName,
+		", taskId: ", t.TaskId,
+		", workflowId: ", t.WorkflowInstanceId,
+	)
 	startTime := time.Now()
 	taskResult, err := executeFunction(t)
 	spentTime := time.Since(startTime)
@@ -224,15 +236,29 @@ func (c *TaskRunner) executeTask(t *http_model.Task, executeFunction model.TaskE
 	if taskResult == nil {
 		return nil, fmt.Errorf("task result cannot be nil")
 	}
-	log.Trace(fmt.Sprintf("Polled task: %+v", *t))
+	log.Trace(
+		"Executed task of type: ", t.TaskDefName,
+		", taskId: ", t.TaskId,
+		", workflowId: ", t.WorkflowInstanceId,
+	)
 	return taskResult, nil
 }
 
 func (c *TaskRunner) updateTask(taskType string, taskResult *http_model.TaskResult) error {
+	log.Debug(
+		"Updating task of type: ", taskType,
+		", taskId: ", taskResult.TaskId,
+		", workflowId: ", taskResult.WorkflowInstanceId,
+	)
 	retryCount := 3
 	for i := 0; i < retryCount; i++ {
 		err := c._updateTask(taskType, taskResult)
 		if err == nil {
+			log.Debug(
+				"Updated task of type: ", taskType,
+				", taskId: ", taskResult.TaskId,
+				", workflowId: ", taskResult.WorkflowInstanceId,
+			)
 			return nil
 		}
 		amount := (1 << i)
@@ -254,12 +280,12 @@ func (c *TaskRunner) _updateTask(taskType string, taskResult *http_model.TaskRes
 			"Failed to update task",
 			", reason: ", err.Error(),
 			", task type: ", taskType,
-			", task result: ", *taskResult,
+			", taskId: ", taskResult.TaskId,
+			", workflowId: ", taskResult.WorkflowInstanceId,
 			", response: ", response,
 		)
 		return err
 	}
-	log.Debug("Updated task: ", taskResult.TaskId, ", status: ", taskResult.Status)
 	return nil
 }
 
