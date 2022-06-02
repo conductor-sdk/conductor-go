@@ -10,32 +10,38 @@
 
 ### Setup conductor go package
 
-Create a folder to build your package:
+Create a folder to start your project:
 ```shell
-mkdir conductor-go/
-cd conductor-go/
+mkdir conductor_go_example/
+cd conductor_go_example/
 ```
 
-Create a `go.mod` file for dependencies
-```go
-module conductor_go_test
-
-go 1.17
-
-require (
-	github.com/conductor-sdk/conductor-go v1.1.1
-)
-```
-
-In the case you would like to use another version (e.g. a specific branch), you can use this command:
+Create a new empty module named `example` ([reference](https://go.dev/ref/mod#go-mod-init)):
 
 ```shell
-go get github.com/conductor-sdk/conductor-go@BRANCH_NAME
+$ go init example
+go: creating new go.mod: module example
 ```
 
-Now, create simple worker implementation as `main.go`
+Install `conductor-go` package:
+```shell
+$ go get github.com/conductor-sdk/conductor-go
+go: downloading github.com/conductor-sdk/conductor-go v1.1.2
+go get: added github.com/conductor-sdk/conductor-go v1.1.2
+```
+
+(*Optional*) Using a specific version ([reference](https://go.dev/ref/mod#go-get)). Example with `code_review` branch:
+```shell
+$ go get github.com/conductor-sdk/conductor-go@code_review
+go: downloading github.com/conductor-sdk/conductor-go v1.1.3-0.20220601175614-e039dcf37361
+go get: upgraded github.com/conductor-sdk/conductor-go v1.1.2 => v1.1.3-0.20220601175614-e039dcf37361
+```
+
+### Run workers
+
+Create a `main.go` file and paste this code there:
 ```go
-package examples
+package main
 
 import (
 	"context"
@@ -85,28 +91,20 @@ func main() {
 	)
 	taskRunner.WaitWorkers()
 }
-
 ```
 
-Install dependencies.  This will download all the required dependencies 
+Run your `main.go` file
 ```shell
-go get
-```
-**Note:**
-
-Replace `KEY` and `SECRET` by obtaining a new key and secret from Orkes Playground as described [Generating Access Keys for Programmatic Access](https://orkes.io/content/docs/getting-started/concepts/access-control#access-keys) 
-
-Also - replace `go_task_example` with the name of your task.
-
-### Run workers
-Start the workers by running `go run`
-```shell
-go run main.go
+$ go run main.go
+// TODO
 ```
 
-## Configuration
+Explanation:
 
-### Authentication settings (optional)
+
+### Configuration
+
+#### Authentication settings (optional)
 Use if your conductor server requires authentication
 * keyId: Key
 * keySecret: Secret for the Key
