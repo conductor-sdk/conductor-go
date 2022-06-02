@@ -1,6 +1,7 @@
 package workflow_e2e
 
 import (
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -108,6 +109,48 @@ func TestSimpleTask(t *testing.T) {
 	}
 }
 
+func TestInlineTask(t *testing.T) {
+	jsCode := "function e() { if ($.value == 1){return {\"result\": true}} else { return {\"result\": false}}} e();"
+	inlineTask := workflow.NewInlineTask(
+		"TEST_GO_TASK_INLINE",
+		map[string]interface{}{
+			"value":         "${workflow.input.value}",
+			"evaluatorType": "javascript",
+			"expression":    jsCode,
+		},
+	)
+	inlineTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+		Name("TEST_GO_WORKFLOW_INLINE_TASK").
+		Version(1).
+		Add(inlineTask)
+	err := validateWorkflow(inlineTaskWorkflow, 5*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func isWorkflowCompleted(workflow *http_model.Workflow) bool {
 	return workflow.Status == string(workflow_status.COMPLETED)
+}
+
+func validateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout time.Duration) error {
+	_, err := conductorWorkflow.Register()
+	if err != nil {
+		return err
+	}
+	_, workflowExecutionChannel, err := conductorWorkflow.Start(nil)
+	if err != nil {
+		return err
+	}
+	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
+		workflowExecutionChannel,
+		timeout,
+	)
+	if err != nil {
+		return err
+	}
+	if !isWorkflowCompleted(workflow) {
+		return fmt.Errorf("workflow finished with status: %s", workflow.Status)
+	}
+	return nil
 }
