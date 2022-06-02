@@ -259,7 +259,7 @@ func (c *TaskRunner) _updateTask(taskType string, taskResult *http_model.TaskRes
 		)
 		return err
 	}
-	log.Debug("Updated task: ", taskResult.TaskId, ",", taskResult.Status)
+	log.Debug("Updated task: ", taskResult.TaskId, ", status: ", taskResult.Status)
 	return nil
 }
 
