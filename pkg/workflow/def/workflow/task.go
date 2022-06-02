@@ -28,6 +28,7 @@ const (
 type TaskInterface interface {
 	toWorkflowTask() []http_model.WorkflowTask
 	OutputRef(path string) string
+	ToTaskDef() *http_model.TaskDef
 }
 
 type Task struct {
@@ -49,6 +50,13 @@ func (task *Task) toWorkflowTask() []http_model.WorkflowTask {
 			Optional:          task.optional,
 			Type_:             string(task.taskType),
 		},
+	}
+}
+
+func (task *Task) ToTaskDef() *http_model.TaskDef {
+	return &http_model.TaskDef{
+		Name:        task.name,
+		Description: task.description,
 	}
 }
 

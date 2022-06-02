@@ -9,32 +9,52 @@ import (
 )
 
 func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
+	task := workflow.NewSimpleTask("simple_task_2")
 	simpleWorkflow := workflow.NewConductorWorkflow(executor).
-		Name("inline_sub")
-	simpleWorkflow.Add(workflow.NewSimpleTask("simple_task_2", "simple_task"))
-	subWorkflowInline := workflow.NewSubWorkflowInlineTask("sub_flow_inline", simpleWorkflow)
-
-	task1 := workflow.NewSimpleTask("simple_task_2", "get_data")
-
+		Name("inline_sub").
+		Add(
+			workflow.NewSimpleTask("simple_task_2"),
+		)
+	subWorkflowInline := workflow.NewSubWorkflowInlineTask(
+		"sub_flow_inline",
+		simpleWorkflow,
+	)
 	decide := workflow.NewSwitchTask("fact_length", "$.number < 15 ? 'SHORT':'LONG'").
-		Description("Fail if the fact is too short")
-
-	decide.
+		Description("Fail if the fact is too short").
 		Input("number", "${get_data.output.number}").
 		UseJavascript(true).
-		SwitchCase("LONG", workflow.NewSimpleTask("simple_task_4", "simple_task_4"), workflow.NewSimpleTask("simple_task_4", "simple_task_4")).
-		SwitchCase("SHORT", workflow.NewTerminateTask("too_short", workflow_status.FAILED, "value too short"))
-
-	doWhile := workflow.NewLoopTask("loop_until_success", 2, decide).Optional(true)
-	fork := workflow.NewForkTask("fork",
-		[]workflow.TaskInterface{doWhile, subWorkflowInline},
-		[]workflow.TaskInterface{workflow.NewSimpleTask("simple_task_5", "simple_task_5")},
+		SwitchCase(
+			"LONG",
+			workflow.NewSimpleTask("simple_task_4"),
+			workflow.NewSimpleTask("simple_task_4"),
+		).
+		SwitchCase(
+			"SHORT",
+			workflow.NewTerminateTask(
+				"too_short",
+				workflow_status.FAILED,
+				"value too short",
+			),
+		)
+	doWhile := workflow.NewLoopTask("loop_until_success", 2, decide).
+		Optional(true)
+	fork := workflow.NewForkTask(
+		"fork",
+		[]workflow.TaskInterface{
+			doWhile,
+			subWorkflowInline,
+		},
+		[]workflow.TaskInterface{
+			workflow.NewSimpleTask("simple_task_5"),
+		},
 	)
-	dynamicFork := workflow.NewDynamicForkTask("dynamic_fork", workflow.NewSimpleTask("dynamic_fork_prep", "dynamic_fork_prep"))
-
+	dynamicFork := workflow.NewDynamicForkTask(
+		"dynamic_fork",
+		workflow.NewSimpleTask("dynamic_fork_prep"),
+	)
 	setVariable := workflow.NewSetVariableTask("set_state").
 		Input("call_made", true).
-		Input("number", task1.OutputRef("number"))
+		Input("number", task.OutputRef("number"))
 
 	subWorkflow := workflow.NewSubWorkflowTask("sub_flow", "PopulationMinMax", nil)
 
@@ -45,7 +65,7 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 		Name("sdk_kitchen_sink2").
 		Version(1).
 		OwnerEmail("viren@orkes.io").
-		Add(task1).
+		Add(task).
 		Add(setVariable).
 		Add(subWorkflow).
 		Add(dynamicFork).

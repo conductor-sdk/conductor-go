@@ -1,12 +1,15 @@
 package workflow_e2e
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/examples"
+	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 	"github.com/conductor-sdk/conductor-go/pkg/worker"
@@ -20,33 +23,12 @@ import (
 var (
 	taskRunner       = worker.NewTaskRunnerWithApiClient(e2e_properties.API_CLIENT)
 	workflowExecutor = executor.NewWorkflowExecutor(e2e_properties.API_CLIENT)
+	metadataClient   = conductor_http_client.MetadataResourceApiService{
+		APIClient: e2e_properties.API_CLIENT,
+	}
 )
 
-var (
-	httpTask = workflow.NewHttpTask(
-		"GO_TASK_OF_HTTP_TYPE",
-		&workflow.HttpInput{
-			Uri: "https://catfact.ninja/fact",
-		},
-	)
-
-	httpTaskWorkflow = workflow.NewConductorWorkflow(workflowExecutor).
-				Name("GO_WORKFLOW_WITH_HTTP_TASK").
-				Version(1).
-				Add(httpTask)
-)
-
-var (
-	simpleTask = workflow.NewSimpleTask(
-		http_client_e2e_properties.TASK_NAME,
-		http_client_e2e_properties.TASK_NAME,
-	)
-
-	simpleTaskWorkflow = workflow.NewConductorWorkflow(workflowExecutor).
-				Name("GO_WORKFLOW_WITH_SIMPLE_TASK").
-				Version(1).
-				Add(simpleTask)
-)
+const workflowValidationTimeout = 5 * time.Second
 
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
@@ -55,57 +37,53 @@ func init() {
 }
 
 func TestHttpTask(t *testing.T) {
-	_, err := httpTaskWorkflow.Register()
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, workflowExecutionChannel, err := httpTaskWorkflow.Start(nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
-		workflowExecutionChannel,
-		5*time.Second,
+	httpTask := workflow.NewHttpTask(
+		"TEST_GO_TASK_HTTP",
+		&workflow.HttpInput{
+			Uri: "https://catfact.ninja/fact",
+		},
 	)
+	httpTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+		Name("TEST_GO_WORKFLOW_HTTP").
+		Version(1).
+		Add(httpTask)
+	err := validateWorkflow(httpTaskWorkflow, workflowValidationTimeout)
 	if err != nil {
 		t.Fatal(err)
-	}
-	if !isWorkflowCompleted(workflow) {
-		t.Fatal("Workflow finished with incomplete status, workflow: ", workflow.Status)
 	}
 }
 
 func TestSimpleTask(t *testing.T) {
-	_, err := simpleTaskWorkflow.Register()
+	simpleTask := workflow.NewSimpleTask(
+		"TEST_GO_TASK_SIMPLE",
+	)
+	response, err := registerTask(simpleTask)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal("Failed to register task, response: ", response)
 	}
-	_, workflowExecutionChannel, err := simpleTaskWorkflow.Start(nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	simpleTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+		Name("TEST_GO_WORKFLOW_SIMPLE").
+		Version(1).
+		Add(simpleTask)
 	err = taskRunner.StartWorker(
 		simpleTask.ReferenceName(),
 		examples.SimpleWorker,
-		http_client_e2e_properties.WORKER_THREAD_COUNT,
-		http_client_e2e_properties.WORKER_POLLING_INTERVAL,
+		5,
+		500*time.Millisecond,
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
-		workflowExecutionChannel,
-		5*time.Second,
-	)
+	err = validateWorkflow(simpleTaskWorkflow, workflowValidationTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
-	taskRunner.RemoveWorker(
+	err = taskRunner.RemoveWorker(
 		simpleTask.ReferenceName(),
 		http_client_e2e_properties.WORKER_THREAD_COUNT,
 	)
-	if !isWorkflowCompleted(workflow) {
-		t.Fatal("Workflow finished with incomplete status, workflow: ", workflow.Status)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
@@ -123,7 +101,22 @@ func TestInlineTask(t *testing.T) {
 		Name("TEST_GO_WORKFLOW_INLINE_TASK").
 		Version(1).
 		Add(inlineTask)
-	err := validateWorkflow(inlineTaskWorkflow, 5*time.Second)
+	err := validateWorkflow(inlineTaskWorkflow, workflowValidationTimeout)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestSqsEventTask(t *testing.T) {
+	sqsEventTask := workflow.NewSqsEventTask(
+		"TEST_GO_EVENT_SQS_TASK",
+		"QUEUE",
+	)
+	sqsEventTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+		Name("TEST_GO_EVENT_SQS_WORKFLOW").
+		Version(1).
+		Add(sqsEventTask)
+	err := validateWorkflow(sqsEventTaskWorkflow, workflowValidationTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -153,4 +146,13 @@ func validateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 		return fmt.Errorf("workflow finished with status: %s", workflow.Status)
 	}
 	return nil
+}
+
+func registerTask(task *workflow.SimpleTask) (*http.Response, error) {
+	return metadataClient.RegisterTaskDef(
+		context.Background(),
+		[]http_model.TaskDef{
+			*task.ToTaskDef(),
+		},
+	)
 }

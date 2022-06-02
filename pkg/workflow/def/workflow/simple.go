@@ -4,15 +4,24 @@ type SimpleTask struct {
 	Task
 }
 
-func NewSimpleTask(name string, taskRefName string) *SimpleTask {
+func NewSimpleTask(taskName string) *SimpleTask {
 	return &SimpleTask{
 		Task{
-			name:              name,
-			taskReferenceName: taskRefName,
-			description:       "",
+			name:              taskName,
+			taskReferenceName: taskName,
 			taskType:          SIMPLE,
-			optional:          false,
 			inputParameters:   map[string]interface{}{},
+		},
+	}
+}
+
+func NewSimpleTaskWithInputParameters(taskName string, inputParameters map[string]interface{}) *SimpleTask {
+	return &SimpleTask{
+		Task{
+			name:              taskName,
+			taskReferenceName: taskName,
+			taskType:          SIMPLE,
+			inputParameters:   inputParameters,
 		},
 	}
 }
