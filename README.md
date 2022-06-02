@@ -19,7 +19,7 @@ cd conductor_go_example/
 Create a new empty module named `example` ([reference](https://go.dev/ref/mod#go-mod-init)):
 
 ```shell
-$ go init example
+$ go mod init example
 go: creating new go.mod: module example
 ```
 
