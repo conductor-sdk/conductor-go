@@ -12,8 +12,8 @@
 
 Create a folder to start your project:
 ```shell
-mkdir conductor_go_example/
-cd conductor_go_example/
+$ mkdir conductor_go_example/
+$ cd conductor_go_example/
 ```
 
 Create a new empty module named `example` ([reference](https://go.dev/ref/mod#go-mod-init)):
