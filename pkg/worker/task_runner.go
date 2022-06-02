@@ -57,8 +57,8 @@ func NewTaskRunnerWithApiClient(
 // StartWorkerWithDomain
 //  - taskType Task Type to poll and execute the work
 //  - executeFunction Task execution function
-//  - batchSize No. of tasks to poll for.  Each polled task is executed in a goroutine.  Batching improves the throughput
-//  - pollInterval Time to wait for between polls if there are no tasks available.  Reduces excessive polling on the server when there is no work
+//  - batchSize Amount of tasks to be polled. Each polled task will be executed and updated within its own unique goroutine.
+//  - pollInterval Time to wait for between polls if there are no tasks available. Reduces excessive polling on the server when there is no work
 //  - domain Task domain. Optional for polling
 func (c *TaskRunner) StartWorkerWithDomain(taskType string, executeFunction model.TaskExecuteFunction, threadCount int, pollInterval time.Duration, domain string) error {
 	return c.startWorker(taskType, executeFunction, threadCount, pollInterval, domain)
@@ -67,8 +67,8 @@ func (c *TaskRunner) StartWorkerWithDomain(taskType string, executeFunction mode
 // StartWorker
 //  - taskType Task Type to poll and execute the work
 //  - executeFunction Task execution function
-//  - batchSize No. of tasks to poll for.  Each polled task is executed in a goroutine.  Batching improves the throughput
-//  - pollInterval Time to wait for between polls if there are no tasks available.  Reduces excessive polling on the server when there is no work
+//  - batchSize Amount of tasks to be polled. Each polled task will be executed and updated within its own unique goroutine.
+//  - pollInterval Time to wait for between polls if there are no tasks available. Reduces excessive polling on the server when there is no work
 func (c *TaskRunner) StartWorker(taskType string, executeFunction model.TaskExecuteFunction, batchSize int, pollInterval time.Duration) error {
 	return c.startWorker(taskType, executeFunction, batchSize, pollInterval, "")
 }
