@@ -9,6 +9,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
+	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -90,7 +91,7 @@ func (w *WorkflowMonitor) getWorkflowsInTerminalState() ([]*http_model.Workflow,
 			)
 			return nil, err
 		}
-		if IsWorkflowInTerminalState(&workflow) {
+		if isWorkflowInTerminalState(&workflow) {
 			workflowsInTerminalState = append(workflowsInTerminalState, &workflow)
 		}
 	}
@@ -137,4 +138,13 @@ func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *ht
 	delete(w.executionChannelByWorkflowId, workflowId)
 	log.Debug("Deleted workflow execution channel")
 	return nil
+}
+
+func isWorkflowInTerminalState(workflow *http_model.Workflow) bool {
+	for _, terminalState := range workflow_status.WorkflowTerminalStates {
+		if workflow.Status == string(terminalState) {
+			return true
+		}
+	}
+	return false
 }
