@@ -109,14 +109,34 @@ func TestInlineTask(t *testing.T) {
 
 func TestSqsEventTask(t *testing.T) {
 	sqsEventTask := workflow.NewSqsEventTask(
-		"TEST_GO_EVENT_SQS_TASK",
+		"TEST_GO_TASK_EVENT_SQS",
 		"QUEUE",
 	)
-	sqsEventTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
-		Name("TEST_GO_EVENT_SQS_WORKFLOW").
+	testEventTask(
+		t,
+		"TEST_GO_WORKFLOW_EVENT_SQS",
+		sqsEventTask,
+	)
+}
+
+func TestConductorEventTask(t *testing.T) {
+	sqsEventTask := workflow.NewSqsEventTask(
+		"TEST_GO_TASK_EVENT_CONDUCTOR",
+		"QUEUE",
+	)
+	testEventTask(
+		t,
+		"TEST_GO_WORKFLOW_EVENT_CONDUCTOR",
+		sqsEventTask,
+	)
+}
+
+func testEventTask(t *testing.T, workflowName string, event *workflow.EventTask) {
+	eventTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+		Name(workflowName).
 		Version(1).
-		Add(sqsEventTask)
-	_, err := sqsEventTaskWorkflow.Register()
+		Add(event)
+	_, err := eventTaskWorkflow.Register()
 	if err != nil {
 		t.Fatal(err)
 	}
