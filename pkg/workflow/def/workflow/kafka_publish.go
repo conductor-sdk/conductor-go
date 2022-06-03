@@ -15,11 +15,11 @@ type KafkaPublishTaskInput struct {
 	Topic            string                 `json:"topic"`
 }
 
-func NewKafkaPublishTask(taskName string, kafkaPublishTaskInput *KafkaPublishTaskInput) *KafkaPublishTask {
+func NewKafkaPublishTask(taskRefName string, kafkaPublishTaskInput *KafkaPublishTaskInput) *KafkaPublishTask {
 	return &KafkaPublishTask{
 		Task: Task{
-			name:              taskName,
-			taskReferenceName: taskName,
+			name:              taskRefName,
+			taskReferenceName: taskRefName,
 			taskType:          KAFKA_PUBLISH,
 			inputParameters: map[string]interface{}{
 				"kafka_request": kafkaPublishTaskInput,

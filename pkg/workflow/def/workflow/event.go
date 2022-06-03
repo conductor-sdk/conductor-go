@@ -13,27 +13,27 @@ type EventTask struct {
 	sink string
 }
 
-func NewSqsEventTask(taskName string, queueName string) *EventTask {
+func NewSqsEventTask(taskRefName string, queueName string) *EventTask {
 	return newEventTask(
-		taskName,
+		taskRefName,
 		sqsEventPrefix,
 		queueName,
 	)
 }
 
-func NewConductorEventTask(taskName string, eventName string) *EventTask {
+func NewConductorEventTask(taskRefName string, eventName string) *EventTask {
 	return newEventTask(
-		taskName,
+		taskRefName,
 		conductorEventPrefix,
 		eventName,
 	)
 }
 
-func newEventTask(taskName string, eventPrefix string, eventSuffix string) *EventTask {
+func newEventTask(taskRefName string, eventPrefix string, eventSuffix string) *EventTask {
 	return &EventTask{
 		Task: Task{
-			name:              taskName,
-			taskReferenceName: taskName,
+			name:              taskRefName,
+			taskReferenceName: taskRefName,
 			taskType:          EVENT,
 		},
 		sink: eventPrefix + ":" + eventSuffix,

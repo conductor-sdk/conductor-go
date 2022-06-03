@@ -16,15 +16,13 @@ type DoWhileTask struct {
 	loopOver      []TaskInterface
 }
 
-func NewDoWhileTask(taskRefName string, terminationCondition string, tasks ...TaskInterface) *DoWhileTask {
+func NewDoWhileTask(taskRefName string, terminationCondition string, inputParameters map[string]interface{}, tasks ...TaskInterface) *DoWhileTask {
 	return &DoWhileTask{
 		Task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
-			description:       "",
 			taskType:          DO_WHILE,
-			optional:          false,
-			inputParameters:   map[string]interface{}{},
+			inputParameters:   inputParameters,
 		},
 		loopCondition: terminationCondition,
 		loopOver:      tasks,
@@ -38,9 +36,7 @@ func NewLoopTask(taskRefName string, iterations int32, tasks ...TaskInterface) *
 		Task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
-			description:       "",
 			taskType:          DO_WHILE,
-			optional:          false,
 			inputParameters: map[string]interface{}{
 				loopCondition: iterations,
 			},

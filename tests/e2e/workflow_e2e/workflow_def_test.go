@@ -28,6 +28,49 @@ var (
 	}
 )
 
+var (
+	httpTask = workflow.NewHttpTask(
+		"TEST_GO_TASK_HTTP",
+		&workflow.HttpInput{
+			Uri: "https://catfact.ninja/fact",
+		},
+	)
+
+	simpleTask = workflow.NewSimpleTask(
+		"TEST_GO_TASK_SIMPLE",
+	)
+
+	terminateTask = workflow.NewTerminateTask(
+		"TEST_GO_TASK_TERMINATE",
+		workflow_status.FAILED,
+		"Task used to mark workflow as failed",
+	)
+
+	switchTask = workflow.NewSwitchTask(
+		"TEST_GO_TASK_SWITCH",
+		"switchCaseValue",
+	).
+		Input("switchCaseValue", "${workflow.input.service}").
+		UseJavascript(true).
+		SwitchCase(
+			"REQUEST",
+			httpTask,
+		).
+		SwitchCase(
+			"STOP",
+			terminateTask,
+		)
+
+	inlineTask = workflow.NewInlineTask(
+		"TEST_GO_TASK_INLINE",
+		map[string]interface{}{
+			"value":         "${workflow.input.value}",
+			"evaluatorType": "javascript",
+			"expression":    "function e() { if ($.value == 1){return {\"result\": true}} else { return {\"result\": false}}} e();",
+		},
+	)
+)
+
 const workflowValidationTimeout = 5 * time.Second
 
 func init() {
@@ -37,12 +80,6 @@ func init() {
 }
 
 func TestHttpTask(t *testing.T) {
-	httpTask := workflow.NewHttpTask(
-		"TEST_GO_TASK_HTTP",
-		&workflow.HttpInput{
-			Uri: "https://catfact.ninja/fact",
-		},
-	)
 	httpTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
 		Name("TEST_GO_WORKFLOW_HTTP").
 		Version(1).
@@ -54,9 +91,6 @@ func TestHttpTask(t *testing.T) {
 }
 
 func TestSimpleTask(t *testing.T) {
-	simpleTask := workflow.NewSimpleTask(
-		"TEST_GO_TASK_SIMPLE",
-	)
 	response, err := registerTask(simpleTask)
 	if err != nil {
 		t.Fatal("Failed to register task, response: ", response)
@@ -88,15 +122,6 @@ func TestSimpleTask(t *testing.T) {
 }
 
 func TestInlineTask(t *testing.T) {
-	jsCode := "function e() { if ($.value == 1){return {\"result\": true}} else { return {\"result\": false}}} e();"
-	inlineTask := workflow.NewInlineTask(
-		"TEST_GO_TASK_INLINE",
-		map[string]interface{}{
-			"value":         "${workflow.input.value}",
-			"evaluatorType": "javascript",
-			"expression":    jsCode,
-		},
-	)
 	inlineTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
 		Name("TEST_GO_WORKFLOW_INLINE_TASK").
 		Version(1).
@@ -149,10 +174,27 @@ func TestKafkaPublishTask(t *testing.T) {
 		Name("TEST_GO_WORKFLOW_KAFKA_PUBLISH").
 		Version(1).
 		Add(kafkaPublishTask)
-	_, err := kafkaPublishTaskWorkflow.Register()
-	if err != nil {
-		t.Fatal(err)
-	}
+	registerWorkflow(t, kafkaPublishTaskWorkflow)
+}
+
+func TestDoWhileTask(t *testing.T) {
+
+}
+
+func TestTerminateTask(t *testing.T) {
+	terminateTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+		Name("TEST_GO_WORKFLOW_TERMINATE").
+		Version(1).
+		Add(terminateTask)
+	registerWorkflow(t, terminateTaskWorkflow)
+}
+
+func TestSwitchTask(t *testing.T) {
+	switchTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+		Name("TEST_GO_WORKFLOW_SWITCH").
+		Version(1).
+		Add(switchTask)
+	registerWorkflow(t, switchTaskWorkflow)
 }
 
 func testEventTask(t *testing.T, workflowName string, event *workflow.EventTask) {
@@ -199,4 +241,11 @@ func registerTask(task *workflow.SimpleTask) (*http.Response, error) {
 			*task.ToTaskDef(),
 		},
 	)
+}
+
+func registerWorkflow(t *testing.T, conductorWorkflow *workflow.ConductorWorkflow) {
+	_, err := conductorWorkflow.Register()
+	if err != nil {
+		t.Error(err)
+	}
 }
