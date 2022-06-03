@@ -116,7 +116,7 @@ func TestSqsEventTask(t *testing.T) {
 		Name("TEST_GO_EVENT_SQS_WORKFLOW").
 		Version(1).
 		Add(sqsEventTask)
-	err := validateWorkflow(sqsEventTaskWorkflow, workflowValidationTimeout)
+	_, err := sqsEventTaskWorkflow.Register()
 	if err != nil {
 		t.Fatal(err)
 	}
