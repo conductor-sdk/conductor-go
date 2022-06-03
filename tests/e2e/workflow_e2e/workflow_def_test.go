@@ -131,6 +131,30 @@ func TestConductorEventTask(t *testing.T) {
 	)
 }
 
+func TestKafkaPublishTask(t *testing.T) {
+	kafkaPublishTask := workflow.NewKafkaPublishTask(
+		"TEST_GO_TASK_KAFKA_PUBLISH",
+		&workflow.KafkaPublishTaskInput{
+			Topic:            "userTopic",
+			Value:            "Message to publish",
+			BootStrapServers: "localhost:9092",
+			Headers: map[string]interface{}{
+				"x-Auth": "Auth-key",
+			},
+			Key:           "123",
+			KeySerializer: "org.apache.kafka.common.serialization.IntegerSerializer",
+		},
+	)
+	kafkaPublishTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+		Name("TEST_GO_WORKFLOW_KAFKA_PUBLISH").
+		Version(1).
+		Add(kafkaPublishTask)
+	_, err := kafkaPublishTaskWorkflow.Register()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func testEventTask(t *testing.T, workflowName string, event *workflow.EventTask) {
 	eventTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
 		Name(workflowName).
