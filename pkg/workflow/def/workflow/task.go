@@ -9,7 +9,6 @@ const (
 	DYNAMIC           TaskType = "DYNAMIC"
 	FORK_JOIN         TaskType = "FORK_JOIN"
 	FORK_JOIN_DYNAMIC TaskType = "FORK_JOIN_DYNAMIC"
-	DECISION          TaskType = "DECISION"
 	SWITCH            TaskType = "SWITCH"
 	JOIN              TaskType = "JOIN"
 	DO_WHILE          TaskType = "DO_WHILE"
@@ -18,9 +17,7 @@ const (
 	EVENT             TaskType = "EVENT"
 	WAIT              TaskType = "WAIT"
 	HUMAN             TaskType = "HUMAN"
-	USER_DEFINED      TaskType = "USER_DEFINED"
 	HTTP              TaskType = "HTTP"
-	LAMBDA            TaskType = "LAMBDA"
 	INLINE            TaskType = "INLINE"
 	EXCLUSIVE_JOIN    TaskType = "EXCLUSIVE_JOIN"
 	TERMINATE         TaskType = "TERMINATE"
@@ -79,6 +76,13 @@ func (task *Task) OutputRef(path string) string {
 // Input to the task
 func (task *Task) Input(key string, value interface{}) *Task {
 	task.inputParameters[key] = value
+	return task
+}
+
+func (task *Task) InputMap(inputMap map[string]interface{}) *Task {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
 	return task
 }
 

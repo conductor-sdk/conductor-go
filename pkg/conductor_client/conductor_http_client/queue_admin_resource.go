@@ -82,7 +82,7 @@ func (a *QueueAdminResourceApiService) Names(ctx context.Context) (map[string]st
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v map[string]string
@@ -165,7 +165,7 @@ func (a *QueueAdminResourceApiService) Size1(ctx context.Context) (map[string]in
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v map[string]int64
@@ -248,7 +248,7 @@ func (a *QueueAdminResourceApiService) Update1(ctx context.Context, body map[str
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -321,7 +321,7 @@ func (a *QueueAdminResourceApiService) UpdateByTaskId(ctx context.Context, body 
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}

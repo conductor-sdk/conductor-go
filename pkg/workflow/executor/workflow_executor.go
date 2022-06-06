@@ -8,7 +8,6 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/conductor-sdk/conductor-go/pkg/model"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -36,12 +35,24 @@ func NewWorkflowExecutor(apiClient *conductor_http_client.APIClient) *WorkflowEx
 	return &workflowExecutor
 }
 
-func (e *WorkflowExecutor) ExecuteWorkflow(name string, version int32, input interface{}) (string, WorkflowExecutionChannel, error) {
-	workflowId, err := e.startWorkflow(
-		name,
-		version,
-		input,
-	)
+func (e *WorkflowExecutor) RegisterWorkflow(override bool, workflow *http_model.WorkflowDef) (*http.Response, error) {
+	if override {
+		return e.metadataClient.Update(
+			context.Background(),
+			[]http_model.WorkflowDef{
+				*workflow,
+			},
+		)
+	} else {
+		return e.metadataClient.RegisterWorkflowDef(
+			context.Background(),
+			*workflow,
+		)
+	}
+}
+
+func (e *WorkflowExecutor) StartWorkflow(request *http_model.StartWorkflowRequest) (string, WorkflowExecutionChannel, error) {
+	workflowId, err := e.executeWorkflow(nil, request)
 	if err != nil {
 		return "", nil, err
 	}
@@ -52,13 +63,16 @@ func (e *WorkflowExecutor) ExecuteWorkflow(name string, version int32, input int
 	return workflowId, executionChannel, nil
 }
 
-func (e *WorkflowExecutor) RegisterWorkflow(workflow *http_model.WorkflowDef) (*http.Response, error) {
-	return e.metadataClient.Update(
-		context.Background(),
-		[]http_model.WorkflowDef{
-			*workflow,
-		},
-	)
+func (e *WorkflowExecutor) ExecuteWorkflow(workflow *http_model.WorkflowDef, request *http_model.StartWorkflowRequest) (string, WorkflowExecutionChannel, error) {
+	workflowId, err := e.executeWorkflow(workflow, request)
+	if err != nil {
+		return "", nil, err
+	}
+	executionChannel, err := e.workflowMonitor.GenerateWorkflowExecutionChannel(workflowId)
+	if err != nil {
+		return "", nil, err
+	}
+	return workflowId, executionChannel, nil
 }
 
 func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionChannel, timeout time.Duration) (*http_model.Workflow, error) {
@@ -73,15 +87,20 @@ func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionCha
 	}
 }
 
-func (e *WorkflowExecutor) startWorkflow(name string, version int32, input interface{}) (string, error) {
-	inputAsMap, err := model.ConvertToMap(input)
-	if err != nil {
-		return "", err
-	}
+// ExecuteWorkflow Executes a workflow
+// Returns workflow Id for the newly started workflow
+func (e *WorkflowExecutor) executeWorkflow(workflow *http_model.WorkflowDef, request *http_model.StartWorkflowRequest) (string, error) {
 	startWorkflowRequest := http_model.StartWorkflowRequest{
-		Name:    name,
-		Version: version,
-		Input:   inputAsMap,
+		Name:                            request.Name,
+		Version:                         request.Version,
+		CorrelationId:                   request.CorrelationId,
+		Input:                           request.Input,
+		TaskToDomain:                    request.TaskToDomain,
+		ExternalInputPayloadStoragePath: request.ExternalInputPayloadStoragePath,
+		Priority:                        request.Priority,
+	}
+	if workflow != nil {
+		startWorkflowRequest.WorkflowDef = workflow
 	}
 	workflowId, response, err := e.workflowClient.StartWorkflow1(
 		context.Background(),
@@ -91,9 +110,9 @@ func (e *WorkflowExecutor) startWorkflow(name string, version int32, input inter
 		log.Debug(
 			"Failed to start workflow",
 			", reason: ", err.Error(),
-			", name: ", name,
-			", version: ", version,
-			", input: ", input,
+			", name: ", request.Name,
+			", version: ", request.Version,
+			", input: ", request.Input,
 			", workflowId: ", workflowId,
 			", response: ", response,
 		)
@@ -102,9 +121,9 @@ func (e *WorkflowExecutor) startWorkflow(name string, version int32, input inter
 	log.Debug(
 		"Started workflow",
 		", workflowId: ", workflowId,
-		", name: ", name,
-		", version: ", version,
-		", input: ", input,
+		", name: ", request.Name,
+		", version: ", request.Version,
+		", input: ", request.Input,
 	)
 	return workflowId, err
 }

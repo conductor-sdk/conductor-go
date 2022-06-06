@@ -21,6 +21,7 @@ func GetTaskResultFromTask(task *http_model.Task) *http_model.TaskResult {
 		WorkflowInstanceId: task.WorkflowInstanceId,
 		WorkerId:           hostname,
 	}
+
 }
 
 func GetTaskResultFromTaskWithError(t *http_model.Task, err error) *http_model.TaskResult {

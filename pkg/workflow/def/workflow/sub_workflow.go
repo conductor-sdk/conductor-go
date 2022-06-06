@@ -39,6 +39,29 @@ func NewSubWorkflowInlineTask(taskRefName string, workflow *ConductorWorkflow) *
 	}
 }
 
+func (task *SubWorkflowTask) TaskToDomain(taskToDomainMap map[string]string) *SubWorkflowTask {
+	task.taskToDomainMap = taskToDomainMap
+	return task
+}
+func (task *SubWorkflowTask) toWorkflowTask() []http_model.WorkflowTask {
+	workflowTasks := task.Task.toWorkflowTask()
+	if task.workflow != nil {
+		workflowTasks[0].SubWorkflowParam = &http_model.SubWorkflowParams{
+			Name:               task.workflow.name,
+			TaskToDomain:       task.taskToDomainMap,
+			WorkflowDefinition: task.workflow.ToWorkflowDef(),
+		}
+	} else {
+		workflowTasks[0].SubWorkflowParam = &http_model.SubWorkflowParams{
+			Name:               task.workflowName,
+			Version:            task.version,
+			TaskToDomain:       task.taskToDomainMap,
+			WorkflowDefinition: nil,
+		}
+	}
+	return workflowTasks
+}
+
 func (task *SubWorkflowTask) Description(description string) *SubWorkflowTask {
 	task.Task.Description(description)
 	return task
@@ -52,25 +75,9 @@ func (task *SubWorkflowTask) Input(key string, value interface{}) *SubWorkflowTa
 	task.Task.Input(key, value)
 	return task
 }
-func (task *SubWorkflowTask) TaskToDomain(taskToDomainMap map[string]string) *SubWorkflowTask {
-	task.taskToDomainMap = taskToDomainMap
-	return task
-}
-func (task *SubWorkflowTask) toWorkflowTask() []http_model.WorkflowTask {
-	workflowTasks := task.Task.toWorkflowTask()
-	if task.workflow != nil {
-		workflowTasks[0].SubWorkflowParam = &http_model.SubWorkflowParams{
-			Name:               task.workflow.name,
-			TaskToDomain:       task.taskToDomainMap,
-			WorkflowDefinition: task.workflow.toWorkflowDef(),
-		}
-	} else {
-		workflowTasks[0].SubWorkflowParam = &http_model.SubWorkflowParams{
-			Name:               task.workflowName,
-			Version:            task.version,
-			TaskToDomain:       task.taskToDomainMap,
-			WorkflowDefinition: nil,
-		}
+func (task *SubWorkflowTask) InputMap(inputMap map[string]interface{}) *SubWorkflowTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
 	}
-	return workflowTasks
+	return task
 }

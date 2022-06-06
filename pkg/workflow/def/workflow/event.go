@@ -7,7 +7,7 @@ const (
 	conductorEventPrefix = "conductor"
 )
 
-// Task to publish Events to external queuing systems like SQS, NATS, AMQP etc.
+// EventTask Task to publish Events to external queuing systems like SQS, NATS, AMQP etc.
 type EventTask struct {
 	Task
 	sink string
@@ -44,4 +44,24 @@ func (task *EventTask) toWorkflowTask() []http_model.WorkflowTask {
 	workflowTasks := task.Task.toWorkflowTask()
 	workflowTasks[0].Sink = task.sink
 	return workflowTasks
+}
+
+// Input to the task
+func (task *EventTask) Input(key string, value interface{}) *EventTask {
+	task.Task.Input(key, value)
+	return task
+}
+func (task *EventTask) InputMap(inputMap map[string]interface{}) *EventTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
+func (task *EventTask) Optional(optional bool) *EventTask {
+	task.Task.Optional(optional)
+	return task
+}
+func (task *EventTask) Description(description string) *EventTask {
+	task.Task.Description(description)
+	return task
 }

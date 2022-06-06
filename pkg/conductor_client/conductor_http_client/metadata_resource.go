@@ -79,7 +79,7 @@ func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, bo
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -164,7 +164,7 @@ func (a *MetadataResourceApiService) Get(ctx context.Context, name string, local
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v http_model.WorkflowDef
@@ -247,7 +247,7 @@ func (a *MetadataResourceApiService) GetAll(ctx context.Context) ([]http_model.W
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v []http_model.WorkflowDef
@@ -332,7 +332,7 @@ func (a *MetadataResourceApiService) GetTaskDef(ctx context.Context, tasktype st
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v http_model.TaskDef
@@ -415,7 +415,7 @@ func (a *MetadataResourceApiService) GetTaskDefs(ctx context.Context) ([]http_mo
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v []http_model.TaskDef
@@ -492,7 +492,7 @@ func (a *MetadataResourceApiService) UpdateTaskDef(ctx context.Context, body htt
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -559,7 +559,7 @@ func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body [
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -625,7 +625,7 @@ func (a *MetadataResourceApiService) UnregisterTaskDef(ctx context.Context, task
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -693,7 +693,7 @@ func (a *MetadataResourceApiService) UnregisterWorkflowDef(ctx context.Context, 
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -760,7 +760,7 @@ func (a *MetadataResourceApiService) Update(ctx context.Context, body []http_mod
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}

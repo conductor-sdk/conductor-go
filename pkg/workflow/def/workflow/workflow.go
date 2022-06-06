@@ -1,10 +1,11 @@
 package workflow
 
 import (
-	"net/http"
-
+	"encoding/json"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
+	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
 type TimeoutPolicy string
@@ -111,24 +112,64 @@ func (workflow *ConductorWorkflow) Add(task TaskInterface) *ConductorWorkflow {
 	return workflow
 }
 
-func (workflow *ConductorWorkflow) Register() (*http.Response, error) {
-	return workflow.executor.RegisterWorkflow(
-		workflow.toWorkflowDef(),
-	)
+func (workflow *ConductorWorkflow) Register(override bool) (*http.Response, error) {
+	return workflow.executor.RegisterWorkflow(override, workflow.ToWorkflowDef())
 }
 
-func (workflow *ConductorWorkflow) Start(input interface{}) (string, executor.WorkflowExecutionChannel, error) {
-	return workflow.executor.ExecuteWorkflow(
-		workflow.name,
-		workflow.version,
-		input,
-	)
+// RegisterAndStartWorkflow TODO: does this make sense?
+func (workflow *ConductorWorkflow) RegisterAndStartWorkflow(startWorkflowRequest *http_model.StartWorkflowRequest) (string, executor.WorkflowExecutionChannel, error) {
+	return "", nil, nil
+}
+
+func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *http_model.StartWorkflowRequest) (string, executor.WorkflowExecutionChannel, error) {
+	version := int32(workflow.GetVersion())
+	modelRequest := http_model.StartWorkflowRequest{
+		Name:                            workflow.GetName(),
+		Version:                         &version,
+		CorrelationId:                   startWorkflowRequest.CorrelationId,
+		Input:                           getInputAsMap(startWorkflowRequest.Input),
+		TaskToDomain:                    startWorkflowRequest.TaskToDomain,
+		ExternalInputPayloadStoragePath: startWorkflowRequest.ExternalInputPayloadStoragePath,
+		Priority:                        startWorkflowRequest.Priority,
+	}
+	return workflow.executor.StartWorkflow(&modelRequest)
+}
+
+func (workflow *ConductorWorkflow) ExecuteWorkflow(startWorkflowRequest *http_model.StartWorkflowRequest) (string, executor.WorkflowExecutionChannel, error) {
+	modelRequest := http_model.StartWorkflowRequest{
+		Name:                            startWorkflowRequest.Name,
+		Version:                         startWorkflowRequest.Version,
+		CorrelationId:                   startWorkflowRequest.CorrelationId,
+		Input:                           getInputAsMap(startWorkflowRequest.Input),
+		TaskToDomain:                    startWorkflowRequest.TaskToDomain,
+		ExternalInputPayloadStoragePath: startWorkflowRequest.ExternalInputPayloadStoragePath,
+		Priority:                        startWorkflowRequest.Priority,
+	}
+	return workflow.executor.ExecuteWorkflow(workflow.ToWorkflowDef(), &modelRequest)
+}
+
+func getInputAsMap(input interface{}) map[string]interface{} {
+
+	if input == nil {
+		return nil
+	}
+	data, err := json.Marshal(input)
+	if err != nil {
+		log.Debug(
+			"Failed to parse input",
+			", reason: ", err.Error(),
+		)
+		return nil
+	}
+	var parsedInput map[string]interface{}
+	json.Unmarshal(data, &parsedInput)
+	return parsedInput
 }
 
 func (workflow *ConductorWorkflow) StartMany(amount int) ([]executor.WorkflowExecutionChannel, error) {
 	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, amount)
 	for i := 0; i < amount; i += 1 {
-		_, workflowExecutionChannel, err := workflow.Start(nil)
+		_, workflowExecutionChannel, err := workflow.StartWorkflow(nil)
 		if err != nil {
 			return nil, err
 		}
@@ -137,7 +178,7 @@ func (workflow *ConductorWorkflow) StartMany(amount int) ([]executor.WorkflowExe
 	return workflowExecutionChannelList, nil
 }
 
-func (workflow *ConductorWorkflow) toWorkflowDef() *http_model.WorkflowDef {
+func (workflow *ConductorWorkflow) ToWorkflowDef() *http_model.WorkflowDef {
 	return &http_model.WorkflowDef{
 		Name:             workflow.name,
 		Description:      workflow.description,

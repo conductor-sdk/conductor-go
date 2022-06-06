@@ -27,3 +27,23 @@ func NewKafkaPublishTask(taskRefName string, kafkaPublishTaskInput *KafkaPublish
 		},
 	}
 }
+
+// Input to the task
+func (task *KafkaPublishTask) Input(key string, value interface{}) *KafkaPublishTask {
+	task.Task.Input(key, value)
+	return task
+}
+func (task *KafkaPublishTask) InputMap(inputMap map[string]interface{}) *KafkaPublishTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
+func (task *KafkaPublishTask) Optional(optional bool) *KafkaPublishTask {
+	task.Task.Optional(optional)
+	return task
+}
+func (task *KafkaPublishTask) Description(description string) *KafkaPublishTask {
+	task.Task.Description(description)
+	return task
+}
