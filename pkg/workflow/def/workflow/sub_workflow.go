@@ -49,7 +49,7 @@ func (task *SubWorkflowTask) toWorkflowTask() []http_model.WorkflowTask {
 		workflowTasks[0].SubWorkflowParam = &http_model.SubWorkflowParams{
 			Name:               task.workflow.name,
 			TaskToDomain:       task.taskToDomainMap,
-			WorkflowDefinition: task.workflow.toWorkflowDef(),
+			WorkflowDefinition: task.workflow.ToWorkflowDef(),
 		}
 	} else {
 		workflowTasks[0].SubWorkflowParam = &http_model.SubWorkflowParams{

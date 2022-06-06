@@ -9,11 +9,11 @@ import (
 )
 
 func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
-	task := workflow.NewSimpleTask("simple_task_2")
+	task := workflow.NewSimpleTask("simple_task_0")
 	simpleWorkflow := workflow.NewConductorWorkflow(executor).
 		Name("inline_sub").
 		Add(
-			workflow.NewSimpleTask("simple_task_2"),
+			workflow.NewSimpleTask("simple_task_0"),
 		)
 	subWorkflowInline := workflow.NewSubWorkflowInlineTask(
 		"sub_flow_inline",
@@ -25,8 +25,8 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 		UseJavascript(true).
 		SwitchCase(
 			"LONG",
-			workflow.NewSimpleTask("simple_task_4"),
-			workflow.NewSimpleTask("simple_task_4"),
+			workflow.NewSimpleTask("simple_task_1"),
+			workflow.NewSimpleTask("simple_task_1"),
 		).
 		SwitchCase(
 			"SHORT",
