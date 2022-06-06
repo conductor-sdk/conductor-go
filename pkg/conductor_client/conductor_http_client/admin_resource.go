@@ -82,7 +82,7 @@ func (a *AdminResourceApiService) GetAllConfig(ctx context.Context) (map[string]
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v map[string]interface{}
@@ -175,7 +175,7 @@ func (a *AdminResourceApiService) GetEventQueues(ctx context.Context, localVarOp
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v map[string]interface{}
@@ -260,7 +260,7 @@ func (a *AdminResourceApiService) RequeueSweep(ctx context.Context, workflowId s
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v string
@@ -345,7 +345,7 @@ func (a *AdminResourceApiService) VerifyAndRepairWorkflowConsistency(ctx context
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v string
@@ -445,7 +445,7 @@ func (a *AdminResourceApiService) View(ctx context.Context, tasktype string, loc
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v []http_model.Task

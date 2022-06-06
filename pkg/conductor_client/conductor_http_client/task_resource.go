@@ -535,7 +535,7 @@ func (a *TaskResourceApiService) GetPollData(ctx context.Context, taskType strin
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v []http_model.PollData
@@ -620,7 +620,7 @@ func (a *TaskResourceApiService) GetTask(ctx context.Context, taskId string) (ht
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v http_model.Task
@@ -705,7 +705,7 @@ func (a *TaskResourceApiService) GetTaskLogs(ctx context.Context, taskId string)
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v []http_model.TaskExecLog
@@ -784,7 +784,7 @@ func (a *TaskResourceApiService) Log(ctx context.Context, body string, taskId st
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -874,7 +874,7 @@ func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, loca
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v http_model.Task
@@ -959,7 +959,7 @@ func (a *TaskResourceApiService) RequeuePendingTask(ctx context.Context, taskTyp
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v string
@@ -1073,7 +1073,7 @@ func (a *TaskResourceApiService) Search1(ctx context.Context, localVarOptionals 
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v http_model.SearchResultTaskSummary
@@ -1187,7 +1187,7 @@ func (a *TaskResourceApiService) SearchV21(ctx context.Context, localVarOptional
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v http_model.SearchResultTask
@@ -1280,7 +1280,7 @@ func (a *TaskResourceApiService) Size(ctx context.Context, localVarOptionals *Ta
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v map[string]int32
@@ -1367,7 +1367,7 @@ func (a *TaskResourceApiService) UpdateTask(ctx context.Context, taskResult *htt
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v string
@@ -1459,7 +1459,7 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v string
