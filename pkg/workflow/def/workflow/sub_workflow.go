@@ -39,19 +39,6 @@ func NewSubWorkflowInlineTask(taskRefName string, workflow *ConductorWorkflow) *
 	}
 }
 
-func (task *SubWorkflowTask) Description(description string) *SubWorkflowTask {
-	task.Task.Description(description)
-	return task
-}
-
-func (task *SubWorkflowTask) Optional(optional bool) *SubWorkflowTask {
-	task.Task.Optional(optional)
-	return task
-}
-func (task *SubWorkflowTask) Input(key string, value interface{}) *SubWorkflowTask {
-	task.Task.Input(key, value)
-	return task
-}
 func (task *SubWorkflowTask) TaskToDomain(taskToDomainMap map[string]string) *SubWorkflowTask {
 	task.taskToDomainMap = taskToDomainMap
 	return task
@@ -73,4 +60,18 @@ func (task *SubWorkflowTask) toWorkflowTask() []http_model.WorkflowTask {
 		}
 	}
 	return workflowTasks
+}
+
+func (task *SubWorkflowTask) Description(description string) *SubWorkflowTask {
+	task.Task.Description(description)
+	return task
+}
+
+func (task *SubWorkflowTask) Optional(optional bool) *SubWorkflowTask {
+	task.Task.Optional(optional)
+	return task
+}
+func (task *SubWorkflowTask) Input(key string, value interface{}) *SubWorkflowTask {
+	task.Task.Input(key, value)
+	return task
 }

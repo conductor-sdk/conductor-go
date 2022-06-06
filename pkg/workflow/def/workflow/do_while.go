@@ -16,13 +16,13 @@ type DoWhileTask struct {
 	loopOver      []TaskInterface
 }
 
-func NewDoWhileTask(taskRefName string, terminationCondition string, inputParameters map[string]interface{}, tasks ...TaskInterface) *DoWhileTask {
+func NewDoWhileTask(taskRefName string, terminationCondition string, tasks ...TaskInterface) *DoWhileTask {
 	return &DoWhileTask{
 		Task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			taskType:          DO_WHILE,
-			inputParameters:   inputParameters,
+			inputParameters:   map[string]interface{}{},
 		},
 		loopCondition: terminationCondition,
 		loopOver:      tasks,
@@ -46,12 +46,6 @@ func NewLoopTask(taskRefName string, iterations int32, tasks ...TaskInterface) *
 	}
 }
 
-// Input to the task
-func (task *DoWhileTask) Input(key string, value interface{}) *DoWhileTask {
-	task.Task.Input(key, value)
-	return task
-}
-
 func (task *DoWhileTask) toWorkflowTask() []http_model.WorkflowTask {
 	workflowTasks := task.Task.toWorkflowTask()
 	workflowTasks[0].LoopCondition = task.loopCondition
@@ -64,14 +58,23 @@ func (task *DoWhileTask) toWorkflowTask() []http_model.WorkflowTask {
 	}
 	return workflowTasks
 }
-func (task *DoWhileTask) Optional(optional bool) *DoWhileTask {
-	task.Task.Optional(optional)
-	return task
-}
-
 func getForLoopCondition(loopValue string, taskReferenceName string) string {
 	return fmt.Sprintf(
 		"if ( $.%s['iteration'] < $.%s ) { true; } else { false; }",
 		taskReferenceName, loopValue,
 	)
+}
+
+func (task *DoWhileTask) Optional(optional bool) *DoWhileTask {
+	task.Task.Optional(optional)
+	return task
+}
+
+func (task *DoWhileTask) Input(key string, value interface{}) *DoWhileTask {
+	task.Task.Input(key, value)
+	return task
+}
+func (task *DoWhileTask) Description(description string) *DoWhileTask {
+	task.Task.Description(description)
+	return task
 }

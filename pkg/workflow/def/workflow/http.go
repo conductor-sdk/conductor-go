@@ -43,3 +43,17 @@ type HttpInput struct {
 	ReadTimeout       int16               `json:"readTimeout,omitempty"`
 	Body              interface{}         `json:"body,omitempty"`
 }
+
+// Input to the task
+func (task *HttpTask) Input(key string, value interface{}) *HttpTask {
+	task.Task.Input(key, value)
+	return task
+}
+func (task *HttpTask) Optional(optional bool) *HttpTask {
+	task.Task.Optional(optional)
+	return task
+}
+func (task *HttpTask) Description(description string) *HttpTask {
+	task.Task.Description(description)
+	return task
+}

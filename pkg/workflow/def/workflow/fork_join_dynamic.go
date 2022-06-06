@@ -58,3 +58,17 @@ func (task *DynamicForkTask) getJoinTask() http_model.WorkflowTask {
 	join := NewJoinTask(task.taskReferenceName + "_join")
 	return (join.toWorkflowTask())[0]
 }
+
+// Input to the task
+func (task *DynamicForkTask) Input(key string, value interface{}) *DynamicForkTask {
+	task.Task.Input(key, value)
+	return task
+}
+func (task *DynamicForkTask) Optional(optional bool) *DynamicForkTask {
+	task.Task.Optional(optional)
+	return task
+}
+func (task *DynamicForkTask) Description(description string) *DynamicForkTask {
+	task.Task.Description(description)
+	return task
+}

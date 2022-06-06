@@ -1,11 +1,11 @@
 package workflow
 
-type SimpleTask struct {
+type HumanTask struct {
 	Task
 }
 
-func NewSimpleTask(taskRefName string) *SimpleTask {
-	return &SimpleTask{
+func NewHumanTask(taskRefName string) *HumanTask {
+	return &HumanTask{
 		Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
@@ -16,15 +16,15 @@ func NewSimpleTask(taskRefName string) *SimpleTask {
 }
 
 // Input to the task
-func (task *SimpleTask) Input(key string, value interface{}) *SimpleTask {
+func (task *HumanTask) Input(key string, value interface{}) *HumanTask {
 	task.Task.Input(key, value)
 	return task
 }
-func (task *SimpleTask) Optional(optional bool) *SimpleTask {
+func (task *HumanTask) Optional(optional bool) *HumanTask {
 	task.Task.Optional(optional)
 	return task
 }
-func (task *SimpleTask) Description(description string) *SimpleTask {
+func (task *HumanTask) Description(description string) *HumanTask {
 	task.Task.Description(description)
 	return task
 }

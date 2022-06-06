@@ -32,3 +32,17 @@ func (task *DynamicTask) toWorkflowTask() []http_model.WorkflowTask {
 	workflowTasks[0].DynamicTaskNameParam = dynamicTaskNameParameter
 	return workflowTasks
 }
+
+// Input to the task
+func (task *DynamicTask) Input(key string, value interface{}) *DynamicTask {
+	task.Task.Input(key, value)
+	return task
+}
+func (task *DynamicTask) Optional(optional bool) *DynamicTask {
+	task.Task.Optional(optional)
+	return task
+}
+func (task *DynamicTask) Description(description string) *DynamicTask {
+	task.Task.Description(description)
+	return task
+}
