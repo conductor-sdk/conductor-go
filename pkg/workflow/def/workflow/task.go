@@ -1,6 +1,8 @@
 package workflow
 
-import "github.com/conductor-sdk/conductor-go/pkg/http_model"
+import (
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+)
 
 type TaskType string
 
@@ -27,9 +29,9 @@ const (
 )
 
 type TaskInterface interface {
-	toWorkflowTask() []http_model.WorkflowTask
+	toWorkflowTask() []model.WorkflowTask
 	OutputRef(path string) string
-	ToTaskDef() *http_model.TaskDef
+	ToTaskDef() *model.TaskDef
 }
 
 type Task struct {
@@ -41,8 +43,8 @@ type Task struct {
 	inputParameters   map[string]interface{}
 }
 
-func (task *Task) toWorkflowTask() []http_model.WorkflowTask {
-	return []http_model.WorkflowTask{
+func (task *Task) toWorkflowTask() []model.WorkflowTask {
+	return []model.WorkflowTask{
 		{
 			Name:              task.name,
 			TaskReferenceName: task.taskReferenceName,
@@ -54,8 +56,8 @@ func (task *Task) toWorkflowTask() []http_model.WorkflowTask {
 	}
 }
 
-func (task *Task) ToTaskDef() *http_model.TaskDef {
-	return &http_model.TaskDef{
+func (task *Task) ToTaskDef() *model.TaskDef {
+	return &model.TaskDef{
 		Name:        task.name,
 		Description: task.description,
 	}

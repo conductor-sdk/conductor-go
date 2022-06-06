@@ -2,7 +2,7 @@ package workflow
 
 import (
 	"encoding/json"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -116,29 +116,25 @@ func (workflow *ConductorWorkflow) Register(override bool) (*http.Response, erro
 	return workflow.executor.RegisterWorkflow(override, workflow.ToWorkflowDef())
 }
 
-// RegisterAndStartWorkflow TODO: does this make sense?
-func (workflow *ConductorWorkflow) RegisterAndStartWorkflow(startWorkflowRequest *http_model.StartWorkflowRequest) (string, executor.WorkflowExecutionChannel, error) {
-	return "", nil, nil
+// ExecuteBulk TODO: Run in parallel
+func (workflow *ConductorWorkflow) ExecuteBulk(startWorkflowRequest []model.StartWorkflowRequest) ([]executor.WorkflowExecutionChannel, error) {
+	amount := len(startWorkflowRequest)
+	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, amount)
+	for i := 0; i < amount; i += 1 {
+		_, workflowExecutionChannel, err := workflow.ExecuteWorkflow(&startWorkflowRequest[i])
+		if err != nil {
+			return nil, err
+		}
+		workflowExecutionChannelList[i] = workflowExecutionChannel
+	}
+	return workflowExecutionChannelList, nil
 }
 
-func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *http_model.StartWorkflowRequest) (string, executor.WorkflowExecutionChannel, error) {
-	version := int32(workflow.GetVersion())
-	modelRequest := http_model.StartWorkflowRequest{
+func (workflow *ConductorWorkflow) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (string, executor.WorkflowExecutionChannel, error) {
+	version := workflow.GetVersion()
+	modelRequest := model.StartWorkflowRequest{
 		Name:                            workflow.GetName(),
 		Version:                         &version,
-		CorrelationId:                   startWorkflowRequest.CorrelationId,
-		Input:                           getInputAsMap(startWorkflowRequest.Input),
-		TaskToDomain:                    startWorkflowRequest.TaskToDomain,
-		ExternalInputPayloadStoragePath: startWorkflowRequest.ExternalInputPayloadStoragePath,
-		Priority:                        startWorkflowRequest.Priority,
-	}
-	return workflow.executor.StartWorkflow(&modelRequest)
-}
-
-func (workflow *ConductorWorkflow) ExecuteWorkflow(startWorkflowRequest *http_model.StartWorkflowRequest) (string, executor.WorkflowExecutionChannel, error) {
-	modelRequest := http_model.StartWorkflowRequest{
-		Name:                            startWorkflowRequest.Name,
-		Version:                         startWorkflowRequest.Version,
 		CorrelationId:                   startWorkflowRequest.CorrelationId,
 		Input:                           getInputAsMap(startWorkflowRequest.Input),
 		TaskToDomain:                    startWorkflowRequest.TaskToDomain,
@@ -166,20 +162,8 @@ func getInputAsMap(input interface{}) map[string]interface{} {
 	return parsedInput
 }
 
-func (workflow *ConductorWorkflow) StartMany(amount int) ([]executor.WorkflowExecutionChannel, error) {
-	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, amount)
-	for i := 0; i < amount; i += 1 {
-		_, workflowExecutionChannel, err := workflow.StartWorkflow(nil)
-		if err != nil {
-			return nil, err
-		}
-		workflowExecutionChannelList[i] = workflowExecutionChannel
-	}
-	return workflowExecutionChannelList, nil
-}
-
-func (workflow *ConductorWorkflow) ToWorkflowDef() *http_model.WorkflowDef {
-	return &http_model.WorkflowDef{
+func (workflow *ConductorWorkflow) ToWorkflowDef() *model.WorkflowDef {
+	return &model.WorkflowDef{
 		Name:             workflow.name,
 		Description:      workflow.description,
 		Version:          workflow.version,
@@ -196,8 +180,8 @@ func (workflow *ConductorWorkflow) ToWorkflowDef() *http_model.WorkflowDef {
 	}
 }
 
-func getWorkflowTasksFromConductorWorkflow(workflow *ConductorWorkflow) []http_model.WorkflowTask {
-	workflowTasks := make([]http_model.WorkflowTask, 0)
+func getWorkflowTasksFromConductorWorkflow(workflow *ConductorWorkflow) []model.WorkflowTask {
+	workflowTasks := make([]model.WorkflowTask, 0)
 	for _, task := range workflow.tasks {
 		workflowTasks = append(
 			workflowTasks,

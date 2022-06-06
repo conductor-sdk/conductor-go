@@ -2,10 +2,10 @@ package http_client_e2e
 
 import (
 	"context"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 )
 
@@ -34,7 +34,7 @@ func StartWorkflow(workflowName string) (string, *http.Response, error) {
 	)
 }
 
-func GetWorkflowExecutionStatus(workflowId string) (http_model.Workflow, *http.Response, error) {
+func GetWorkflowExecutionStatus(workflowId string) (model.Workflow, *http.Response, error) {
 	return workflowClient.GetExecutionStatus(
 		context.Background(),
 		workflowId,

@@ -2,10 +2,10 @@ package http_client_e2e_properties
 
 import (
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"os"
 	"time"
 
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -29,11 +29,11 @@ var (
 
 	WORKFLOW_EXECUTION_AMOUNT = 5
 
-	WORKFLOW_DEFINITIONS = []http_model.WorkflowDef{
+	WORKFLOW_DEFINITIONS = []model.WorkflowDef{
 		WORKFLOW_DEFINITION,
 		TREASURE_WORKFLOW_DEFINITION,
 	}
-	TASK_DEFINITIONS = []http_model.TaskDef{
+	TASK_DEFINITIONS = []model.TaskDef{
 		TASK_DEFINITION,
 		TREASURE_TASK_DEFINITION,
 	}
@@ -44,12 +44,12 @@ var (
 
 	TASK_NAME = "GO_TASK_OF_SIMPLE_TYPE"
 
-	WORKFLOW_DEFINITION = http_model.WorkflowDef{
+	WORKFLOW_DEFINITION = model.WorkflowDef{
 		UpdateTime:  1650595431465,
 		Name:        WORKFLOW_NAME,
 		Description: "Workflow with go task example from code",
 		Version:     1,
-		Tasks: []http_model.WorkflowTask{
+		Tasks: []model.WorkflowTask{
 			{
 				Name:              TASK_NAME,
 				TaskReferenceName: TASK_NAME,
@@ -70,7 +70,7 @@ var (
 		TimeoutSeconds:                0,
 	}
 
-	TASK_DEFINITION = http_model.TaskDef{
+	TASK_DEFINITION = model.TaskDef{
 		Name:                        TASK_NAME,
 		Description:                 "Go task example from code",
 		RetryCount:                  3,
@@ -93,12 +93,12 @@ var (
 	TREASURE_CHEST_WORKFLOW_NAME = "treasure_chest_workflow"
 	TREASURE_CHEST_TASK_NAME     = "treasure_chest_task"
 
-	TREASURE_WORKFLOW_DEFINITION = http_model.WorkflowDef{
+	TREASURE_WORKFLOW_DEFINITION = model.WorkflowDef{
 		UpdateTime:  1650595431465,
 		Name:        TREASURE_CHEST_WORKFLOW_NAME,
 		Description: "What's inside the treasure chest?",
 		Version:     1,
-		Tasks: []http_model.WorkflowTask{
+		Tasks: []model.WorkflowTask{
 			{
 				Name:              TREASURE_CHEST_TASK_NAME,
 				TaskReferenceName: TREASURE_CHEST_TASK_NAME,
@@ -123,7 +123,7 @@ var (
 		TimeoutSeconds:                0,
 	}
 
-	TREASURE_TASK_DEFINITION = http_model.TaskDef{
+	TREASURE_TASK_DEFINITION = model.TaskDef{
 		Name:                        TREASURE_CHEST_TASK_NAME,
 		Description:                 "Go task example from code",
 		RetryCount:                  3,

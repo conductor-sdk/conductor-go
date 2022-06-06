@@ -10,7 +10,6 @@ import (
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_counter"
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_gauge"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
@@ -165,7 +164,7 @@ func (c *TaskRunner) runBatch(taskType string, executeFunction model.TaskExecute
 	return false, nil
 }
 
-func (c *TaskRunner) executeAndUpdateTask(taskType string, task http_model.Task, executeFunction model.TaskExecuteFunction) error {
+func (c *TaskRunner) executeAndUpdateTask(taskType string, task model.Task, executeFunction model.TaskExecuteFunction) error {
 	defer concurrency.HandlePanicError("execute_and_update_task")
 	taskResult, err := c.executeTask(&task, executeFunction)
 	if err != nil {
@@ -178,7 +177,7 @@ func (c *TaskRunner) executeAndUpdateTask(taskType string, task http_model.Task,
 	return c.runningWorkerDone(taskType)
 }
 
-func (c *TaskRunner) batchPoll(taskType string, count int, timeout time.Duration, domain optional.String) ([]http_model.Task, error) {
+func (c *TaskRunner) batchPoll(taskType string, count int, timeout time.Duration, domain optional.String) ([]model.Task, error) {
 	log.Debug(
 		"Polling for task: ", taskType,
 		", in batches of size: ", count,
@@ -213,7 +212,7 @@ func (c *TaskRunner) batchPoll(taskType string, count int, timeout time.Duration
 	return tasks, nil
 }
 
-func (c *TaskRunner) executeTask(t *http_model.Task, executeFunction model.TaskExecuteFunction) (*http_model.TaskResult, error) {
+func (c *TaskRunner) executeTask(t *model.Task, executeFunction model.TaskExecuteFunction) (*model.TaskResult, error) {
 	log.Trace(
 		"Executing task of type: ", t.TaskDefName,
 		", taskId: ", t.TaskId,
@@ -244,7 +243,7 @@ func (c *TaskRunner) executeTask(t *http_model.Task, executeFunction model.TaskE
 	return taskResult, nil
 }
 
-func (c *TaskRunner) updateTask(taskType string, taskResult *http_model.TaskResult) error {
+func (c *TaskRunner) updateTask(taskType string, taskResult *model.TaskResult) error {
 	log.Debug(
 		"Updating task of type: ", taskType,
 		", taskId: ", taskResult.TaskId,
@@ -267,7 +266,7 @@ func (c *TaskRunner) updateTask(taskType string, taskResult *http_model.TaskResu
 	return fmt.Errorf("failed to update task %s after %d attempts", taskType, retryCount)
 }
 
-func (c *TaskRunner) _updateTask(taskType string, taskResult *http_model.TaskResult) error {
+func (c *TaskRunner) _updateTask(taskType string, taskResult *model.TaskResult) error {
 	startTime := time.Now()
 	_, response, err := c.conductorTaskResourceClient.UpdateTask(context.Background(), taskResult)
 	spentTime := time.Since(startTime)

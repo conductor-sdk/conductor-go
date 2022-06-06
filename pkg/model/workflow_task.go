@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type WorkflowTask struct {
 	Name                           string                    `json:"name"`

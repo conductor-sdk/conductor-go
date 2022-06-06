@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type Action struct {
 	Action           string         `json:"action,omitempty"`

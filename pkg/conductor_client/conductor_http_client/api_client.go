@@ -8,6 +8,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -22,7 +23,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	log "github.com/sirupsen/logrus"
 )
@@ -229,13 +229,13 @@ func (c *APIClient) refreshToken() {
 	}
 }
 
-func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
+func (c *APIClient) getToken() (model.Token, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.Token
+		localVarReturnValue model.Token
 	)
 	localVarPath := "/token"
 	localVarHeaderParams := make(map[string]string)
@@ -277,7 +277,7 @@ func (c *APIClient) getToken() (http_model.Token, *http.Response, error) {
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.Task
+			var v model.Task
 			err = c.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

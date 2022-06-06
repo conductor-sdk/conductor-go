@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type PollData struct {
 	QueueName    string `json:"queueName,omitempty"`

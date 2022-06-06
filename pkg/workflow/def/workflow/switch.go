@@ -1,6 +1,8 @@
 package workflow
 
-import "github.com/conductor-sdk/conductor-go/pkg/http_model"
+import (
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+)
 
 type SwitchTask struct {
 	Task
@@ -38,7 +40,7 @@ func (task *SwitchTask) DefaultCase(tasks ...TaskInterface) *SwitchTask {
 	return task
 }
 
-func (task *SwitchTask) toWorkflowTask() []http_model.WorkflowTask {
+func (task *SwitchTask) toWorkflowTask() []model.WorkflowTask {
 	if task.useJavascript {
 		task.evaluatorType = "javascript"
 	} else {
@@ -46,18 +48,18 @@ func (task *SwitchTask) toWorkflowTask() []http_model.WorkflowTask {
 		task.Task.inputParameters["switchCaseValue"] = task.expression
 		task.expression = "switchCaseValue"
 	}
-	var DecisionCases = map[string][]http_model.WorkflowTask{}
+	var DecisionCases = map[string][]model.WorkflowTask{}
 	for caseValue, tasks := range task.DecisionCases {
 		for _, task := range tasks {
 			for _, caseTask := range task.toWorkflowTask() {
-				DecisionCases[caseValue] = append([]http_model.WorkflowTask{}, caseTask)
+				DecisionCases[caseValue] = append([]model.WorkflowTask{}, caseTask)
 			}
 		}
 	}
-	var defaultCase []http_model.WorkflowTask
+	var defaultCase []model.WorkflowTask
 	for _, task := range task.defaultCase {
 		for _, defaultTask := range task.toWorkflowTask() {
-			defaultCase = append([]http_model.WorkflowTask{}, defaultTask)
+			defaultCase = append([]model.WorkflowTask{}, defaultTask)
 		}
 	}
 	workflowTasks := task.Task.toWorkflowTask()

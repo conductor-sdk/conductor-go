@@ -1,9 +1,11 @@
 package workflow
 
-import "github.com/conductor-sdk/conductor-go/pkg/http_model"
+import (
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+)
 
 type DynamicForkInput struct {
-	Tasks     []http_model.WorkflowTask
+	Tasks     []model.WorkflowTask
 	TaskInput map[string]interface{}
 }
 

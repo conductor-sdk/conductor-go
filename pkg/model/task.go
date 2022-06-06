@@ -1,4 +1,4 @@
-package http_model
+package model
 
 import "github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 

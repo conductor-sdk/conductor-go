@@ -3,6 +3,7 @@ package workflow_e2e
 import (
 	"context"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 	"os"
 	"testing"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/examples"
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 	"github.com/conductor-sdk/conductor-go/pkg/worker"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
@@ -63,11 +63,7 @@ var (
 
 	inlineTask = workflow.NewInlineTask(
 		"TEST_GO_TASK_INLINE",
-		map[string]interface{}{
-			"value":         "${workflow.input.value}",
-			"evaluatorType": "javascript",
-			"expression":    "function e() { if ($.value == 1){return {\"result\": true}} else { return {\"result\": false}}} e();",
-		},
+		"function e() { if ($.value == 1){return {\"result\": true}} else { return {\"result\": false}}} e();",
 	)
 )
 
@@ -202,22 +198,25 @@ func testEventTask(t *testing.T, workflowName string, event *workflow.EventTask)
 		Name(workflowName).
 		Version(1).
 		Add(event)
-	_, err := eventTaskWorkflow.Register()
+	_, err := eventTaskWorkflow.Register(true)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func isWorkflowCompleted(workflow *http_model.Workflow) bool {
+func isWorkflowCompleted(workflow *model.Workflow) bool {
 	return workflow.Status == string(workflow_status.COMPLETED)
 }
 
 func validateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout time.Duration) error {
-	_, err := conductorWorkflow.Register()
+	_, err := conductorWorkflow.Register(true)
 	if err != nil {
 		return err
 	}
-	_, workflowExecutionChannel, err := conductorWorkflow.Start(nil)
+	version := conductorWorkflow.GetVersion()
+	_, workflowExecutionChannel, err := conductorWorkflow.ExecuteWorkflow(
+		model.NewStartWorkflowRequest(conductorWorkflow.GetName(), &version, "", map[string]interface{}{}),
+	)
 	if err != nil {
 		return err
 	}
@@ -237,14 +236,14 @@ func validateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 func registerTask(task *workflow.SimpleTask) (*http.Response, error) {
 	return metadataClient.RegisterTaskDef(
 		context.Background(),
-		[]http_model.TaskDef{
+		[]model.TaskDef{
 			*task.ToTaskDef(),
 		},
 	)
 }
 
 func registerWorkflow(t *testing.T, conductorWorkflow *workflow.ConductorWorkflow) {
-	_, err := conductorWorkflow.Register()
+	_, err := conductorWorkflow.Register(true)
 	if err != nil {
 		t.Error(err)
 	}

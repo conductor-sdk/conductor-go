@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -36,11 +36,11 @@ func NewWorkflowExecutor(apiClient *conductor_http_client.APIClient) *WorkflowEx
 	return &workflowExecutor
 }
 
-func (e *WorkflowExecutor) RegisterWorkflow(override bool, workflow *http_model.WorkflowDef) (*http.Response, error) {
+func (e *WorkflowExecutor) RegisterWorkflow(override bool, workflow *model.WorkflowDef) (*http.Response, error) {
 	if override {
 		return e.metadataClient.Update(
 			context.Background(),
-			[]http_model.WorkflowDef{
+			[]model.WorkflowDef{
 				*workflow,
 			},
 		)
@@ -52,7 +52,7 @@ func (e *WorkflowExecutor) RegisterWorkflow(override bool, workflow *http_model.
 	}
 }
 
-func (e *WorkflowExecutor) StartWorkflow(request *http_model.StartWorkflowRequest) (string, WorkflowExecutionChannel, error) {
+func (e *WorkflowExecutor) StartWorkflow(request *model.StartWorkflowRequest) (string, WorkflowExecutionChannel, error) {
 	workflowId, err := e.executeWorkflow(nil, request)
 	if err != nil {
 		return "", nil, err
@@ -64,7 +64,7 @@ func (e *WorkflowExecutor) StartWorkflow(request *http_model.StartWorkflowReques
 	return workflowId, executionChannel, nil
 }
 
-func (e *WorkflowExecutor) ExecuteWorkflow(workflow *http_model.WorkflowDef, request *http_model.StartWorkflowRequest) (string, WorkflowExecutionChannel, error) {
+func (e *WorkflowExecutor) ExecuteWorkflow(workflow *model.WorkflowDef, request *model.StartWorkflowRequest) (string, WorkflowExecutionChannel, error) {
 	workflowId, err := e.executeWorkflow(workflow, request)
 	if err != nil {
 		return "", nil, err
@@ -76,7 +76,7 @@ func (e *WorkflowExecutor) ExecuteWorkflow(workflow *http_model.WorkflowDef, req
 	return workflowId, executionChannel, nil
 }
 
-func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionChannel, timeout time.Duration) (*http_model.Workflow, error) {
+func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionChannel, timeout time.Duration) (*model.Workflow, error) {
 	select {
 	case workflow, ok := <-executionChannel:
 		if !ok {
@@ -90,13 +90,13 @@ func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionCha
 
 // ExecuteWorkflow Executes a workflow
 // Returns workflow Id for the newly started workflow
-func (e *WorkflowExecutor) executeWorkflow(workflow *http_model.WorkflowDef, request *http_model.StartWorkflowRequest) (string, error) {
+func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request *model.StartWorkflowRequest) (string, error) {
 
 	//inputAsMap, err := getInputAsMap(request.Input)
 	//if err != nil {
 	//	return "", err
 	//}
-	startWorkflowRequest := http_model.StartWorkflowRequest{
+	startWorkflowRequest := model.StartWorkflowRequest{
 		Name:                            request.Name,
 		Version:                         request.Version,
 		CorrelationId:                   request.CorrelationId,

@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type Workflow struct {
 	OwnerApp                         string                 `json:"ownerApp,omitempty"`

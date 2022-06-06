@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type TaskSummary struct {
 	WorkflowId                       string `json:"workflowId,omitempty"`

@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type TaskDef struct {
 	OwnerApp                    string                 `json:"ownerApp,omitempty"`

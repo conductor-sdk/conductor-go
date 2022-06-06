@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type SkipTaskRequest struct {
 	TaskInput  map[string]interface{} `json:"taskInput,omitempty"`

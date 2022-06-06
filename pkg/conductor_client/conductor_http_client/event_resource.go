@@ -3,12 +3,12 @@ package conductor_http_client
 import (
 	"context"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/antihax/optional"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 )
 
 // Linger please
@@ -26,7 +26,7 @@ EventResourceApiService Add a new event handler.
  * @param body
 
 */
-func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body http_model.EventHandler) (*http.Response, error) {
+func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body model.EventHandler) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -92,13 +92,13 @@ EventResourceApiService Get all the event handlers
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return []http_model.EventHandler
 */
-func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]http_model.EventHandler, *http.Response, error) {
+func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]model.EventHandler, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.EventHandler
+		localVarReturnValue []model.EventHandler
 	)
 
 	// create path and map variables
@@ -155,7 +155,7 @@ func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]http_
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.EventHandler
+			var v []model.EventHandler
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -183,13 +183,13 @@ type EventResourceApiGetEventHandlersForEventOpts struct {
 	ActiveOnly optional.Bool
 }
 
-func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, event string, localVarOptionals *EventResourceApiGetEventHandlersForEventOpts) ([]http_model.EventHandler, *http.Response, error) {
+func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, event string, localVarOptionals *EventResourceApiGetEventHandlersForEventOpts) ([]model.EventHandler, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.EventHandler
+		localVarReturnValue []model.EventHandler
 	)
 
 	// create path and map variables
@@ -250,7 +250,7 @@ func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, 
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.EventHandler
+			var v []model.EventHandler
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -337,7 +337,7 @@ EventResourceApiService Update an existing event handler.
  * @param body
 
 */
-func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body http_model.EventHandler) (*http.Response, error) {
+func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body model.EventHandler) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}

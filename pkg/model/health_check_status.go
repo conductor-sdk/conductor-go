@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type HealthCheckStatus struct {
 	HealthResults           []Health `json:"healthResults,omitempty"`
