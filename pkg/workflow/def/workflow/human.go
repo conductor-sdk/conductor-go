@@ -9,7 +9,7 @@ func NewHumanTask(taskRefName string) *HumanTask {
 		Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
-			taskType:          SIMPLE,
+			taskType:          HUMAN,
 			inputParameters:   map[string]interface{}{},
 		},
 	}

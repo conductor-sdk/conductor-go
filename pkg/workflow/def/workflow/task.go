@@ -79,6 +79,13 @@ func (task *Task) Input(key string, value interface{}) *Task {
 	return task
 }
 
+func (task *Task) InputMap(inputMap map[string]interface{}) *Task {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
+
 func (task *Task) Description(description string) *Task {
 	task.description = description
 	return task
