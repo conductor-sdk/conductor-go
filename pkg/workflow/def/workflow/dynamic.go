@@ -38,6 +38,12 @@ func (task *DynamicTask) Input(key string, value interface{}) *DynamicTask {
 	task.Task.Input(key, value)
 	return task
 }
+func (task *DynamicTask) InputMap(inputMap map[string]interface{}) *DynamicTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
 func (task *DynamicTask) Optional(optional bool) *DynamicTask {
 	task.Task.Optional(optional)
 	return task

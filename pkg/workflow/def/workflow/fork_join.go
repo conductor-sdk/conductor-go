@@ -46,6 +46,12 @@ func (task *ForkTask) Input(key string, value interface{}) *ForkTask {
 	task.Task.Input(key, value)
 	return task
 }
+func (task *ForkTask) InputMap(inputMap map[string]interface{}) *ForkTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
 func (task *ForkTask) Optional(optional bool) *ForkTask {
 	task.Task.Optional(optional)
 	return task

@@ -64,6 +64,12 @@ func (task *DynamicForkTask) Input(key string, value interface{}) *DynamicForkTa
 	task.Task.Input(key, value)
 	return task
 }
+func (task *DynamicForkTask) InputMap(inputMap map[string]interface{}) *DynamicForkTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
 func (task *DynamicForkTask) Optional(optional bool) *DynamicForkTask {
 	task.Task.Optional(optional)
 	return task

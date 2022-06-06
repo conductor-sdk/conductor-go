@@ -22,6 +22,12 @@ func (task *SetVariableTask) Input(key string, value interface{}) *SetVariableTa
 	task.Task.Input(key, value)
 	return task
 }
+func (task *SetVariableTask) InputMap(inputMap map[string]interface{}) *SetVariableTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
 func (task *SetVariableTask) Optional(optional bool) *SetVariableTask {
 	task.Task.Optional(optional)
 	return task

@@ -74,6 +74,12 @@ func (task *DoWhileTask) Input(key string, value interface{}) *DoWhileTask {
 	task.Task.Input(key, value)
 	return task
 }
+func (task *DoWhileTask) InputMap(inputMap map[string]interface{}) *DoWhileTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
 func (task *DoWhileTask) Description(description string) *DoWhileTask {
 	task.Task.Description(description)
 	return task

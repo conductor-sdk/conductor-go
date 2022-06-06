@@ -75,3 +75,9 @@ func (task *SubWorkflowTask) Input(key string, value interface{}) *SubWorkflowTa
 	task.Task.Input(key, value)
 	return task
 }
+func (task *SubWorkflowTask) InputMap(inputMap map[string]interface{}) *SubWorkflowTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}

@@ -32,6 +32,12 @@ func (task *JoinTask) Input(key string, value interface{}) *JoinTask {
 	task.Task.Input(key, value)
 	return task
 }
+func (task *JoinTask) InputMap(inputMap map[string]interface{}) *JoinTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
 func (task *JoinTask) Optional(optional bool) *JoinTask {
 	task.Task.Optional(optional)
 	return task

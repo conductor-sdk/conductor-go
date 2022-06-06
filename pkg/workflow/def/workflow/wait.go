@@ -28,3 +28,9 @@ func (task *WaitTask) Input(key string, value interface{}) *WaitTask {
 	task.Task.Input(key, value)
 	return task
 }
+func (task *WaitTask) InputMap(inputMap map[string]interface{}) *WaitTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}

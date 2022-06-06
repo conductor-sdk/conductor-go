@@ -20,6 +20,12 @@ func (task *HumanTask) Input(key string, value interface{}) *HumanTask {
 	task.Task.Input(key, value)
 	return task
 }
+func (task *HumanTask) InputMap(inputMap map[string]interface{}) *HumanTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
 func (task *HumanTask) Optional(optional bool) *HumanTask {
 	task.Task.Optional(optional)
 	return task

@@ -51,6 +51,12 @@ func (task *EventTask) Input(key string, value interface{}) *EventTask {
 	task.Task.Input(key, value)
 	return task
 }
+func (task *EventTask) InputMap(inputMap map[string]interface{}) *EventTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
 func (task *EventTask) Optional(optional bool) *EventTask {
 	task.Task.Optional(optional)
 	return task

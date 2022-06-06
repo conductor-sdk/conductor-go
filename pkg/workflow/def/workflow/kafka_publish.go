@@ -33,6 +33,12 @@ func (task *KafkaPublishTask) Input(key string, value interface{}) *KafkaPublish
 	task.Task.Input(key, value)
 	return task
 }
+func (task *KafkaPublishTask) InputMap(inputMap map[string]interface{}) *KafkaPublishTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
 func (task *KafkaPublishTask) Optional(optional bool) *KafkaPublishTask {
 	task.Task.Optional(optional)
 	return task

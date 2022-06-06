@@ -27,6 +27,12 @@ func (task *InlineTask) Input(key string, value interface{}) *InlineTask {
 	task.Task.Input(key, value)
 	return task
 }
+func (task *InlineTask) InputMap(inputMap map[string]interface{}) *InlineTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
 func (task *InlineTask) Optional(optional bool) *InlineTask {
 	task.Task.Optional(optional)
 	return task

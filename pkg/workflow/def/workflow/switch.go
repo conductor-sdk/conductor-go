@@ -73,6 +73,12 @@ func (task *SwitchTask) Input(key string, value interface{}) *SwitchTask {
 	task.Task.Input(key, value)
 	return task
 }
+func (task *SwitchTask) InputMap(inputMap map[string]interface{}) *SwitchTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
 func (task *SwitchTask) Description(description string) *SwitchTask {
 	task.Task.Description(description)
 	return task

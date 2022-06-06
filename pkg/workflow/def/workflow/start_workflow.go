@@ -47,3 +47,9 @@ func (task *StartWorkflowTask) Input(key string, value interface{}) *StartWorkfl
 	task.Task.Input(key, value)
 	return task
 }
+func (task *StartWorkflowTask) InputMap(inputMap map[string]interface{}) *StartWorkflowTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}

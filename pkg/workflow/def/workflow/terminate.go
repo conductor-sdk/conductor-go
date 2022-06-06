@@ -33,3 +33,9 @@ func (task *TerminateTask) Input(key string, value interface{}) *TerminateTask {
 	task.Task.Input(key, value)
 	return task
 }
+func (task *TerminateTask) InputMap(inputMap map[string]interface{}) *TerminateTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}

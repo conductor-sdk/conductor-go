@@ -20,6 +20,12 @@ func (task *SimpleTask) Input(key string, value interface{}) *SimpleTask {
 	task.Task.Input(key, value)
 	return task
 }
+func (task *SimpleTask) InputMap(inputMap map[string]interface{}) *SimpleTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
 func (task *SimpleTask) Optional(optional bool) *SimpleTask {
 	task.Task.Optional(optional)
 	return task

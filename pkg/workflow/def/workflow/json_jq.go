@@ -22,6 +22,12 @@ func (task *JQTask) Input(key string, value interface{}) *JQTask {
 	task.Task.Input(key, value)
 	return task
 }
+func (task *JQTask) InputMap(inputMap map[string]interface{}) *JQTask {
+	for k, v := range inputMap {
+		task.inputParameters[k] = v
+	}
+	return task
+}
 func (task *JQTask) Optional(optional bool) *JQTask {
 	task.Task.Optional(optional)
 	return task
