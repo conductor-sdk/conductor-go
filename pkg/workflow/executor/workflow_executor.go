@@ -2,13 +2,13 @@ package executor
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/http_model"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -74,7 +74,7 @@ func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionCha
 }
 
 func (e *WorkflowExecutor) startWorkflow(name string, version int32, input interface{}) (string, error) {
-	inputAsMap, err := getInputAsMap(input)
+	inputAsMap, err := model.ConvertToMap(input)
 	if err != nil {
 		return "", err
 	}
@@ -107,21 +107,4 @@ func (e *WorkflowExecutor) startWorkflow(name string, version int32, input inter
 		", input: ", input,
 	)
 	return workflowId, err
-}
-
-func getInputAsMap(input interface{}) (map[string]interface{}, error) {
-	if input == nil {
-		return nil, nil
-	}
-	data, err := json.Marshal(input)
-	if err != nil {
-		log.Debug(
-			"Failed to parse input",
-			", reason: ", err.Error(),
-		)
-		return nil, err
-	}
-	var parsedInput map[string]interface{}
-	json.Unmarshal(data, &parsedInput)
-	return parsedInput, nil
 }
