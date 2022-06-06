@@ -36,13 +36,20 @@ func NewWorkflowExecutor(apiClient *conductor_http_client.APIClient) *WorkflowEx
 	return &workflowExecutor
 }
 
-func (e *WorkflowExecutor) RegisterWorkflow(workflow *http_model.WorkflowDef) (*http.Response, error) {
-	return e.metadataClient.Update(
-		context.Background(),
-		[]http_model.WorkflowDef{
+func (e *WorkflowExecutor) RegisterWorkflow(override bool, workflow *http_model.WorkflowDef) (*http.Response, error) {
+	if override {
+		return e.metadataClient.Update(
+			context.Background(),
+			[]http_model.WorkflowDef{
+				*workflow,
+			},
+		)
+	} else {
+		return e.metadataClient.RegisterWorkflowDef(
+			context.Background(),
 			*workflow,
-		},
-	)
+		)
+	}
 }
 
 func (e *WorkflowExecutor) StartWorkflow(request *http_model.StartWorkflowRequest) (string, WorkflowExecutionChannel, error) {

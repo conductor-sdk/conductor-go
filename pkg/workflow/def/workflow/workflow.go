@@ -112,10 +112,8 @@ func (workflow *ConductorWorkflow) Add(task TaskInterface) *ConductorWorkflow {
 	return workflow
 }
 
-func (workflow *ConductorWorkflow) Register() (*http.Response, error) {
-	return workflow.executor.RegisterWorkflow(
-		workflow.ToWorkflowDef(),
-	)
+func (workflow *ConductorWorkflow) Register(override bool) (*http.Response, error) {
+	return workflow.executor.RegisterWorkflow(override, workflow.ToWorkflowDef())
 }
 
 // RegisterAndStartWorkflow TODO: does this make sense?
