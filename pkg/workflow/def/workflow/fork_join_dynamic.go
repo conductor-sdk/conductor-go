@@ -1,6 +1,8 @@
 package workflow
 
-import "github.com/conductor-sdk/conductor-go/pkg/http_model"
+import (
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+)
 
 type DynamicForkTask struct {
 	Task
@@ -42,7 +44,7 @@ func NewDynamicForkWithJoinTask(taskRefName string, forkPrepareTask TaskInterfac
 	}
 }
 
-func (task *DynamicForkTask) toWorkflowTask() []http_model.WorkflowTask {
+func (task *DynamicForkTask) toWorkflowTask() []model.WorkflowTask {
 	forkWorkflowTask := task.Task.toWorkflowTask()[0]
 	forkWorkflowTask.DynamicForkTasksParam = forkedTasks
 	forkWorkflowTask.DynamicForkTasksInputParamName = forkedTasksInputs
@@ -54,7 +56,7 @@ func (task *DynamicForkTask) toWorkflowTask() []http_model.WorkflowTask {
 	return tasks
 }
 
-func (task *DynamicForkTask) getJoinTask() http_model.WorkflowTask {
+func (task *DynamicForkTask) getJoinTask() model.WorkflowTask {
 	join := NewJoinTask(task.taskReferenceName + "_join")
 	return (join.toWorkflowTask())[0]
 }

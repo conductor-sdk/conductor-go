@@ -3,17 +3,17 @@ package executor
 import (
 	"context"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"sync"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 	log "github.com/sirupsen/logrus"
 )
 
-type WorkflowExecutionChannel chan *http_model.Workflow
+type WorkflowExecutionChannel chan *model.Workflow
 
 type WorkflowMonitor struct {
 	mutex                        sync.Mutex
@@ -70,12 +70,12 @@ func (w *WorkflowMonitor) monitorRunningWorkflows() error {
 	return nil
 }
 
-func (w *WorkflowMonitor) getWorkflowsInTerminalState() ([]*http_model.Workflow, error) {
+func (w *WorkflowMonitor) getWorkflowsInTerminalState() ([]*model.Workflow, error) {
 	runningWorkflowIdList, err := w.getRunningWorkflowIdList()
 	if err != nil {
 		return nil, err
 	}
-	workflowsInTerminalState := make([]*http_model.Workflow, 0)
+	workflowsInTerminalState := make([]*model.Workflow, 0)
 	for _, workflowId := range runningWorkflowIdList {
 		workflow, response, err := w.workflowClient.GetExecutionStatus(
 			context.Background(),
@@ -123,7 +123,7 @@ func (w *WorkflowMonitor) getRunningWorkflowIdList() ([]string, error) {
 	return runningWorkflowIdList, nil
 }
 
-func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *http_model.Workflow) error {
+func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *model.Workflow) error {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 	log.Debug(fmt.Sprintf("Notifying finished workflowId: %s", workflowId))
@@ -140,7 +140,7 @@ func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *ht
 	return nil
 }
 
-func isWorkflowInTerminalState(workflow *http_model.Workflow) bool {
+func isWorkflowInTerminalState(workflow *model.Workflow) bool {
 	for _, terminalState := range workflow_status.WorkflowTerminalStates {
 		if workflow.Status == string(terminalState) {
 			return true

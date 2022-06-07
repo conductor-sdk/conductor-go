@@ -1,6 +1,8 @@
 package workflow
 
-import "github.com/conductor-sdk/conductor-go/pkg/http_model"
+import (
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+)
 
 const (
 	sqsEventPrefix       = "sqs"
@@ -40,7 +42,7 @@ func newEventTask(taskRefName string, eventPrefix string, eventSuffix string) *E
 	}
 }
 
-func (task *EventTask) toWorkflowTask() []http_model.WorkflowTask {
+func (task *EventTask) toWorkflowTask() []model.WorkflowTask {
 	workflowTasks := task.Task.toWorkflowTask()
 	workflowTasks[0].Sink = task.sink
 	return workflowTasks

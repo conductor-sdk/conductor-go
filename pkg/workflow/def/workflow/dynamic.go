@@ -1,6 +1,8 @@
 package workflow
 
-import "github.com/conductor-sdk/conductor-go/pkg/http_model"
+import (
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+)
 
 type DynamicTask struct {
 	Task
@@ -27,7 +29,7 @@ func NewDynamicTask(taskRefName string, taskNameParameter string) *DynamicTask {
 	}
 }
 
-func (task *DynamicTask) toWorkflowTask() []http_model.WorkflowTask {
+func (task *DynamicTask) toWorkflowTask() []model.WorkflowTask {
 	workflowTasks := task.Task.toWorkflowTask()
 	workflowTasks[0].DynamicTaskNameParam = dynamicTaskNameParameter
 	return workflowTasks

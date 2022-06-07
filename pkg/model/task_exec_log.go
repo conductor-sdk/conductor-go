@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type TaskExecLog struct {
 	Log         string `json:"log,omitempty"`

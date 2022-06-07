@@ -1,6 +1,8 @@
 package workflow
 
-import "github.com/conductor-sdk/conductor-go/pkg/http_model"
+import (
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+)
 
 type SubWorkflowTask struct {
 	Task
@@ -43,16 +45,16 @@ func (task *SubWorkflowTask) TaskToDomain(taskToDomainMap map[string]string) *Su
 	task.taskToDomainMap = taskToDomainMap
 	return task
 }
-func (task *SubWorkflowTask) toWorkflowTask() []http_model.WorkflowTask {
+func (task *SubWorkflowTask) toWorkflowTask() []model.WorkflowTask {
 	workflowTasks := task.Task.toWorkflowTask()
 	if task.workflow != nil {
-		workflowTasks[0].SubWorkflowParam = &http_model.SubWorkflowParams{
+		workflowTasks[0].SubWorkflowParam = &model.SubWorkflowParams{
 			Name:               task.workflow.name,
 			TaskToDomain:       task.taskToDomainMap,
 			WorkflowDefinition: task.workflow.ToWorkflowDef(),
 		}
 	} else {
-		workflowTasks[0].SubWorkflowParam = &http_model.SubWorkflowParams{
+		workflowTasks[0].SubWorkflowParam = &model.SubWorkflowParams{
 			Name:               task.workflowName,
 			Version:            task.version,
 			TaskToDomain:       task.taskToDomainMap,

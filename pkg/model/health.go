@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type Health struct {
 	Details      map[string]interface{} `json:"details,omitempty"`

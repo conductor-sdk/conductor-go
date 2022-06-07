@@ -1,6 +1,8 @@
 package workflow
 
-import "github.com/conductor-sdk/conductor-go/pkg/http_model"
+import (
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+)
 
 type JoinTask struct {
 	Task
@@ -21,7 +23,7 @@ func NewJoinTask(taskRefName string, joinOn ...string) *JoinTask {
 	}
 }
 
-func (task *JoinTask) toWorkflowTask() []http_model.WorkflowTask {
+func (task *JoinTask) toWorkflowTask() []model.WorkflowTask {
 	workflowTasks := task.Task.toWorkflowTask()
 	workflowTasks[0].JoinOn = task.joinOn
 	return workflowTasks

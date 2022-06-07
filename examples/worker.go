@@ -1,13 +1,12 @@
 package examples
 
 import (
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 )
 
-func ExampleWorker(t *http_model.Task) (interface{}, error) {
-	taskResult := model.GetTaskResultFromTask(t)
+func ExampleWorker(t *model.Task) (taskResult *model.TaskResult, err error) {
+	taskResult = model.GetTaskResultFromTask(t)
 	taskResult.OutputData = map[string]interface{}{
 		"key0": nil,
 		"key1": 3,
@@ -16,7 +15,7 @@ func ExampleWorker(t *http_model.Task) (interface{}, error) {
 	}
 	taskResult.Logs = append(
 		taskResult.Logs,
-		http_model.TaskExecLog{
+		model.TaskExecLog{
 			Log: "log message",
 		},
 	)
@@ -24,8 +23,8 @@ func ExampleWorker(t *http_model.Task) (interface{}, error) {
 	return taskResult, nil
 }
 
-func SimpleWorker(t *http_model.Task) (interface{}, error) {
-	taskResult := model.GetTaskResultFromTask(t)
+func SimpleWorker(t *model.Task) (taskResult *model.TaskResult, err error) {
+	taskResult = model.GetTaskResultFromTask(t)
 	taskResult.OutputData = map[string]interface{}{
 		"key": "value",
 	}
@@ -33,6 +32,11 @@ func SimpleWorker(t *http_model.Task) (interface{}, error) {
 	return taskResult, nil
 }
 
-func OpenTreasureChest(t *http_model.Task) (interface{}, error) {
-	return t.InputData["importantValue"], nil
+func OpenTreasureChest(t *model.Task) (taskResult *model.TaskResult, err error) {
+	taskResult = model.GetTaskResultFromTask(t)
+	taskResult.OutputData = map[string]interface{}{
+		"treasure": t.InputData["importantValue"],
+	}
+	taskResult.Status = task_result_status.COMPLETED
+	return taskResult, nil
 }

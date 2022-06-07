@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
@@ -34,16 +33,16 @@ func TestWorkers(t *testing.T) {
 	outputData := map[string]interface{}{
 		"key": "value",
 	}
-	workerWithTaskResultOutput := func(t *http_model.Task) (interface{}, error) {
+	workerWithTaskResultOutput := func(t *model.Task) (interface{}, error) {
 		taskResult := model.GetTaskResultFromTask(t)
 		taskResult.OutputData = outputData
 		taskResult.Status = task_result_status.COMPLETED
 		return taskResult, nil
 	}
-	workerWithGenericOutput := func(t *http_model.Task) (interface{}, error) {
+	workerWithGenericOutput := func(t *model.Task) (interface{}, error) {
 		return outputData, nil
 	}
-	workers := []model.TaskExecutionFunction{
+	workers := []model.ExecuteTaskFunction{
 		workerWithTaskResultOutput,
 		workerWithGenericOutput,
 	}
@@ -55,7 +54,7 @@ func TestWorkers(t *testing.T) {
 	}
 }
 
-func validateWorker(worker model.TaskExecutionFunction, expectedOutput map[string]interface{}) error {
+func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]interface{}) error {
 	workflowIdList, err := http_client_e2e.StartWorkflows(
 		http_client_e2e_properties.WORKFLOW_EXECUTION_AMOUNT,
 		http_client_e2e_properties.WORKFLOW_NAME,

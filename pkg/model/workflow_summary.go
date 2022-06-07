@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type WorkflowSummary struct {
 	WorkflowType                     string `json:"workflowType,omitempty"`

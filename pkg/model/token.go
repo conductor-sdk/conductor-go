@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type Token struct {
 	Token string `json:"token"`

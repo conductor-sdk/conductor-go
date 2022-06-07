@@ -3,12 +3,12 @@ package conductor_http_client
 import (
 	"context"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/antihax/optional"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 )
 
 // Linger please
@@ -175,13 +175,13 @@ type WorkflowResourceApiGetExecutionStatusOpts struct {
 	IncludeTasks optional.Bool
 }
 
-func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiGetExecutionStatusOpts) (http_model.Workflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiGetExecutionStatusOpts) (model.Workflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.Workflow
+		localVarReturnValue model.Workflow
 	)
 
 	// create path and map variables
@@ -242,7 +242,7 @@ func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, wor
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.Workflow
+			var v model.Workflow
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -265,13 +265,13 @@ WorkflowResourceApiService Get the uri and path of the external storage where th
  * @param payloadType
 @return http_model.ExternalStorageLocation
 */
-func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Context, path string, operation string, payloadType string) (http_model.ExternalStorageLocation, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Context, path string, operation string, payloadType string) (model.ExternalStorageLocation, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.ExternalStorageLocation
+		localVarReturnValue model.ExternalStorageLocation
 	)
 
 	// create path and map variables
@@ -331,7 +331,7 @@ func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Cont
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.ExternalStorageLocation
+			var v model.ExternalStorageLocation
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -467,13 +467,13 @@ type WorkflowResourceApiGetWorkflowsOpts struct {
 	IncludeTasks  optional.Bool
 }
 
-func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []string, name string, localVarOptionals *WorkflowResourceApiGetWorkflowsOpts) (map[string][]http_model.Workflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []string, name string, localVarOptionals *WorkflowResourceApiGetWorkflowsOpts) (map[string][]model.Workflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue map[string][]http_model.Workflow
+		localVarReturnValue map[string][]model.Workflow
 	)
 
 	// create path and map variables
@@ -539,7 +539,7 @@ func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []st
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v map[string][]http_model.Workflow
+			var v map[string][]model.Workflow
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -570,13 +570,13 @@ type WorkflowResourceApiGetWorkflows1Opts struct {
 	IncludeTasks  optional.Bool
 }
 
-func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name string, correlationId string, localVarOptionals *WorkflowResourceApiGetWorkflows1Opts) ([]http_model.Workflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name string, correlationId string, localVarOptionals *WorkflowResourceApiGetWorkflows1Opts) ([]model.Workflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.Workflow
+		localVarReturnValue []model.Workflow
 	)
 
 	// create path and map variables
@@ -641,7 +641,7 @@ func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name str
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.Workflow
+			var v []model.Workflow
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -729,7 +729,7 @@ WorkflowResourceApiService Reruns the workflow from a specific task
  * @param workflowId
 @return string
 */
-func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body http_model.RerunWorkflowRequest, workflowId string) (string, *http.Response, error) {
+func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body model.RerunWorkflowRequest, workflowId string) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -1115,13 +1115,13 @@ type WorkflowResourceApiSearchOpts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchOpts) (http_model.SearchResultWorkflowSummary, *http.Response, error) {
+func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchOpts) (model.SearchResultWorkflowSummary, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.SearchResultWorkflowSummary
+		localVarReturnValue model.SearchResultWorkflowSummary
 	)
 
 	// create path and map variables
@@ -1193,7 +1193,7 @@ func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptiona
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.SearchResultWorkflowSummary
+			var v model.SearchResultWorkflowSummary
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1229,13 +1229,13 @@ type WorkflowResourceApiSearchV2Opts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchV2Opts) (http_model.SearchResultWorkflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchV2Opts) (model.SearchResultWorkflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.SearchResultWorkflow
+		localVarReturnValue model.SearchResultWorkflow
 	)
 
 	// create path and map variables
@@ -1307,7 +1307,7 @@ func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptio
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.SearchResultWorkflow
+			var v model.SearchResultWorkflow
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1343,13 +1343,13 @@ type WorkflowResourceApiSearchWorkflowsByTasksOpts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksOpts) (http_model.SearchResultWorkflowSummary, *http.Response, error) {
+func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksOpts) (model.SearchResultWorkflowSummary, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.SearchResultWorkflowSummary
+		localVarReturnValue model.SearchResultWorkflowSummary
 	)
 
 	// create path and map variables
@@ -1421,7 +1421,7 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context,
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.SearchResultWorkflowSummary
+			var v model.SearchResultWorkflowSummary
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1457,13 +1457,13 @@ type WorkflowResourceApiSearchWorkflowsByTasksV2Opts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksV2Opts) (http_model.SearchResultWorkflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksV2Opts) (model.SearchResultWorkflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.SearchResultWorkflow
+		localVarReturnValue model.SearchResultWorkflow
 	)
 
 	// create path and map variables
@@ -1535,7 +1535,7 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Contex
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.SearchResultWorkflow
+			var v model.SearchResultWorkflow
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1558,7 +1558,7 @@ WorkflowResourceApiService Skips a given task from a current running workflow
  * @param skipTaskRequest
 
 */
-func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, workflowId string, taskReferenceName string, skipTaskRequest http_model.SkipTaskRequest) (*http.Response, error) {
+func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, workflowId string, taskReferenceName string, skipTaskRequest model.SkipTaskRequest) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -1734,7 +1734,7 @@ WorkflowResourceApiService Start a new workflow with http_model.StartWorkflowReq
  * @param body
 @return string
 */
-func (a *WorkflowResourceApiService) StartWorkflow1(ctx context.Context, body http_model.StartWorkflowRequest) (string, *http.Response, error) {
+func (a *WorkflowResourceApiService) StartWorkflow1(ctx context.Context, body model.StartWorkflowRequest) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}

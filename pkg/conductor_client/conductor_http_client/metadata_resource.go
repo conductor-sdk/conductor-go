@@ -3,12 +3,12 @@ package conductor_http_client
 import (
 	"context"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/antihax/optional"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 )
 
 // Linger please
@@ -26,7 +26,7 @@ MetadataResourceApiService Create a new workflow definition
  * @param body
 
 */
-func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, body http_model.WorkflowDef) (*http.Response, error) {
+func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, body model.WorkflowDef) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -100,13 +100,13 @@ type MetadataResourceApiGetOpts struct {
 	Version optional.Int32
 }
 
-func (a *MetadataResourceApiService) Get(ctx context.Context, name string, localVarOptionals *MetadataResourceApiGetOpts) (http_model.WorkflowDef, *http.Response, error) {
+func (a *MetadataResourceApiService) Get(ctx context.Context, name string, localVarOptionals *MetadataResourceApiGetOpts) (model.WorkflowDef, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.WorkflowDef
+		localVarReturnValue model.WorkflowDef
 	)
 
 	// create path and map variables
@@ -167,7 +167,7 @@ func (a *MetadataResourceApiService) Get(ctx context.Context, name string, local
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.WorkflowDef
+			var v model.WorkflowDef
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -187,13 +187,13 @@ MetadataResourceApiService Retrieves all workflow definition along with blueprin
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return []http_model.WorkflowDef
 */
-func (a *MetadataResourceApiService) GetAll(ctx context.Context) ([]http_model.WorkflowDef, *http.Response, error) {
+func (a *MetadataResourceApiService) GetAll(ctx context.Context) ([]model.WorkflowDef, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.WorkflowDef
+		localVarReturnValue []model.WorkflowDef
 	)
 
 	// create path and map variables
@@ -250,7 +250,7 @@ func (a *MetadataResourceApiService) GetAll(ctx context.Context) ([]http_model.W
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.WorkflowDef
+			var v []model.WorkflowDef
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -271,13 +271,13 @@ MetadataResourceApiService Gets the task definition
  * @param tasktype
 @return http_model.TaskDef
 */
-func (a *MetadataResourceApiService) GetTaskDef(ctx context.Context, tasktype string) (http_model.TaskDef, *http.Response, error) {
+func (a *MetadataResourceApiService) GetTaskDef(ctx context.Context, tasktype string) (model.TaskDef, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.TaskDef
+		localVarReturnValue model.TaskDef
 	)
 
 	// create path and map variables
@@ -335,7 +335,7 @@ func (a *MetadataResourceApiService) GetTaskDef(ctx context.Context, tasktype st
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.TaskDef
+			var v model.TaskDef
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -355,13 +355,13 @@ MetadataResourceApiService Gets all task definition
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return []http_model.TaskDef
 */
-func (a *MetadataResourceApiService) GetTaskDefs(ctx context.Context) ([]http_model.TaskDef, *http.Response, error) {
+func (a *MetadataResourceApiService) GetTaskDefs(ctx context.Context) ([]model.TaskDef, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.TaskDef
+		localVarReturnValue []model.TaskDef
 	)
 
 	// create path and map variables
@@ -418,7 +418,7 @@ func (a *MetadataResourceApiService) GetTaskDefs(ctx context.Context) ([]http_mo
 			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.TaskDef
+			var v []model.TaskDef
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -439,7 +439,7 @@ MetadataResourceApiService Update an existing task
  * @param body
 
 */
-func (a *MetadataResourceApiService) UpdateTaskDef(ctx context.Context, body http_model.TaskDef) (*http.Response, error) {
+func (a *MetadataResourceApiService) UpdateTaskDef(ctx context.Context, body model.TaskDef) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -506,7 +506,7 @@ MetadataResourceApiService Create new task definition(s)
  * @param body
 
 */
-func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body []http_model.TaskDef) (*http.Response, error) {
+func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body []model.TaskDef) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -707,7 +707,7 @@ MetadataResourceApiService Create or update workflow definition
  * @param body
 
 */
-func (a *MetadataResourceApiService) Update(ctx context.Context, body []http_model.WorkflowDef) (*http.Response, error) {
+func (a *MetadataResourceApiService) Update(ctx context.Context, body []model.WorkflowDef) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}

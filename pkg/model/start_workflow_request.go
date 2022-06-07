@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type StartWorkflowRequest struct {
 	Name                            string            `json:"name"`
@@ -9,4 +9,13 @@ type StartWorkflowRequest struct {
 	WorkflowDef                     *WorkflowDef      `json:"workflowDef,omitempty"`
 	ExternalInputPayloadStoragePath string            `json:"externalInputPayloadStoragePath,omitempty"`
 	Priority                        int32             `json:"priority,omitempty"`
+}
+
+func NewStartWorkflowRequest(name string, version *int32, correlationId string, input interface{}) *StartWorkflowRequest {
+	return &StartWorkflowRequest{
+		Name:          name,
+		Version:       version,
+		CorrelationId: correlationId,
+		Input:         input,
+	}
 }

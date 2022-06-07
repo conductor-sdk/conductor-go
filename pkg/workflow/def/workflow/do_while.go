@@ -2,8 +2,7 @@ package workflow
 
 import (
 	"fmt"
-
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 )
 
 const (
@@ -46,10 +45,10 @@ func NewLoopTask(taskRefName string, iterations int32, tasks ...TaskInterface) *
 	}
 }
 
-func (task *DoWhileTask) toWorkflowTask() []http_model.WorkflowTask {
+func (task *DoWhileTask) toWorkflowTask() []model.WorkflowTask {
 	workflowTasks := task.Task.toWorkflowTask()
 	workflowTasks[0].LoopCondition = task.loopCondition
-	workflowTasks[0].LoopOver = []http_model.WorkflowTask{}
+	workflowTasks[0].LoopOver = []model.WorkflowTask{}
 	for _, loopTask := range task.loopOver {
 		workflowTasks[0].LoopOver = append(
 			workflowTasks[0].LoopOver,

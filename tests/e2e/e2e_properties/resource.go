@@ -1,14 +1,14 @@
 package e2e_properties
 
 import (
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"os"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 )
 
-type WorkflowValidator func(*http_model.Workflow) bool
+type WorkflowValidator func(*model.Workflow) bool
 
 const (
 	AUTHENTICATION_KEY_ID     = "KEY"

@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type RerunWorkflowRequest struct {
 	ReRunFromWorkflowId string                 `json:"reRunFromWorkflowId,omitempty"`

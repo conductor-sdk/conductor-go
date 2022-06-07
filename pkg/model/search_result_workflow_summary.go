@@ -1,4 +1,4 @@
-package http_model
+package model
 
 type SearchResultWorkflowSummary struct {
 	TotalHits int64             `json:"totalHits,omitempty"`
