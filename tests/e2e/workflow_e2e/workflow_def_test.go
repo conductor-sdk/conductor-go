@@ -3,29 +3,19 @@ package workflow_e2e
 import (
 	"context"
 	"fmt"
-	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+
 	"github.com/conductor-sdk/conductor-go/examples"
-	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
-	"github.com/conductor-sdk/conductor-go/pkg/worker"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
-	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e/http_client_e2e_properties"
 	log "github.com/sirupsen/logrus"
-)
-
-var (
-	taskRunner       = worker.NewTaskRunnerWithApiClient(e2e_properties.API_CLIENT)
-	workflowExecutor = executor.NewWorkflowExecutor(e2e_properties.API_CLIENT)
-	metadataClient   = conductor_http_client.MetadataResourceApiService{
-		APIClient: e2e_properties.API_CLIENT,
-	}
 )
 
 var (
@@ -67,7 +57,10 @@ var (
 	)
 )
 
-const workflowValidationTimeout = 5 * time.Second
+const (
+	workflowValidationTimeout = 3 * time.Second
+	workerQty                 = 7
+)
 
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
@@ -76,7 +69,7 @@ func init() {
 }
 
 func TestHttpTask(t *testing.T) {
-	httpTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+	httpTaskWorkflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_HTTP").
 		Version(1).
 		Add(httpTask)
@@ -91,14 +84,14 @@ func TestSimpleTask(t *testing.T) {
 	if err != nil {
 		t.Fatal("Failed to register task, response: ", response)
 	}
-	simpleTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+	simpleTaskWorkflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_SIMPLE").
 		Version(1).
 		Add(simpleTask)
-	err = taskRunner.StartWorker(
+	err = e2e_properties.TaskRunner.StartWorker(
 		simpleTask.ReferenceName(),
 		examples.SimpleWorker,
-		5,
+		workerQty,
 		500*time.Millisecond,
 	)
 	if err != nil {
@@ -108,9 +101,9 @@ func TestSimpleTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = taskRunner.RemoveWorker(
+	err = e2e_properties.TaskRunner.RemoveWorker(
 		simpleTask.ReferenceName(),
-		http_client_e2e_properties.WORKER_THREAD_COUNT,
+		workerQty,
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -118,7 +111,7 @@ func TestSimpleTask(t *testing.T) {
 }
 
 func TestInlineTask(t *testing.T) {
-	inlineTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+	inlineTaskWorkflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_INLINE_TASK").
 		Version(1).
 		Add(inlineTask)
@@ -166,7 +159,7 @@ func TestKafkaPublishTask(t *testing.T) {
 			KeySerializer: "org.apache.kafka.common.serialization.IntegerSerializer",
 		},
 	)
-	kafkaPublishTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+	kafkaPublishTaskWorkflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_KAFKA_PUBLISH").
 		Version(1).
 		Add(kafkaPublishTask)
@@ -178,7 +171,7 @@ func TestDoWhileTask(t *testing.T) {
 }
 
 func TestTerminateTask(t *testing.T) {
-	terminateTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+	terminateTaskWorkflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_TERMINATE").
 		Version(1).
 		Add(terminateTask)
@@ -186,7 +179,7 @@ func TestTerminateTask(t *testing.T) {
 }
 
 func TestSwitchTask(t *testing.T) {
-	switchTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+	switchTaskWorkflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_SWITCH").
 		Version(1).
 		Add(switchTask)
@@ -194,7 +187,7 @@ func TestSwitchTask(t *testing.T) {
 }
 
 func testEventTask(t *testing.T, workflowName string, event *workflow.EventTask) {
-	eventTaskWorkflow := workflow.NewConductorWorkflow(workflowExecutor).
+	eventTaskWorkflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name(workflowName).
 		Version(1).
 		Add(event)
@@ -234,7 +227,7 @@ func validateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 }
 
 func registerTask(task *workflow.SimpleTask) (*http.Response, error) {
-	return metadataClient.RegisterTaskDef(
+	return e2e_properties.MetadataClient.RegisterTaskDef(
 		context.Background(),
 		[]model.TaskDef{
 			*task.ToTaskDef(),

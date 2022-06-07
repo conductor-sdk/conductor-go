@@ -1,27 +1,23 @@
 package worker_e2e
 
 import (
-	"fmt"
 	"os"
-	"reflect"
 	"testing"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
-	"github.com/conductor-sdk/conductor-go/pkg/worker"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
-	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e"
-	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e/http_client_e2e_properties"
 	log "github.com/sirupsen/logrus"
 )
 
 const (
-	workflowCompletionTimeout = 3 * time.Second
-)
+	workflowCompletionTimeout = 5 * time.Second
+	workflowExecutionQty      = 15
 
-var taskRunner = worker.NewTaskRunnerWithApiClient(e2e_properties.API_CLIENT)
+	workerQty          = 7
+	workerPollInterval = 250 * time.Millisecond
+)
 
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
@@ -55,18 +51,18 @@ func TestWorkers(t *testing.T) {
 }
 
 func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]interface{}) error {
-	workflowIdList, err := http_client_e2e.StartWorkflows(
-		http_client_e2e_properties.WORKFLOW_EXECUTION_AMOUNT,
-		http_client_e2e_properties.WORKFLOW_NAME,
+	workflowIdList, err := e2e_properties.StartWorkflows(
+		workflowExecutionQty,
+		e2e_properties.WORKFLOW_NAME,
 	)
 	if err != nil {
 		return err
 	}
-	err = taskRunner.StartWorker(
-		http_client_e2e_properties.TASK_NAME,
+	err = e2e_properties.TaskRunner.StartWorker(
+		e2e_properties.TASK_NAME,
 		worker,
-		http_client_e2e_properties.WORKER_THREAD_COUNT,
-		http_client_e2e_properties.WORKER_POLLING_INTERVAL,
+		workerQty,
+		workerPollInterval,
 	)
 	if err != nil {
 		return err
@@ -74,7 +70,8 @@ func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]
 	runningWorkflows := make([]chan error, len(workflowIdList))
 	for i, workflowId := range workflowIdList {
 		runningWorkflows[i] = make(chan error)
-		go validateWorkflowDaemon(
+		go e2e_properties.ValidateWorkflowDaemon(
+			workflowCompletionTimeout,
 			runningWorkflows[i],
 			workflowId,
 			expectedOutput,
@@ -86,31 +83,8 @@ func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]
 			return err
 		}
 	}
-	return nil
-}
-
-func validateWorkflowDaemon(outputChannel chan error, workflowId string, expectedOutput map[string]interface{}) {
-	time.Sleep(workflowCompletionTimeout)
-	workflow, _, err := http_client_e2e.GetWorkflowExecutionStatus(
-		workflowId,
+	return e2e_properties.TaskRunner.RemoveWorker(
+		e2e_properties.TASK_NAME,
+		workerQty,
 	)
-	if err != nil {
-		outputChannel <- err
-		return
-	}
-	if workflow.Status != string(workflow_status.COMPLETED) {
-		outputChannel <- fmt.Errorf(
-			"workflow status different than expected, workflowId: %s, workflowStatus: %s",
-			workflow.WorkflowId, workflow.Status,
-		)
-		return
-	}
-	if !reflect.DeepEqual(workflow.Output, expectedOutput) {
-		outputChannel <- fmt.Errorf(
-			"workflow output is different than expected, workflowId: %s, output: %+v",
-			workflow.WorkflowId, workflow.Output,
-		)
-		return
-	}
-	outputChannel <- nil
 }

@@ -20,10 +20,10 @@ import (
 
 const taskUpdateRetryAttemptsLimit = 3
 
+var hostname, _ = os.Hostname()
+
 type TaskRunner struct {
 	conductorTaskResourceClient *conductor_http_client.TaskResourceApiService
-	hostName                    string
-
 	maxAllowedWorkersByTaskType map[string]int
 	runningWorkersByTaskType    map[string]int
 	mutex                       sync.Mutex
@@ -41,15 +41,10 @@ func NewTaskRunner(authenticationSettings *settings.AuthenticationSettings, http
 func NewTaskRunnerWithApiClient(
 	apiClient *conductor_http_client.APIClient,
 ) *TaskRunner {
-	hostname, err := os.Hostname()
-	if err != nil {
-		hostname = ""
-	}
 	return &TaskRunner{
 		conductorTaskResourceClient: &conductor_http_client.TaskResourceApiService{
 			APIClient: apiClient,
 		},
-		hostName:                    hostname,
 		maxAllowedWorkersByTaskType: make(map[string]int),
 		runningWorkersByTaskType:    make(map[string]int),
 	}
@@ -194,7 +189,7 @@ func (c *TaskRunner) batchPoll(taskType string, count int, timeout time.Duration
 		taskType,
 		&conductor_http_client.TaskResourceApiBatchPollOpts{
 			Domain:   domain,
-			Workerid: optional.NewString(c.hostName),
+			Workerid: optional.NewString(hostname),
 			Count:    optional.NewInt32(int32(count)),
 			Timeout:  optional.NewInt32(int32(timeout.Milliseconds())),
 		},

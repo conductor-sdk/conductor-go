@@ -33,13 +33,13 @@ func GetTaskResultFromTaskWithError(t *Task, err error) *TaskResult {
 func GetTaskResultFromTaskExecutionOutput(t *Task, taskExecutionOutput interface{}) (*TaskResult, error) {
 	taskResult, ok := taskExecutionOutput.(*TaskResult)
 	if !ok {
-		taskResult := GetTaskResultFromTask(t)
+		taskResult = GetTaskResultFromTask(t)
 		outputData, err := ConvertToMap(taskExecutionOutput)
 		if err != nil {
 			return nil, err
 		}
 		taskResult.OutputData = outputData
-		return taskResult, nil
+		taskResult.Status = task_result_status.COMPLETED
 	}
 	return taskResult, nil
 }
