@@ -77,6 +77,10 @@ func TestHttpTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	err = validateWorkflowBulk(httpTaskWorkflow, workflowValidationTimeout, 15)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestSimpleTask(t *testing.T) {
@@ -101,6 +105,10 @@ func TestSimpleTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	err = validateWorkflowBulk(simpleTaskWorkflow, workflowValidationTimeout, 15)
+	if err != nil {
+		t.Fatal(err)
+	}
 	err = e2e_properties.TaskRunner.RemoveWorker(
 		simpleTask.ReferenceName(),
 		workerQty,
@@ -116,6 +124,10 @@ func TestInlineTask(t *testing.T) {
 		Version(1).
 		Add(inlineTask)
 	err := validateWorkflow(inlineTaskWorkflow, workflowValidationTimeout)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = validateWorkflowBulk(inlineTaskWorkflow, workflowValidationTimeout, 15)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -222,6 +234,39 @@ func validateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 	}
 	if !isWorkflowCompleted(workflow) {
 		return fmt.Errorf("workflow finished with status: %s", workflow.Status)
+	}
+	return nil
+}
+
+func validateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout time.Duration, amount int) error {
+	_, err := conductorWorkflow.Register(true)
+	if err != nil {
+		return err
+	}
+	version := conductorWorkflow.GetVersion()
+	startWorkflowRequests := make([]model.StartWorkflowRequest, amount)
+	for i := 0; i < amount; i += 1 {
+		startWorkflowRequests[i] = *model.NewStartWorkflowRequest(
+			conductorWorkflow.GetName(), &version, "", map[string]interface{}{},
+		)
+	}
+	workflowExecutionChannels, err := conductorWorkflow.ExecuteWorkflowBulk(
+		startWorkflowRequests...,
+	)
+	if err != nil {
+		return err
+	}
+	for _, workflowExecutionChannel := range workflowExecutionChannels {
+		workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
+			workflowExecutionChannel,
+			timeout,
+		)
+		if err != nil {
+			return err
+		}
+		if !isWorkflowCompleted(workflow) {
+			return fmt.Errorf("workflow finished with status: %s", workflow.Status)
+		}
 	}
 	return nil
 }

@@ -2,11 +2,19 @@ package workflow
 
 import (
 	"encoding/json"
+	"net/http"
+
+	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
+
+type executeWorkflowResponse struct {
+	ResponseValue            string
+	WorkflowExecutionChannel executor.WorkflowExecutionChannel
+	Err                      error
+}
 
 type TimeoutPolicy string
 
@@ -116,18 +124,35 @@ func (workflow *ConductorWorkflow) Register(override bool) (*http.Response, erro
 	return workflow.executor.RegisterWorkflow(override, workflow.ToWorkflowDef())
 }
 
-// ExecuteBulk TODO: Run in parallel
-func (workflow *ConductorWorkflow) ExecuteBulk(startWorkflowRequest []model.StartWorkflowRequest) ([]executor.WorkflowExecutionChannel, error) {
-	amount := len(startWorkflowRequest)
+func (workflow *ConductorWorkflow) ExecuteWorkflowBulk(startWorkflowRequests ...model.StartWorkflowRequest) ([]executor.WorkflowExecutionChannel, error) {
+	amount := len(startWorkflowRequests)
+	executeWorkflowResponseChannels := make([]chan executeWorkflowResponse, amount)
+	for i := 0; i < amount; i += 1 {
+		executeWorkflowResponseChannels[i] = make(chan executeWorkflowResponse)
+		go workflow.executeWorkflowDaemon(executeWorkflowResponseChannels[i], &startWorkflowRequests[i])
+	}
 	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, amount)
 	for i := 0; i < amount; i += 1 {
-		_, workflowExecutionChannel, err := workflow.ExecuteWorkflow(&startWorkflowRequest[i])
-		if err != nil {
-			return nil, err
+		executeWorkflowResponse := <-executeWorkflowResponseChannels[i]
+		if executeWorkflowResponse.Err != nil {
+			return nil, executeWorkflowResponse.Err
 		}
-		workflowExecutionChannelList[i] = workflowExecutionChannel
+		workflowExecutionChannelList[i] = executeWorkflowResponse.WorkflowExecutionChannel
 	}
 	return workflowExecutionChannelList, nil
+}
+
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}) (string, executor.WorkflowExecutionChannel, error) {
+	version := workflow.GetVersion()
+	modelRequest := model.StartWorkflowRequest{
+		Name:    workflow.GetName(),
+		Version: &version,
+		Input:   getInputAsMap(input),
+	}
+	return workflow.executor.ExecuteWorkflow(
+		workflow.ToWorkflowDef(),
+		&modelRequest,
+	)
 }
 
 func (workflow *ConductorWorkflow) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (string, executor.WorkflowExecutionChannel, error) {
@@ -141,11 +166,23 @@ func (workflow *ConductorWorkflow) ExecuteWorkflow(startWorkflowRequest *model.S
 		ExternalInputPayloadStoragePath: startWorkflowRequest.ExternalInputPayloadStoragePath,
 		Priority:                        startWorkflowRequest.Priority,
 	}
-	return workflow.executor.ExecuteWorkflow(workflow.ToWorkflowDef(), &modelRequest)
+	return workflow.executor.ExecuteWorkflow(
+		workflow.ToWorkflowDef(),
+		&modelRequest,
+	)
+}
+
+func (workflow *ConductorWorkflow) executeWorkflowDaemon(executeWorkflowChannel chan executeWorkflowResponse, startWorkflowRequest *model.StartWorkflowRequest) {
+	defer concurrency.HandlePanicError("execute_workflow")
+	responseValue, workflowExecutionChannel, err := workflow.ExecuteWorkflow(startWorkflowRequest)
+	executeWorkflowChannel <- executeWorkflowResponse{
+		ResponseValue:            responseValue,
+		WorkflowExecutionChannel: workflowExecutionChannel,
+		Err:                      err,
+	}
 }
 
 func getInputAsMap(input interface{}) map[string]interface{} {
-
 	if input == nil {
 		return nil
 	}
