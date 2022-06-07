@@ -2,11 +2,11 @@ package executor
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 	"time"
+
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	log "github.com/sirupsen/logrus"
@@ -91,11 +91,6 @@ func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionCha
 // ExecuteWorkflow Executes a workflow
 // Returns workflow Id for the newly started workflow
 func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request *model.StartWorkflowRequest) (string, error) {
-
-	//inputAsMap, err := getInputAsMap(request.Input)
-	//if err != nil {
-	//	return "", err
-	//}
 	startWorkflowRequest := model.StartWorkflowRequest{
 		Name:                            request.Name,
 		Version:                         request.Version,
@@ -105,7 +100,6 @@ func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request 
 		ExternalInputPayloadStoragePath: request.ExternalInputPayloadStoragePath,
 		Priority:                        request.Priority,
 	}
-
 	if workflow != nil {
 		startWorkflowRequest.WorkflowDef = workflow
 	}
@@ -133,21 +127,4 @@ func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request 
 		", input: ", request.Input,
 	)
 	return workflowId, err
-}
-
-func getInputAsMap(input interface{}) (map[string]interface{}, error) {
-	if input == nil {
-		return nil, nil
-	}
-	data, err := json.Marshal(input)
-	if err != nil {
-		log.Debug(
-			"Failed to parse input",
-			", reason: ", err.Error(),
-		)
-		return nil, err
-	}
-	var parsedInput map[string]interface{}
-	json.Unmarshal(data, &parsedInput)
-	return parsedInput, nil
 }

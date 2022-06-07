@@ -6,7 +6,6 @@ import (
 
 type DynamicTask struct {
 	Task
-	joinOn []string
 }
 
 const dynamicTaskNameParameter = "taskToExecute"

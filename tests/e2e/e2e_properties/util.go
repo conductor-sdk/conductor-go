@@ -1,17 +1,47 @@
-package http_client_e2e_properties
+package e2e_properties
 
 import (
+	"context"
 	"fmt"
-	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"os"
+	"reflect"
 	"time"
+
+	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
+	"github.com/conductor-sdk/conductor-go/pkg/settings"
+	"github.com/conductor-sdk/conductor-go/pkg/worker"
+	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 
 	log "github.com/sirupsen/logrus"
 )
 
-type TreasureChest struct {
-	ImportantValue string `json:"importantValue"`
-}
+const (
+	AUTHENTICATION_KEY_ID     = "KEY"
+	AUTHENTICATION_KEY_SECRET = "SECRET"
+	BASE_URL                  = "https://play.orkes.io/api"
+)
+
+var (
+	apiClient = getApiClientWithAuthentication()
+)
+
+var (
+	MetadataClient = conductor_http_client.MetadataResourceApiService{
+		APIClient: apiClient,
+	}
+	TaskClient = conductor_http_client.TaskResourceApiService{
+		APIClient: apiClient,
+	}
+	WorkflowClient = conductor_http_client.WorkflowResourceApiService{
+		APIClient: apiClient,
+	}
+)
+
+var TaskRunner = worker.NewTaskRunnerWithApiClient(apiClient)
+
+var WorkflowExecutor = executor.NewWorkflowExecutor(apiClient)
 
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
@@ -19,16 +49,59 @@ func init() {
 	log.SetLevel(log.DebugLevel)
 }
 
-var (
-	TASK_OUTPUT = map[string]interface{}{
-		"hello": "world",
+type TreasureChest struct {
+	ImportantValue string `json:"importantValue"`
+}
+
+func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, workflowId string, expectedOutput map[string]interface{}) {
+	time.Sleep(waitTime)
+	workflow, _, err := WorkflowClient.GetExecutionStatus(
+		context.Background(),
+		workflowId,
+		nil,
+	)
+	if err != nil {
+		outputChannel <- err
+		return
 	}
+	if workflow.Status != string(workflow_status.COMPLETED) {
+		outputChannel <- fmt.Errorf(
+			"workflow status different than expected, workflowId: %s, workflowStatus: %s",
+			workflow.WorkflowId, workflow.Status,
+		)
+		return
+	}
+	if !reflect.DeepEqual(workflow.Output, expectedOutput) {
+		outputChannel <- fmt.Errorf(
+			"workflow output is different than expected, workflowId: %s, output: %+v",
+			workflow.WorkflowId, workflow.Output,
+		)
+		return
+	}
+	outputChannel <- nil
+}
 
-	WORKER_THREAD_COUNT     = 5
-	WORKER_POLLING_INTERVAL = 500 * time.Millisecond
+func getApiClientWithAuthentication() *conductor_http_client.APIClient {
+	return conductor_http_client.NewAPIClient(
+		getAuthenticationSettings(),
+		getHttpSettingsWithAuth(),
+	)
+}
 
-	WORKFLOW_EXECUTION_AMOUNT = 5
+func getAuthenticationSettings() *settings.AuthenticationSettings {
+	return settings.NewAuthenticationSettings(
+		os.Getenv(AUTHENTICATION_KEY_ID),
+		os.Getenv(AUTHENTICATION_KEY_SECRET),
+	)
+}
 
+func getHttpSettingsWithAuth() *settings.HttpSettings {
+	return settings.NewHttpSettings(
+		BASE_URL,
+	)
+}
+
+var (
 	WORKFLOW_DEFINITIONS = []model.WorkflowDef{
 		WORKFLOW_DEFINITION,
 		TREASURE_WORKFLOW_DEFINITION,
@@ -146,3 +219,20 @@ var (
 		ImportantValue: IMPORTANT_VALUE,
 	}
 )
+
+func StartWorkflows(workflowQty int, workflowName string) ([]string, error) {
+	workflowIdList := make([]string, workflowQty)
+	for i := 0; i < workflowQty; i += 1 {
+		workflowId, _, err := WorkflowClient.StartWorkflow(
+			context.Background(),
+			make(map[string]interface{}),
+			workflowName,
+			nil,
+		)
+		if err != nil {
+			return nil, err
+		}
+		workflowIdList[i] = workflowId
+	}
+	return workflowIdList, nil
+}

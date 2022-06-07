@@ -2,19 +2,22 @@ package worker_e2e
 
 import (
 	"os"
-	"sync"
 	"testing"
 	"time"
 
-	"github.com/conductor-sdk/conductor-go/examples"
-	"github.com/conductor-sdk/conductor-go/pkg/worker"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
-	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e"
-	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e/http_client_e2e_properties"
 	log "github.com/sirupsen/logrus"
 )
 
-var taskRunner = worker.NewTaskRunnerWithApiClient(e2e_properties.API_CLIENT)
+const (
+	workflowCompletionTimeout = 5 * time.Second
+	workflowExecutionQty      = 15
+
+	workerQty          = 7
+	workerPollInterval = 250 * time.Millisecond
+)
 
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
@@ -22,48 +25,66 @@ func init() {
 	log.SetLevel(log.DebugLevel)
 }
 
-func TestTaskRunnerExecution(t *testing.T) {
-	workflowIdList, err := http_client_e2e.StartWorkflows(
-		http_client_e2e_properties.WORKFLOW_EXECUTION_AMOUNT,
-		http_client_e2e_properties.WORKFLOW_NAME,
-	)
-	if err != nil {
-		t.Fatal(err)
+func TestWorkers(t *testing.T) {
+	outputData := map[string]interface{}{
+		"key": "value",
 	}
-	err = taskRunner.StartWorker(
-		http_client_e2e_properties.TASK_NAME,
-		examples.SimpleWorker,
-		http_client_e2e_properties.WORKER_THREAD_COUNT,
-		http_client_e2e_properties.WORKER_POLLING_INTERVAL,
-	)
-	if err != nil {
-		t.Fatal(err)
+	workerWithTaskResultOutput := func(t *model.Task) (interface{}, error) {
+		taskResult := model.GetTaskResultFromTask(t)
+		taskResult.OutputData = outputData
+		taskResult.Status = task_result_status.COMPLETED
+		return taskResult, nil
 	}
-	var waitGroup sync.WaitGroup
-	waitGroup.Add(len(workflowIdList))
-	for _, workflowId := range workflowIdList {
-		go testValidateWorkflow(t, &waitGroup, workflowId)
+	workerWithGenericOutput := func(t *model.Task) (interface{}, error) {
+		return outputData, nil
 	}
-	waitGroup.Wait()
-	err = taskRunner.RemoveWorker(
-		http_client_e2e_properties.TASK_NAME,
-		http_client_e2e_properties.WORKER_THREAD_COUNT,
-	)
-	if err != nil {
-		t.Fatal(err)
+	workers := []model.ExecuteTaskFunction{
+		workerWithTaskResultOutput,
+		workerWithGenericOutput,
+	}
+	for _, worker := range workers {
+		err := validateWorker(worker, outputData)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 }
 
-func testValidateWorkflow(t *testing.T, waitGroup *sync.WaitGroup, workflowId string) {
-	defer waitGroup.Done()
-	time.Sleep(3 * time.Second)
-	workflow, _, err := http_client_e2e.GetWorkflowExecutionStatus(
-		workflowId,
+func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]interface{}) error {
+	workflowIdList, err := e2e_properties.StartWorkflows(
+		workflowExecutionQty,
+		e2e_properties.WORKFLOW_NAME,
 	)
 	if err != nil {
-		t.Error(err)
+		return err
 	}
-	if workflow.Status != "COMPLETED" {
-		t.Errorf("Workflow finished with invalid terminal state, workflow: %+v", workflow)
+	err = e2e_properties.TaskRunner.StartWorker(
+		e2e_properties.TASK_NAME,
+		worker,
+		workerQty,
+		workerPollInterval,
+	)
+	if err != nil {
+		return err
 	}
+	runningWorkflows := make([]chan error, len(workflowIdList))
+	for i, workflowId := range workflowIdList {
+		runningWorkflows[i] = make(chan error)
+		go e2e_properties.ValidateWorkflowDaemon(
+			workflowCompletionTimeout,
+			runningWorkflows[i],
+			workflowId,
+			expectedOutput,
+		)
+	}
+	for _, runningWorkflowChannel := range runningWorkflows {
+		err := <-runningWorkflowChannel
+		if err != nil {
+			return err
+		}
+	}
+	return e2e_properties.TaskRunner.RemoveWorker(
+		e2e_properties.TASK_NAME,
+		workerQty,
+	)
 }

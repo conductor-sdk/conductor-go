@@ -3,51 +3,56 @@ package http_client_e2e
 import (
 	"context"
 	"testing"
+	"time"
 
-	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
-	"github.com/conductor-sdk/conductor-go/tests/e2e/http_client_e2e/http_client_e2e_properties"
 )
 
-var taskClient = conductor_http_client.TaskResourceApiService{
-	APIClient: e2e_properties.API_CLIENT,
-}
-
 func TestUpdateTaskRefByName(t *testing.T) {
-	workflowId, response, err := StartWorkflow(http_client_e2e_properties.WORKFLOW_NAME)
+	workflowId, response, err := e2e_properties.WorkflowClient.StartWorkflow(
+		context.Background(),
+		make(map[string]interface{}),
+		e2e_properties.WORKFLOW_NAME,
+		nil,
+	)
 	if err != nil {
 		t.Fatal(
-			"workflowId: ", workflowId,
+			"Failed to start workflow. Reason: ", err.Error(),
+			", workflowId: ", workflowId,
 			", response:, ", *response,
-			", error: ", err.Error(),
 		)
 	}
-	value, response, err := taskClient.UpdateTaskByRefName(
+	outputData := map[string]interface{}{
+		"key": "value",
+	}
+	returnValue, response, err := e2e_properties.TaskClient.UpdateTaskByRefName(
 		context.Background(),
-		http_client_e2e_properties.TASK_OUTPUT,
+		outputData,
 		workflowId,
-		http_client_e2e_properties.TASK_NAME,
+		e2e_properties.TASK_NAME,
 		string(task_result_status.COMPLETED),
 	)
 	if err != nil {
 		t.Fatal(
-			"value: ", value,
+			"Failed to updated task by ref name. Reason: ", err.Error(),
+			", workflowId: ", workflowId,
+			", return_value: ", returnValue,
 			", response:, ", *response,
-			", error: ", err.Error(),
 		)
 	}
-	workflow, response, err := GetWorkflowExecutionStatus(workflowId)
+	errorChannel := make(chan error)
+	go e2e_properties.ValidateWorkflowDaemon(
+		5*time.Second,
+		errorChannel,
+		workflowId,
+		outputData,
+	)
+	err = <-errorChannel
 	if err != nil {
 		t.Fatal(
-			"workflow: ", workflow,
-			", response:, ", *response,
-			", error: ", err.Error(),
-		)
-	}
-	if workflow.Status != string(task_result_status.COMPLETED) {
-		t.Fatal(
-			"Workflow status is not completed: ", workflow.Status,
+			"Failed to validate workflow. Reason: ", err.Error(),
+			", workflowId: ", workflowId,
 		)
 	}
 }
