@@ -232,6 +232,11 @@ func StartWorkflows(workflowQty int, workflowName string) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
+		log.Debug(
+			"Started workflow",
+			", workflowName: ", workflowName,
+			", workflowId: ", workflowId,
+		)
 		workflowIdList[i] = workflowId
 	}
 	return workflowIdList, nil

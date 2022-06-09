@@ -3,7 +3,6 @@ package workflow_e2e
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"testing"
 	"time"
@@ -55,11 +54,38 @@ var (
 		"TEST_GO_TASK_INLINE",
 		"function e() { if ($.value == 1){return {\"result\": true}} else { return {\"result\": false}}} e();",
 	)
+
+	kafkaPublishTask = workflow.NewKafkaPublishTask(
+		"TEST_GO_TASK_KAFKA_PUBLISH",
+		&workflow.KafkaPublishTaskInput{
+			Topic:            "userTopic",
+			Value:            "Message to publish",
+			BootStrapServers: "localhost:9092",
+			Headers: map[string]interface{}{
+				"x-Auth": "Auth-key",
+			},
+			Key:           "123",
+			KeySerializer: "org.apache.kafka.common.serialization.IntegerSerializer",
+		},
+	)
+
+	sqsEventTask = workflow.NewSqsEventTask(
+		"TEST_GO_TASK_EVENT_SQS",
+		"QUEUE",
+	)
+
+	conductorEventTask = workflow.NewConductorEventTask(
+		"TEST_GO_TASK_EVENT_CONDUCTOR",
+		"EVENT_NAME",
+	)
 )
 
 const (
-	workflowValidationTimeout = 3 * time.Second
-	workerQty                 = 7
+	workflowValidationTimeout = 10 * time.Second
+	workflowBulkQty           = 22
+
+	workerQty          = 7
+	workerPollInterval = 500 * time.Millisecond
 )
 
 func init() {
@@ -77,16 +103,16 @@ func TestHttpTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = validateWorkflowBulk(httpTaskWorkflow, workflowValidationTimeout, 15)
+	err = validateWorkflowBulk(httpTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestSimpleTask(t *testing.T) {
-	response, err := registerTask(simpleTask)
+	err := validateTaskRegistration(simpleTask)
 	if err != nil {
-		t.Fatal("Failed to register task, response: ", response)
+		t.Fatal(err)
 	}
 	simpleTaskWorkflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_SIMPLE").
@@ -96,7 +122,7 @@ func TestSimpleTask(t *testing.T) {
 		simpleTask.ReferenceName(),
 		examples.SimpleWorker,
 		workerQty,
-		500*time.Millisecond,
+		workerPollInterval,
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -105,7 +131,7 @@ func TestSimpleTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = validateWorkflowBulk(simpleTaskWorkflow, workflowValidationTimeout, 15)
+	err = validateWorkflowBulk(simpleTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -127,55 +153,43 @@ func TestInlineTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = validateWorkflowBulk(inlineTaskWorkflow, workflowValidationTimeout, 15)
+	err = validateWorkflowBulk(inlineTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestSqsEventTask(t *testing.T) {
-	sqsEventTask := workflow.NewSqsEventTask(
-		"TEST_GO_TASK_EVENT_SQS",
-		"QUEUE",
-	)
-	testEventTask(
-		t,
-		"TEST_GO_WORKFLOW_EVENT_SQS",
-		sqsEventTask,
-	)
+	workflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
+		Name("TEST_GO_WORKFLOW_EVENT_SQS").
+		Version(1).
+		Add(sqsEventTask)
+	err := validateWorkflowRegistration(workflow)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestConductorEventTask(t *testing.T) {
-	sqsEventTask := workflow.NewSqsEventTask(
-		"TEST_GO_TASK_EVENT_CONDUCTOR",
-		"QUEUE",
-	)
-	testEventTask(
-		t,
-		"TEST_GO_WORKFLOW_EVENT_CONDUCTOR",
-		sqsEventTask,
-	)
+	workflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
+		Name("TEST_GO_WORKFLOW_EVENT_CONDUCTOR").
+		Version(1).
+		Add(conductorEventTask)
+	err := validateWorkflowRegistration(workflow)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestKafkaPublishTask(t *testing.T) {
-	kafkaPublishTask := workflow.NewKafkaPublishTask(
-		"TEST_GO_TASK_KAFKA_PUBLISH",
-		&workflow.KafkaPublishTaskInput{
-			Topic:            "userTopic",
-			Value:            "Message to publish",
-			BootStrapServers: "localhost:9092",
-			Headers: map[string]interface{}{
-				"x-Auth": "Auth-key",
-			},
-			Key:           "123",
-			KeySerializer: "org.apache.kafka.common.serialization.IntegerSerializer",
-		},
-	)
-	kafkaPublishTaskWorkflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
+	workflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_KAFKA_PUBLISH").
 		Version(1).
 		Add(kafkaPublishTask)
-	registerWorkflow(t, kafkaPublishTaskWorkflow)
+	err := validateWorkflowRegistration(workflow)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestDoWhileTask(t *testing.T) {
@@ -183,27 +197,22 @@ func TestDoWhileTask(t *testing.T) {
 }
 
 func TestTerminateTask(t *testing.T) {
-	terminateTaskWorkflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
+	workflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_TERMINATE").
 		Version(1).
 		Add(terminateTask)
-	registerWorkflow(t, terminateTaskWorkflow)
+	err := validateWorkflowRegistration(workflow)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestSwitchTask(t *testing.T) {
-	switchTaskWorkflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
+	workflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_SWITCH").
 		Version(1).
 		Add(switchTask)
-	registerWorkflow(t, switchTaskWorkflow)
-}
-
-func testEventTask(t *testing.T, workflowName string, event *workflow.EventTask) {
-	eventTaskWorkflow := workflow.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
-		Name(workflowName).
-		Version(1).
-		Add(event)
-	_, err := eventTaskWorkflow.Register(true)
+	err := validateWorkflowRegistration(workflow)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -214,7 +223,7 @@ func isWorkflowCompleted(workflow *model.Workflow) bool {
 }
 
 func validateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout time.Duration) error {
-	_, err := conductorWorkflow.Register(true)
+	err := validateWorkflowRegistration(conductorWorkflow)
 	if err != nil {
 		return err
 	}
@@ -233,13 +242,13 @@ func validateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 		return err
 	}
 	if !isWorkflowCompleted(workflow) {
-		return fmt.Errorf("workflow finished with status: %s", workflow.Status)
+		return fmt.Errorf("workflow finished with unexpected status: %s", workflow.Status)
 	}
 	return nil
 }
 
 func validateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout time.Duration, amount int) error {
-	_, err := conductorWorkflow.Register(true)
+	err := validateWorkflowRegistration(conductorWorkflow)
 	if err != nil {
 		return err
 	}
@@ -271,18 +280,31 @@ func validateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 	return nil
 }
 
-func registerTask(task *workflow.SimpleTask) (*http.Response, error) {
-	return e2e_properties.MetadataClient.RegisterTaskDef(
+func validateTaskRegistration(task *workflow.SimpleTask) error {
+	response, err := e2e_properties.MetadataClient.RegisterTaskDef(
 		context.Background(),
 		[]model.TaskDef{
 			*task.ToTaskDef(),
 		},
 	)
+	if err != nil {
+		log.Debug(
+			"Failed to validate task registration. Reason: ", err.Error(),
+			", response: ", *response,
+		)
+		return err
+	}
+	return nil
 }
 
-func registerWorkflow(t *testing.T, conductorWorkflow *workflow.ConductorWorkflow) {
-	_, err := conductorWorkflow.Register(true)
+func validateWorkflowRegistration(workflow *workflow.ConductorWorkflow) error {
+	response, err := workflow.Register(true)
 	if err != nil {
-		t.Error(err)
+		log.Debug(
+			"Failed to validate workflow registration. Reason: ", err.Error(),
+			", response: ", *response,
+		)
+		return err
 	}
+	return nil
 }
