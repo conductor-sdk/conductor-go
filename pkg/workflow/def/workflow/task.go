@@ -21,7 +21,6 @@ const (
 	HUMAN             TaskType = "HUMAN"
 	HTTP              TaskType = "HTTP"
 	INLINE            TaskType = "INLINE"
-	EXCLUSIVE_JOIN    TaskType = "EXCLUSIVE_JOIN"
 	TERMINATE         TaskType = "TERMINATE"
 	KAFKA_PUBLISH     TaskType = "KAFKA_PUBLISH"
 	JSON_JQ_TRANSFORM TaskType = "JSON_JQ_TRANSFORM"

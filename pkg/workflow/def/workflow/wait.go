@@ -1,5 +1,9 @@
 package workflow
 
+import (
+	"time"
+)
+
 type WaitTask struct {
 	Task
 }
@@ -16,6 +20,36 @@ func NewWaitTask(taskRefName string) *WaitTask {
 		},
 	}
 }
+func NewWaitForDurationTask(taskRefName string, duration time.Duration) *WaitTask {
+	return &WaitTask{
+		Task{
+			name:              taskRefName,
+			taskReferenceName: taskRefName,
+			description:       "",
+			taskType:          WAIT,
+			optional:          false,
+			inputParameters: map[string]interface{}{
+				"duration": duration.String(),
+			},
+		},
+	}
+}
+
+func NewWaitUntilTask(taskRefName string, dateTime string) *WaitTask {
+	return &WaitTask{
+		Task{
+			name:              taskRefName,
+			taskReferenceName: taskRefName,
+			description:       "",
+			taskType:          WAIT,
+			optional:          false,
+			inputParameters: map[string]interface{}{
+				"until": dateTime,
+			},
+		},
+	}
+}
+
 func (task *WaitTask) Description(description string) *WaitTask {
 	task.Task.Description(description)
 	return task
