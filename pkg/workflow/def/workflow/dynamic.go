@@ -34,21 +34,27 @@ func (task *DynamicTask) toWorkflowTask() []model.WorkflowTask {
 	return workflowTasks
 }
 
-// Input to the task
+// Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 func (task *DynamicTask) Input(key string, value interface{}) *DynamicTask {
 	task.Task.Input(key, value)
 	return task
 }
+
+// InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 func (task *DynamicTask) InputMap(inputMap map[string]interface{}) *DynamicTask {
 	for k, v := range inputMap {
 		task.inputParameters[k] = v
 	}
 	return task
 }
+
+// Optional if set to true, the task will not fail the workflow if one of the loop task fails
 func (task *DynamicTask) Optional(optional bool) *DynamicTask {
 	task.Task.Optional(optional)
 	return task
 }
+
+// Description of the task
 func (task *DynamicTask) Description(description string) *DynamicTask {
 	task.Task.Description(description)
 	return task
