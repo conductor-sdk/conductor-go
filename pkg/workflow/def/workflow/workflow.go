@@ -147,10 +147,11 @@ func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) ([]
 }
 
 // StartWorkflow ExecuteWorkflow Execute the workflow with start request, that allows you to pass more details like correlationId, domain mapping etc.
-//Returns the workflow Id that can be used to monitor and get the status of the workflow execution
+//Returns the RunningWorkflow list that contains workflow Id of the newly executed workflow and a channel that can be used to monitor the execution state
 //Optionally, for short-lived workflows the channel can be used to monitor the status of the workflow
 func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequests ...*model.StartWorkflowRequest) ([]*executor.RunningWorkflow, error) {
 	for i := range startWorkflowRequests {
+		startWorkflowRequests[i].WorkflowDef = workflow.ToWorkflowDef()
 		startWorkflowRequests[i] = workflow.decorateStartWorkflowRequest(startWorkflowRequests[i])
 	}
 	return workflow.executor.StartWorkflow(startWorkflowRequests...)
