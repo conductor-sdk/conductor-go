@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
@@ -21,7 +22,7 @@ import (
 const (
 	AUTHENTICATION_KEY_ID     = "KEY"
 	AUTHENTICATION_KEY_SECRET = "SECRET"
-	BASE_URL                  = "https://play.orkes.io/api"
+	BASE_URL                  = "https://pg-staging.orkesconductor.com/api"
 )
 
 var (
@@ -65,7 +66,7 @@ func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, wo
 		outputChannel <- err
 		return
 	}
-	if workflow.Status != string(workflow_status.COMPLETED) {
+	if workflow.Status != workflow_status.COMPLETED {
 		outputChannel <- fmt.Errorf(
 			"workflow status different than expected, workflowId: %s, workflowStatus: %s",
 			workflow.WorkflowId, workflow.Status,
@@ -101,67 +102,6 @@ func getHttpSettingsWithAuth() *settings.HttpSettings {
 		BASE_URL,
 	)
 }
-
-var (
-	WORKFLOW_DEFINITIONS = []model.WorkflowDef{
-		WORKFLOW_DEFINITION,
-		TREASURE_WORKFLOW_DEFINITION,
-	}
-	TASK_DEFINITIONS = []model.TaskDef{
-		TASK_DEFINITION,
-		TREASURE_TASK_DEFINITION,
-	}
-)
-
-var (
-	WORKFLOW_NAME = "workflow_with_go_task_example_from_code"
-
-	TASK_NAME = "GO_TASK_OF_SIMPLE_TYPE"
-
-	WORKFLOW_DEFINITION = model.WorkflowDef{
-		UpdateTime:  1650595431465,
-		Name:        WORKFLOW_NAME,
-		Description: "Workflow with go task example from code",
-		Version:     1,
-		Tasks: []model.WorkflowTask{
-			{
-				Name:              TASK_NAME,
-				TaskReferenceName: TASK_NAME,
-				Type_:             "SIMPLE",
-				StartDelay:        0,
-				Optional:          false,
-				AsyncComplete:     false,
-			},
-		},
-		OutputParameters: map[string]interface{}{
-			"workerOutput": "${go_task_example_from_code_ref_0.output}",
-		},
-		SchemaVersion:                 2,
-		Restartable:                   true,
-		WorkflowStatusListenerEnabled: false,
-		OwnerEmail:                    "gustavo.gardusi@orkes.io",
-		TimeoutPolicy:                 "ALERT_ONLY",
-		TimeoutSeconds:                0,
-	}
-
-	TASK_DEFINITION = model.TaskDef{
-		Name:                        TASK_NAME,
-		Description:                 "Go task example from code",
-		RetryCount:                  3,
-		TimeoutSeconds:              300,
-		InputKeys:                   make([]string, 0),
-		OutputKeys:                  make([]string, 0),
-		TimeoutPolicy:               "TIME_OUT_WF",
-		RetryLogic:                  "FIXED",
-		RetryDelaySeconds:           10,
-		ResponseTimeoutSeconds:      180,
-		InputTemplate:               make(map[string]interface{}),
-		RateLimitPerFrequency:       0,
-		RateLimitFrequencyInSeconds: 1,
-		OwnerEmail:                  "gustavo.gardusi@orkes.io",
-		BackoffScaleFactor:          1,
-	}
-)
 
 var (
 	TREASURE_CHEST_WORKFLOW_NAME = "treasure_chest_workflow"
@@ -248,22 +188,24 @@ func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 	if err != nil {
 		return err
 	}
-	version := conductorWorkflow.GetVersion()
-	_, workflowExecutionChannel, err := conductorWorkflow.ExecuteWorkflow(
-		model.NewStartWorkflowRequest(conductorWorkflow.GetName(), &version, "", map[string]interface{}{}),
-	)
+	runningWorkflows, err := conductorWorkflow.StartWorkflowWithInput(make(map[string]interface{}))
 	if err != nil {
 		return err
 	}
-	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
-		workflowExecutionChannel,
-		timeout,
-	)
-	if err != nil {
-		return err
-	}
-	if !isWorkflowCompleted(workflow) {
-		return fmt.Errorf("workflow finished with unexpected status: %s", workflow.Status)
+	for _, runningWorkflow := range runningWorkflows {
+		if runningWorkflow.Err != nil {
+			return runningWorkflow.Err
+		}
+		workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
+			runningWorkflow.WorkflowExecutionChannel,
+			timeout,
+		)
+		if err != nil {
+			return err
+		}
+		if !isWorkflowCompleted(workflow) {
+			return fmt.Errorf("workflow finished with unexpected status: %s", workflow.Status)
+		}
 	}
 	return nil
 }
@@ -273,22 +215,24 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 	if err != nil {
 		return err
 	}
-	version := conductorWorkflow.GetVersion()
-	startWorkflowRequests := make([]model.StartWorkflowRequest, amount)
+	startWorkflowRequests := make([]*model.StartWorkflowRequest, amount)
 	for i := 0; i < amount; i += 1 {
-		startWorkflowRequests[i] = *model.NewStartWorkflowRequest(
-			conductorWorkflow.GetName(), &version, "", map[string]interface{}{},
+		startWorkflowRequests[i] = model.NewStartWorkflowRequest(
+			conductorWorkflow.GetName(),
+			optional.NewInt32(conductorWorkflow.GetVersion()),
+			"",
+			make(map[string]interface{}),
 		)
 	}
-	workflowExecutionChannels, err := conductorWorkflow.ExecuteWorkflowBulk(
+	runningWorkflows, err := conductorWorkflow.StartWorkflow(
 		startWorkflowRequests...,
 	)
 	if err != nil {
 		return err
 	}
-	for _, workflowExecutionChannel := range workflowExecutionChannels {
+	for _, runningWorkflow := range runningWorkflows {
 		workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
-			workflowExecutionChannel,
+			runningWorkflow.WorkflowExecutionChannel,
 			timeout,
 		)
 		if err != nil {
@@ -329,5 +273,5 @@ func ValidateWorkflowRegistration(workflow *workflow.ConductorWorkflow) error {
 }
 
 func isWorkflowCompleted(workflow *model.Workflow) bool {
-	return workflow.Status == string(workflow_status.COMPLETED)
+	return workflow.Status == workflow_status.COMPLETED
 }
