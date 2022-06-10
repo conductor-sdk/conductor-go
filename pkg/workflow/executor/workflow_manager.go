@@ -78,43 +78,94 @@ func (e *WorkflowExecutor) Search(start int32, size int32, query string, freeTex
 	return workflows.Results, nil
 }
 
-func (e *WorkflowExecutor) GetAllRunningWorkflows(workflowName string, version *int32) error {
-	e.workflowClient.GetRunningWorkflow(
+//Pause the execution of a running workflow.
+//Any tasks that are currently running will finish but no new tasks are scheduled until the workflow is resumed
+func (e *WorkflowExecutor) Pause(workflowId string) error {
+	_, err := e.workflowClient.PauseWorkflow(context.Background(), workflowId)
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+//Resume the execution of a workflow that is paused.  If the workflow is not paused, this method has no effect
+func (e *WorkflowExecutor) Resume(workflowId string) error {
+	_, err := e.workflowClient.ResumeWorkflow(context.Background(), workflowId)
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+//Terminate a running workflow.  Reason must be provided that is captured as the termination resaon for the workflow
+func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error {
+	_, err := e.workflowClient.Terminate(context.Background(), workflowId,
+		&conductor_http_client.WorkflowResourceApiTerminateOpts{Reason: optional.NewString(reason)},
+	)
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+//Restart a workflow execution from the beginning with the same input.
+//When called on a workflow that is not in a terminal status, this operation has no effect
+//If useLatestDefinition is set, the restarted workflow fetches the latest definition from the metadata store
+func (e *WorkflowExecutor) Restart(workflowId string, useLatestDefinition bool) error {
+	_, err := e.workflowClient.Restart(
 		context.Background(),
-		workflowName,
-		&conductor_http_client.WorkflowResourceApiGetRunningWorkflowOpts{
-			Version:   optional.Int32{},
-			StartTime: optional.Int64{},
-			EndTime:   optional.Int64{},
+		workflowId,
+		&conductor_http_client.WorkflowResourceApiRestartOpts{
+			UseLatestDefinitions: optional.NewBool(useLatestDefinition),
+		})
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+//Retry a failed workflow from the last task that failed.  When called the task in the failed state is scheduled again
+//and workflow moves to RUNNING status.  If resumeSubworkflowTasks is set and the last failed task was a sub-workflow
+//the server restarts the subworkflow from the failed task.  If set to false, the sub-workflow is re-executed.
+func (e *WorkflowExecutor) Retry(workflowId string, resumeSubworkflowTasks bool) error {
+	_, err := e.workflowClient.Retry(
+		context.Background(),
+		workflowId,
+		&conductor_http_client.WorkflowResourceApiRetryOpts{
+			ResumeSubworkflowTasks: optional.NewBool(resumeSubworkflowTasks),
 		},
 	)
-	return nil
+	if err != nil {
+		return nil
+	}
+	return err
 }
 
-func (e *WorkflowExecutor) Pause(workflowId string) error {
-	return nil
+// ReRun a completed workflow from a specific task (ReRunFromTaskId) and optionally change the input
+// Also update the completed tasks with new input (ReRunFromTaskId) if required
+func (e *WorkflowExecutor) ReRun(workflowId string, reRunRequest model.RerunWorkflowRequest) (id string, error error) {
+	id, _, err := e.workflowClient.Rerun(
+		context.Background(),
+		reRunRequest,
+		workflowId,
+	)
+	if err != nil {
+		return "", err
+	}
+	return id, err
 }
 
-func (e *WorkflowExecutor) Resume(workflowId string) error {
-	return nil
-}
-
-func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error {
-	return nil
-}
-
-func (e *WorkflowExecutor) Restart(workflowId string, reason string) error {
-	return nil
-}
-
-func (e *WorkflowExecutor) Retry(workflowId string, reason string) error {
-	return nil
-}
-
-func (e *WorkflowExecutor) ReRun(workflowId string, reason string) error {
-	return nil
-}
-
-func (e *WorkflowExecutor) SkipTasksFromWorkflow(workflowId string, reason string) error {
+//SkipTasksFromWorkflow Skips a given task execution from a current running workflow.
+//When skipped the task's input and outputs are updated  from skipTaskRequest parameter.
+func (e *WorkflowExecutor) SkipTasksFromWorkflow(workflowId string, taskReferenceName string, skipTaskRequest model.SkipTaskRequest) error {
+	_, err := e.workflowClient.SkipTaskFromWorkflow(
+		context.Background(),
+		workflowId,
+		taskReferenceName,
+		skipTaskRequest,
+	)
+	if err != nil {
+		return err
+	}
 	return nil
 }

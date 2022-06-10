@@ -1899,16 +1899,16 @@ func (a *WorkflowResourceApiService) StartWorkflow1(ctx context.Context, body mo
 WorkflowResourceApiService Terminate workflow execution
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param workflowId
- * @param optional nil or *WorkflowResourceApiTerminate1Opts - Optional Parameters:
+ * @param optional nil or *WorkflowResourceApiTerminateOpts - Optional Parameters:
      * @param "Reason" (optional.String) -
 
 */
 
-type WorkflowResourceApiTerminate1Opts struct {
+type WorkflowResourceApiTerminateOpts struct {
 	Reason optional.String
 }
 
-func (a *WorkflowResourceApiService) Terminate1(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiTerminate1Opts) (*http.Response, error) {
+func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiTerminateOpts) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}

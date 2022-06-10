@@ -19,7 +19,7 @@ type WorkflowExecutor struct {
 	workflowMonitor *WorkflowMonitor
 }
 
-//Create a new workflow executor
+// NewWorkflowExecutor Create a new workflow executor
 func NewWorkflowExecutor(apiClient *conductor_http_client.APIClient) *WorkflowExecutor {
 	workflowClient := &conductor_http_client.WorkflowResourceApiService{
 		APIClient: apiClient,
