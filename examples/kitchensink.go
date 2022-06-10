@@ -9,11 +9,11 @@ import (
 )
 
 func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
-	task := workflow.NewSimpleTask("simple_task_0")
+	task := workflow.NewSimpleTask("simple_task_0", "simple_task_0")
 	simpleWorkflow := workflow.NewConductorWorkflow(executor).
 		Name("inline_sub").
 		Add(
-			workflow.NewSimpleTask("simple_task_0"),
+			workflow.NewSimpleTask("simple_task_0", "simple_task_0"),
 		)
 	subWorkflowInline := workflow.NewSubWorkflowInlineTask(
 		"sub_flow_inline",
@@ -25,8 +25,8 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 		UseJavascript(true).
 		SwitchCase(
 			"LONG",
-			workflow.NewSimpleTask("simple_task_1"),
-			workflow.NewSimpleTask("simple_task_1"),
+			workflow.NewSimpleTask("simple_task_1", "simple_task_1"),
+			workflow.NewSimpleTask("simple_task_1", "simple_task_1"),
 		).
 		SwitchCase(
 			"SHORT",
@@ -45,12 +45,12 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 			subWorkflowInline,
 		},
 		[]workflow.TaskInterface{
-			workflow.NewSimpleTask("simple_task_5"),
+			workflow.NewSimpleTask("simple_task_5", "simple_task_5"),
 		},
 	)
 	dynamicFork := workflow.NewDynamicForkTask(
 		"dynamic_fork",
-		workflow.NewSimpleTask("dynamic_fork_prep"),
+		workflow.NewSimpleTask("dynamic_fork_prep", "dynamic_fork_prep"),
 	)
 	setVariable := workflow.NewSetVariableTask("set_state").
 		Input("call_made", true).
