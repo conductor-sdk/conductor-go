@@ -64,19 +64,25 @@ func (task *SubWorkflowTask) toWorkflowTask() []model.WorkflowTask {
 	return workflowTasks
 }
 
+// Description of the task
 func (task *SubWorkflowTask) Description(description string) *SubWorkflowTask {
 	task.Task.Description(description)
 	return task
 }
 
+// Optional if set to true, the task will not fail the workflow if the task fails
 func (task *SubWorkflowTask) Optional(optional bool) *SubWorkflowTask {
 	task.Task.Optional(optional)
 	return task
 }
+
+// Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 func (task *SubWorkflowTask) Input(key string, value interface{}) *SubWorkflowTask {
 	task.Task.Input(key, value)
 	return task
 }
+
+// InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 func (task *SubWorkflowTask) InputMap(inputMap map[string]interface{}) *SubWorkflowTask {
 	for k, v := range inputMap {
 		task.inputParameters[k] = v

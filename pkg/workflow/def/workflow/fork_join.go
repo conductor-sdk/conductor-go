@@ -43,21 +43,27 @@ func (task *ForkTask) getJoinTask() model.WorkflowTask {
 	return (join.toWorkflowTask())[0]
 }
 
-// Input to the task
+// Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 func (task *ForkTask) Input(key string, value interface{}) *ForkTask {
 	task.Task.Input(key, value)
 	return task
 }
+
+// InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 func (task *ForkTask) InputMap(inputMap map[string]interface{}) *ForkTask {
 	for k, v := range inputMap {
 		task.inputParameters[k] = v
 	}
 	return task
 }
+
+// Optional if set to true, the task will not fail the workflow if one of the loop task fails
 func (task *ForkTask) Optional(optional bool) *ForkTask {
 	task.Task.Optional(optional)
 	return task
 }
+
+// Description of the task
 func (task *ForkTask) Description(description string) *ForkTask {
 	task.Task.Description(description)
 	return task

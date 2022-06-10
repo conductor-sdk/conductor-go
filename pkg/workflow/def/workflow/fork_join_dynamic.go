@@ -66,16 +66,22 @@ func (task *DynamicForkTask) Input(key string, value interface{}) *DynamicForkTa
 	task.Task.Input(key, value)
 	return task
 }
+
+// InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 func (task *DynamicForkTask) InputMap(inputMap map[string]interface{}) *DynamicForkTask {
 	for k, v := range inputMap {
 		task.inputParameters[k] = v
 	}
 	return task
 }
+
+// Optional if set to true, the task will not fail the workflow if the task fails
 func (task *DynamicForkTask) Optional(optional bool) *DynamicForkTask {
 	task.Task.Optional(optional)
 	return task
 }
+
+// Description of the task
 func (task *DynamicForkTask) Description(description string) *DynamicForkTask {
 	task.Task.Description(description)
 	return task

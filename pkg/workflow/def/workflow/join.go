@@ -29,21 +29,13 @@ func (task *JoinTask) toWorkflowTask() []model.WorkflowTask {
 	return workflowTasks
 }
 
-// Input to the task
-func (task *JoinTask) Input(key string, value interface{}) *JoinTask {
-	task.Task.Input(key, value)
-	return task
-}
-func (task *JoinTask) InputMap(inputMap map[string]interface{}) *JoinTask {
-	for k, v := range inputMap {
-		task.inputParameters[k] = v
-	}
-	return task
-}
+// Optional if set to true, the task will not fail the workflow if the task fails
 func (task *JoinTask) Optional(optional bool) *JoinTask {
 	task.Task.Optional(optional)
 	return task
 }
+
+// Description of the task
 func (task *JoinTask) Description(description string) *JoinTask {
 	task.Task.Description(description)
 	return task

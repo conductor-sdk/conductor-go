@@ -6,6 +6,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/antihax/optional"
@@ -26,7 +27,7 @@ MetadataResourceApiService Create a new workflow definition
  * @param body
 
 */
-func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, body model.WorkflowDef) (*http.Response, error) {
+func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, overwrite bool, body model.WorkflowDef) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -38,7 +39,9 @@ func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, bo
 	localVarPath := "/metadata/workflow"
 
 	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
+	localVarQueryParams := url.Values{
+		"overwrite": []string{strconv.FormatBool(overwrite)},
+	}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
