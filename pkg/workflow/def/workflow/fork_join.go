@@ -9,7 +9,32 @@ type ForkTask struct {
 	forkedTasks [][]TaskInterface
 }
 
-func NewForkTask(taskRefName string, tasks ...[]TaskInterface) *ForkTask {
+//NewForkTask creates a new fork task that executes the given tasks in parallel
+/**
+ * execute task specified in the forkedTasks parameter in parallel.
+ *
+ * <p>forkedTask is a two-dimensional list that executes the outermost list in parallel and list
+ * within that is executed sequentially.
+ *
+ * <p>e.g. [[task1, task2],[task3, task4],[task5]] are executed as:
+ *
+ * <pre>
+ *                    ---------------
+ *                    |     fork    |
+ *                    ---------------
+ *                    |       |     |
+ *                    |       |     |
+ *                  task1  task3  task5
+ *                  task2  task4    |
+ *                    |      |      |
+ *                 ---------------------
+ *                 |       join        |
+ *                 ---------------------
+ * </pre>
+ *
+ *
+ */
+func NewForkTask(taskRefName string, forkedTask ...[]TaskInterface) *ForkTask {
 	return &ForkTask{
 		Task: Task{
 			name:              taskRefName,
@@ -19,7 +44,7 @@ func NewForkTask(taskRefName string, tasks ...[]TaskInterface) *ForkTask {
 			optional:          false,
 			inputParameters:   map[string]interface{}{},
 		},
-		forkedTasks: tasks,
+		forkedTasks: forkedTask,
 	}
 }
 
