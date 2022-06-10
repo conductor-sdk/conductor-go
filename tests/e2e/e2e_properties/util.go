@@ -187,22 +187,24 @@ func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 	if err != nil {
 		return err
 	}
-	runningWorkflows, err := conductorWorkflow.StartWorkflowWithInput(nil)
+	runningWorkflows, err := conductorWorkflow.StartWorkflowWithInput(make(map[string]interface{}))
 	if err != nil {
 		return err
 	}
-	if len(runningWorkflows) < 1 || runningWorkflows[0] == nil {
-		return fmt.Errorf("invalid running workflow")
-	}
-	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
-		runningWorkflows[0].WorkflowExecutionChannel,
-		timeout,
-	)
-	if err != nil {
-		return err
-	}
-	if !isWorkflowCompleted(workflow) {
-		return fmt.Errorf("workflow finished with unexpected status: %s", workflow.Status)
+	for _, runningWorkflow := range runningWorkflows {
+		if runningWorkflow.Err != nil {
+			return runningWorkflow.Err
+		}
+		workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
+			runningWorkflow.WorkflowExecutionChannel,
+			timeout,
+		)
+		if err != nil {
+			return err
+		}
+		if !isWorkflowCompleted(workflow) {
+			return fmt.Errorf("workflow finished with unexpected status: %s", workflow.Status)
+		}
 	}
 	return nil
 }
@@ -218,7 +220,7 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 			conductorWorkflow.GetName(),
 			conductorWorkflow.GetVersion(),
 			"",
-			nil,
+			make(map[string]interface{}),
 		)
 	}
 	runningWorkflows, err := conductorWorkflow.StartWorkflow(
