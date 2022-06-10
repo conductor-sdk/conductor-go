@@ -49,8 +49,48 @@ func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.Work
 }
 
 //StartWorkflow Start workflows
-//startWorkflowRequests are used to specify workflow input and optionally workflow definitions to
-func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequests ...*model.StartWorkflowRequest) ([]*RunningWorkflow, error) {
+//Returns the id of the newly created workflow
+func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, error error) {
+	id, _, err := e.workflowClient.StartWorkflowWithRequest(
+		context.Background(),
+		*startWorkflowRequest,
+	)
+	if err != nil {
+		return "", err
+	}
+	return id, err
+}
+
+//MonitorExecution monitors the workflow execution
+//Returns the channel with the execution result of the workflow
+//Note: Channels will continue to grow if the workflows do not complete and/or are not taken out
+func (e *WorkflowExecutor) MonitorExecution(workflowId string) (workflowMonitor WorkflowExecutionChannel) {
+	return e.getWorkflowMonitorChannel(workflowId)
+}
+
+//StartWorkflows Start workflows in bulk
+func (e *WorkflowExecutor) StartWorkflows(startWorkflowRequests []model.StartWorkflowRequest, monitorExecution bool) []*RunningWorkflow {
+	amount := len(startWorkflowRequests)
+	executionChannel := make(chan *RunningWorkflow, amount)
+	for i := 0; i < amount; i += 1 {
+		req := &startWorkflowRequests[i]
+		go func() {
+			workflowId, err := e.executeWorkflow(nil, req)
+			executionChannel <- NewRunningWorkflow(workflowId, nil, err)
+		}()
+	}
+	runningWorkflows := make([]*RunningWorkflow, amount)
+	for i := 0; i < amount; i += 1 {
+		runningWorkflows[i] = <-executionChannel
+		if monitorExecution {
+			runningWorkflows[i].WorkflowExecutionChannel = e.getWorkflowMonitorChannel(runningWorkflows[i].WorkflowId)
+		}
+	}
+
+	return runningWorkflows
+}
+
+func (e *WorkflowExecutor) startWorkflows(startWorkflowRequests ...*model.StartWorkflowRequest) []*RunningWorkflow {
 	amount := len(startWorkflowRequests)
 	runningWorkflowsChannel := make([]chan *RunningWorkflow, amount)
 	for i := 0; i < amount; i += 1 {
@@ -61,7 +101,7 @@ func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequests ...*model.StartWo
 	for i := 0; i < amount; i += 1 {
 		runningWorkflows[i] = <-runningWorkflowsChannel[i]
 	}
-	return runningWorkflows, nil
+	return runningWorkflows
 }
 
 func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionChannel, timeout time.Duration) (*model.Workflow, error) {
@@ -91,7 +131,7 @@ func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request 
 	if workflow != nil {
 		startWorkflowRequest.WorkflowDef = workflow
 	}
-	workflowId, response, err := e.workflowClient.StartWorkflow1(
+	workflowId, response, err := e.workflowClient.StartWorkflowWithRequest(
 		context.Background(),
 		startWorkflowRequest,
 	)
@@ -122,6 +162,26 @@ func (e *WorkflowExecutor) startWorkflowDaemon(request *model.StartWorkflowReque
 	workflowId, err := e.executeWorkflow(nil, request)
 	if err != nil {
 		runningWorkflowChannel <- NewRunningWorkflow("", nil, err)
+	}
+	executionChannel, err := e.workflowMonitor.GenerateWorkflowExecutionChannel(workflowId)
+	if err != nil {
+		runningWorkflowChannel <- NewRunningWorkflow("", nil, err)
+	}
+	runningWorkflowChannel <- NewRunningWorkflow(workflowId, executionChannel, nil)
+}
+
+func (e *WorkflowExecutor) getWorkflowMonitorChannel(workflowId string) WorkflowExecutionChannel {
+	defer concurrency.HandlePanicError("monitor_workflow")
+	channel, _ := e.workflowMonitor.GenerateWorkflowExecutionChannel(workflowId)
+	return channel
+}
+
+func (e *WorkflowExecutor) startWorkflowsAndChannel(request *model.StartWorkflowRequest) {
+	defer concurrency.HandlePanicError("start_workflow")
+	runningWorkflowChannel := make(chan *RunningWorkflow)
+	workflowId, err := e.executeWorkflow(nil, request)
+	if err != nil {
+		runningWorkflowChannel <- NewRunningWorkflow(workflowId, nil, err)
 	}
 	executionChannel, err := e.workflowMonitor.GenerateWorkflowExecutionChannel(workflowId)
 	if err != nil {

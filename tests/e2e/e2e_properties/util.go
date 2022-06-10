@@ -187,25 +187,26 @@ func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 	if err != nil {
 		return err
 	}
-	runningWorkflows, err := conductorWorkflow.StartWorkflowWithInput(make(map[string]interface{}))
+	workflowId, err := conductorWorkflow.StartWorkflowWithInput(make(map[string]interface{}))
 	if err != nil {
 		return err
 	}
-	for _, runningWorkflow := range runningWorkflows {
-		if runningWorkflow.Err != nil {
-			return runningWorkflow.Err
-		}
-		workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
-			runningWorkflow.WorkflowExecutionChannel,
-			timeout,
-		)
-		if err != nil {
-			return err
-		}
-		if !isWorkflowCompleted(workflow) {
-			return fmt.Errorf("workflow finished with unexpected status: %s", workflow.Status)
-		}
+
+	if err != nil {
+		return err
 	}
+	workflowExecutionChannel := WorkflowExecutor.MonitorExecution(workflowId)
+	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
+		workflowExecutionChannel,
+		timeout,
+	)
+	if err != nil {
+		return err
+	}
+	if !isWorkflowCompleted(workflow) {
+		return fmt.Errorf("workflow finished with unexpected status: %s", workflow.Status)
+	}
+
 	return nil
 }
 
@@ -216,6 +217,7 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 	}
 	version := conductorWorkflow.GetVersion()
 	startWorkflowRequests := make([]*model.StartWorkflowRequest, amount)
+	workflowIds := make([]string, amount)
 	for i := 0; i < amount; i += 1 {
 		startWorkflowRequests[i] = model.NewStartWorkflowRequest(
 			conductorWorkflow.GetName(),
@@ -223,16 +225,17 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 			"",
 			make(map[string]interface{}),
 		)
+		workflowId, err := conductorWorkflow.StartWorkflow(startWorkflowRequests[i])
+		if err != nil {
+			return err
+		}
+		workflowIds[i] = workflowId
 	}
-	runningWorkflows, err := conductorWorkflow.StartWorkflow(
-		startWorkflowRequests...,
-	)
-	if err != nil {
-		return err
-	}
-	for _, runningWorkflow := range runningWorkflows {
+
+	for _, workflowId := range workflowIds {
+		workflowExecutionChannel := WorkflowExecutor.MonitorExecution(workflowId)
 		workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
-			runningWorkflow.WorkflowExecutionChannel,
+			workflowExecutionChannel,
 			timeout,
 		)
 		if err != nil {

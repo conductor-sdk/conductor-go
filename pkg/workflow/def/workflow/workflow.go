@@ -37,6 +37,7 @@ func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflo
 	return &ConductorWorkflow{
 		executor:      executor,
 		timeoutPolicy: AlertOnly,
+		restartable:   true,
 	}
 }
 
@@ -133,8 +134,7 @@ func (workflow *ConductorWorkflow) Register(overwrite bool) (*http.Response, err
 
 // StartWorkflowWithInput ExecuteWorkflowWithInput Execute the workflow with specific input.  The input struct MUST be serializable to JSON
 //Returns the workflow Id that can be used to monitor and get the status of the workflow execution
-//Optionally, for short-lived workflows the channel can be used to monitor the status of the workflow
-func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) ([]*executor.RunningWorkflow, error) {
+func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) (workflowId string, error error) {
 	version := workflow.GetVersion()
 	return workflow.executor.StartWorkflow(
 		&model.StartWorkflowRequest{
@@ -147,14 +147,10 @@ func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) ([]
 }
 
 // StartWorkflow ExecuteWorkflow Execute the workflow with start request, that allows you to pass more details like correlationId, domain mapping etc.
-//Returns the RunningWorkflow list that contains workflow Id of the newly executed workflow and a channel that can be used to monitor the execution state
-//Optionally, for short-lived workflows the channel can be used to monitor the status of the workflow
-func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequests ...*model.StartWorkflowRequest) ([]*executor.RunningWorkflow, error) {
-	for i := range startWorkflowRequests {
-		startWorkflowRequests[i].WorkflowDef = workflow.ToWorkflowDef()
-		startWorkflowRequests[i] = workflow.decorateStartWorkflowRequest(startWorkflowRequests[i])
-	}
-	return workflow.executor.StartWorkflow(startWorkflowRequests...)
+//Returns the workflow Id that can be used to monitor and get the status of the workflow execution
+func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, error error) {
+	startWorkflowRequest.WorkflowDef = workflow.ToWorkflowDef()
+	return workflow.executor.StartWorkflow(startWorkflowRequest)
 }
 
 func getInputAsMap(input interface{}) map[string]interface{} {

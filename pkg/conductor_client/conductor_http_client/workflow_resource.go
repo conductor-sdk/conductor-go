@@ -1815,7 +1815,7 @@ WorkflowResourceApiService Start a new workflow with http_model.StartWorkflowReq
  * @param body
 @return string
 */
-func (a *WorkflowResourceApiService) StartWorkflow1(ctx context.Context, body model.StartWorkflowRequest) (string, *http.Response, error) {
+func (a *WorkflowResourceApiService) StartWorkflowWithRequest(ctx context.Context, body model.StartWorkflowRequest) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
