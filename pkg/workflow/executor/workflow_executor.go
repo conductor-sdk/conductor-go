@@ -21,9 +21,15 @@ type WorkflowExecutor struct {
 }
 
 // NewWorkflowExecutor Create a new workflow executor
-func NewWorkflowExecutor(apiClient *conductor_http_client.APIClient) *WorkflowExecutor {
+func NewWorkflowExecutor(apiClient *conductor_http_client.APIClient, mustMonitorWorkflows bool) *WorkflowExecutor {
 	workflowClient := &conductor_http_client.WorkflowResourceApiService{
 		APIClient: apiClient,
+	}
+	var workflowMonitor *WorkflowMonitor
+	if mustMonitorWorkflows {
+		workflowMonitor = NewWorkflowMonitor(workflowClient)
+	} else {
+		workflowMonitor = nil
 	}
 	workflowExecutor := WorkflowExecutor{
 		metadataClient: &conductor_http_client.MetadataResourceApiService{
@@ -33,7 +39,7 @@ func NewWorkflowExecutor(apiClient *conductor_http_client.APIClient) *WorkflowEx
 			APIClient: apiClient,
 		},
 		workflowClient:  workflowClient,
-		workflowMonitor: NewWorkflowMonitor(workflowClient),
+		workflowMonitor: workflowMonitor,
 	}
 	return &workflowExecutor
 }
@@ -122,10 +128,16 @@ func (e *WorkflowExecutor) startWorkflowDaemon(request *model.StartWorkflowReque
 	workflowId, err := e.executeWorkflow(nil, request)
 	if err != nil {
 		runningWorkflowChannel <- NewRunningWorkflow("", nil, err)
+		return
+	}
+	if e.workflowMonitor == nil {
+		runningWorkflowChannel <- NewRunningWorkflow(workflowId, nil, err)
+		return
 	}
 	executionChannel, err := e.workflowMonitor.GenerateWorkflowExecutionChannel(workflowId)
 	if err != nil {
 		runningWorkflowChannel <- NewRunningWorkflow("", nil, err)
+		return
 	}
 	runningWorkflowChannel <- NewRunningWorkflow(workflowId, executionChannel, nil)
 }

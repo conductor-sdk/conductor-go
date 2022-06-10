@@ -42,7 +42,7 @@ var (
 
 var TaskRunner = worker.NewTaskRunnerWithApiClient(apiClient)
 
-var WorkflowExecutor = executor.NewWorkflowExecutor(apiClient)
+var WorkflowExecutor = executor.NewWorkflowExecutor(apiClient, true)
 
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
