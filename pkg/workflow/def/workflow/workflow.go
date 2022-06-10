@@ -62,8 +62,9 @@ func (workflow *ConductorWorkflow) Description(description string) *ConductorWor
 	return workflow
 }
 
-func (workflow *ConductorWorkflow) TimeoutPolicy(timeoutPolicy TimeoutPolicy) *ConductorWorkflow {
+func (workflow *ConductorWorkflow) TimeoutPolicy(timeoutPolicy TimeoutPolicy, timeoutSeconds int64) *ConductorWorkflow {
 	workflow.timeoutPolicy = timeoutPolicy
+	workflow.timeoutSeconds = timeoutSeconds
 	return workflow
 }
 
