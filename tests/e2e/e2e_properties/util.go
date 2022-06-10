@@ -195,7 +195,10 @@ func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 	if err != nil {
 		return err
 	}
-	workflowExecutionChannel := WorkflowExecutor.MonitorExecution(workflowId)
+	workflowExecutionChannel, err := WorkflowExecutor.MonitorExecution(workflowId)
+	if err != nil {
+		return err
+	}
 	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
 		workflowExecutionChannel,
 		timeout,
@@ -217,7 +220,6 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 	}
 	version := conductorWorkflow.GetVersion()
 	startWorkflowRequests := make([]*model.StartWorkflowRequest, amount)
-	workflowIds := make([]string, amount)
 	for i := 0; i < amount; i += 1 {
 		startWorkflowRequests[i] = model.NewStartWorkflowRequest(
 			conductorWorkflow.GetName(),
@@ -225,17 +227,14 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 			"",
 			make(map[string]interface{}),
 		)
-		workflowId, err := conductorWorkflow.StartWorkflow(startWorkflowRequests[i])
-		if err != nil {
+	}
+	runningWorkflows := conductorWorkflow.StartWorkflowsAndMonitorExecution(startWorkflowRequests...)
+	for _, runningWorkflow := range runningWorkflows {
+		if runningWorkflow.Err != nil {
 			return err
 		}
-		workflowIds[i] = workflowId
-	}
-
-	for _, workflowId := range workflowIds {
-		workflowExecutionChannel := WorkflowExecutor.MonitorExecution(workflowId)
 		workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
-			workflowExecutionChannel,
+			runningWorkflow.WorkflowExecutionChannel,
 			timeout,
 		)
 		if err != nil {
