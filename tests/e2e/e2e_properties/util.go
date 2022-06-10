@@ -65,7 +65,7 @@ func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, wo
 		outputChannel <- err
 		return
 	}
-	if workflow.Status != string(workflow_status.COMPLETED) {
+	if workflow.Status != workflow_status.COMPLETED {
 		outputChannel <- fmt.Errorf(
 			"workflow status different than expected, workflowId: %s, workflowStatus: %s",
 			workflow.WorkflowId, workflow.Status,
@@ -270,5 +270,5 @@ func ValidateWorkflowRegistration(workflow *workflow.ConductorWorkflow) error {
 }
 
 func isWorkflowCompleted(workflow *model.Workflow) bool {
-	return workflow.Status == string(workflow_status.COMPLETED)
+	return workflow.Status == workflow_status.COMPLETED
 }
