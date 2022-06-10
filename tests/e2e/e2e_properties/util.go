@@ -301,12 +301,10 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 	return nil
 }
 
-func ValidateTaskRegistration(task *workflow.SimpleTask) error {
+func ValidateTaskRegistration(taskDefs ...model.TaskDef) error {
 	response, err := MetadataClient.RegisterTaskDef(
 		context.Background(),
-		[]model.TaskDef{
-			*task.ToTaskDef(),
-		},
+		taskDefs,
 	)
 	if err != nil {
 		log.Debug(
