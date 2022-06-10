@@ -10,5 +10,6 @@ var HttpTask = workflow.NewHttpTask(
 )
 
 var SimpleTask = workflow.NewSimpleTask(
-	"GO_TASK_OF_SIMPLE_TYPE", // task name
+	"GO_TASK_OF_SIMPLE_TYPE",
+	"GO_TASK_OF_SIMPLE_TYPE",
 )

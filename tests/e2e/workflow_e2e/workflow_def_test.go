@@ -21,7 +21,7 @@ var (
 	)
 
 	simpleTask = workflow.NewSimpleTask(
-		"TEST_GO_TASK_SIMPLE",
+		"TEST_GO_TASK_SIMPLE", "TEST_GO_TASK_SIMPLE",
 	)
 
 	terminateTask = workflow.NewTerminateTask(

@@ -7,10 +7,10 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 )
 
-var TaskCalculateTaxAndTotal = workflow.NewSimpleTask("calculate_tax_and_total").
+var TaskCalculateTaxAndTotal = workflow.NewSimpleTask("calculate_tax_and_total", "calculate_tax_and_total").
 	Input("orderDetail", "${workflow.input.orderDetail}")
 
-var TaskChargePayment = workflow.NewSimpleTask("charge_payment").
+var TaskChargePayment = workflow.NewSimpleTask("charge_payment", "charge_payment").
 	InputMap(
 		map[string]interface{}{
 			"billingId":   "${workflow.input.userDetails.billingId}",
@@ -26,9 +26,9 @@ var (
 		"orderNo": "${workflow.input.orderDetails.orderNumber}",
 	}
 
-	TaskGroundShippingLabel  = workflow.NewSimpleTask("ground_shipping_label").InputMap(shippingLabelInputMap)
-	SameDayShippingLabel     = workflow.NewSimpleTask("same_day_shipping_label").InputMap(shippingLabelInputMap)
-	AirShippingLabel         = workflow.NewSimpleTask("air_shipping_label").InputMap(shippingLabelInputMap)
+	TaskGroundShippingLabel  = workflow.NewSimpleTask("ground_shipping_label", "ground_shipping_label").InputMap(shippingLabelInputMap)
+	SameDayShippingLabel     = workflow.NewSimpleTask("same_day_shipping_label", "same_day_shipping_label").InputMap(shippingLabelInputMap)
+	AirShippingLabel         = workflow.NewSimpleTask("air_shipping_label", "air_shipping_label").InputMap(shippingLabelInputMap)
 	UnsupportedShippingLabel = workflow.NewTerminateTask("unsupported_shipping_type", workflow_status.FAILED, "Unsupported Shipping Method")
 
 	TaskShippingLabel = workflow.NewSwitchTask("shipping_label", "${workflow.input.orderDetail.shippingMethod}").
@@ -38,7 +38,7 @@ var (
 				DefaultCase(UnsupportedShippingLabel)
 )
 
-var TaskSendEmail = workflow.NewSimpleTask("_send_email").
+var TaskSendEmail = workflow.NewSimpleTask("_send_email", "_send_email").
 	InputMap(
 		map[string]interface{}{
 			"name":    "${workflow.input.userDetails.name}",
