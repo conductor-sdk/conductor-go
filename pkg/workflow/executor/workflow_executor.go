@@ -47,6 +47,7 @@ func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.Work
 	)
 }
 
+//StartWorkflow Starts a new workflow execution and returns workflow id and channel on which workflow execution can be monitored.
 func (e *WorkflowExecutor) StartWorkflow(request *model.StartWorkflowRequest) (string, WorkflowExecutionChannel, error) {
 	workflowId, err := e.executeWorkflow(nil, request)
 	if err != nil {
