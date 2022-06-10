@@ -1,8 +1,10 @@
 package model
 
+import "github.com/antihax/optional"
+
 type StartWorkflowRequest struct {
 	Name                            string            `json:"name"`
-	Version                         int32             `json:"version,omitempty"`
+	Version                         optional.Int32    `json:"version,omitempty"`
 	CorrelationId                   string            `json:"correlationId,omitempty"`
 	Input                           interface{}       `json:"input,omitempty"`
 	TaskToDomain                    map[string]string `json:"taskToDomain,omitempty"`
@@ -11,7 +13,7 @@ type StartWorkflowRequest struct {
 	Priority                        int32             `json:"priority,omitempty"`
 }
 
-func NewStartWorkflowRequest(name string, version int32, correlationId string, input interface{}) *StartWorkflowRequest {
+func NewStartWorkflowRequest(name string, version optional.Int32, correlationId string, input interface{}) *StartWorkflowRequest {
 	return &StartWorkflowRequest{
 		Name:          name,
 		Version:       version,

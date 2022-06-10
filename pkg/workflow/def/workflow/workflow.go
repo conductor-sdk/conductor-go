@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 	log "github.com/sirupsen/logrus"
@@ -139,7 +140,7 @@ func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) ([]
 	return workflow.executor.StartWorkflow(
 		&model.StartWorkflowRequest{
 			Name:        workflow.GetName(),
-			Version:     workflow.GetVersion(),
+			Version:     optional.NewInt32(workflow.GetVersion()),
 			Input:       getInputAsMap(input),
 			WorkflowDef: workflow.ToWorkflowDef(),
 		},
@@ -210,7 +211,7 @@ func getWorkflowTasksFromConductorWorkflow(workflow *ConductorWorkflow) []model.
 func (workflow *ConductorWorkflow) decorateStartWorkflowRequest(startWorkflowRequest *model.StartWorkflowRequest) *model.StartWorkflowRequest {
 	return &model.StartWorkflowRequest{
 		Name:                            workflow.GetName(),
-		Version:                         workflow.version,
+		Version:                         optional.NewInt32(workflow.version),
 		CorrelationId:                   startWorkflowRequest.CorrelationId,
 		Input:                           getInputAsMap(startWorkflowRequest.Input),
 		WorkflowDef:                     startWorkflowRequest.WorkflowDef,
