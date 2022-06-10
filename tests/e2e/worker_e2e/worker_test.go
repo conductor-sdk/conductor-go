@@ -12,6 +12,9 @@ import (
 )
 
 const (
+	taskName = "TEST_GO_TASK_SIMPLE"
+
+	workflowName              = "TEST_GO_WORKFLOW_SIMPLE"
 	workflowCompletionTimeout = 5 * time.Second
 	workflowExecutionQty      = 15
 
@@ -53,13 +56,13 @@ func TestWorkers(t *testing.T) {
 func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]interface{}) error {
 	workflowIdList, err := e2e_properties.StartWorkflows(
 		workflowExecutionQty,
-		e2e_properties.WORKFLOW_NAME,
+		workflowName,
 	)
 	if err != nil {
 		return err
 	}
 	err = e2e_properties.TaskRunner.StartWorker(
-		e2e_properties.TASK_NAME,
+		taskName,
 		worker,
 		workerQty,
 		workerPollInterval,
@@ -84,7 +87,7 @@ func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]
 		}
 	}
 	return e2e_properties.TaskRunner.RemoveWorker(
-		e2e_properties.TASK_NAME,
+		taskName,
 		workerQty,
 	)
 }

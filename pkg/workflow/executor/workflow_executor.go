@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
@@ -47,28 +48,20 @@ func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.Work
 	)
 }
 
-func (e *WorkflowExecutor) StartWorkflow(request *model.StartWorkflowRequest) (string, WorkflowExecutionChannel, error) {
-	workflowId, err := e.executeWorkflow(nil, request)
-	if err != nil {
-		return "", nil, err
+//StartWorkflow Start workflows
+//startWorkflowRequests are used to specify workflow input and optionally workflow definitions to
+func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequests ...*model.StartWorkflowRequest) ([]*RunningWorkflow, error) {
+	amount := len(startWorkflowRequests)
+	runningWorkflowsChannel := make([]chan *RunningWorkflow, amount)
+	for i := 0; i < amount; i += 1 {
+		runningWorkflowsChannel[i] = make(chan *RunningWorkflow)
+		go e.startWorkflowDaemon(startWorkflowRequests[i], runningWorkflowsChannel[i])
 	}
-	executionChannel, err := e.workflowMonitor.GenerateWorkflowExecutionChannel(workflowId)
-	if err != nil {
-		return "", nil, err
+	runningWorkflows := make([]*RunningWorkflow, amount)
+	for i := 0; i < amount; i += 1 {
+		runningWorkflows[i] = <-runningWorkflowsChannel[i]
 	}
-	return workflowId, executionChannel, nil
-}
-
-func (e *WorkflowExecutor) ExecuteWorkflow(workflow *model.WorkflowDef, request *model.StartWorkflowRequest) (string, WorkflowExecutionChannel, error) {
-	workflowId, err := e.executeWorkflow(workflow, request)
-	if err != nil {
-		return "", nil, err
-	}
-	executionChannel, err := e.workflowMonitor.GenerateWorkflowExecutionChannel(workflowId)
-	if err != nil {
-		return "", nil, err
-	}
-	return workflowId, executionChannel, nil
+	return runningWorkflows, nil
 }
 
 func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionChannel, timeout time.Duration) (*model.Workflow, error) {
@@ -122,4 +115,17 @@ func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request 
 		", input: ", request.Input,
 	)
 	return workflowId, err
+}
+
+func (e *WorkflowExecutor) startWorkflowDaemon(request *model.StartWorkflowRequest, runningWorkflowChannel chan *RunningWorkflow) {
+	defer concurrency.HandlePanicError("start_workflow")
+	workflowId, err := e.executeWorkflow(nil, request)
+	if err != nil {
+		runningWorkflowChannel <- NewRunningWorkflow("", nil, err)
+	}
+	executionChannel, err := e.workflowMonitor.GenerateWorkflowExecutionChannel(workflowId)
+	if err != nil {
+		runningWorkflowChannel <- NewRunningWorkflow("", nil, err)
+	}
+	runningWorkflowChannel <- NewRunningWorkflow(workflowId, executionChannel, nil)
 }

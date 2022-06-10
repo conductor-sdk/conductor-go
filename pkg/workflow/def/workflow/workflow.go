@@ -4,17 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 	log "github.com/sirupsen/logrus"
 )
-
-type executeWorkflowResponse struct {
-	ResponseValue            string
-	WorkflowExecutionChannel executor.WorkflowExecutionChannel
-	Err                      error
-}
 
 type TimeoutPolicy string
 
@@ -138,70 +131,29 @@ func (workflow *ConductorWorkflow) Register(overwrite bool) (*http.Response, err
 	return workflow.executor.RegisterWorkflow(overwrite, workflow.ToWorkflowDef())
 }
 
-//ExecuteWorkflowBulk Start workflows in bulk
-//startWorkflowRequests are used to specify workflow input and optionally workflow definitions to
-func (workflow *ConductorWorkflow) ExecuteWorkflowBulk(startWorkflowRequests ...model.StartWorkflowRequest) ([]executor.WorkflowExecutionChannel, error) {
-	amount := len(startWorkflowRequests)
-	executeWorkflowResponseChannels := make([]chan executeWorkflowResponse, amount)
-	for i := 0; i < amount; i += 1 {
-		executeWorkflowResponseChannels[i] = make(chan executeWorkflowResponse)
-		go workflow.executeWorkflowDaemon(executeWorkflowResponseChannels[i], &startWorkflowRequests[i])
-	}
-	workflowExecutionChannelList := make([]executor.WorkflowExecutionChannel, amount)
-	for i := 0; i < amount; i += 1 {
-		executeWorkflowResponse := <-executeWorkflowResponseChannels[i]
-		if executeWorkflowResponse.Err != nil {
-			return nil, executeWorkflowResponse.Err
-		}
-		workflowExecutionChannelList[i] = executeWorkflowResponse.WorkflowExecutionChannel
-	}
-	return workflowExecutionChannelList, nil
-}
-
+// TODO update description
 //ExecuteWorkflowWithInput Execute the workflow with specific input.  The input struct MUST be serializable to JSON
 //Returns the workflow Id that can be used to monitor and get the status of the workflow execution
 //Optionally, for short-lived workflows the channel can be used to monitor the status of the workflow
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}) (string, executor.WorkflowExecutionChannel, error) {
-	version := workflow.GetVersion()
-	modelRequest := model.StartWorkflowRequest{
-		Name:    workflow.GetName(),
-		Version: &version,
-		Input:   getInputAsMap(input),
-	}
-	return workflow.executor.ExecuteWorkflow(
-		workflow.ToWorkflowDef(),
-		&modelRequest,
+func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) ([]*executor.RunningWorkflow, error) {
+	return workflow.executor.StartWorkflow(
+		&model.StartWorkflowRequest{
+			Name:        workflow.GetName(),
+			Version:     workflow.GetVersion(),
+			Input:       getInputAsMap(input),
+			WorkflowDef: workflow.ToWorkflowDef(),
+		},
 	)
 }
 
 //ExecuteWorkflow Execute the workflow with start request, that allows you to pass more details like correlationId, domain mapping etc.
 //Returns the workflow Id that can be used to monitor and get the status of the workflow execution
 //Optionally, for short-lived workflows the channel can be used to monitor the status of the workflow
-func (workflow *ConductorWorkflow) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (string, executor.WorkflowExecutionChannel, error) {
-	version := workflow.GetVersion()
-	modelRequest := model.StartWorkflowRequest{
-		Name:                            workflow.GetName(),
-		Version:                         &version,
-		CorrelationId:                   startWorkflowRequest.CorrelationId,
-		Input:                           getInputAsMap(startWorkflowRequest.Input),
-		TaskToDomain:                    startWorkflowRequest.TaskToDomain,
-		ExternalInputPayloadStoragePath: startWorkflowRequest.ExternalInputPayloadStoragePath,
-		Priority:                        startWorkflowRequest.Priority,
+func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequests ...*model.StartWorkflowRequest) ([]*executor.RunningWorkflow, error) {
+	for i := range startWorkflowRequests {
+		startWorkflowRequests[i] = workflow.decorateStartWorkflowRequest(startWorkflowRequests[i])
 	}
-	return workflow.executor.ExecuteWorkflow(
-		workflow.ToWorkflowDef(),
-		&modelRequest,
-	)
-}
-
-func (workflow *ConductorWorkflow) executeWorkflowDaemon(executeWorkflowChannel chan executeWorkflowResponse, startWorkflowRequest *model.StartWorkflowRequest) {
-	defer concurrency.HandlePanicError("execute_workflow")
-	responseValue, workflowExecutionChannel, err := workflow.ExecuteWorkflow(startWorkflowRequest)
-	executeWorkflowChannel <- executeWorkflowResponse{
-		ResponseValue:            responseValue,
-		WorkflowExecutionChannel: workflowExecutionChannel,
-		Err:                      err,
-	}
+	return workflow.executor.StartWorkflow(startWorkflowRequests...)
 }
 
 func getInputAsMap(input interface{}) map[string]interface{} {
@@ -249,4 +201,17 @@ func getWorkflowTasksFromConductorWorkflow(workflow *ConductorWorkflow) []model.
 		)
 	}
 	return workflowTasks
+}
+
+func (workflow *ConductorWorkflow) decorateStartWorkflowRequest(startWorkflowRequest *model.StartWorkflowRequest) *model.StartWorkflowRequest {
+	return &model.StartWorkflowRequest{
+		Name:                            workflow.GetName(),
+		Version:                         workflow.version,
+		CorrelationId:                   startWorkflowRequest.CorrelationId,
+		Input:                           getInputAsMap(startWorkflowRequest.Input),
+		WorkflowDef:                     startWorkflowRequest.WorkflowDef,
+		TaskToDomain:                    startWorkflowRequest.TaskToDomain,
+		ExternalInputPayloadStoragePath: startWorkflowRequest.ExternalInputPayloadStoragePath,
+		Priority:                        startWorkflowRequest.Priority,
+	}
 }

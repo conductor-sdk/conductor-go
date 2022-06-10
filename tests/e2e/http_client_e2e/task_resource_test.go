@@ -9,11 +9,16 @@ import (
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 )
 
+const (
+	taskName     = "TEST_GO_TASK_SIMPLE"
+	workflowName = "TEST_GO_WORKFLOW_SIMPLE"
+)
+
 func TestUpdateTaskRefByName(t *testing.T) {
 	workflowId, response, err := e2e_properties.WorkflowClient.StartWorkflow(
 		context.Background(),
 		make(map[string]interface{}),
-		e2e_properties.WORKFLOW_NAME,
+		workflowName,
 		nil,
 	)
 	if err != nil {
@@ -30,7 +35,7 @@ func TestUpdateTaskRefByName(t *testing.T) {
 		context.Background(),
 		outputData,
 		workflowId,
-		e2e_properties.TASK_NAME,
+		taskName,
 		string(task_result_status.COMPLETED),
 	)
 	if err != nil {
