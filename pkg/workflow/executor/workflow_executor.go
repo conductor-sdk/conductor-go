@@ -69,6 +69,8 @@ func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequest *model.StartWorkfl
 }
 
 //StartWorkflows Start workflows in bulk
+//Returns RunningWorkflow struct that contains the workflowId, Err (if failed to start) and an execution channel
+//which can be used to monitor the completion of the workflow execution.  The channel is available if monitorExecution is set
 func (e *WorkflowExecutor) StartWorkflows(monitorExecution bool, startWorkflowRequests ...*model.StartWorkflowRequest) []*RunningWorkflow {
 	amount := len(startWorkflowRequests)
 	startingWorkflowChannel := make([]chan *RunningWorkflow, amount)
