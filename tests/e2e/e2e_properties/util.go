@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
@@ -215,11 +214,12 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 	if err != nil {
 		return err
 	}
+	version := conductorWorkflow.GetVersion()
 	startWorkflowRequests := make([]*model.StartWorkflowRequest, amount)
 	for i := 0; i < amount; i += 1 {
 		startWorkflowRequests[i] = model.NewStartWorkflowRequest(
 			conductorWorkflow.GetName(),
-			optional.NewInt32(conductorWorkflow.GetVersion()),
+			&version,
 			"",
 			make(map[string]interface{}),
 		)

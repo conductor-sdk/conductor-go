@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 	log "github.com/sirupsen/logrus"
@@ -137,10 +136,11 @@ func (workflow *ConductorWorkflow) Register(overwrite bool) (*http.Response, err
 //Returns the workflow Id that can be used to monitor and get the status of the workflow execution
 //Optionally, for short-lived workflows the channel can be used to monitor the status of the workflow
 func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) ([]*executor.RunningWorkflow, error) {
+	version := workflow.GetVersion()
 	return workflow.executor.StartWorkflow(
 		&model.StartWorkflowRequest{
 			Name:        workflow.GetName(),
-			Version:     optional.NewInt32(workflow.GetVersion()),
+			Version:     &version,
 			Input:       getInputAsMap(input),
 			WorkflowDef: workflow.ToWorkflowDef(),
 		},
@@ -209,9 +209,10 @@ func getWorkflowTasksFromConductorWorkflow(workflow *ConductorWorkflow) []model.
 }
 
 func (workflow *ConductorWorkflow) decorateStartWorkflowRequest(startWorkflowRequest *model.StartWorkflowRequest) *model.StartWorkflowRequest {
+	version := workflow.GetVersion()
 	return &model.StartWorkflowRequest{
 		Name:                            workflow.GetName(),
-		Version:                         optional.NewInt32(workflow.version),
+		Version:                         &version,
 		CorrelationId:                   startWorkflowRequest.CorrelationId,
 		Input:                           getInputAsMap(startWorkflowRequest.Input),
 		WorkflowDef:                     startWorkflowRequest.WorkflowDef,
