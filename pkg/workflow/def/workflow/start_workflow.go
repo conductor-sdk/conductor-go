@@ -1,7 +1,6 @@
 package workflow
 
 import (
-	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 )
 
@@ -9,7 +8,7 @@ type StartWorkflowTask struct {
 	Task
 }
 
-func NewStartWorkflowTask(taskRefName string, workflowName string, version optional.Int32, startWorkflowRequest *model.StartWorkflowRequest) *StartWorkflowTask {
+func NewStartWorkflowTask(taskRefName string, workflowName string, version *int32, startWorkflowRequest *model.StartWorkflowRequest) *StartWorkflowTask {
 	return &StartWorkflowTask{
 		Task: Task{
 			name:              taskRefName,
