@@ -15,6 +15,7 @@ const (
 	OPTIONS HttpMethod = "OPTIONS"
 )
 
+// NewHttpTask Create a new HTTP Task
 func NewHttpTask(taskRefName string, input *HttpInput) *HttpTask {
 	if len(input.Method) == 0 {
 		input.Method = GET
@@ -33,6 +34,7 @@ func NewHttpTask(taskRefName string, input *HttpInput) *HttpTask {
 	}
 }
 
+// HttpInput Input to the HTTP task
 type HttpInput struct {
 	Method            HttpMethod          `json:"method"`
 	Uri               string              `json:"uri"`
@@ -44,21 +46,27 @@ type HttpInput struct {
 	Body              interface{}         `json:"body,omitempty"`
 }
 
-// Input to the task
+// Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 func (task *HttpTask) Input(key string, value interface{}) *HttpTask {
 	task.Task.Input(key, value)
 	return task
 }
+
+// InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 func (task *HttpTask) InputMap(inputMap map[string]interface{}) *HttpTask {
 	for k, v := range inputMap {
 		task.inputParameters[k] = v
 	}
 	return task
 }
+
+// Optional if set to true, the task will not fail the workflow if one of the loop task fails
 func (task *HttpTask) Optional(optional bool) *HttpTask {
 	task.Task.Optional(optional)
 	return task
 }
+
+// Description of the task
 func (task *HttpTask) Description(description string) *HttpTask {
 	task.Task.Description(description)
 	return task

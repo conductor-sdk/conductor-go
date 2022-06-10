@@ -9,12 +9,15 @@ const (
 	loopCondition = "loop_count"
 )
 
+// DoWhileTask Do...While task
 type DoWhileTask struct {
 	Task
 	loopCondition string
 	loopOver      []TaskInterface
 }
 
+// NewDoWhileTask DoWhileTask Crate a new DoWhile task.
+// terminationCondition is a Javascript expression that evaluates to True or False
 func NewDoWhileTask(taskRefName string, terminationCondition string, tasks ...TaskInterface) *DoWhileTask {
 	return &DoWhileTask{
 		Task: Task{
@@ -29,7 +32,6 @@ func NewDoWhileTask(taskRefName string, terminationCondition string, tasks ...Ta
 }
 
 // NewLoopTask Loop over N times when N is specified as iterations
-// can be  static number e.g. 5 or a parameter expression like ${task_ref.output.some_value} that is a number
 func NewLoopTask(taskRefName string, iterations int32, tasks ...TaskInterface) *DoWhileTask {
 	return &DoWhileTask{
 		Task: Task{
@@ -64,21 +66,27 @@ func getForLoopCondition(loopValue string, taskReferenceName string) string {
 	)
 }
 
+// Optional if set to true, the task will not fail the workflow if one of the loop task fails
 func (task *DoWhileTask) Optional(optional bool) *DoWhileTask {
 	task.Task.Optional(optional)
 	return task
 }
 
+// Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 func (task *DoWhileTask) Input(key string, value interface{}) *DoWhileTask {
 	task.Task.Input(key, value)
 	return task
 }
+
+// InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 func (task *DoWhileTask) InputMap(inputMap map[string]interface{}) *DoWhileTask {
 	for k, v := range inputMap {
 		task.inputParameters[k] = v
 	}
 	return task
 }
+
+// Description of the task
 func (task *DoWhileTask) Description(description string) *DoWhileTask {
 	task.Task.Description(description)
 	return task
