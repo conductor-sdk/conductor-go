@@ -3,13 +3,13 @@ package examples
 import "github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
 
 var HttpTask = workflow.NewHttpTask(
-	"GO_TASK_OF_HTTP_TYPE", // task name
+	"go_task_of_http_type", // task name
 	&workflow.HttpInput{ // http input
 		Uri: "https://catfact.ninja/fact",
 	},
 )
 
 var SimpleTask = workflow.NewSimpleTask(
-	"GO_TASK_OF_SIMPLE_TYPE",
-	"GO_TASK_OF_SIMPLE_TYPE",
+	"go_task_of_simple_type",
+	"go_task_of_simple_type",
 )
