@@ -8,11 +8,16 @@ import (
 )
 
 func TestOrderWorkflow(t *testing.T) {
-	err := e2e_properties.ValidateTaskRegistration(shipment_example.TaskCalculateTaxAndTotal)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = e2e_properties.ValidateTaskRegistration(shipment_example.TaskChargePayment)
+	err := e2e_properties.ValidateTaskRegistration(
+		*shipment_example.TaskCalculateTaxAndTotal.ToTaskDef(),
+		*shipment_example.TaskChargePayment.ToTaskDef(),
+		*shipment_example.TaskGroundShippingLabel.ToTaskDef(),
+		*shipment_example.SameDayShippingLabel.ToTaskDef(),
+		*shipment_example.AirShippingLabel.ToTaskDef(),
+		*shipment_example.UnsupportedShippingLabel.ToTaskDef(),
+		*shipment_example.TaskShippingLabel.ToTaskDef(),
+		*shipment_example.TaskSendEmail.ToTaskDef(),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -105,7 +105,7 @@ func TestHttpTask(t *testing.T) {
 }
 
 func TestSimpleTask(t *testing.T) {
-	err := e2e_properties.ValidateTaskRegistration(simpleTask)
+	err := e2e_properties.ValidateTaskRegistration(*simpleTask.ToTaskDef())
 	if err != nil {
 		t.Fatal(err)
 	}
