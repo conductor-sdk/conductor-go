@@ -160,6 +160,10 @@ func getInputAsMap(input interface{}) map[string]interface{} {
 	if input == nil {
 		return nil
 	}
+	casted, ok := input.(map[string]interface{})
+	if ok {
+		return casted
+	}
 	data, err := json.Marshal(input)
 	if err != nil {
 		log.Debug(
