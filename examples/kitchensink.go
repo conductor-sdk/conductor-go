@@ -72,7 +72,7 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 	workflow := workflow.NewConductorWorkflow(executor).
 		Name("sdk_kitchen_sink2").
 		Version(1).
-		OwnerEmail("viren@orkes.io").
+		OwnerEmail("orkes-workers@apps.orkes.io").
 		Add(task).
 		Add(jqTask).
 		Add(setVariable).
