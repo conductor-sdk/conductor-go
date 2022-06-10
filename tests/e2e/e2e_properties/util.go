@@ -12,6 +12,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	"github.com/conductor-sdk/conductor-go/pkg/worker"
+	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 
 	log "github.com/sirupsen/logrus"
@@ -240,4 +241,95 @@ func StartWorkflows(workflowQty int, workflowName string) ([]string, error) {
 		workflowIdList[i] = workflowId
 	}
 	return workflowIdList, nil
+}
+
+func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout time.Duration) error {
+	err := ValidateWorkflowRegistration(conductorWorkflow)
+	if err != nil {
+		return err
+	}
+	version := conductorWorkflow.GetVersion()
+	_, workflowExecutionChannel, err := conductorWorkflow.ExecuteWorkflow(
+		model.NewStartWorkflowRequest(conductorWorkflow.GetName(), &version, "", map[string]interface{}{}),
+	)
+	if err != nil {
+		return err
+	}
+	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
+		workflowExecutionChannel,
+		timeout,
+	)
+	if err != nil {
+		return err
+	}
+	if !isWorkflowCompleted(workflow) {
+		return fmt.Errorf("workflow finished with unexpected status: %s", workflow.Status)
+	}
+	return nil
+}
+
+func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout time.Duration, amount int) error {
+	err := ValidateWorkflowRegistration(conductorWorkflow)
+	if err != nil {
+		return err
+	}
+	version := conductorWorkflow.GetVersion()
+	startWorkflowRequests := make([]model.StartWorkflowRequest, amount)
+	for i := 0; i < amount; i += 1 {
+		startWorkflowRequests[i] = *model.NewStartWorkflowRequest(
+			conductorWorkflow.GetName(), &version, "", map[string]interface{}{},
+		)
+	}
+	workflowExecutionChannels, err := conductorWorkflow.ExecuteWorkflowBulk(
+		startWorkflowRequests...,
+	)
+	if err != nil {
+		return err
+	}
+	for _, workflowExecutionChannel := range workflowExecutionChannels {
+		workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
+			workflowExecutionChannel,
+			timeout,
+		)
+		if err != nil {
+			return err
+		}
+		if !isWorkflowCompleted(workflow) {
+			return fmt.Errorf("workflow finished with status: %s", workflow.Status)
+		}
+	}
+	return nil
+}
+
+func ValidateTaskRegistration(task *workflow.SimpleTask) error {
+	response, err := MetadataClient.RegisterTaskDef(
+		context.Background(),
+		[]model.TaskDef{
+			*task.ToTaskDef(),
+		},
+	)
+	if err != nil {
+		log.Debug(
+			"Failed to validate task registration. Reason: ", err.Error(),
+			", response: ", *response,
+		)
+		return err
+	}
+	return nil
+}
+
+func ValidateWorkflowRegistration(workflow *workflow.ConductorWorkflow) error {
+	response, err := workflow.Register(true)
+	if err != nil {
+		log.Debug(
+			"Failed to validate workflow registration. Reason: ", err.Error(),
+			", response: ", *response,
+		)
+		return err
+	}
+	return nil
+}
+
+func isWorkflowCompleted(workflow *model.Workflow) bool {
+	return workflow.Status == string(workflow_status.COMPLETED)
 }
