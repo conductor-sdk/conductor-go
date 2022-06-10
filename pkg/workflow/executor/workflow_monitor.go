@@ -3,9 +3,10 @@ package executor
 import (
 	"context"
 	"fmt"
-	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"sync"
 	"time"
+
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 
 	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
 	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
@@ -37,8 +38,11 @@ func NewWorkflowMonitor(workflowClient *conductor_http_client.WorkflowResourceAp
 }
 
 func (w *WorkflowMonitor) GenerateWorkflowExecutionChannel(workflowId string) (WorkflowExecutionChannel, error) {
-	channel := make(WorkflowExecutionChannel, 1)
-	w.addWorkflowExecutionChannel(workflowId, channel)
+	channel := make(WorkflowExecutionChannel)
+	err := w.addWorkflowExecutionChannel(workflowId, channel)
+	if err != nil {
+		return nil, err
+	}
 	return channel, nil
 }
 

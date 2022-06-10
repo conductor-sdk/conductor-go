@@ -49,7 +49,7 @@ var TaskSendEmail = workflow.NewSimpleTask("_send_email", "_send_email").
 
 func NewOrderWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
 	return workflow.NewConductorWorkflow(workflowExecutor).
-		Name("EXAMPLE_GO_ORDER_WORKFLOW").
+		Name("example_go_order_workflow").
 		Version(1).
 		OwnerEmail("developers@orkes.io").
 		TimeoutPolicy(workflow.TimeOutWorkflow, 60).

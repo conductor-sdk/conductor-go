@@ -14,7 +14,7 @@ func IsWorkflowCompleted(workflow *model.Workflow) bool {
 func NewHttpTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
 	return newConductorWorkflow(
 		workflowExecutor,
-		"GO_WORKFLOW_WITH_HTTP_TASK",
+		"go_workflow_with_http_task",
 		HttpTask,
 	)
 }
@@ -22,7 +22,7 @@ func NewHttpTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *
 func NewSimpleTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
 	return newConductorWorkflow(
 		workflowExecutor,
-		"GO_WORKFLOW_WITH_SIMPLE_TASK",
+		"go_workflow_with_simple_task",
 		SimpleTask,
 	)
 }
