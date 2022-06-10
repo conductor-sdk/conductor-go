@@ -131,8 +131,7 @@ func (workflow *ConductorWorkflow) Register(overwrite bool) (*http.Response, err
 	return workflow.executor.RegisterWorkflow(overwrite, workflow.ToWorkflowDef())
 }
 
-// TODO update description
-//ExecuteWorkflowWithInput Execute the workflow with specific input.  The input struct MUST be serializable to JSON
+// StartWorkflowWithInput ExecuteWorkflowWithInput Execute the workflow with specific input.  The input struct MUST be serializable to JSON
 //Returns the workflow Id that can be used to monitor and get the status of the workflow execution
 //Optionally, for short-lived workflows the channel can be used to monitor the status of the workflow
 func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) ([]*executor.RunningWorkflow, error) {
@@ -147,7 +146,7 @@ func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) ([]
 	)
 }
 
-//ExecuteWorkflow Execute the workflow with start request, that allows you to pass more details like correlationId, domain mapping etc.
+// StartWorkflow ExecuteWorkflow Execute the workflow with start request, that allows you to pass more details like correlationId, domain mapping etc.
 //Returns the workflow Id that can be used to monitor and get the status of the workflow execution
 //Optionally, for short-lived workflows the channel can be used to monitor the status of the workflow
 func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequests ...*model.StartWorkflowRequest) ([]*executor.RunningWorkflow, error) {
