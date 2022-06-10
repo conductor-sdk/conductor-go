@@ -83,6 +83,7 @@ func (e *WorkflowExecutor) StartWorkflows(monitorExecution bool, startWorkflowRe
 	return startedWorkflows
 }
 
+//WaitForWorkflowCompletionUntilTimeout Helper method to wait on the channel until the timeout for the workflow execution to complete
 func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionChannel, timeout time.Duration) (workflow *model.Workflow, err error) {
 	select {
 	case workflow, ok := <-executionChannel:
