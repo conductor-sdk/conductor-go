@@ -66,7 +66,7 @@ func getForLoopCondition(loopValue string, taskReferenceName string) string {
 	)
 }
 
-// Optional if set to true, the task will not fail the workflow if one of the loop task fails
+// Optional if set to true, the task will not fail the workflow if the task fails
 func (task *DoWhileTask) Optional(optional bool) *DoWhileTask {
 	task.Task.Optional(optional)
 	return task

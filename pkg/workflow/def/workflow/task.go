@@ -74,12 +74,13 @@ func (task *Task) OutputRef(path string) string {
 //If not, the return type is a Task which makes it impossible to use fluent interface
 //For the tasks like Switch which has other methods too - quirks with Golang!
 
-// Input to the task
+// Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 func (task *Task) Input(key string, value interface{}) *Task {
 	task.inputParameters[key] = value
 	return task
 }
 
+// InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 func (task *Task) InputMap(inputMap map[string]interface{}) *Task {
 	for k, v := range inputMap {
 		task.inputParameters[k] = v
@@ -87,10 +88,13 @@ func (task *Task) InputMap(inputMap map[string]interface{}) *Task {
 	return task
 }
 
+// Description of the task
 func (task *Task) Description(description string) *Task {
 	task.description = description
 	return task
 }
+
+// Optional if set to true, the task will not fail the workflow if the task fails
 func (task *Task) Optional(optional bool) *Task {
 	task.optional = optional
 	return task

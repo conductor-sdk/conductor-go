@@ -19,6 +19,7 @@ type WorkflowExecutor struct {
 	workflowMonitor *WorkflowMonitor
 }
 
+//Create a new workflow executor
 func NewWorkflowExecutor(apiClient *conductor_http_client.APIClient) *WorkflowExecutor {
 	workflowClient := &conductor_http_client.WorkflowResourceApiService{
 		APIClient: apiClient,
@@ -36,20 +37,14 @@ func NewWorkflowExecutor(apiClient *conductor_http_client.APIClient) *WorkflowEx
 	return &workflowExecutor
 }
 
-func (e *WorkflowExecutor) RegisterWorkflow(override bool, workflow *model.WorkflowDef) (*http.Response, error) {
-	if override {
-		return e.metadataClient.Update(
-			context.Background(),
-			[]model.WorkflowDef{
-				*workflow,
-			},
-		)
-	} else {
-		return e.metadataClient.RegisterWorkflowDef(
-			context.Background(),
-			*workflow,
-		)
-	}
+//RegisterWorkflow Registers the workflow on the server.  Overwrites if the flag is set.  If the 'overwrite' flag is not set
+//and the workflow definition differs from the one on the server, the call will fail with response code 409
+func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.WorkflowDef) (*http.Response, error) {
+	return e.metadataClient.RegisterWorkflowDef(
+		context.Background(),
+		overwrite,
+		*workflow,
+	)
 }
 
 func (e *WorkflowExecutor) StartWorkflow(request *model.StartWorkflowRequest) (string, WorkflowExecutionChannel, error) {

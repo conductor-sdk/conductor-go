@@ -60,7 +60,7 @@ func (task *HttpTask) InputMap(inputMap map[string]interface{}) *HttpTask {
 	return task
 }
 
-// Optional if set to true, the task will not fail the workflow if one of the loop task fails
+// Optional if set to true, the task will not fail the workflow if the task fails
 func (task *HttpTask) Optional(optional bool) *HttpTask {
 	task.Task.Optional(optional)
 	return task
