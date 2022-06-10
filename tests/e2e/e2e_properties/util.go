@@ -228,7 +228,7 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 			make(map[string]interface{}),
 		)
 	}
-	runningWorkflows := conductorWorkflow.StartWorkflowsAndMonitorExecution(startWorkflowRequests...)
+	runningWorkflows := WorkflowExecutor.StartWorkflows(true, startWorkflowRequests...)
 	for _, runningWorkflow := range runningWorkflows {
 		if runningWorkflow.Err != nil {
 			return err

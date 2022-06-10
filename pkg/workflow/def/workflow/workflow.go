@@ -146,28 +146,21 @@ func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) (wo
 	)
 }
 
-// StartWorkflows Execute the workflow with start request, that allows you to pass more details like correlationId, domain mapping etc.
-//Returns a list of RunningWorkflow, which contains details for each given StartWorkflowRequest.
-//No WorkflowExecutionChannel will be provided, if interested in tracking its execution, take a look at StartWorkflowsAndMonitorExecution.
-//When debugging a single specific WorkflowStartRequest, you can use RunningWorkflow to get the respective error.
-func (workflow *ConductorWorkflow) StartWorkflows(startWorkflowRequests ...*model.StartWorkflowRequest) []*executor.RunningWorkflow {
-	workflowDef := workflow.ToWorkflowDef()
-	for i := range startWorkflowRequests {
-		startWorkflowRequests[i].WorkflowDef = workflowDef
-	}
-	return workflow.executor.StartWorkflows(false, startWorkflowRequests...)
+//StartWorkflow starts the workflow execution with startWorkflowRequest that allows you to specify more details like task domains, correlationId etc.
+//Returns the ID of the newly created workflow
+func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error) {
+	startWorkflowRequest.WorkflowDef = workflow.ToWorkflowDef()
+	return workflow.executor.StartWorkflow(startWorkflowRequest)
 }
 
-// StartWorkflows Execute the workflow with start request, that allows you to pass more details like correlationId, domain mapping etc.
-//Returns a list of RunningWorkflow, which contains details for each given StartWorkflowRequest.
-//WorkflowExecutionChannel will be provided, it's basically a channel that will receive the workflow once in a terminal state.
-//When debugging a single specific WorkflowStartRequest, you can use RunningWorkflow to get the respective error.
-func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkflowRequests ...*model.StartWorkflowRequest) []*executor.RunningWorkflow {
-	workflowDef := workflow.ToWorkflowDef()
-	for i := range startWorkflowRequests {
-		startWorkflowRequests[i].WorkflowDef = workflowDef
+//StartWorkflowsAndMonitorExecution Starts the workflow execution and returns a channel that can be used to monitor the workflow execution
+//This method is useful for short duration workflows that are expected to complete in few seconds.  For long-running workflows use GetStatus APIs to periodically check the status
+func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkflowRequest *model.StartWorkflowRequest) (executionChannel executor.WorkflowExecutionChannel, err error) {
+	workflowId, err := workflow.StartWorkflow(startWorkflowRequest)
+	if err != nil {
+		return nil, err
 	}
-	return workflow.executor.StartWorkflows(true, startWorkflowRequests...)
+	return workflow.executor.MonitorExecution(workflowId)
 }
 
 func getInputAsMap(input interface{}) map[string]interface{} {
