@@ -1,6 +1,8 @@
 package workflow
 
 import (
+	"fmt"
+
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 )
 
@@ -66,7 +68,10 @@ func (task *Task) ReferenceName() string {
 	return task.taskReferenceName
 }
 func (task *Task) OutputRef(path string) string {
-	return "${" + task.taskReferenceName + ".output." + path + "}"
+	if path == "" {
+		return fmt.Sprintf("${%s.output}", task.taskReferenceName)
+	}
+	return fmt.Sprintf("${%s.output.%s}", task.taskReferenceName, path)
 }
 
 //Note: All the below method should be implemented by the
