@@ -38,7 +38,7 @@ func NewWorkflowMonitor(workflowClient *conductor_http_client.WorkflowResourceAp
 }
 
 func (w *WorkflowMonitor) GenerateWorkflowExecutionChannel(workflowId string) (WorkflowExecutionChannel, error) {
-	channel := make(WorkflowExecutionChannel)
+	channel := make(WorkflowExecutionChannel, 1)
 	err := w.addWorkflowExecutionChannel(workflowId, channel)
 	if err != nil {
 		return nil, err

@@ -83,22 +83,22 @@ func (workflow *ConductorWorkflow) Restartable(restartable bool) *ConductorWorkf
 
 //OutputParameters Workflow outputs. Workflow output follows similar structure as task inputs
 //See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for more details
-func (workflow *ConductorWorkflow) OutputParameters(outputParameters map[string]interface{}) *ConductorWorkflow {
-	workflow.outputParameters = outputParameters
+func (workflow *ConductorWorkflow) OutputParameters(outputParameters interface{}) *ConductorWorkflow {
+	workflow.outputParameters = getInputAsMap(outputParameters)
 	return workflow
 }
 
 //InputTemplate template input to the workflow.  Can have combination of variables (e.g. ${workflow.input.abc}) and
 //static values
-func (workflow *ConductorWorkflow) InputTemplate(inputTemplate map[string]interface{}) *ConductorWorkflow {
-	workflow.inputTemplate = inputTemplate
+func (workflow *ConductorWorkflow) InputTemplate(inputTemplate interface{}) *ConductorWorkflow {
+	workflow.inputTemplate = getInputAsMap(inputTemplate)
 	return workflow
 }
 
 //Variables Workflow variables are set using SET_VARIABLE task.  Excellent way to maintain business state
 //e.g. Variables can maintain business/user specific states which can be queried and inspected to find out the state of the workflow
-func (workflow *ConductorWorkflow) Variables(variables map[string]interface{}) *ConductorWorkflow {
-	workflow.variables = variables
+func (workflow *ConductorWorkflow) Variables(variables interface{}) *ConductorWorkflow {
+	workflow.variables = getInputAsMap(variables)
 	return workflow
 }
 
@@ -212,18 +212,4 @@ func getWorkflowTasksFromConductorWorkflow(workflow *ConductorWorkflow) []model.
 		)
 	}
 	return workflowTasks
-}
-
-func (workflow *ConductorWorkflow) decorateStartWorkflowRequest(startWorkflowRequest *model.StartWorkflowRequest) *model.StartWorkflowRequest {
-	version := workflow.GetVersion()
-	return &model.StartWorkflowRequest{
-		Name:                            workflow.GetName(),
-		Version:                         &version,
-		CorrelationId:                   startWorkflowRequest.CorrelationId,
-		Input:                           getInputAsMap(startWorkflowRequest.Input),
-		WorkflowDef:                     startWorkflowRequest.WorkflowDef,
-		TaskToDomain:                    startWorkflowRequest.TaskToDomain,
-		ExternalInputPayloadStoragePath: startWorkflowRequest.ExternalInputPayloadStoragePath,
-		Priority:                        startWorkflowRequest.Priority,
-	}
 }
