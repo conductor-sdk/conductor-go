@@ -53,6 +53,13 @@ var TaskGetOrderDetails = workflow.NewSimpleTask("get_order_details", "get_order
 var TaskGetUserDetails = workflow.NewSimpleTask("get_user_details", "get_user_details").
 	Input("userId", "${workflow.input.userId}")
 
+var TaskGetInParallel = workflow.NewForkTask(
+	"get_in_parallel",
+	[]workflow.TaskInterface{
+		TaskGetOrderDetails, TaskGetUserDetails,
+	},
+)
+
 func NewOrderWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
 	return workflow.NewConductorWorkflow(workflowExecutor).
 		Name("example_go_order_workflow").
@@ -73,5 +80,6 @@ func NewShipmentWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.
 		OwnerEmail("developers@orkes.io").
 		Variables(NewShipmentState()).
 		TimeoutPolicy(workflow.TimeOutWorkflow, 60).
-		Description("Workflow to track shipment")
+		Description("Workflow to track shipment").
+		Add(TaskGetInParallel)
 }
