@@ -38,7 +38,7 @@ var (
 				DefaultCase(UnsupportedShippingLabel)
 )
 
-var TaskSendEmail = workflow.NewSimpleTask("_send_email", "_send_email").
+var TaskSendEmail = workflow.NewSimpleTask("send_email", "send_email").
 	InputMap(
 		map[string]interface{}{
 			"name":    "${workflow.input.userDetails.name}",
@@ -59,6 +59,21 @@ var TaskGetInParallel = workflow.NewForkTask(
 		TaskGetOrderDetails, TaskGetUserDetails,
 	},
 )
+
+var (
+	TaskGenerateDynamicFork = workflow.NewSimpleTask("generateDynamicFork", "generateDynamicFork").
+				InputMap(
+			map[string]interface{}{
+				"orderDetails": TaskGetOrderDetails.OutputRef("result"),
+				"userDetails":  TaskGetUserDetails.OutputRef(""),
+			},
+		)
+
+	TaskProcessOrder = workflow.NewDynamicForkTask("process_order", TaskGenerateDynamicFork)
+)
+
+var TaskUpdateState = workflow.NewSetVariableTask("update_state").
+	Input("shipped", true)
 
 func NewOrderWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
 	return workflow.NewConductorWorkflow(workflowExecutor).
@@ -81,5 +96,7 @@ func NewShipmentWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.
 		Variables(NewShipmentState()).
 		TimeoutPolicy(workflow.TimeOutWorkflow, 60).
 		Description("Workflow to track shipment").
-		Add(TaskGetInParallel)
+		Add(TaskGetInParallel).
+		Add(TaskProcessOrder).
+		Add(TaskUpdateState)
 }
