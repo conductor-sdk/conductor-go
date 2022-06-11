@@ -47,15 +47,31 @@ var TaskSendEmail = workflow.NewSimpleTask("_send_email", "_send_email").
 		},
 	)
 
+var TaskGetOrderDetails = workflow.NewSimpleTask("get_order_details", "get_order_details").
+	Input("orderNo", "${workflow.input.orderNo}")
+
+var TaskGetUserDetails = workflow.NewSimpleTask("get_user_details", "get_user_details").
+	Input("userId", "${workflow.input.userId}")
+
 func NewOrderWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
 	return workflow.NewConductorWorkflow(workflowExecutor).
 		Name("example_go_order_workflow").
 		Version(1).
 		OwnerEmail("developers@orkes.io").
 		TimeoutPolicy(workflow.TimeOutWorkflow, 60).
-		Description("Workflow to track shipment").
+		Description("Workflow to track order").
 		Add(TaskCalculateTaxAndTotal).
 		Add(TaskChargePayment).
 		Add(TaskShippingLabel).
 		Add(TaskSendEmail)
+}
+
+func NewShipmentWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
+	return workflow.NewConductorWorkflow(workflowExecutor).
+		Name("example_go_shipment_workflow").
+		Version(1).
+		OwnerEmail("developers@orkes.io").
+		Variables(NewShipmentState()).
+		TimeoutPolicy(workflow.TimeOutWorkflow, 60).
+		Description("Workflow to track shipment")
 }
