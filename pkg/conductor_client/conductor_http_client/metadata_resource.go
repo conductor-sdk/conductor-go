@@ -3,13 +3,13 @@ package conductor_http_client
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/antihax/optional"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 )
 
 // Linger please
@@ -27,7 +27,7 @@ MetadataResourceApiService Create a new workflow definition
  * @param body
 
 */
-func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, body http_model.WorkflowDef) (*http.Response, error) {
+func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, overwrite bool, body model.WorkflowDef) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -36,10 +36,12 @@ func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, bo
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/workflow"
+	localVarPath := "/metadata/workflow"
 
 	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
+	localVarQueryParams := url.Values{
+		"overwrite": []string{strconv.FormatBool(overwrite)},
+	}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
@@ -71,8 +73,8 @@ func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, bo
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -80,7 +82,7 @@ func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, bo
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -101,17 +103,17 @@ type MetadataResourceApiGetOpts struct {
 	Version optional.Int32
 }
 
-func (a *MetadataResourceApiService) Get(ctx context.Context, name string, localVarOptionals *MetadataResourceApiGetOpts) (http_model.WorkflowDef, *http.Response, error) {
+func (a *MetadataResourceApiService) Get(ctx context.Context, name string, localVarOptionals *MetadataResourceApiGetOpts) (model.WorkflowDef, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.WorkflowDef
+		localVarReturnValue model.WorkflowDef
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/workflow/{name}"
+	localVarPath := "/metadata/workflow/{name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -148,8 +150,8 @@ func (a *MetadataResourceApiService) Get(ctx context.Context, name string, local
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -165,10 +167,10 @@ func (a *MetadataResourceApiService) Get(ctx context.Context, name string, local
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.WorkflowDef
+			var v model.WorkflowDef
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -188,17 +190,17 @@ MetadataResourceApiService Retrieves all workflow definition along with blueprin
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return []http_model.WorkflowDef
 */
-func (a *MetadataResourceApiService) GetAll(ctx context.Context) ([]http_model.WorkflowDef, *http.Response, error) {
+func (a *MetadataResourceApiService) GetAll(ctx context.Context) ([]model.WorkflowDef, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.WorkflowDef
+		localVarReturnValue []model.WorkflowDef
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/workflow"
+	localVarPath := "/metadata/workflow"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -231,8 +233,8 @@ func (a *MetadataResourceApiService) GetAll(ctx context.Context) ([]http_model.W
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -248,10 +250,10 @@ func (a *MetadataResourceApiService) GetAll(ctx context.Context) ([]http_model.W
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.WorkflowDef
+			var v []model.WorkflowDef
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -272,17 +274,17 @@ MetadataResourceApiService Gets the task definition
  * @param tasktype
 @return http_model.TaskDef
 */
-func (a *MetadataResourceApiService) GetTaskDef(ctx context.Context, tasktype string) (http_model.TaskDef, *http.Response, error) {
+func (a *MetadataResourceApiService) GetTaskDef(ctx context.Context, tasktype string) (model.TaskDef, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.TaskDef
+		localVarReturnValue model.TaskDef
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/taskdefs/{tasktype}"
+	localVarPath := "/metadata/taskdefs/{tasktype}"
 	localVarPath = strings.Replace(localVarPath, "{"+"tasktype"+"}", fmt.Sprintf("%v", tasktype), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -316,8 +318,8 @@ func (a *MetadataResourceApiService) GetTaskDef(ctx context.Context, tasktype st
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -333,10 +335,10 @@ func (a *MetadataResourceApiService) GetTaskDef(ctx context.Context, tasktype st
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.TaskDef
+			var v model.TaskDef
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -356,17 +358,17 @@ MetadataResourceApiService Gets all task definition
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return []http_model.TaskDef
 */
-func (a *MetadataResourceApiService) GetTaskDefs(ctx context.Context) ([]http_model.TaskDef, *http.Response, error) {
+func (a *MetadataResourceApiService) GetTaskDefs(ctx context.Context) ([]model.TaskDef, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.TaskDef
+		localVarReturnValue []model.TaskDef
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/taskdefs"
+	localVarPath := "/metadata/taskdefs"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -399,8 +401,8 @@ func (a *MetadataResourceApiService) GetTaskDefs(ctx context.Context) ([]http_mo
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -416,10 +418,10 @@ func (a *MetadataResourceApiService) GetTaskDefs(ctx context.Context) ([]http_mo
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.TaskDef
+			var v []model.TaskDef
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -440,7 +442,7 @@ MetadataResourceApiService Update an existing task
  * @param body
 
 */
-func (a *MetadataResourceApiService) UpdateTaskDef(ctx context.Context, body http_model.TaskDef) (*http.Response, error) {
+func (a *MetadataResourceApiService) UpdateTaskDef(ctx context.Context, body model.TaskDef) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -449,7 +451,7 @@ func (a *MetadataResourceApiService) UpdateTaskDef(ctx context.Context, body htt
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/taskdefs"
+	localVarPath := "/metadata/taskdefs"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -484,8 +486,8 @@ func (a *MetadataResourceApiService) UpdateTaskDef(ctx context.Context, body htt
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -493,7 +495,7 @@ func (a *MetadataResourceApiService) UpdateTaskDef(ctx context.Context, body htt
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -507,7 +509,7 @@ MetadataResourceApiService Create new task definition(s)
  * @param body
 
 */
-func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body []http_model.TaskDef) (*http.Response, error) {
+func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body []model.TaskDef) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -516,7 +518,7 @@ func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body [
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/taskdefs"
+	localVarPath := "/metadata/taskdefs"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -551,8 +553,8 @@ func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body [
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -560,7 +562,7 @@ func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body [
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -583,7 +585,7 @@ func (a *MetadataResourceApiService) UnregisterTaskDef(ctx context.Context, task
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/taskdefs/{tasktype}"
+	localVarPath := "/metadata/taskdefs/{tasktype}"
 	localVarPath = strings.Replace(localVarPath, "{"+"tasktype"+"}", fmt.Sprintf("%v", tasktype), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -617,8 +619,8 @@ func (a *MetadataResourceApiService) UnregisterTaskDef(ctx context.Context, task
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -626,7 +628,7 @@ func (a *MetadataResourceApiService) UnregisterTaskDef(ctx context.Context, task
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -650,7 +652,7 @@ func (a *MetadataResourceApiService) UnregisterWorkflowDef(ctx context.Context, 
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/workflow/{name}/{version}"
+	localVarPath := "/metadata/workflow/{name}/{version}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"version"+"}", fmt.Sprintf("%v", version), -1)
 
@@ -685,8 +687,8 @@ func (a *MetadataResourceApiService) UnregisterWorkflowDef(ctx context.Context, 
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -694,7 +696,7 @@ func (a *MetadataResourceApiService) UnregisterWorkflowDef(ctx context.Context, 
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -708,7 +710,7 @@ MetadataResourceApiService Create or update workflow definition
  * @param body
 
 */
-func (a *MetadataResourceApiService) Update(ctx context.Context, body []http_model.WorkflowDef) (*http.Response, error) {
+func (a *MetadataResourceApiService) Update(ctx context.Context, body []model.WorkflowDef) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -717,7 +719,7 @@ func (a *MetadataResourceApiService) Update(ctx context.Context, body []http_mod
 	)
 
 	// create path and map variables
-	localVarPath := "/api/metadata/workflow"
+	localVarPath := "/metadata/workflow"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -752,8 +754,8 @@ func (a *MetadataResourceApiService) Update(ctx context.Context, body []http_mod
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -761,7 +763,7 @@ func (a *MetadataResourceApiService) Update(ctx context.Context, body []http_mod
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}

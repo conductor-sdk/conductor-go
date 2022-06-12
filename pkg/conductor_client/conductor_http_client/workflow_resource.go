@@ -3,13 +3,12 @@ package conductor_http_client
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/antihax/optional"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 )
 
 // Linger please
@@ -36,7 +35,7 @@ func (a *WorkflowResourceApiService) Decide(ctx context.Context, workflowId stri
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/decide/{workflowId}"
+	localVarPath := "/workflow/decide/{workflowId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -70,8 +69,8 @@ func (a *WorkflowResourceApiService) Decide(ctx context.Context, workflowId stri
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -79,7 +78,7 @@ func (a *WorkflowResourceApiService) Decide(ctx context.Context, workflowId stri
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -109,7 +108,7 @@ func (a *WorkflowResourceApiService) Delete(ctx context.Context, workflowId stri
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/remove"
+	localVarPath := "/workflow/{workflowId}/remove"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -146,8 +145,8 @@ func (a *WorkflowResourceApiService) Delete(ctx context.Context, workflowId stri
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -155,7 +154,7 @@ func (a *WorkflowResourceApiService) Delete(ctx context.Context, workflowId stri
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -176,17 +175,17 @@ type WorkflowResourceApiGetExecutionStatusOpts struct {
 	IncludeTasks optional.Bool
 }
 
-func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiGetExecutionStatusOpts) (http_model.Workflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiGetExecutionStatusOpts) (model.Workflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.Workflow
+		localVarReturnValue model.Workflow
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}"
+	localVarPath := "/workflow/{workflowId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -223,8 +222,8 @@ func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, wor
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -240,10 +239,91 @@ func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, wor
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.Workflow
+			var v model.Workflow
+			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHttpResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHttpResponse, newErr
+		}
+		return localVarReturnValue, localVarHttpResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHttpResponse, nil
+}
+
+func (a *WorkflowResourceApiService) GetWorkflowState(ctx context.Context, workflowId string, includeOutput bool, includeVariables bool) (model.WorkflowState, *http.Response, error) {
+	var (
+		localVarHttpMethod  = strings.ToUpper("Get")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue model.WorkflowState
+	)
+
+	// create path and map variables
+	localVarPath := "/workflow/{workflowId}/status"
+	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	localVarQueryParams.Add("includeOutput", parameterToString(includeOutput, ""))
+	localVarQueryParams.Add("includeVariables", parameterToString(includeVariables, ""))
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{"*/*"}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
+	if err != nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
+
+	if localVarHttpResponse.StatusCode < 300 {
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return localVarReturnValue, localVarHttpResponse, err
+		}
+	}
+
+	if localVarHttpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  localVarBody,
+			error: string(localVarBody),
+		}
+		if localVarHttpResponse.StatusCode == 200 {
+			var v model.Workflow
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -266,17 +346,17 @@ WorkflowResourceApiService Get the uri and path of the external storage where th
  * @param payloadType
 @return http_model.ExternalStorageLocation
 */
-func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Context, path string, operation string, payloadType string) (http_model.ExternalStorageLocation, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Context, path string, operation string, payloadType string) (model.ExternalStorageLocation, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.ExternalStorageLocation
+		localVarReturnValue model.ExternalStorageLocation
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/externalstoragelocation"
+	localVarPath := "/workflow/externalstoragelocation"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -312,8 +392,8 @@ func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Cont
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -329,10 +409,10 @@ func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Cont
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.ExternalStorageLocation
+			var v model.ExternalStorageLocation
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -374,7 +454,7 @@ func (a *WorkflowResourceApiService) GetRunningWorkflow(ctx context.Context, nam
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/running/{name}"
+	localVarPath := "/workflow/running/{name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -417,8 +497,8 @@ func (a *WorkflowResourceApiService) GetRunningWorkflow(ctx context.Context, nam
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -434,7 +514,7 @@ func (a *WorkflowResourceApiService) GetRunningWorkflow(ctx context.Context, nam
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v []string
@@ -468,17 +548,17 @@ type WorkflowResourceApiGetWorkflowsOpts struct {
 	IncludeTasks  optional.Bool
 }
 
-func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []string, name string, localVarOptionals *WorkflowResourceApiGetWorkflowsOpts) (map[string][]http_model.Workflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []string, name string, localVarOptionals *WorkflowResourceApiGetWorkflowsOpts) (map[string][]model.Workflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue map[string][]http_model.Workflow
+		localVarReturnValue map[string][]model.Workflow
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{name}/correlated"
+	localVarPath := "/workflow/{name}/correlated"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -520,8 +600,8 @@ func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []st
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -537,10 +617,10 @@ func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []st
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v map[string][]http_model.Workflow
+			var v map[string][]model.Workflow
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -571,17 +651,17 @@ type WorkflowResourceApiGetWorkflows1Opts struct {
 	IncludeTasks  optional.Bool
 }
 
-func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name string, correlationId string, localVarOptionals *WorkflowResourceApiGetWorkflows1Opts) ([]http_model.Workflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name string, correlationId string, localVarOptionals *WorkflowResourceApiGetWorkflows1Opts) ([]model.Workflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.Workflow
+		localVarReturnValue []model.Workflow
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{name}/correlated/{correlationId}"
+	localVarPath := "/workflow/{name}/correlated/{correlationId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"correlationId"+"}", fmt.Sprintf("%v", correlationId), -1)
 
@@ -622,8 +702,8 @@ func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name str
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -639,10 +719,10 @@ func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name str
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.Workflow
+			var v []model.Workflow
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -672,7 +752,7 @@ func (a *WorkflowResourceApiService) PauseWorkflow(ctx context.Context, workflow
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/pause"
+	localVarPath := "/workflow/{workflowId}/pause"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -706,8 +786,8 @@ func (a *WorkflowResourceApiService) PauseWorkflow(ctx context.Context, workflow
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -715,7 +795,7 @@ func (a *WorkflowResourceApiService) PauseWorkflow(ctx context.Context, workflow
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -730,7 +810,7 @@ WorkflowResourceApiService Reruns the workflow from a specific task
  * @param workflowId
 @return string
 */
-func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body http_model.RerunWorkflowRequest, workflowId string) (string, *http.Response, error) {
+func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body model.RerunWorkflowRequest, workflowId string) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -740,7 +820,7 @@ func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body http_model.
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/rerun"
+	localVarPath := "/workflow/{workflowId}/rerun"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -776,8 +856,8 @@ func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body http_model.
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -793,7 +873,7 @@ func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body http_model.
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v string
@@ -826,7 +906,7 @@ func (a *WorkflowResourceApiService) ResetWorkflow(ctx context.Context, workflow
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/resetcallbacks"
+	localVarPath := "/workflow/{workflowId}/resetcallbacks"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -860,8 +940,8 @@ func (a *WorkflowResourceApiService) ResetWorkflow(ctx context.Context, workflow
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -869,7 +949,7 @@ func (a *WorkflowResourceApiService) ResetWorkflow(ctx context.Context, workflow
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -899,7 +979,7 @@ func (a *WorkflowResourceApiService) Restart(ctx context.Context, workflowId str
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/restart"
+	localVarPath := "/workflow/{workflowId}/restart"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -936,8 +1016,8 @@ func (a *WorkflowResourceApiService) Restart(ctx context.Context, workflowId str
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -945,7 +1025,7 @@ func (a *WorkflowResourceApiService) Restart(ctx context.Context, workflowId str
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -968,7 +1048,7 @@ func (a *WorkflowResourceApiService) ResumeWorkflow(ctx context.Context, workflo
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/resume"
+	localVarPath := "/workflow/{workflowId}/resume"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1002,8 +1082,8 @@ func (a *WorkflowResourceApiService) ResumeWorkflow(ctx context.Context, workflo
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -1011,7 +1091,7 @@ func (a *WorkflowResourceApiService) ResumeWorkflow(ctx context.Context, workflo
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -1041,7 +1121,7 @@ func (a *WorkflowResourceApiService) Retry(ctx context.Context, workflowId strin
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/retry"
+	localVarPath := "/workflow/{workflowId}/retry"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1078,8 +1158,8 @@ func (a *WorkflowResourceApiService) Retry(ctx context.Context, workflowId strin
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -1087,7 +1167,7 @@ func (a *WorkflowResourceApiService) Retry(ctx context.Context, workflowId strin
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -1116,17 +1196,17 @@ type WorkflowResourceApiSearchOpts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchOpts) (http_model.SearchResultWorkflowSummary, *http.Response, error) {
+func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchOpts) (model.SearchResultWorkflowSummary, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.SearchResultWorkflowSummary
+		localVarReturnValue model.SearchResultWorkflowSummary
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/search"
+	localVarPath := "/workflow/search"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1174,8 +1254,8 @@ func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptiona
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1191,10 +1271,10 @@ func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptiona
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.SearchResultWorkflowSummary
+			var v model.SearchResultWorkflowSummary
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1230,17 +1310,17 @@ type WorkflowResourceApiSearchV2Opts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchV2Opts) (http_model.SearchResultWorkflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchV2Opts) (model.SearchResultWorkflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.SearchResultWorkflow
+		localVarReturnValue model.SearchResultWorkflow
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/search-v2"
+	localVarPath := "/workflow/search-v2"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1288,8 +1368,8 @@ func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptio
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1305,10 +1385,10 @@ func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptio
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.SearchResultWorkflow
+			var v model.SearchResultWorkflow
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1344,17 +1424,17 @@ type WorkflowResourceApiSearchWorkflowsByTasksOpts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksOpts) (http_model.SearchResultWorkflowSummary, *http.Response, error) {
+func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksOpts) (model.SearchResultWorkflowSummary, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.SearchResultWorkflowSummary
+		localVarReturnValue model.SearchResultWorkflowSummary
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/search-by-tasks"
+	localVarPath := "/workflow/search-by-tasks"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1402,8 +1482,8 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context,
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1419,10 +1499,10 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context,
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.SearchResultWorkflowSummary
+			var v model.SearchResultWorkflowSummary
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1458,17 +1538,17 @@ type WorkflowResourceApiSearchWorkflowsByTasksV2Opts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksV2Opts) (http_model.SearchResultWorkflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksV2Opts) (model.SearchResultWorkflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.SearchResultWorkflow
+		localVarReturnValue model.SearchResultWorkflow
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/search-by-tasks-v2"
+	localVarPath := "/workflow/search-by-tasks-v2"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1516,8 +1596,8 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Contex
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1533,10 +1613,10 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Contex
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.SearchResultWorkflow
+			var v model.SearchResultWorkflow
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1559,7 +1639,7 @@ WorkflowResourceApiService Skips a given task from a current running workflow
  * @param skipTaskRequest
 
 */
-func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, workflowId string, taskReferenceName string, skipTaskRequest http_model.SkipTaskRequest) (*http.Response, error) {
+func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, workflowId string, taskReferenceName string, skipTaskRequest model.SkipTaskRequest) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -1568,7 +1648,7 @@ func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, w
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}/skiptask/{taskReferenceName}"
+	localVarPath := "/workflow/{workflowId}/skiptask/{taskReferenceName}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"taskReferenceName"+"}", fmt.Sprintf("%v", taskReferenceName), -1)
 
@@ -1604,8 +1684,8 @@ func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, w
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -1613,7 +1693,7 @@ func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, w
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -1649,7 +1729,7 @@ func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{name}"
+	localVarPath := "/workflow/{name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1694,8 +1774,8 @@ func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1711,7 +1791,7 @@ func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v string
@@ -1735,7 +1815,7 @@ WorkflowResourceApiService Start a new workflow with http_model.StartWorkflowReq
  * @param body
 @return string
 */
-func (a *WorkflowResourceApiService) StartWorkflow1(ctx context.Context, body http_model.StartWorkflowRequest) (string, *http.Response, error) {
+func (a *WorkflowResourceApiService) StartWorkflowWithRequest(ctx context.Context, body model.StartWorkflowRequest) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -1745,7 +1825,7 @@ func (a *WorkflowResourceApiService) StartWorkflow1(ctx context.Context, body ht
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow"
+	localVarPath := "/workflow"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1780,8 +1860,8 @@ func (a *WorkflowResourceApiService) StartWorkflow1(ctx context.Context, body ht
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1797,7 +1877,7 @@ func (a *WorkflowResourceApiService) StartWorkflow1(ctx context.Context, body ht
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v string
@@ -1819,16 +1899,16 @@ func (a *WorkflowResourceApiService) StartWorkflow1(ctx context.Context, body ht
 WorkflowResourceApiService Terminate workflow execution
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param workflowId
- * @param optional nil or *WorkflowResourceApiTerminate1Opts - Optional Parameters:
+ * @param optional nil or *WorkflowResourceApiTerminateOpts - Optional Parameters:
      * @param "Reason" (optional.String) -
 
 */
 
-type WorkflowResourceApiTerminate1Opts struct {
+type WorkflowResourceApiTerminateOpts struct {
 	Reason optional.String
 }
 
-func (a *WorkflowResourceApiService) Terminate1(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiTerminate1Opts) (*http.Response, error) {
+func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiTerminateOpts) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -1837,7 +1917,7 @@ func (a *WorkflowResourceApiService) Terminate1(ctx context.Context, workflowId 
 	)
 
 	// create path and map variables
-	localVarPath := "/api/workflow/{workflowId}"
+	localVarPath := "/workflow/{workflowId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1874,8 +1954,8 @@ func (a *WorkflowResourceApiService) Terminate1(ctx context.Context, workflowId 
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -1883,7 +1963,7 @@ func (a *WorkflowResourceApiService) Terminate1(ctx context.Context, workflowId 
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
