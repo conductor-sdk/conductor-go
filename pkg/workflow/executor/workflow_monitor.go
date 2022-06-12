@@ -3,13 +3,13 @@ package executor
 import (
 	"context"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/pkg/client"
 	"sync"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 
 	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
-	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 	log "github.com/sirupsen/logrus"
 )
@@ -20,14 +20,14 @@ type WorkflowMonitor struct {
 	mutex                        sync.Mutex
 	refreshInterval              time.Duration
 	executionChannelByWorkflowId map[string]WorkflowExecutionChannel
-	workflowClient               *conductor_http_client.WorkflowResourceApiService
+	workflowClient               *client.WorkflowResourceApiService
 }
 
 const (
 	defaultMonitorRunningWorkflowsRefreshInterval = 100 * time.Millisecond
 )
 
-func NewWorkflowMonitor(workflowClient *conductor_http_client.WorkflowResourceApiService) *WorkflowMonitor {
+func NewWorkflowMonitor(workflowClient *client.WorkflowResourceApiService) *WorkflowMonitor {
 	workflowMonitor := &WorkflowMonitor{
 		refreshInterval:              defaultMonitorRunningWorkflowsRefreshInterval,
 		executionChannelByWorkflowId: make(map[string]WorkflowExecutionChannel),

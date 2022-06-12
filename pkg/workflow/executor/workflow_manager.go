@@ -3,7 +3,7 @@ package executor
 import (
 	"context"
 	"github.com/antihax/optional"
-	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
+	"github.com/conductor-sdk/conductor-go/pkg/client"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 )
 
@@ -13,7 +13,7 @@ func (e *WorkflowExecutor) GetWorkflow(workflowId string, includeTasks bool) (*m
 	workflow, response, err := e.workflowClient.GetExecutionStatus(
 		context.Background(),
 		workflowId,
-		&conductor_http_client.WorkflowResourceApiGetExecutionStatusOpts{
+		&client.WorkflowResourceApiGetExecutionStatusOpts{
 			IncludeTasks: optional.NewBool(includeTasks)},
 	)
 	if response.StatusCode == 404 {
@@ -40,7 +40,7 @@ func (e *WorkflowExecutor) GetByCorrelationIds(workflowName string, includeClose
 		context.Background(),
 		correlationIds,
 		workflowName,
-		&conductor_http_client.WorkflowResourceApiGetWorkflowsOpts{
+		&client.WorkflowResourceApiGetWorkflowsOpts{
 			IncludeClosed: optional.NewBool(includeClosed),
 			IncludeTasks:  optional.NewBool(includeTasks),
 		})
@@ -65,7 +65,7 @@ func (e *WorkflowExecutor) GetByCorrelationIds(workflowName string, includeClose
 func (e *WorkflowExecutor) Search(start int32, size int32, query string, freeText string) ([]model.WorkflowSummary, error) {
 	workflows, _, err := e.workflowClient.Search(
 		context.Background(),
-		&conductor_http_client.WorkflowResourceApiSearchOpts{
+		&client.WorkflowResourceApiSearchOpts{
 			Start:    optional.NewInt32(start),
 			Size:     optional.NewInt32(size),
 			FreeText: optional.NewString(freeText),
@@ -100,7 +100,7 @@ func (e *WorkflowExecutor) Resume(workflowId string) error {
 //Terminate a running workflow.  Reason must be provided that is captured as the termination resaon for the workflow
 func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error {
 	_, err := e.workflowClient.Terminate(context.Background(), workflowId,
-		&conductor_http_client.WorkflowResourceApiTerminateOpts{Reason: optional.NewString(reason)},
+		&client.WorkflowResourceApiTerminateOpts{Reason: optional.NewString(reason)},
 	)
 	if err != nil {
 		return err
@@ -115,7 +115,7 @@ func (e *WorkflowExecutor) Restart(workflowId string, useLatestDefinition bool) 
 	_, err := e.workflowClient.Restart(
 		context.Background(),
 		workflowId,
-		&conductor_http_client.WorkflowResourceApiRestartOpts{
+		&client.WorkflowResourceApiRestartOpts{
 			UseLatestDefinitions: optional.NewBool(useLatestDefinition),
 		})
 	if err != nil {
@@ -131,7 +131,7 @@ func (e *WorkflowExecutor) Retry(workflowId string, resumeSubworkflowTasks bool)
 	_, err := e.workflowClient.Retry(
 		context.Background(),
 		workflowId,
-		&conductor_http_client.WorkflowResourceApiRetryOpts{
+		&client.WorkflowResourceApiRetryOpts{
 			ResumeSubworkflowTasks: optional.NewBool(resumeSubworkflowTasks),
 		},
 	)

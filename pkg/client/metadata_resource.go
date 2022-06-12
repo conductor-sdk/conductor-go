@@ -1,4 +1,4 @@
-package conductor_http_client
+package client
 
 import (
 	"context"

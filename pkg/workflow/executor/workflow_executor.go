@@ -3,33 +3,33 @@ package executor
 import (
 	"context"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/pkg/client"
 	"net/http"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 
-	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	log "github.com/sirupsen/logrus"
 )
 
 type WorkflowExecutor struct {
-	metadataClient  *conductor_http_client.MetadataResourceApiService
-	taskClient      *conductor_http_client.TaskResourceApiService
-	workflowClient  *conductor_http_client.WorkflowResourceApiService
+	metadataClient  *client.MetadataResourceApiService
+	taskClient      *client.TaskResourceApiService
+	workflowClient  *client.WorkflowResourceApiService
 	workflowMonitor *WorkflowMonitor
 }
 
 // NewWorkflowExecutor Create a new workflow executor
-func NewWorkflowExecutor(apiClient *conductor_http_client.APIClient) *WorkflowExecutor {
-	workflowClient := &conductor_http_client.WorkflowResourceApiService{
+func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
+	workflowClient := &client.WorkflowResourceApiService{
 		APIClient: apiClient,
 	}
 	workflowExecutor := WorkflowExecutor{
-		metadataClient: &conductor_http_client.MetadataResourceApiService{
+		metadataClient: &client.MetadataResourceApiService{
 			APIClient: apiClient,
 		},
-		taskClient: &conductor_http_client.TaskResourceApiService{
+		taskClient: &client.TaskResourceApiService{
 			APIClient: apiClient,
 		},
 		workflowClient:  workflowClient,

@@ -3,11 +3,11 @@ package e2e_properties
 import (
 	"context"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/pkg/client"
 	"os"
 	"reflect"
 	"time"
 
-	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
@@ -29,13 +29,13 @@ var (
 )
 
 var (
-	MetadataClient = conductor_http_client.MetadataResourceApiService{
+	MetadataClient = client.MetadataResourceApiService{
 		APIClient: apiClient,
 	}
-	TaskClient = conductor_http_client.TaskResourceApiService{
+	TaskClient = client.TaskResourceApiService{
 		APIClient: apiClient,
 	}
-	WorkflowClient = conductor_http_client.WorkflowResourceApiService{
+	WorkflowClient = client.WorkflowResourceApiService{
 		APIClient: apiClient,
 	}
 )
@@ -82,8 +82,8 @@ func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, wo
 	outputChannel <- nil
 }
 
-func getApiClientWithAuthentication() *conductor_http_client.APIClient {
-	return conductor_http_client.NewAPIClient(
+func getApiClientWithAuthentication() *client.APIClient {
+	return client.NewAPIClient(
 		getAuthenticationSettings(),
 		getHttpSettingsWithAuth(),
 	)

@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/pkg/client"
 	"net/http"
 	"os"
 	"sync"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
-	"github.com/conductor-sdk/conductor-go/pkg/conductor_client/conductor_http_client"
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_counter"
 	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_gauge"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
@@ -23,7 +23,7 @@ const taskUpdateRetryAttemptsLimit = 3
 var hostname, _ = os.Hostname()
 
 type TaskRunner struct {
-	conductorTaskResourceClient *conductor_http_client.TaskResourceApiService
+	conductorTaskResourceClient *client.TaskResourceApiService
 	maxAllowedWorkersByTaskType map[string]int
 	runningWorkersByTaskType    map[string]int
 	mutex                       sync.Mutex
@@ -31,7 +31,7 @@ type TaskRunner struct {
 }
 
 func NewTaskRunner(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings) *TaskRunner {
-	apiClient := conductor_http_client.NewAPIClient(
+	apiClient := client.NewAPIClient(
 		authenticationSettings,
 		httpSettings,
 	)
@@ -39,10 +39,10 @@ func NewTaskRunner(authenticationSettings *settings.AuthenticationSettings, http
 }
 
 func NewTaskRunnerWithApiClient(
-	apiClient *conductor_http_client.APIClient,
+	apiClient *client.APIClient,
 ) *TaskRunner {
 	return &TaskRunner{
-		conductorTaskResourceClient: &conductor_http_client.TaskResourceApiService{
+		conductorTaskResourceClient: &client.TaskResourceApiService{
 			APIClient: apiClient,
 		},
 		maxAllowedWorkersByTaskType: make(map[string]int),
@@ -187,7 +187,7 @@ func (c *TaskRunner) batchPoll(taskType string, count int, timeout time.Duration
 	tasks, response, err := c.conductorTaskResourceClient.BatchPoll(
 		context.Background(),
 		taskType,
-		&conductor_http_client.TaskResourceApiBatchPollOpts{
+		&client.TaskResourceApiBatchPollOpts{
 			Domain:   domain,
 			Workerid: optional.NewString(hostname),
 			Count:    optional.NewInt32(int32(count)),
