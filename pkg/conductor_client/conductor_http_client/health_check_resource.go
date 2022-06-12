@@ -2,12 +2,10 @@ package conductor_http_client
 
 import (
 	"context"
-	"io/ioutil"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 )
 
 // Linger please
@@ -24,13 +22,13 @@ HealthCheckResourceApiService
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return http_model.HealthCheckStatus
 */
-func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (http_model.HealthCheckStatus, *http.Response, error) {
+func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (model.HealthCheckStatus, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.HealthCheckStatus
+		localVarReturnValue model.HealthCheckStatus
 	)
 
 	// create path and map variables
@@ -67,8 +65,8 @@ func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (http_model
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -84,10 +82,10 @@ func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (http_model
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.HealthCheckStatus
+			var v model.HealthCheckStatus
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

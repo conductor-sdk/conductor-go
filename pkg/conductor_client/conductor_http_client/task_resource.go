@@ -3,18 +3,12 @@ package conductor_http_client
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 	"net/url"
 	"strings"
-	"unsafe"
 
 	"github.com/antihax/optional"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/conductor-sdk/conductor-go/pkg/metrics/metric_model/metric_external_storage"
-	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_counter"
-	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_gauge"
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 )
 
 // Linger please
@@ -41,7 +35,7 @@ func (a *TaskResourceApiService) All(ctx context.Context) (map[string]int64, *ht
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/queue/all"
+	localVarPath := "/tasks/queue/all"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -74,8 +68,8 @@ func (a *TaskResourceApiService) All(ctx context.Context) (map[string]int64, *ht
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -124,7 +118,7 @@ func (a *TaskResourceApiService) AllVerbose(ctx context.Context) (map[string]map
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/queue/all/verbose"
+	localVarPath := "/tasks/queue/all/verbose"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -157,8 +151,8 @@ func (a *TaskResourceApiService) AllVerbose(ctx context.Context) (map[string]map
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -211,17 +205,17 @@ type TaskResourceApiBatchPollOpts struct {
 	Timeout  optional.Int32
 }
 
-func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiBatchPollOpts) ([]http_model.Task, *http.Response, error) {
+func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiBatchPollOpts) ([]model.Task, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.Task
+		localVarReturnValue []model.Task
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/poll/batch/{tasktype}"
+	localVarPath := "/tasks/poll/batch/{tasktype}"
 	localVarPath = strings.Replace(localVarPath, "{"+"tasktype"+"}", fmt.Sprintf("%v", tasktype), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -267,8 +261,8 @@ func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string,
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -287,7 +281,7 @@ func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string,
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.Task
+			var v []model.Task
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -307,17 +301,17 @@ TaskResourceApiService Get the last poll data for all task types
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return []PollData
 */
-func (a *TaskResourceApiService) GetAllPollData(ctx context.Context) ([]http_model.PollData, *http.Response, error) {
+func (a *TaskResourceApiService) GetAllPollData(ctx context.Context) ([]model.PollData, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.PollData
+		localVarReturnValue []model.PollData
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/queue/polldata/all"
+	localVarPath := "/tasks/queue/polldata/all"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -350,8 +344,8 @@ func (a *TaskResourceApiService) GetAllPollData(ctx context.Context) ([]http_mod
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -370,7 +364,7 @@ func (a *TaskResourceApiService) GetAllPollData(ctx context.Context) ([]http_mod
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.PollData
+			var v []model.PollData
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -393,17 +387,17 @@ TaskResourceApiService Get the external uri where the task payload is to be stor
  * @param payloadType
 @return ExternalStorageLocation
 */
-func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context, path string, operation string, payloadType string) (http_model.ExternalStorageLocation, *http.Response, error) {
+func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context, path string, operation string, payloadType string) (model.ExternalStorageLocation, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.ExternalStorageLocation
+		localVarReturnValue model.ExternalStorageLocation
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/externalstoragelocation"
+	localVarPath := "/tasks/externalstoragelocation"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -439,8 +433,8 @@ func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -459,7 +453,7 @@ func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.ExternalStorageLocation
+			var v model.ExternalStorageLocation
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -480,17 +474,17 @@ TaskResourceApiService Get the last poll data for a given task type
  * @param taskType
 @return []PollData
 */
-func (a *TaskResourceApiService) GetPollData(ctx context.Context, taskType string) ([]http_model.PollData, *http.Response, error) {
+func (a *TaskResourceApiService) GetPollData(ctx context.Context, taskType string) ([]model.PollData, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.PollData
+		localVarReturnValue []model.PollData
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/queue/polldata"
+	localVarPath := "/tasks/queue/polldata"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -524,8 +518,8 @@ func (a *TaskResourceApiService) GetPollData(ctx context.Context, taskType strin
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -541,10 +535,10 @@ func (a *TaskResourceApiService) GetPollData(ctx context.Context, taskType strin
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.PollData
+			var v []model.PollData
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -565,17 +559,17 @@ TaskResourceApiService Get task by Id
  * @param taskId
 @return Task
 */
-func (a *TaskResourceApiService) GetTask(ctx context.Context, taskId string) (http_model.Task, *http.Response, error) {
+func (a *TaskResourceApiService) GetTask(ctx context.Context, taskId string) (model.Task, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.Task
+		localVarReturnValue model.Task
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/{taskId}"
+	localVarPath := "/tasks/{taskId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -609,8 +603,8 @@ func (a *TaskResourceApiService) GetTask(ctx context.Context, taskId string) (ht
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -626,10 +620,10 @@ func (a *TaskResourceApiService) GetTask(ctx context.Context, taskId string) (ht
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.Task
+			var v model.Task
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -650,17 +644,17 @@ TaskResourceApiService Get Task Execution Logs
  * @param taskId
 @return []TaskExecLog
 */
-func (a *TaskResourceApiService) GetTaskLogs(ctx context.Context, taskId string) ([]http_model.TaskExecLog, *http.Response, error) {
+func (a *TaskResourceApiService) GetTaskLogs(ctx context.Context, taskId string) ([]model.TaskExecLog, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.TaskExecLog
+		localVarReturnValue []model.TaskExecLog
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/{taskId}/log"
+	localVarPath := "/tasks/{taskId}/log"
 	localVarPath = strings.Replace(localVarPath, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -694,8 +688,8 @@ func (a *TaskResourceApiService) GetTaskLogs(ctx context.Context, taskId string)
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -711,10 +705,10 @@ func (a *TaskResourceApiService) GetTaskLogs(ctx context.Context, taskId string)
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.TaskExecLog
+			var v []model.TaskExecLog
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -745,7 +739,7 @@ func (a *TaskResourceApiService) Log(ctx context.Context, body string, taskId st
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/{taskId}/log"
+	localVarPath := "/tasks/{taskId}/log"
 	localVarPath = strings.Replace(localVarPath, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -781,8 +775,8 @@ func (a *TaskResourceApiService) Log(ctx context.Context, body string, taskId st
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -790,7 +784,7 @@ func (a *TaskResourceApiService) Log(ctx context.Context, body string, taskId st
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -813,17 +807,17 @@ type TaskResourceApiPollOpts struct {
 	Domain   optional.String
 }
 
-func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiPollOpts) (http_model.Task, *http.Response, error) {
+func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiPollOpts) (model.Task, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.Task
+		localVarReturnValue model.Task
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/poll/{tasktype}"
+	localVarPath := "/tasks/poll/{tasktype}"
 	localVarPath = strings.Replace(localVarPath, "{"+"tasktype"+"}", fmt.Sprintf("%v", tasktype), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -863,8 +857,8 @@ func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, loca
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -880,10 +874,10 @@ func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, loca
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.Task
+			var v model.Task
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -914,7 +908,7 @@ func (a *TaskResourceApiService) RequeuePendingTask(ctx context.Context, taskTyp
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/queue/requeue/{taskType}"
+	localVarPath := "/tasks/queue/requeue/{taskType}"
 	localVarPath = strings.Replace(localVarPath, "{"+"taskType"+"}", fmt.Sprintf("%v", taskType), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -948,8 +942,8 @@ func (a *TaskResourceApiService) RequeuePendingTask(ctx context.Context, taskTyp
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -965,7 +959,7 @@ func (a *TaskResourceApiService) RequeuePendingTask(ctx context.Context, taskTyp
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v string
@@ -1004,17 +998,17 @@ type TaskResourceApiSearch1Opts struct {
 	Query    optional.String
 }
 
-func (a *TaskResourceApiService) Search1(ctx context.Context, localVarOptionals *TaskResourceApiSearch1Opts) (http_model.SearchResultTaskSummary, *http.Response, error) {
+func (a *TaskResourceApiService) Search1(ctx context.Context, localVarOptionals *TaskResourceApiSearch1Opts) (model.SearchResultTaskSummary, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.SearchResultTaskSummary
+		localVarReturnValue model.SearchResultTaskSummary
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/search"
+	localVarPath := "/tasks/search"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1062,8 +1056,8 @@ func (a *TaskResourceApiService) Search1(ctx context.Context, localVarOptionals 
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1079,10 +1073,10 @@ func (a *TaskResourceApiService) Search1(ctx context.Context, localVarOptionals 
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.SearchResultTaskSummary
+			var v model.SearchResultTaskSummary
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1118,17 +1112,17 @@ type TaskResourceApiSearchV21Opts struct {
 	Query    optional.String
 }
 
-func (a *TaskResourceApiService) SearchV21(ctx context.Context, localVarOptionals *TaskResourceApiSearchV21Opts) (http_model.SearchResultTask, *http.Response, error) {
+func (a *TaskResourceApiService) SearchV21(ctx context.Context, localVarOptionals *TaskResourceApiSearchV21Opts) (model.SearchResultTask, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue http_model.SearchResultTask
+		localVarReturnValue model.SearchResultTask
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/search-v2"
+	localVarPath := "/tasks/search-v2"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1176,8 +1170,8 @@ func (a *TaskResourceApiService) SearchV21(ctx context.Context, localVarOptional
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1193,10 +1187,10 @@ func (a *TaskResourceApiService) SearchV21(ctx context.Context, localVarOptional
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v http_model.SearchResultTask
+			var v model.SearchResultTask
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1233,7 +1227,7 @@ func (a *TaskResourceApiService) Size(ctx context.Context, localVarOptionals *Ta
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/queue/sizes"
+	localVarPath := "/tasks/queue/sizes"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1269,8 +1263,8 @@ func (a *TaskResourceApiService) Size(ctx context.Context, localVarOptionals *Ta
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1286,7 +1280,7 @@ func (a *TaskResourceApiService) Size(ctx context.Context, localVarOptionals *Ta
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v map[string]int32
@@ -1310,9 +1304,7 @@ TaskResourceApiService Update a task
  * @param body
 @return string
 */
-func (a *TaskResourceApiService) UpdateTask(taskType string, ctx context.Context, taskResult *http_model.TaskResult) (string, *http.Response, error) {
-	a.evaluateTaskResultExternalStorage(taskType, taskResult)
-
+func (a *TaskResourceApiService) UpdateTask(ctx context.Context, taskResult *model.TaskResult) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -1322,7 +1314,7 @@ func (a *TaskResourceApiService) UpdateTask(taskType string, ctx context.Context
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks"
+	localVarPath := "/tasks"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1358,8 +1350,8 @@ func (a *TaskResourceApiService) UpdateTask(taskType string, ctx context.Context
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1375,7 +1367,7 @@ func (a *TaskResourceApiService) UpdateTask(taskType string, ctx context.Context
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v string
@@ -1412,7 +1404,7 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 	)
 
 	// create path and map variables
-	localVarPath := "/api/tasks/{workflowId}/{taskRefName}/{status}"
+	localVarPath := "/tasks/{workflowId}/{taskRefName}/{status}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"taskRefName"+"}", fmt.Sprintf("%v", taskRefName), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"status"+"}", fmt.Sprintf("%v", status), -1)
@@ -1450,8 +1442,8 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1467,7 +1459,7 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v string
@@ -1483,32 +1475,4 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 	}
 
 	return localVarReturnValue, localVarHttpResponse, nil
-}
-
-func (a *TaskResourceApiService) evaluateTaskResultExternalStorage(taskType string, taskResult *http_model.TaskResult) {
-	size := int64(unsafe.Sizeof(taskResult.OutputData))
-	metrics_gauge.RecordTaskResultPayloadSize(taskType, float64(size))
-	if a.isTaskResultAboveMaxThreshold(size) {
-		taskResult.Status = task_result_status.FAILED_WITH_TERMINAL_ERROR
-		taskResult.ReasonForIncompletion = "The TaskResult payload size: is greater than the permissible bytes"
-		taskResult.OutputData = nil
-		return
-	}
-	if a.mustUploadTaskResult(size) {
-		metrics_counter.IncrementExternalPayloadUsed(
-			taskType,
-			string(metric_external_storage.WRITE),
-			string(metric_external_storage.TASK_OUTPUT),
-		)
-	}
-}
-
-func (a *TaskResourceApiService) isTaskResultAboveMaxThreshold(size int64) bool {
-	// TODO
-	return false
-}
-
-func (a *TaskResourceApiService) mustUploadTaskResult(size int64) bool {
-	// TODO
-	return false
 }

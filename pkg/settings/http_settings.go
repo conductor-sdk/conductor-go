@@ -15,8 +15,9 @@ func NewHttpSettings(baseUrl string) *HttpSettings {
 	return &HttpSettings{
 		BaseUrl: baseUrl,
 		Headers: map[string]string{
-			"Content-Type": "application/json",
-			"Accept":       "application/json",
+			"Content-Type":    "application/json",
+			"Accept":          "application/json",
+			"Accept-Encoding": "gzip",
 		},
 	}
 }

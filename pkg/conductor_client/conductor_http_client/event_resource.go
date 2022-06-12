@@ -3,13 +3,12 @@ package conductor_http_client
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/antihax/optional"
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
 )
 
 // Linger please
@@ -27,7 +26,7 @@ EventResourceApiService Add a new event handler.
  * @param body
 
 */
-func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body http_model.EventHandler) (*http.Response, error) {
+func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body model.EventHandler) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -36,7 +35,7 @@ func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body http
 	)
 
 	// create path and map variables
-	localVarPath := "/api/event"
+	localVarPath := "/event"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -71,8 +70,8 @@ func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body http
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -80,7 +79,7 @@ func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body http
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -93,17 +92,17 @@ EventResourceApiService Get all the event handlers
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return []http_model.EventHandler
 */
-func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]http_model.EventHandler, *http.Response, error) {
+func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]model.EventHandler, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.EventHandler
+		localVarReturnValue []model.EventHandler
 	)
 
 	// create path and map variables
-	localVarPath := "/api/event"
+	localVarPath := "/event"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -136,8 +135,8 @@ func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]http_
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -153,10 +152,10 @@ func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]http_
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.EventHandler
+			var v []model.EventHandler
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -184,17 +183,17 @@ type EventResourceApiGetEventHandlersForEventOpts struct {
 	ActiveOnly optional.Bool
 }
 
-func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, event string, localVarOptionals *EventResourceApiGetEventHandlersForEventOpts) ([]http_model.EventHandler, *http.Response, error) {
+func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, event string, localVarOptionals *EventResourceApiGetEventHandlersForEventOpts) ([]model.EventHandler, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue []http_model.EventHandler
+		localVarReturnValue []model.EventHandler
 	)
 
 	// create path and map variables
-	localVarPath := "/api/event/{event}"
+	localVarPath := "/event/{event}"
 	localVarPath = strings.Replace(localVarPath, "{"+"event"+"}", fmt.Sprintf("%v", event), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -231,8 +230,8 @@ func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, 
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -248,10 +247,10 @@ func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, 
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v []http_model.EventHandler
+			var v []model.EventHandler
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -281,7 +280,7 @@ func (a *EventResourceApiService) RemoveEventHandlerStatus(ctx context.Context, 
 	)
 
 	// create path and map variables
-	localVarPath := "/api/event/{name}"
+	localVarPath := "/event/{name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -315,8 +314,8 @@ func (a *EventResourceApiService) RemoveEventHandlerStatus(ctx context.Context, 
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -324,7 +323,7 @@ func (a *EventResourceApiService) RemoveEventHandlerStatus(ctx context.Context, 
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -338,7 +337,7 @@ EventResourceApiService Update an existing event handler.
  * @param body
 
 */
-func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body http_model.EventHandler) (*http.Response, error) {
+func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body model.EventHandler) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -347,7 +346,7 @@ func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body h
 	)
 
 	// create path and map variables
-	localVarPath := "/api/event"
+	localVarPath := "/event"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -382,8 +381,8 @@ func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body h
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -391,7 +390,7 @@ func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body h
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		return localVarHttpResponse, newErr
 	}
