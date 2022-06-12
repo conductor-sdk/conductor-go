@@ -1,4 +1,4 @@
-package metric_label
+package metrics
 
 type MetricLabel string
 

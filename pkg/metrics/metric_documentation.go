@@ -1,4 +1,4 @@
-package metric_documentation
+package metrics
 
 type MetricDocumentation string
 

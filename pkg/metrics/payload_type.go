@@ -1,4 +1,4 @@
-package metric_external_storage
+package metrics
 
 type PayloadType string
 

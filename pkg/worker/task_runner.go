@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/conductor-sdk/conductor-go/pkg/client"
+	"github.com/conductor-sdk/conductor-go/pkg/metrics"
 	"net/http"
 	"os"
 	"sync"
@@ -11,8 +12,6 @@ import (
 
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/pkg/concurrency"
-	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_counter"
-	"github.com/conductor-sdk/conductor-go/pkg/metrics/metrics_gauge"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	log "github.com/sirupsen/logrus"
@@ -165,7 +164,7 @@ func (c *TaskRunner) executeAndUpdateTask(taskType string, task model.Task, exec
 	defer concurrency.HandlePanicError("execute_and_update_task")
 	taskResult, err := c.executeTask(&task, executeFunction)
 	if err != nil {
-		metrics_counter.IncrementTaskExecuteError(
+		metrics.IncrementTaskExecuteError(
 			taskType, err,
 		)
 		return err
@@ -182,7 +181,7 @@ func (c *TaskRunner) batchPoll(taskType string, count int, timeout time.Duration
 		"Polling for task: ", taskType,
 		", in batches of size: ", count,
 	)
-	metrics_counter.IncrementTaskPoll(taskType)
+	metrics.IncrementTaskPoll(taskType)
 	startTime := time.Now()
 	tasks, response, err := c.conductorTaskResourceClient.BatchPoll(
 		context.Background(),
@@ -195,12 +194,12 @@ func (c *TaskRunner) batchPoll(taskType string, count int, timeout time.Duration
 		},
 	)
 	spentTime := time.Since(startTime)
-	metrics_gauge.RecordTaskPollTime(
+	metrics.RecordTaskPollTime(
 		taskType,
 		spentTime.Seconds(),
 	)
 	if err != nil {
-		metrics_counter.IncrementTaskPollError(
+		metrics.IncrementTaskPollError(
 			taskType, err,
 		)
 		return nil, err
@@ -221,7 +220,7 @@ func (c *TaskRunner) executeTask(t *model.Task, executeFunction model.ExecuteTas
 	startTime := time.Now()
 	taskExecutionOutput, err := executeFunction(t)
 	spentTime := time.Since(startTime)
-	metrics_gauge.RecordTaskExecuteTime(
+	metrics.RecordTaskExecuteTime(
 		t.TaskDefName, float64(spentTime.Milliseconds()),
 	)
 	if err != nil {
@@ -255,7 +254,7 @@ func (c *TaskRunner) updateTaskWithRetry(taskType string, taskResult *model.Task
 			)
 			return nil
 		}
-		metrics_counter.IncrementTaskUpdateError(taskType, err)
+		metrics.IncrementTaskUpdateError(taskType, err)
 		log.Debug(
 			"Failed to update task",
 			", reason: ", err.Error(),
@@ -274,7 +273,7 @@ func (c *TaskRunner) updateTask(taskType string, taskResult *model.TaskResult) (
 	startTime := time.Now()
 	_, response, err := c.conductorTaskResourceClient.UpdateTask(context.Background(), taskResult)
 	spentTime := time.Since(startTime).Milliseconds()
-	metrics_gauge.RecordTaskUpdateTime(taskType, float64(spentTime))
+	metrics.RecordTaskUpdateTime(taskType, float64(spentTime))
 	return response, err
 }
 

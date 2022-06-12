@@ -1,4 +1,4 @@
-package metric_name
+package metrics
 
 type MetricName string
 
