@@ -60,4 +60,10 @@ workflowId, err := executor.StartWorkflow(&model.StartWorkflowRequest{
   },
 })
 ```
-See [quickstart](tests/examples/quickstart/workflow.go) for a fully working example of a simple workflow and a simple worker implementation.
+### Workflow Management APIs
+See [Docs](docs/executor.md) for APIs to start, pause, resume, terminate, search and get workflow execution status.
+
+### More Examples
+You can find more examples at the following GitHub repository:
+
+https://github.com/conductor-sdk/conductor-examples/tree/main/go-samples
