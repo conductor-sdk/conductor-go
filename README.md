@@ -7,7 +7,8 @@
 1. [Setup conductor-go package](#Setup-conductor-go-package)
 2. [Create and run Task Workers](workers_sdk.md)
 3. [Create workflows using Code](workflow_sdk.md)
-
+4. [API Documentation](docs/)
+   
 ### Setup conductor go package
 
 Create a folder to build your package:
