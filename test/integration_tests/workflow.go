@@ -7,7 +7,7 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package examples
+package integration_tests
 
 import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
@@ -15,12 +15,24 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 )
 
+var HttpTask = definition.NewHttpTask(
+	"go_task_of_http_type", // task name
+	&definition.HttpInput{ // http input
+		Uri: "https://catfact.ninja/fact",
+	},
+)
+
+var SimpleTask = definition.NewSimpleTask(
+	"go_task_of_simple_type",
+	"go_task_of_simple_type",
+)
+
 func IsWorkflowCompleted(workflow *model.Workflow) bool {
 	return workflow.Status == model.CompletedWorkflow
 }
 
 func NewHttpTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *definition.ConductorWorkflow {
-	return newConductorWorkflow(
+	return NewConductorWorkflow(
 		workflowExecutor,
 		"go_workflow_with_http_task",
 		HttpTask,
@@ -28,14 +40,14 @@ func NewHttpTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *
 }
 
 func NewSimpleTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *definition.ConductorWorkflow {
-	return newConductorWorkflow(
+	return NewConductorWorkflow(
 		workflowExecutor,
 		"go_workflow_with_simple_task",
 		SimpleTask,
 	)
 }
 
-func newConductorWorkflow(workflowExecutor *executor.WorkflowExecutor, workflowName string, task definition.TaskInterface) *definition.ConductorWorkflow {
+func NewConductorWorkflow(workflowExecutor *executor.WorkflowExecutor, workflowName string, task definition.TaskInterface) *definition.ConductorWorkflow {
 	return definition.NewConductorWorkflow(workflowExecutor).
 		Name(workflowName).
 		Version(1).

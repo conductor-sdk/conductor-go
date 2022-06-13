@@ -7,17 +7,42 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package worker_e2e
+package integration_tests
 
 import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"testing"
 	"time"
-
-	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
-	log "github.com/sirupsen/logrus"
 )
+
+func ExampleWorker(t *model.Task) (interface{}, error) {
+	taskResult := model.NewTaskResultFromTask(t)
+	taskResult.OutputData = map[string]interface{}{
+		"key0": nil,
+		"key1": 3,
+		"key2": false,
+		"foo":  "bar",
+	}
+	taskResult.Logs = append(
+		taskResult.Logs,
+		model.TaskExecLog{
+			Log: "log message",
+		},
+	)
+	taskResult.Status = model.CompletedTask
+	return taskResult, nil
+}
+
+func SimpleWorker(t *model.Task) (interface{}, error) {
+	taskResult := model.NewTaskResultFromTask(t)
+	taskResult.OutputData = map[string]interface{}{
+		"key": "value",
+	}
+	taskResult.Status = model.CompletedTask
+	return taskResult, nil
+}
 
 const (
 	taskName = "TEST_GO_TASK_SIMPLE"
@@ -33,7 +58,7 @@ const (
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.ErrorLevel)
 }
 
 func TestWorkers(t *testing.T) {
@@ -62,14 +87,14 @@ func TestWorkers(t *testing.T) {
 }
 
 func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]interface{}) error {
-	workflowIdList, err := e2e_properties.StartWorkflows(
+	workflowIdList, err := StartWorkflows(
 		workflowExecutionQty,
 		workflowName,
 	)
 	if err != nil {
 		return err
 	}
-	err = e2e_properties.TaskRunner.StartWorker(
+	err = TaskRunner.StartWorker(
 		taskName,
 		worker,
 		workerQty,
@@ -81,7 +106,7 @@ func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]
 	runningWorkflows := make([]chan error, len(workflowIdList))
 	for i, workflowId := range workflowIdList {
 		runningWorkflows[i] = make(chan error)
-		go e2e_properties.ValidateWorkflowDaemon(
+		go ValidateWorkflowDaemon(
 			workflowCompletionTimeout,
 			runningWorkflows[i],
 			workflowId,
@@ -94,7 +119,7 @@ func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]
 			return err
 		}
 	}
-	return e2e_properties.TaskRunner.RemoveWorker(
+	return TaskRunner.RemoveWorker(
 		taskName,
 		workerQty,
 	)

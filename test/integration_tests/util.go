@@ -7,7 +7,7 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package e2e_properties
+package integration_tests
 
 import (
 	"context"
@@ -97,10 +97,13 @@ func getApiClientWithAuthentication() *client.APIClient {
 }
 
 func getAuthenticationSettings() *settings.AuthenticationSettings {
+	//return settings.NewAuthenticationSettings(
+	//	os.Getenv(AUTHENTICATION_KEY_ID),
+	//	os.Getenv(AUTHENTICATION_KEY_SECRET),
+	//)
 	return settings.NewAuthenticationSettings(
-		os.Getenv(AUTHENTICATION_KEY_ID),
-		os.Getenv(AUTHENTICATION_KEY_SECRET),
-	)
+		"88659b04-acab-47a8-a876-2b19619a2587",
+		"6LSlOPLSh8bQFxR26kjGt6j6OM6zGynlHuQ6N5qzLenmH39i")
 }
 
 func getHttpSettingsWithAuth() *settings.HttpSettings {
