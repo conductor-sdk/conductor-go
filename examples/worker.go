@@ -5,7 +5,7 @@ import (
 )
 
 func ExampleWorker(t *model.Task) (interface{}, error) {
-	taskResult := model.GetTaskResultFromTask(t)
+	taskResult := model.NewTaskResultFromTask(t)
 	taskResult.OutputData = map[string]interface{}{
 		"key0": nil,
 		"key1": 3,
@@ -23,7 +23,7 @@ func ExampleWorker(t *model.Task) (interface{}, error) {
 }
 
 func SimpleWorker(t *model.Task) (interface{}, error) {
-	taskResult := model.GetTaskResultFromTask(t)
+	taskResult := model.NewTaskResultFromTask(t)
 	taskResult.OutputData = map[string]interface{}{
 		"key": "value",
 	}
@@ -32,7 +32,7 @@ func SimpleWorker(t *model.Task) (interface{}, error) {
 }
 
 func OpenTreasureChest(t *model.Task) (interface{}, error) {
-	taskResult := model.GetTaskResultFromTask(t)
+	taskResult := model.NewTaskResultFromTask(t)
 	taskResult.OutputData = map[string]interface{}{
 		"treasure": t.InputData["importantValue"],
 	}

@@ -13,7 +13,7 @@ type ExecuteTaskFunction func(t *Task) (interface{}, error)
 
 type ValidateWorkflowFunction func(w *Workflow) (bool, error)
 
-func GetTaskResultFromTask(task *Task) *TaskResult {
+func NewTaskResultFromTask(task *Task) *TaskResult {
 	return &TaskResult{
 		TaskId:             task.TaskId,
 		WorkflowInstanceId: task.WorkflowInstanceId,
@@ -22,17 +22,26 @@ func GetTaskResultFromTask(task *Task) *TaskResult {
 
 }
 
-func GetTaskResultFromTaskWithError(t *Task, err error) *TaskResult {
-	taskResult := GetTaskResultFromTask(t)
+func NewTaskResultFromTaskWithError(t *Task, err error) *TaskResult {
+	taskResult := NewTaskResultFromTask(t)
 	taskResult.Status = FAILED
 	taskResult.ReasonForIncompletion = err.Error()
 	return taskResult
 }
 
+func NewTaskResult(taskId string, workflowInstanceId string) *TaskResult {
+	return &TaskResult{
+		TaskId:             taskId,
+		WorkflowInstanceId: workflowInstanceId,
+		WorkerId:           hostname,
+	}
+
+}
+
 func GetTaskResultFromTaskExecutionOutput(t *Task, taskExecutionOutput interface{}) (*TaskResult, error) {
 	taskResult, ok := taskExecutionOutput.(*TaskResult)
 	if !ok {
-		taskResult = GetTaskResultFromTask(t)
+		taskResult = NewTaskResultFromTask(t)
 		outputData, err := ConvertToMap(taskExecutionOutput)
 		if err != nil {
 			return nil, err

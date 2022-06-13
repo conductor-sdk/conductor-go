@@ -32,7 +32,7 @@ func TestWorkers(t *testing.T) {
 		"key": "value",
 	}
 	workerWithTaskResultOutput := func(t *model.Task) (interface{}, error) {
-		taskResult := model.GetTaskResultFromTask(t)
+		taskResult := model.NewTaskResultFromTask(t)
 		taskResult.OutputData = outputData
 		taskResult.Status = model.COMPLETED
 		return taskResult, nil
