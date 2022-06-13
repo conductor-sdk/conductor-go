@@ -1,12 +1,12 @@
 package workflow_e2e
 
 import (
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/examples"
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 	log "github.com/sirupsen/logrus"
@@ -26,7 +26,7 @@ var (
 
 	terminateTask = workflow.NewTerminateTask(
 		"TEST_GO_TASK_TERMINATE",
-		workflow_status.FAILED,
+		model.FAILED,
 		"Task used to mark workflow as failed",
 	)
 

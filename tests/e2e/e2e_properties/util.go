@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/model"
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 	"github.com/conductor-sdk/conductor-go/pkg/settings"
 	"github.com/conductor-sdk/conductor-go/pkg/worker"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
@@ -65,7 +64,7 @@ func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, wo
 		outputChannel <- err
 		return
 	}
-	if workflow.Status != workflow_status.COMPLETED {
+	if workflow.Status != model.COMPLETED {
 		outputChannel <- fmt.Errorf(
 			"workflow status different than expected, workflowId: %s, workflowStatus: %s",
 			workflow.WorkflowId, workflow.Status,
@@ -275,5 +274,5 @@ func ValidateWorkflowRegistration(workflow *workflow.ConductorWorkflow) error {
 }
 
 func isWorkflowCompleted(workflow *model.Workflow) bool {
-	return workflow.Status == workflow_status.COMPLETED
+	return workflow.Status == model.COMPLETED
 }

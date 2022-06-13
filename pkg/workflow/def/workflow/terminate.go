@@ -1,12 +1,14 @@
 package workflow
 
-import "github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
+import (
+	"github.com/conductor-sdk/conductor-go/pkg/model"
+)
 
 type TerminateTask struct {
 	Task
 }
 
-func NewTerminateTask(taskRefName string, status workflow_status.WorkflowStatus, terminationReason string) *TerminateTask {
+func NewTerminateTask(taskRefName string, status model.WorkflowStatus, terminationReason string) *TerminateTask {
 	return &TerminateTask{
 		Task{
 			name:              taskRefName,

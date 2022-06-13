@@ -1,4 +1,4 @@
-package task_result_status
+package model
 
 type TaskResultStatus string
 

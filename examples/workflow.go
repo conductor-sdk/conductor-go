@@ -2,13 +2,12 @@ package examples
 
 import (
 	"github.com/conductor-sdk/conductor-go/pkg/model"
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 )
 
 func IsWorkflowCompleted(workflow *model.Workflow) bool {
-	return workflow.Status == workflow_status.COMPLETED
+	return workflow.Status == model.COMPLETED
 }
 
 func NewHttpTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/pkg/model"
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 	log "github.com/sirupsen/logrus"
 )
@@ -35,7 +34,7 @@ func TestWorkers(t *testing.T) {
 	workerWithTaskResultOutput := func(t *model.Task) (interface{}, error) {
 		taskResult := model.GetTaskResultFromTask(t)
 		taskResult.OutputData = outputData
-		taskResult.Status = task_result_status.COMPLETED
+		taskResult.Status = model.COMPLETED
 		return taskResult, nil
 	}
 	workerWithGenericOutput := func(t *model.Task) (interface{}, error) {

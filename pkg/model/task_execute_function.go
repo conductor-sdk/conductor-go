@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,7 +24,7 @@ func GetTaskResultFromTask(task *Task) *TaskResult {
 
 func GetTaskResultFromTaskWithError(t *Task, err error) *TaskResult {
 	taskResult := GetTaskResultFromTask(t)
-	taskResult.Status = task_result_status.FAILED
+	taskResult.Status = FAILED
 	taskResult.ReasonForIncompletion = err.Error()
 	return taskResult
 }
@@ -39,7 +38,7 @@ func GetTaskResultFromTaskExecutionOutput(t *Task, taskExecutionOutput interface
 			return nil, err
 		}
 		taskResult.OutputData = outputData
-		taskResult.Status = task_result_status.COMPLETED
+		taskResult.Status = COMPLETED
 	}
 	return taskResult, nil
 }

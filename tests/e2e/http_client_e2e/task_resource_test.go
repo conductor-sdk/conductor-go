@@ -2,10 +2,10 @@ package http_client_e2e
 
 import (
 	"context"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"testing"
 	"time"
 
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 )
 
@@ -36,7 +36,7 @@ func TestUpdateTaskRefByName(t *testing.T) {
 		outputData,
 		workflowId,
 		taskName,
-		string(task_result_status.COMPLETED),
+		string(model.COMPLETED),
 	)
 	if err != nil {
 		t.Fatal(

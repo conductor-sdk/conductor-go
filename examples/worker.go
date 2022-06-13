@@ -2,7 +2,6 @@ package examples
 
 import (
 	"github.com/conductor-sdk/conductor-go/pkg/model"
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
 )
 
 func ExampleWorker(t *model.Task) (interface{}, error) {
@@ -19,7 +18,7 @@ func ExampleWorker(t *model.Task) (interface{}, error) {
 			Log: "log message",
 		},
 	)
-	taskResult.Status = task_result_status.COMPLETED
+	taskResult.Status = model.COMPLETED
 	return taskResult, nil
 }
 
@@ -28,7 +27,7 @@ func SimpleWorker(t *model.Task) (interface{}, error) {
 	taskResult.OutputData = map[string]interface{}{
 		"key": "value",
 	}
-	taskResult.Status = task_result_status.COMPLETED
+	taskResult.Status = model.COMPLETED
 	return taskResult, nil
 }
 
@@ -37,6 +36,6 @@ func OpenTreasureChest(t *model.Task) (interface{}, error) {
 	taskResult.OutputData = map[string]interface{}{
 		"treasure": t.InputData["importantValue"],
 	}
-	taskResult.Status = task_result_status.COMPLETED
+	taskResult.Status = model.COMPLETED
 	return taskResult, nil
 }

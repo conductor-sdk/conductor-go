@@ -2,7 +2,7 @@ package shipment_example
 
 import (
 	"github.com/conductor-sdk/conductor-go/examples/shipment_example/shipment_method_example"
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 )
@@ -29,7 +29,7 @@ var (
 	TaskGroundShippingLabel  = workflow.NewSimpleTask("ground_shipping_label", "ground_shipping_label").InputMap(shippingLabelInputMap)
 	SameDayShippingLabel     = workflow.NewSimpleTask("same_day_shipping_label", "same_day_shipping_label").InputMap(shippingLabelInputMap)
 	AirShippingLabel         = workflow.NewSimpleTask("air_shipping_label", "air_shipping_label").InputMap(shippingLabelInputMap)
-	UnsupportedShippingLabel = workflow.NewTerminateTask("unsupported_shipping_type", workflow_status.FAILED, "Unsupported Shipping Method")
+	UnsupportedShippingLabel = workflow.NewTerminateTask("unsupported_shipping_type", model.FAILED, "Unsupported Shipping Method")
 
 	TaskShippingLabel = workflow.NewSwitchTask("shipping_label", "${workflow.input.orderDetail.shippingMethod}").
 				SwitchCase(string(shipment_method_example.Ground), TaskGroundShippingLabel).

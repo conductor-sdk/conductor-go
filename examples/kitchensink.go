@@ -2,8 +2,8 @@ package examples
 
 import (
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/pkg/model"
 
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/workflow_status"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 )
@@ -32,7 +32,7 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 			"SHORT",
 			workflow.NewTerminateTask(
 				"too_short",
-				workflow_status.FAILED,
+				model.FAILED,
 				"value too short",
 			),
 		)
