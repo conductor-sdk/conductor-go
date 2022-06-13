@@ -78,7 +78,9 @@ func NewHttpDefaultSettings() *HttpSettings
 func NewHttpSettings(baseUrl string) *HttpSettings
 ```
 
-## type [MetricsSettings](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/settings/metrics_settings.go#L3-L6>)
+## type [MetricsSettings](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/settings/metrics_settings.go#L4-L7>)
+
+MetricsSettings configures the prometheus metrics for worker SDK
 
 ```go
 type MetricsSettings struct {
@@ -87,17 +89,21 @@ type MetricsSettings struct {
 }
 ```
 
-### func [NewDefaultMetricsSettings](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/settings/metrics_settings.go#L8>)
+### func [NewDefaultMetricsSettings](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/settings/metrics_settings.go#L10>)
 
 ```go
 func NewDefaultMetricsSettings() *MetricsSettings
 ```
 
-### func [NewMetricsSettings](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/settings/metrics_settings.go#L15>)
+NewDefaultMetricsSettings creates an endpoint at /metrics on port 2112
+
+### func [NewMetricsSettings](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/settings/metrics_settings.go#L18>)
 
 ```go
 func NewMetricsSettings(apiEndpoint string, port int) *MetricsSettings
 ```
+
+NewMetricsSettings new metrics settings with endpoint and port
 
 
 

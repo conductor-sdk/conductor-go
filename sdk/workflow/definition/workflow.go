@@ -3,7 +3,7 @@ package definition
 import (
 	"encoding/json"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	executor3 "github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
+	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -17,7 +17,7 @@ const (
 )
 
 type ConductorWorkflow struct {
-	executor         *executor3.WorkflowExecutor
+	executor         *executor.WorkflowExecutor
 	name             string
 	version          int32
 	description      string
@@ -33,7 +33,7 @@ type ConductorWorkflow struct {
 	restartable      bool
 }
 
-func NewConductorWorkflow(executor *executor3.WorkflowExecutor) *ConductorWorkflow {
+func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflow {
 	return &ConductorWorkflow{
 		executor:      executor,
 		timeoutPolicy: AlertOnly,
@@ -155,7 +155,7 @@ func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.Sta
 
 //StartWorkflowsAndMonitorExecution Starts the workflow execution and returns a channel that can be used to monitor the workflow execution
 //This method is useful for short duration workflows that are expected to complete in few seconds.  For long-running workflows use GetStatus APIs to periodically check the status
-func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkflowRequest *model.StartWorkflowRequest) (executionChannel executor3.WorkflowExecutionChannel, err error) {
+func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkflowRequest *model.StartWorkflowRequest) (executionChannel executor.WorkflowExecutionChannel, err error) {
 	workflowId, err := workflow.StartWorkflow(startWorkflowRequest)
 	if err != nil {
 		return nil, err

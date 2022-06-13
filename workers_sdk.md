@@ -1,78 +1,51 @@
 # Writing Workers
 
-Workers are the implementation of Tasks in the workflow.
+A worker is responsible for executing a task. 
+Operator and System tasks are handled by the Conductor server, while user defined tasks needs to have a worker created that awaits the work to be scheduled by the server for it to be executed.
 
-Let's create a simple worker implementation as `main.go`
+Worker framework provides features such as polling threads, metrics and server communication.
+
+### Design Principles for Workers
+Each worker embodies design pattern and follows certain basic principles:
+
+1. Workers are stateless and do not implement a workflow specific logic. 
+2. Each worker executes a very specific task and produces well-defined output given specific inputs. 
+3. Workers are meant to be idempotent (or should handle cases where the task that partially executed gets rescheduled due to timeouts etc.)
+4. Workers do not implement the logic to handle retries etc, that is taken care by the Conductor server.
+
+### Creating Task Workers
+Task worker is implemented using a function that confirms to the following function
+```go
+type ExecuteTaskFunction func(t *Task) (interface{}, error)
+```
+
+Worker returns a struct as the output of the task execution.  The struct MUST be serializable to a JSON map.
+If an `error` is returned, the task is marked as `FAILED`
+
+#### Task worker that returns a struct
 
 ```go
-package main
-
-import (
-	"github.com/conductor-sdk/conductor-go/pkg/http_model"
-	"github.com/conductor-sdk/conductor-go/pkg/model"
-	"github.com/conductor-sdk/conductor-go/pkg/model/enum/task_result_status"
-	"github.com/conductor-sdk/conductor-go/pkg/settings"
-	"github.com/conductor-sdk/conductor-go/pkg/worker"
-	log "github.com/sirupsen/logrus"
-	"os"
-	"time"
-)
-
-//init set the logging for the workers
-func init() {
-	log.SetFormatter(&log.JSONFormatter{})
-	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
-}
 
 //TaskOutput struct that represents the output of the task execution
 type TaskOutput struct {
-	Keys    []string
-	Message string
-	Value   float64
+    Keys    []string
+    Message string
+    Value   float64
 }
 
 //SimpleWorker function accepts Task as input and returns TaskOutput as result
 //If there is a failure, error can be returned and the task will be marked as FAILED
 func SimpleWorker(t *model.Task) (interface{}, error) {
-	taskResult := &TaskOutput{
-		Keys:    []string{"Key1", "Key2"},
-		Message: "Hello World",
-		Value:   rand.ExpFloat64(),
-	}
-	return taskResult, nil
+    taskResult := &TaskOutput{
+        Keys:    []string{"Key1", "Key2"},
+        Message: "Hello World",
+        Value:   rand.ExpFloat64(),
+    }
+    return taskResult, nil
 }
-
-func main() {
-	taskRunner := worker.NewTaskRunner(
-		settings.NewAuthenticationSettings(
-			__KEY__,
-			__SECRET__,
-		),
-		settings.NewHttpSettings(
-			"https://play.orkes.io",
-		),
-	)
-	//Start worker execution with a batch size of 1 and sleep interval of 1 second if there are no tasks to be executed
-	taskRunner.StartWorker("simple_worker", SimpleWorker, 1, time.Second * 1)
-    
-	//Block
-	taskRunner.WaitWorkers()
-}
-
-```
-**Note:**
-Replace `KEY` and `SECRET` by obtaining a new key and secret from Orkes Playground as described [Generating Access Keys for Programmatic Access](https://orkes.io/content/docs/getting-started/concepts/access-control#access-keys)
-
-Also - replace `simple_worker` with the name of your task.
-
-### Run workers
-Start the workers by running `go run`
-```shell
-go run main.go
 ```
 
-### Long-running tasks
+#### Controlling execution for long-running tasks
 For the long-running tasks you might want to spawn another process/routine and update the status of the task at a later point and complete the
 execution function without actually marking the task as `COMPLETED`.  Use `TaskResult` struct that allows you to specify more fined grained control.
 
@@ -88,6 +61,29 @@ func LongRunningTaskWorker(t *model.Task) (interface{}, error) {
 	taskResult.CallbackAfterSeconds = 60
 	return taskResult, nil
 }
+```
+
+## Starting Workers
+`TaskRunner` interface is used to start the workers, which takes care of polling server for the work, executing worker code and updating the results back to the server.
+
+```go
+apiClient := client.NewAPIClient(
+    settings.NewAuthenticationSettings(
+        KEY,
+        SECRET,
+    ),
+    settings.NewHttpSettings(
+    "https://play.orkes.io/api",
+))
+
+taskRunner := worker.NewTaskRunnerWithApiClient(apiClient)
+//Start polling for a task by name "simple_task", with a batch size of 1 and 1 second interval
+//Between polls if there are no tasks available to execute
+taskRunner.StartWorker("simple_task", examples.SimpleWorker, 1, time.Second*1)
+//Add more StartWorker calls as needed
+
+//Block
+taskRunner.WaitWorkers()
 ```
 
 ## Task Management APIs
@@ -117,3 +113,5 @@ Value:   rand.ExpFloat64(),
 }
 executor.UpdateTaskByRefName("task_ref_name", workflowInstanceId, task_result_status.COMPLETED, ouptut)
 ```
+
+### Next: [Create and Execute Workflows](workflow_sdk.md)

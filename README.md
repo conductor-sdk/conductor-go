@@ -46,11 +46,13 @@ authenticationSettings := settings.NewAuthenticationSettings(
 )
 ```
 
+### Access Control Setup
+See [Access Control](https://orkes.io/content/docs/getting-started/concepts/access-control) for more details on role based access control with Conductor and generating API keys for your environment.
 
 ### Configure API Client
 ```go
 
-apiClient := conductor_http_client.NewAPIClient(
+apiClient := client.NewAPIClient(
     settings.NewAuthenticationSettings(
         KEY,
         SECRET,
@@ -60,6 +62,17 @@ apiClient := conductor_http_client.NewAPIClient(
     ),
 )
 	
+```
+
+### Setup Logging
+SDK uses [logrus](https://github.com/sirupsen/logrus) for the logging.
+
+```go
+func init() {
+	log.SetFormatter(&log.TextFormatter{})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.DebugLevel)
+}
 ```
 
 ### Next: [Create and run Task Workers](workers_sdk.md)

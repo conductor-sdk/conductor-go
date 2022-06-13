@@ -14,6 +14,20 @@ import (
 
 type WorkflowExecutionChannel chan *model2.Workflow
 
+type RunningWorkflow struct {
+	WorkflowId               string
+	WorkflowExecutionChannel WorkflowExecutionChannel
+	Err                      error
+}
+
+func NewRunningWorkflow(workflowId string, workflowExecutionChannel WorkflowExecutionChannel, err error) *RunningWorkflow {
+	return &RunningWorkflow{
+		WorkflowId:               workflowId,
+		WorkflowExecutionChannel: workflowExecutionChannel,
+		Err:                      err,
+	}
+}
+
 type WorkflowMonitor struct {
 	mutex                        sync.Mutex
 	refreshInterval              time.Duration

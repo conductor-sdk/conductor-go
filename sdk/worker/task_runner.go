@@ -21,6 +21,7 @@ const taskUpdateRetryAttemptsLimit = 3
 
 var hostname, _ = os.Hostname()
 
+//TaskRunner Runner for the Task Workers.  Task Runners implements the polling and execution logic for the workers
 type TaskRunner struct {
 	conductorTaskResourceClient *client.TaskResourceApiService
 	maxAllowedWorkersByTaskType map[string]int

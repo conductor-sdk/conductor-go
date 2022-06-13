@@ -10,7 +10,7 @@ import "github.com/conductor-sdk/conductor-go/sdk/workflow/definition"
 
 - [Constants](<#constants>)
 - [type ConductorWorkflow](<#type-conductorworkflow>)
-  - [func NewConductorWorkflow(executor *executor3.WorkflowExecutor) *ConductorWorkflow](<#func-newconductorworkflow>)
+  - [func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflow](<#func-newconductorworkflow>)
   - [func (workflow *ConductorWorkflow) Add(task TaskInterface) *ConductorWorkflow](<#func-conductorworkflow-add>)
   - [func (workflow *ConductorWorkflow) Description(description string) *ConductorWorkflow](<#func-conductorworkflow-description>)
   - [func (workflow *ConductorWorkflow) FailureWorkflow(failureWorkflow string) *ConductorWorkflow](<#func-conductorworkflow-failureworkflow>)
@@ -25,7 +25,7 @@ import "github.com/conductor-sdk/conductor-go/sdk/workflow/definition"
   - [func (workflow *ConductorWorkflow) Restartable(restartable bool) *ConductorWorkflow](<#func-conductorworkflow-restartable>)
   - [func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error)](<#func-conductorworkflow-startworkflow>)
   - [func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) (workflowId string, err error)](<#func-conductorworkflow-startworkflowwithinput>)
-  - [func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkflowRequest *model.StartWorkflowRequest) (executionChannel executor3.WorkflowExecutionChannel, err error)](<#func-conductorworkflow-startworkflowsandmonitorexecution>)
+  - [func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkflowRequest *model.StartWorkflowRequest) (executionChannel executor.WorkflowExecutionChannel, err error)](<#func-conductorworkflow-startworkflowsandmonitorexecution>)
   - [func (workflow *ConductorWorkflow) TimeoutPolicy(timeoutPolicy TimeoutPolicy, timeoutSeconds int64) *ConductorWorkflow](<#func-conductorworkflow-timeoutpolicy>)
   - [func (workflow *ConductorWorkflow) TimeoutSeconds(timeoutSeconds int64) *ConductorWorkflow](<#func-conductorworkflow-timeoutseconds>)
   - [func (workflow *ConductorWorkflow) ToWorkflowDef() *model.WorkflowDef](<#func-conductorworkflow-toworkflowdef>)
@@ -182,7 +182,7 @@ type ConductorWorkflow struct {
 ### func [NewConductorWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/definition/workflow.go#L36>)
 
 ```go
-func NewConductorWorkflow(executor *executor3.WorkflowExecutor) *ConductorWorkflow
+func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflow
 ```
 
 ### func \(\*ConductorWorkflow\) [Add](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/definition/workflow.go#L124>)
@@ -288,7 +288,7 @@ StartWorkflowWithInput ExecuteWorkflowWithInput Execute the workflow with specif
 ### func \(\*ConductorWorkflow\) [StartWorkflowsAndMonitorExecution](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/definition/workflow.go#L158>)
 
 ```go
-func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkflowRequest *model.StartWorkflowRequest) (executionChannel executor3.WorkflowExecutionChannel, err error)
+func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkflowRequest *model.StartWorkflowRequest) (executionChannel executor.WorkflowExecutionChannel, err error)
 ```
 
 StartWorkflowsAndMonitorExecution Starts the workflow execution and returns a channel that can be used to monitor the workflow execution This method is useful for short duration workflows that are expected to complete in few seconds\.  For long\-running workflows use GetStatus APIs to periodically check the status
