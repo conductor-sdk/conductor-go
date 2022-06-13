@@ -34,7 +34,7 @@ func TestWorkers(t *testing.T) {
 	workerWithTaskResultOutput := func(t *model.Task) (interface{}, error) {
 		taskResult := model.NewTaskResultFromTask(t)
 		taskResult.OutputData = outputData
-		taskResult.Status = model.COMPLETED
+		taskResult.Status = model.CompletedTask
 		return taskResult, nil
 	}
 	workerWithGenericOutput := func(t *model.Task) (interface{}, error) {

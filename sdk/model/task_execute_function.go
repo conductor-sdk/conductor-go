@@ -24,7 +24,7 @@ func NewTaskResultFromTask(task *Task) *TaskResult {
 
 func NewTaskResultFromTaskWithError(t *Task, err error) *TaskResult {
 	taskResult := NewTaskResultFromTask(t)
-	taskResult.Status = FAILED
+	taskResult.Status = FailedTask
 	taskResult.ReasonForIncompletion = err.Error()
 	return taskResult
 }
@@ -47,7 +47,7 @@ func GetTaskResultFromTaskExecutionOutput(t *Task, taskExecutionOutput interface
 			return nil, err
 		}
 		taskResult.OutputData = outputData
-		taskResult.Status = COMPLETED
+		taskResult.Status = CompletedTask
 	}
 	return taskResult, nil
 }

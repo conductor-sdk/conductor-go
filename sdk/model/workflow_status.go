@@ -3,19 +3,19 @@ package model
 type WorkflowStatus string
 
 const (
-	WORKFLOW_STATUS_RUNNING    WorkflowStatus = "RUNNING"
-	WORKFLOW_STATUS_COMPLETED  WorkflowStatus = "COMPLETED"
-	WORKFLOW_STATUS_FAILED     WorkflowStatus = "FAILED"
-	WORKFLOW_STATUS_TIMED_OUT  WorkflowStatus = "TIMED_OUT"
-	WORKFLOW_STATUS_TERMINATED WorkflowStatus = "TERMINATED"
-	WORKFLOW_STATUS_PAUSED     WorkflowStatus = "PAUSED"
+	RunningWorkflow    WorkflowStatus = "RUNNING"
+	CompletedWorkflow  WorkflowStatus = "COMPLETED"
+	FailedWorkflow     WorkflowStatus = "FAILED"
+	TimedOutWorkflow   WorkflowStatus = "TIMED_OUT"
+	TerminatedWorkflow WorkflowStatus = "TERMINATED"
+	PausedWorkflow     WorkflowStatus = "PAUSED"
 )
 
 var (
 	WorkflowTerminalStates = []WorkflowStatus{
-		WORKFLOW_STATUS_COMPLETED,
-		WORKFLOW_STATUS_FAILED,
-		WORKFLOW_STATUS_TIMED_OUT,
-		WORKFLOW_STATUS_TERMINATED,
+		CompletedWorkflow,
+		FailedWorkflow,
+		TimedOutWorkflow,
+		TerminatedWorkflow,
 	}
 )

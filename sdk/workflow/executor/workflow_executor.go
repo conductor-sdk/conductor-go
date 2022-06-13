@@ -309,7 +309,7 @@ func getTaskResultFromOutput(taskId string, workflowInstanceId string, taskExecu
 			return nil, err
 		}
 		taskResult.OutputData = outputData
-		taskResult.Status = model.COMPLETED
+		taskResult.Status = model.CompletedTask
 	}
 	return taskResult, nil
 }

@@ -18,7 +18,7 @@ func ExampleWorker(t *model.Task) (interface{}, error) {
 			Log: "log message",
 		},
 	)
-	taskResult.Status = model.COMPLETED
+	taskResult.Status = model.CompletedTask
 	return taskResult, nil
 }
 
@@ -27,7 +27,7 @@ func SimpleWorker(t *model.Task) (interface{}, error) {
 	taskResult.OutputData = map[string]interface{}{
 		"key": "value",
 	}
-	taskResult.Status = model.COMPLETED
+	taskResult.Status = model.CompletedTask
 	return taskResult, nil
 }
 
@@ -36,6 +36,6 @@ func OpenTreasureChest(t *model.Task) (interface{}, error) {
 	taskResult.OutputData = map[string]interface{}{
 		"treasure": t.InputData["importantValue"],
 	}
-	taskResult.Status = model.COMPLETED
+	taskResult.Status = model.CompletedTask
 	return taskResult, nil
 }

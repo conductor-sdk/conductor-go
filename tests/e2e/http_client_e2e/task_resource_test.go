@@ -36,7 +36,7 @@ func TestUpdateTaskRefByName(t *testing.T) {
 		outputData,
 		workflowId,
 		taskName,
-		string(model.COMPLETED),
+		string(model.CompletedTask),
 	)
 	if err != nil {
 		t.Fatal(

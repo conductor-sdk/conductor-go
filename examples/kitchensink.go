@@ -31,7 +31,7 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *definition.Con
 			"SHORT",
 			definition.NewTerminateTask(
 				"too_short",
-				model.WORKFLOW_STATUS_FAILED,
+				model.FailedWorkflow,
 				"value too short",
 			),
 		)

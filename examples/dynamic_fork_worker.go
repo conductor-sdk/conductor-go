@@ -47,7 +47,7 @@ func DynamicForkWorker(t *model.Task) (output interface{}, err error) {
 		"forkedTasks":       tasks,
 		"forkedTasksInputs": inputs,
 	}
-	taskResult.Status = model.COMPLETED
+	taskResult.Status = model.CompletedTask
 	err = nil
 	return taskResult, err
 }

@@ -29,7 +29,7 @@ var (
 	TaskGroundShippingLabel  = definition.NewSimpleTask("ground_shipping_label", "ground_shipping_label").InputMap(shippingLabelInputMap)
 	SameDayShippingLabel     = definition.NewSimpleTask("same_day_shipping_label", "same_day_shipping_label").InputMap(shippingLabelInputMap)
 	AirShippingLabel         = definition.NewSimpleTask("air_shipping_label", "air_shipping_label").InputMap(shippingLabelInputMap)
-	UnsupportedShippingLabel = definition.NewTerminateTask("unsupported_shipping_type", model.WORKFLOW_STATUS_FAILED, "Unsupported Shipping Method")
+	UnsupportedShippingLabel = definition.NewTerminateTask("unsupported_shipping_type", model.FailedWorkflow, "Unsupported Shipping Method")
 
 	TaskShippingLabel = definition.NewSwitchTask("shipping_label", "${workflow.input.orderDetail.shippingMethod}").
 				SwitchCase(string(shipment_method_example.Ground), TaskGroundShippingLabel).

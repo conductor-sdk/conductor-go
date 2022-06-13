@@ -7,7 +7,7 @@ import (
 )
 
 func IsWorkflowCompleted(workflow *model.Workflow) bool {
-	return workflow.Status == model.WORKFLOW_STATUS_COMPLETED
+	return workflow.Status == model.CompletedWorkflow
 }
 
 func NewHttpTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *definition.ConductorWorkflow {
