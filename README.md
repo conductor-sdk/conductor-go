@@ -13,26 +13,16 @@
 
 Create a folder to build your package:
 ```shell
-mkdir conductor-go/
-cd conductor-go/
+mkdir quickstart/
+cd quickstart/
+go mod init quickstart
 ```
 
-Create a go.mod file for dependencies
-```go
-module conductor_test
+Get Conductor Go SDK
 
-go 1.18
-
-require (
-	github.com/conductor-sdk/conductor-go
-)   
-```
-
-Install dependencies.  This will download all the required dependencies
 ```shell
-go get
+go get github.com/conductor-sdk/conductor-go
 ```
-
 ## Configuration
 
 ### Authentication settings (optional)
