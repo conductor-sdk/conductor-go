@@ -11,10 +11,9 @@ package metrics
 
 type MetricName string
 
+//List of metrics that are collected when metrics server is enabled
 const (
 	EXTERNAL_PAYLOAD_USED     MetricName = "external_payload_used"
-	TASK_ACK_ERROR            MetricName = "task_ack_error"
-	TASK_ACK_FAILED           MetricName = "task_ack_failed"
 	TASK_EXECUTE_ERROR        MetricName = "task_execute_error"
 	TASK_EXECUTE_TIME         MetricName = "task_execute_time"
 	TASK_EXECUTION_QUEUE_FULL MetricName = "task_execution_queue_full"

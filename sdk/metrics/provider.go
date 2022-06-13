@@ -10,6 +10,7 @@
 package metrics
 
 import (
+	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"net/http"
 	"strconv"
@@ -18,10 +19,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+//ProvideMetrics start collecting metrics for the workers
+//We use prometheus to collect metrics from the workers.  When called this function starts the metrics server and publishes the worker metrics
 func ProvideMetrics(metricsSettings *settings.MetricsSettings) {
+	defer concurrency.HandlePanicError("provide_metrics")
 	if metricsSettings == nil {
 		metricsSettings = settings.NewDefaultMetricsSettings()
 	}
+
 	http.Handle(
 		metricsSettings.ApiEndpoint,
 		promhttp.HandlerFor(

@@ -114,4 +114,29 @@ Value:   rand.ExpFloat64(),
 executor.UpdateTaskByRefName("task_ref_name", workflowInstanceId, task_result_status.COMPLETED, ouptut)
 ```
 
+### Worker Metrics
+We use [Prometheus](https://prometheus.io/) to collect metrics.
+When enabled the worker starts an HTTP server which is used to publish metrics, which can be hooked up to a prometheus server to scrap and collect metrics.
+
+#### Starting metrics collection
+```go
+//Start a go routine.  The default settings  exposes port 2112 on /metrics endpoint
+go ProvideMetrics(settings.NewDefaultMetricsSettings())
+```
+
+Worker SDK collects the following metrics:
+
+
+| Name        | Purpose           | Tags  |
+| ------------- |:-------------| -----|
+| task_poll_error | Client error when polling for a task queue | taskType, includeRetries, status |
+| task_execute_error | Execution error | taskType|
+| task_update_error | Task status cannot be updated back to server  | taskType |
+| task_poll_counter | Incremented each time polling is done  | taskType |
+| task_poll_time | Time to poll for a batch of tasks | taskType |
+| task_execute_time | Time to execute a task  | taskType |
+| task_result_size | Records output payload size of a task | taskType |
+
+Metrics on client side supplements the one collected from server in identifying the network as well as client side issues.
+
 ### Next: [Create and Execute Workflows](workflow_sdk.md)
