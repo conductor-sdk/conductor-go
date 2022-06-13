@@ -1,15 +1,17 @@
 package examples
 
-import "github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
+import (
+	"github.com/conductor-sdk/conductor-go/pkg/workflow/def"
+)
 
-var HttpTask = workflow.NewHttpTask(
+var HttpTask = def.NewHttpTask(
 	"go_task_of_http_type", // task name
-	&workflow.HttpInput{ // http input
+	&def.HttpInput{ // http input
 		Uri: "https://catfact.ninja/fact",
 	},
 )
 
-var SimpleTask = workflow.NewSimpleTask(
+var SimpleTask = def.NewSimpleTask(
 	"go_task_of_simple_type",
 	"go_task_of_simple_type",
 )

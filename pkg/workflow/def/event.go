@@ -1,4 +1,4 @@
-package workflow
+package def
 
 import (
 	"github.com/conductor-sdk/conductor-go/pkg/model"

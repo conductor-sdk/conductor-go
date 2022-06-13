@@ -3,65 +3,65 @@ package examples
 import (
 	"fmt"
 	"github.com/conductor-sdk/conductor-go/pkg/model"
+	"github.com/conductor-sdk/conductor-go/pkg/workflow/def"
 
-	"github.com/conductor-sdk/conductor-go/pkg/workflow/def/workflow"
 	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 )
 
-func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
-	task := workflow.NewSimpleTask("simple_task_0", "simple_task_0")
-	simpleWorkflow := workflow.NewConductorWorkflow(executor).
+func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *def.ConductorWorkflow {
+	task := def.NewSimpleTask("simple_task_0", "simple_task_0")
+	simpleWorkflow := def.NewConductorWorkflow(executor).
 		Name("inline_sub").
 		Add(
-			workflow.NewSimpleTask("simple_task_0", "simple_task_0"),
+			def.NewSimpleTask("simple_task_0", "simple_task_0"),
 		)
-	subWorkflowInline := workflow.NewSubWorkflowInlineTask(
+	subWorkflowInline := def.NewSubWorkflowInlineTask(
 		"sub_flow_inline",
 		simpleWorkflow,
 	)
-	decide := workflow.NewSwitchTask("fact_length", "$.number < 15 ? 'LONG':'LONG'").
+	decide := def.NewSwitchTask("fact_length", "$.number < 15 ? 'LONG':'LONG'").
 		Description("Fail if the fact is too short").
 		Input("number", "${get_data.output.number}").
 		UseJavascript(true).
 		SwitchCase(
 			"LONG",
-			workflow.NewSimpleTask("simple_task_1", "simple_task_1"),
-			workflow.NewSimpleTask("simple_task_1", "simple_task_1"),
+			def.NewSimpleTask("simple_task_1", "simple_task_1"),
+			def.NewSimpleTask("simple_task_1", "simple_task_1"),
 		).
 		SwitchCase(
 			"SHORT",
-			workflow.NewTerminateTask(
+			def.NewTerminateTask(
 				"too_short",
 				model.FAILED,
 				"value too short",
 			),
 		)
-	doWhile := workflow.NewLoopTask("loop_until_success", 2, decide).
+	doWhile := def.NewLoopTask("loop_until_success", 2, decide).
 		Optional(true)
-	fork := workflow.NewForkTask(
+	fork := def.NewForkTask(
 		"fork",
-		[]workflow.TaskInterface{
+		[]def.TaskInterface{
 			doWhile,
 			subWorkflowInline,
 		},
-		[]workflow.TaskInterface{
-			workflow.NewSimpleTask("simple_task_5", "simple_task_5"),
+		[]def.TaskInterface{
+			def.NewSimpleTask("simple_task_5", "simple_task_5"),
 		},
 	)
-	dynamicFork := workflow.NewDynamicForkTask(
+	dynamicFork := def.NewDynamicForkTask(
 		"dynamic_fork",
-		workflow.NewSimpleTask("dynamic_fork_prep", "dynamic_fork_prep"),
+		def.NewSimpleTask("dynamic_fork_prep", "dynamic_fork_prep"),
 	)
-	setVariable := workflow.NewSetVariableTask("set_state").
+	setVariable := def.NewSetVariableTask("set_state").
 		Input("call_made", true).
 		Input("number", task.OutputRef("number"))
 
-	subWorkflow := workflow.NewSubWorkflowTask("sub_flow", "PopulationMinMax", nil)
+	subWorkflow := def.NewSubWorkflowTask("sub_flow", "PopulationMinMax", nil)
 
 	fmt.Println(subWorkflow)
 	fmt.Println(setVariable)
 
-	jqTask := workflow.NewJQTask("jq", "{ key3: (.key1.value1 + .key2.value2) }")
+	jqTask := def.NewJQTask("jq", "{ key3: (.key1.value1 + .key2.value2) }")
 	jqTask.Input("key1", map[string]interface{}{
 		"value1": []string{"a", "b"},
 	})
@@ -69,7 +69,7 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 		"value2": []string{"d", "e"},
 	})
 
-	workflow := workflow.NewConductorWorkflow(executor).
+	workflow := def.NewConductorWorkflow(executor).
 		Name("sdk_kitchen_sink2").
 		Version(1).
 		OwnerEmail("orkes-workers@apps.orkes.io").
