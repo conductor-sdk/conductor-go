@@ -1,11 +1,11 @@
 package worker_e2e
 
 import (
+	model2 "github.com/conductor-sdk/conductor-go/model"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/conductor-sdk/conductor-go/pkg/model"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 	log "github.com/sirupsen/logrus"
 )
@@ -31,16 +31,16 @@ func TestWorkers(t *testing.T) {
 	outputData := map[string]interface{}{
 		"key": "value",
 	}
-	workerWithTaskResultOutput := func(t *model.Task) (interface{}, error) {
-		taskResult := model.GetTaskResultFromTask(t)
+	workerWithTaskResultOutput := func(t *model2.Task) (interface{}, error) {
+		taskResult := model2.GetTaskResultFromTask(t)
 		taskResult.OutputData = outputData
-		taskResult.Status = model.COMPLETED
+		taskResult.Status = model2.COMPLETED
 		return taskResult, nil
 	}
-	workerWithGenericOutput := func(t *model.Task) (interface{}, error) {
+	workerWithGenericOutput := func(t *model2.Task) (interface{}, error) {
 		return outputData, nil
 	}
-	workers := []model.ExecuteTaskFunction{
+	workers := []model2.ExecuteTaskFunction{
 		workerWithTaskResultOutput,
 		workerWithGenericOutput,
 	}
@@ -52,7 +52,7 @@ func TestWorkers(t *testing.T) {
 	}
 }
 
-func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]interface{}) error {
+func validateWorker(worker model2.ExecuteTaskFunction, expectedOutput map[string]interface{}) error {
 	workflowIdList, err := e2e_properties.StartWorkflows(
 		workflowExecutionQty,
 		workflowName,

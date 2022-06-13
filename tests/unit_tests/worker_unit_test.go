@@ -1,11 +1,10 @@
 package unit_tests
 
 import (
-	"github.com/conductor-sdk/conductor-go/pkg/client"
+	"github.com/conductor-sdk/conductor-go/client"
+	settings2 "github.com/conductor-sdk/conductor-go/settings"
+	"github.com/conductor-sdk/conductor-go/worker"
 	"testing"
-
-	"github.com/conductor-sdk/conductor-go/pkg/settings"
-	"github.com/conductor-sdk/conductor-go/pkg/worker"
 )
 
 func TestSimpleTaskRunner(t *testing.T) {
@@ -18,7 +17,7 @@ func TestSimpleTaskRunner(t *testing.T) {
 func TestTaskRunnerWithoutAuthenticationSettings(t *testing.T) {
 	apiClient := client.NewAPIClient(
 		nil,
-		settings.NewHttpDefaultSettings(),
+		settings2.NewHttpDefaultSettings(),
 	)
 	taskRunner := worker.NewTaskRunnerWithApiClient(
 		apiClient,
@@ -29,13 +28,13 @@ func TestTaskRunnerWithoutAuthenticationSettings(t *testing.T) {
 }
 
 func TestTaskRunnerWithAuthenticationSettings(t *testing.T) {
-	authenticationSettings := settings.NewAuthenticationSettings(
+	authenticationSettings := settings2.NewAuthenticationSettings(
 		"keyId",
 		"keySecret",
 	)
 	apiClient := client.NewAPIClient(
 		authenticationSettings,
-		settings.NewHttpDefaultSettings(),
+		settings2.NewHttpDefaultSettings(),
 	)
 	taskRunner := worker.NewTaskRunnerWithApiClient(
 		apiClient,

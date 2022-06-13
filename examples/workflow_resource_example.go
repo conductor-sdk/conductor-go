@@ -2,28 +2,28 @@ package examples
 
 import (
 	"context"
-	"github.com/conductor-sdk/conductor-go/pkg/client"
+	client2 "github.com/conductor-sdk/conductor-go/client"
+	settings2 "github.com/conductor-sdk/conductor-go/settings"
 	"net/http"
 
 	"github.com/antihax/optional"
-	"github.com/conductor-sdk/conductor-go/pkg/settings"
 )
 
 func StartWorkflow(workflowName string, version optional.Int32, correlationId optional.String) (string, *http.Response, error) {
-	workflowClient := client.WorkflowResourceApiService{
-		APIClient: client.NewAPIClient(
-			settings.NewAuthenticationSettings(
+	workflowClient := client2.WorkflowResourceApiService{
+		APIClient: client2.NewAPIClient(
+			settings2.NewAuthenticationSettings(
 				"key",
 				"id",
 			),
-			settings.NewHttpDefaultSettings(),
+			settings2.NewHttpDefaultSettings(),
 		),
 	}
 	return workflowClient.StartWorkflow(
 		context.Background(),
 		make(map[string]interface{}),
 		workflowName,
-		&client.WorkflowResourceApiStartWorkflowOpts{
+		&client2.WorkflowResourceApiStartWorkflowOpts{
 			Version:       version,
 			CorrelationId: correlationId,
 		},

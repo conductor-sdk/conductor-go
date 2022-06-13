@@ -2,7 +2,7 @@ package http_client_e2e
 
 import (
 	"context"
-	"github.com/conductor-sdk/conductor-go/pkg/model"
+	"github.com/conductor-sdk/conductor-go/model"
 	"testing"
 	"time"
 

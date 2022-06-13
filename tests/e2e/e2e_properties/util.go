@@ -3,16 +3,15 @@ package e2e_properties
 import (
 	"context"
 	"fmt"
-	"github.com/conductor-sdk/conductor-go/pkg/client"
-	"github.com/conductor-sdk/conductor-go/pkg/workflow/def"
+	client2 "github.com/conductor-sdk/conductor-go/client"
+	model2 "github.com/conductor-sdk/conductor-go/model"
+	settings2 "github.com/conductor-sdk/conductor-go/settings"
+	"github.com/conductor-sdk/conductor-go/worker"
+	"github.com/conductor-sdk/conductor-go/workflow/def"
+	"github.com/conductor-sdk/conductor-go/workflow/executor"
 	"os"
 	"reflect"
 	"time"
-
-	"github.com/conductor-sdk/conductor-go/pkg/model"
-	"github.com/conductor-sdk/conductor-go/pkg/settings"
-	"github.com/conductor-sdk/conductor-go/pkg/worker"
-	"github.com/conductor-sdk/conductor-go/pkg/workflow/executor"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -28,13 +27,13 @@ var (
 )
 
 var (
-	MetadataClient = client.MetadataResourceApiService{
+	MetadataClient = client2.MetadataResourceApiService{
 		APIClient: apiClient,
 	}
-	TaskClient = client.TaskResourceApiService{
+	TaskClient = client2.TaskResourceApiService{
 		APIClient: apiClient,
 	}
-	WorkflowClient = client.WorkflowResourceApiService{
+	WorkflowClient = client2.WorkflowResourceApiService{
 		APIClient: apiClient,
 	}
 )
@@ -64,7 +63,7 @@ func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, wo
 		outputChannel <- err
 		return
 	}
-	if workflow.Status != model.COMPLETED {
+	if workflow.Status != model2.COMPLETED {
 		outputChannel <- fmt.Errorf(
 			"workflow status different than expected, workflowId: %s, workflowStatus: %s",
 			workflow.WorkflowId, workflow.Status,
@@ -81,22 +80,22 @@ func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, wo
 	outputChannel <- nil
 }
 
-func getApiClientWithAuthentication() *client.APIClient {
-	return client.NewAPIClient(
+func getApiClientWithAuthentication() *client2.APIClient {
+	return client2.NewAPIClient(
 		getAuthenticationSettings(),
 		getHttpSettingsWithAuth(),
 	)
 }
 
-func getAuthenticationSettings() *settings.AuthenticationSettings {
-	return settings.NewAuthenticationSettings(
+func getAuthenticationSettings() *settings2.AuthenticationSettings {
+	return settings2.NewAuthenticationSettings(
 		os.Getenv(AUTHENTICATION_KEY_ID),
 		os.Getenv(AUTHENTICATION_KEY_SECRET),
 	)
 }
 
-func getHttpSettingsWithAuth() *settings.HttpSettings {
-	return settings.NewHttpSettings(
+func getHttpSettingsWithAuth() *settings2.HttpSettings {
+	return settings2.NewHttpSettings(
 		BASE_URL,
 	)
 }
@@ -105,12 +104,12 @@ var (
 	TREASURE_CHEST_WORKFLOW_NAME = "treasure_chest_workflow"
 	TREASURE_CHEST_TASK_NAME     = "treasure_chest_task"
 
-	TREASURE_WORKFLOW_DEFINITION = model.WorkflowDef{
+	TREASURE_WORKFLOW_DEFINITION = model2.WorkflowDef{
 		UpdateTime:  1650595431465,
 		Name:        TREASURE_CHEST_WORKFLOW_NAME,
 		Description: "What's inside the treasure chest?",
 		Version:     1,
-		Tasks: []model.WorkflowTask{
+		Tasks: []model2.WorkflowTask{
 			{
 				Name:              TREASURE_CHEST_TASK_NAME,
 				TaskReferenceName: TREASURE_CHEST_TASK_NAME,
@@ -135,7 +134,7 @@ var (
 		TimeoutSeconds:                0,
 	}
 
-	TREASURE_TASK_DEFINITION = model.TaskDef{
+	TREASURE_TASK_DEFINITION = model2.TaskDef{
 		Name:                        TREASURE_CHEST_TASK_NAME,
 		Description:                 "Go task example from code",
 		RetryCount:                  3,
@@ -218,9 +217,9 @@ func ValidateWorkflowBulk(conductorWorkflow *def.ConductorWorkflow, timeout time
 		return err
 	}
 	version := conductorWorkflow.GetVersion()
-	startWorkflowRequests := make([]*model.StartWorkflowRequest, amount)
+	startWorkflowRequests := make([]*model2.StartWorkflowRequest, amount)
 	for i := 0; i < amount; i += 1 {
-		startWorkflowRequests[i] = model.NewStartWorkflowRequest(
+		startWorkflowRequests[i] = model2.NewStartWorkflowRequest(
 			conductorWorkflow.GetName(),
 			&version,
 			"",
@@ -246,7 +245,7 @@ func ValidateWorkflowBulk(conductorWorkflow *def.ConductorWorkflow, timeout time
 	return nil
 }
 
-func ValidateTaskRegistration(taskDefs ...model.TaskDef) error {
+func ValidateTaskRegistration(taskDefs ...model2.TaskDef) error {
 	response, err := MetadataClient.RegisterTaskDef(
 		context.Background(),
 		taskDefs,
@@ -273,6 +272,6 @@ func ValidateWorkflowRegistration(workflow *def.ConductorWorkflow) error {
 	return nil
 }
 
-func isWorkflowCompleted(workflow *model.Workflow) bool {
-	return workflow.Status == model.COMPLETED
+func isWorkflowCompleted(workflow *model2.Workflow) bool {
+	return workflow.Status == model2.COMPLETED
 }
