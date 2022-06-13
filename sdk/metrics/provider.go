@@ -45,7 +45,7 @@ func handlePanicError(message string) {
 	if err == nil {
 		return
 	}
-	metrics.IncrementUncaughtException(message)
+	IncrementUncaughtException(message)
 	log.Warning(
 		"Uncaught panic",
 		", message: ", message,
