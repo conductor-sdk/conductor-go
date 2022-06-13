@@ -29,7 +29,7 @@ type RunningWorkflow struct {
 	Err                      error
 }
 
-func newRunningWorkflow(workflowId string, workflowExecutionChannel WorkflowExecutionChannel, err error) *RunningWorkflow {
+func NewRunningWorkflow(workflowId string, workflowExecutionChannel WorkflowExecutionChannel, err error) *RunningWorkflow {
 	return &RunningWorkflow{
 		WorkflowId:               workflowId,
 		WorkflowExecutionChannel: workflowExecutionChannel,
@@ -48,7 +48,7 @@ const (
 	defaultMonitorRunningWorkflowsRefreshInterval = 100 * time.Millisecond
 )
 
-func newWorkflowMonitor(workflowClient *client.WorkflowResourceApiService) *WorkflowMonitor {
+func NewWorkflowMonitor(workflowClient *client.WorkflowResourceApiService) *WorkflowMonitor {
 	workflowMonitor := &WorkflowMonitor{
 		refreshInterval:              defaultMonitorRunningWorkflowsRefreshInterval,
 		executionChannelByWorkflowId: make(map[string]WorkflowExecutionChannel),

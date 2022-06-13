@@ -11,7 +11,6 @@ package workflow
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	log "github.com/sirupsen/logrus"
@@ -137,14 +136,7 @@ func (workflow *ConductorWorkflow) Add(task TaskInterface) *ConductorWorkflow {
 //Register the workflow definition with the server. If overwrite is set, the definition on the server will be overwritten.
 //When not set, the call fails if there is any change in the workflow definition between the server and what is being registered.
 func (workflow *ConductorWorkflow) Register(overwrite bool) error {
-	response, err := workflow.executor.RegisterWorkflow(overwrite, workflow.ToWorkflowDef())
-	if err != nil {
-		return err
-	}
-	if response.StatusCode > 299 {
-		return fmt.Errorf(response.Status)
-	}
-	return nil
+	return workflow.executor.RegisterWorkflow(overwrite, workflow.ToWorkflowDef())
 }
 
 // StartWorkflowWithInput ExecuteWorkflowWithInput Execute the workflow with specific input.  The input struct MUST be serializable to JSON

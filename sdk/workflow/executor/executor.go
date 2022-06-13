@@ -16,7 +16,6 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"net/http"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -42,19 +41,26 @@ func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 			APIClient: apiClient,
 		},
 		workflowClient:  workflowClient,
-		workflowMonitor: newWorkflowMonitor(workflowClient),
+		workflowMonitor: NewWorkflowMonitor(workflowClient),
 	}
 	return &workflowExecutor
 }
 
 //RegisterWorkflow Registers the workflow on the server.  Overwrites if the flag is set.  If the 'overwrite' flag is not set
 //and the workflow definition differs from the one on the server, the call will fail with response code 409
-func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.WorkflowDef) (*http.Response, error) {
-	return e.metadataClient.RegisterWorkflowDef(
+func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.WorkflowDef) error {
+	response, err := e.metadataClient.RegisterWorkflowDef(
 		context.Background(),
 		overwrite,
 		*workflow,
 	)
+	if err != nil {
+		return err
+	}
+	if response.StatusCode > 299 {
+		return fmt.Errorf(response.Status)
+	}
+	return nil
 }
 
 //MonitorExecution monitors the workflow execution
@@ -368,17 +374,17 @@ func (e *WorkflowExecutor) startWorkflowDaemon(monitorExecution bool, request *m
 	defer concurrency.HandlePanicError("start_workflow")
 	workflowId, err := e.executeWorkflow(nil, request)
 	if err != nil {
-		runningWorkflowChannel <- newRunningWorkflow("", nil, err)
+		runningWorkflowChannel <- NewRunningWorkflow("", nil, err)
 		return
 	}
 	if !monitorExecution {
-		runningWorkflowChannel <- newRunningWorkflow(workflowId, nil, nil)
+		runningWorkflowChannel <- NewRunningWorkflow(workflowId, nil, nil)
 		return
 	}
 	executionChannel, err := e.workflowMonitor.generateWorkflowExecutionChannel(workflowId)
 	if err != nil {
-		runningWorkflowChannel <- newRunningWorkflow(workflowId, nil, err)
+		runningWorkflowChannel <- NewRunningWorkflow(workflowId, nil, err)
 		return
 	}
-	runningWorkflowChannel <- newRunningWorkflow(workflowId, executionChannel, nil)
+	runningWorkflowChannel <- NewRunningWorkflow(workflowId, executionChannel, nil)
 }
