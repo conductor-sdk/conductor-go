@@ -21,7 +21,7 @@ import "github.com/conductor-sdk/conductor-go/sdk/workflow"
   - [func (workflow *ConductorWorkflow) Name(name string) *ConductorWorkflow](<#func-conductorworkflow-name>)
   - [func (workflow *ConductorWorkflow) OutputParameters(outputParameters interface{}) *ConductorWorkflow](<#func-conductorworkflow-outputparameters>)
   - [func (workflow *ConductorWorkflow) OwnerEmail(ownerEmail string) *ConductorWorkflow](<#func-conductorworkflow-owneremail>)
-  - [func (workflow *ConductorWorkflow) Register(overwrite bool) (*http.Response, error)](<#func-conductorworkflow-register>)
+  - [func (workflow *ConductorWorkflow) Register(overwrite bool) error](<#func-conductorworkflow-register>)
   - [func (workflow *ConductorWorkflow) Restartable(restartable bool) *ConductorWorkflow](<#func-conductorworkflow-restartable>)
   - [func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error)](<#func-conductorworkflow-startworkflow>)
   - [func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) (workflowId string, err error)](<#func-conductorworkflow-startworkflowwithinput>)
@@ -171,7 +171,7 @@ const (
 )
 ```
 
-## type [ConductorWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L28-L43>)
+## type [ConductorWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L26-L41>)
 
 ```go
 type ConductorWorkflow struct {
@@ -179,25 +179,25 @@ type ConductorWorkflow struct {
 }
 ```
 
-### func [NewConductorWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L45>)
+### func [NewConductorWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L43>)
 
 ```go
 func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflow
 ```
 
-### func \(\*ConductorWorkflow\) [Add](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L133>)
+### func \(\*ConductorWorkflow\) [Add](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L131>)
 
 ```go
 func (workflow *ConductorWorkflow) Add(task TaskInterface) *ConductorWorkflow
 ```
 
-### func \(\*ConductorWorkflow\) [Description](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L63>)
+### func \(\*ConductorWorkflow\) [Description](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L61>)
 
 ```go
 func (workflow *ConductorWorkflow) Description(description string) *ConductorWorkflow
 ```
 
-### func \(\*ConductorWorkflow\) [FailureWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L81>)
+### func \(\*ConductorWorkflow\) [FailureWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L79>)
 
 ```go
 func (workflow *ConductorWorkflow) FailureWorkflow(failureWorkflow string) *ConductorWorkflow
@@ -205,19 +205,19 @@ func (workflow *ConductorWorkflow) FailureWorkflow(failureWorkflow string) *Cond
 
 FailureWorkflow name of the workflow to execute when this workflow fails\. Failure workflows can be used for handling compensation logic
 
-### func \(\*ConductorWorkflow\) [GetName](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L125>)
+### func \(\*ConductorWorkflow\) [GetName](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L123>)
 
 ```go
 func (workflow *ConductorWorkflow) GetName() (name string)
 ```
 
-### func \(\*ConductorWorkflow\) [GetVersion](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L129>)
+### func \(\*ConductorWorkflow\) [GetVersion](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L127>)
 
 ```go
 func (workflow *ConductorWorkflow) GetVersion() (version int32)
 ```
 
-### func \(\*ConductorWorkflow\) [InputParameters](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L115>)
+### func \(\*ConductorWorkflow\) [InputParameters](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L113>)
 
 ```go
 func (workflow *ConductorWorkflow) InputParameters(inputParameters ...string) *ConductorWorkflow
@@ -225,7 +225,7 @@ func (workflow *ConductorWorkflow) InputParameters(inputParameters ...string) *C
 
 InputParameters List of the input parameters to the workflow\.  Used ONLY for the documentation purpose\.
 
-### func \(\*ConductorWorkflow\) [InputTemplate](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L102>)
+### func \(\*ConductorWorkflow\) [InputTemplate](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L100>)
 
 ```go
 func (workflow *ConductorWorkflow) InputTemplate(inputTemplate interface{}) *ConductorWorkflow
@@ -233,13 +233,13 @@ func (workflow *ConductorWorkflow) InputTemplate(inputTemplate interface{}) *Con
 
 InputTemplate template input to the workflow\.  Can have combination of variables \(e\.g\. $\{workflow\.input\.abc\}\) and static values
 
-### func \(\*ConductorWorkflow\) [Name](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L53>)
+### func \(\*ConductorWorkflow\) [Name](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L51>)
 
 ```go
 func (workflow *ConductorWorkflow) Name(name string) *ConductorWorkflow
 ```
 
-### func \(\*ConductorWorkflow\) [OutputParameters](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L95>)
+### func \(\*ConductorWorkflow\) [OutputParameters](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L93>)
 
 ```go
 func (workflow *ConductorWorkflow) OutputParameters(outputParameters interface{}) *ConductorWorkflow
@@ -247,21 +247,21 @@ func (workflow *ConductorWorkflow) OutputParameters(outputParameters interface{}
 
 OutputParameters Workflow outputs\. Workflow output follows similar structure as task inputs See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for more details
 
-### func \(\*ConductorWorkflow\) [OwnerEmail](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L120>)
+### func \(\*ConductorWorkflow\) [OwnerEmail](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L118>)
 
 ```go
 func (workflow *ConductorWorkflow) OwnerEmail(ownerEmail string) *ConductorWorkflow
 ```
 
-### func \(\*ConductorWorkflow\) [Register](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L140>)
+### func \(\*ConductorWorkflow\) [Register](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L138>)
 
 ```go
-func (workflow *ConductorWorkflow) Register(overwrite bool) (*http.Response, error)
+func (workflow *ConductorWorkflow) Register(overwrite bool) error
 ```
 
 Register the workflow definition with the server\. If overwrite is set\, the definition on the server will be overwritten\. When not set\, the call fails if there is any change in the workflow definition between the server and what is being registered\.
 
-### func \(\*ConductorWorkflow\) [Restartable](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L88>)
+### func \(\*ConductorWorkflow\) [Restartable](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L86>)
 
 ```go
 func (workflow *ConductorWorkflow) Restartable(restartable bool) *ConductorWorkflow
@@ -269,7 +269,7 @@ func (workflow *ConductorWorkflow) Restartable(restartable bool) *ConductorWorkf
 
 Restartable if the workflow can be restarted after it has reached terminal state\. Set this to false if restarting workflow can have side effects
 
-### func \(\*ConductorWorkflow\) [StartWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L160>)
+### func \(\*ConductorWorkflow\) [StartWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L158>)
 
 ```go
 func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error)
@@ -277,7 +277,7 @@ func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.Sta
 
 StartWorkflow starts the workflow execution with startWorkflowRequest that allows you to specify more details like task domains\, correlationId etc\. Returns the ID of the newly created workflow
 
-### func \(\*ConductorWorkflow\) [StartWorkflowWithInput](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L146>)
+### func \(\*ConductorWorkflow\) [StartWorkflowWithInput](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L144>)
 
 ```go
 func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) (workflowId string, err error)
@@ -285,7 +285,7 @@ func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) (wo
 
 StartWorkflowWithInput ExecuteWorkflowWithInput Execute the workflow with specific input\.  The input struct MUST be serializable to JSON Returns the workflow Id that can be used to monitor and get the status of the workflow execution
 
-### func \(\*ConductorWorkflow\) [StartWorkflowsAndMonitorExecution](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L167>)
+### func \(\*ConductorWorkflow\) [StartWorkflowsAndMonitorExecution](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L165>)
 
 ```go
 func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkflowRequest *model.StartWorkflowRequest) (executionChannel executor.WorkflowExecutionChannel, err error)
@@ -293,19 +293,19 @@ func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkfl
 
 StartWorkflowsAndMonitorExecution Starts the workflow execution and returns a channel that can be used to monitor the workflow execution This method is useful for short duration workflows that are expected to complete in few seconds\.  For long\-running workflows use GetStatus APIs to periodically check the status
 
-### func \(\*ConductorWorkflow\) [TimeoutPolicy](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L68>)
+### func \(\*ConductorWorkflow\) [TimeoutPolicy](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L66>)
 
 ```go
 func (workflow *ConductorWorkflow) TimeoutPolicy(timeoutPolicy TimeoutPolicy, timeoutSeconds int64) *ConductorWorkflow
 ```
 
-### func \(\*ConductorWorkflow\) [TimeoutSeconds](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L74>)
+### func \(\*ConductorWorkflow\) [TimeoutSeconds](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L72>)
 
 ```go
 func (workflow *ConductorWorkflow) TimeoutSeconds(timeoutSeconds int64) *ConductorWorkflow
 ```
 
-### func \(\*ConductorWorkflow\) [ToWorkflowDef](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L197>)
+### func \(\*ConductorWorkflow\) [ToWorkflowDef](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L195>)
 
 ```go
 func (workflow *ConductorWorkflow) ToWorkflowDef() *model.WorkflowDef
@@ -313,7 +313,7 @@ func (workflow *ConductorWorkflow) ToWorkflowDef() *model.WorkflowDef
 
 ToWorkflowDef converts the workflow to the JSON serializable format
 
-### func \(\*ConductorWorkflow\) [Variables](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L109>)
+### func \(\*ConductorWorkflow\) [Variables](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L107>)
 
 ```go
 func (workflow *ConductorWorkflow) Variables(variables interface{}) *ConductorWorkflow
@@ -321,7 +321,7 @@ func (workflow *ConductorWorkflow) Variables(variables interface{}) *ConductorWo
 
 Variables Workflow variables are set using SET\_VARIABLE task\.  Excellent way to maintain business state e\.g\. Variables can maintain business/user specific states which can be queried and inspected to find out the state of the workflow
 
-### func \(\*ConductorWorkflow\) [Version](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L58>)
+### func \(\*ConductorWorkflow\) [Version](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L56>)
 
 ```go
 func (workflow *ConductorWorkflow) Version(version int32) *ConductorWorkflow
@@ -1318,7 +1318,7 @@ func (task *TerminateTask) InputMap(inputMap map[string]interface{}) *TerminateT
 
 InputMap to the task\.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
 
-## type [TimeoutPolicy](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L21>)
+## type [TimeoutPolicy](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L19>)
 
 ```go
 type TimeoutPolicy string
