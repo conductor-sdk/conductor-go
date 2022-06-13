@@ -40,6 +40,7 @@ func NewHttpTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *
 }
 
 func NewSimpleTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
+	
 	return NewConductorWorkflow(
 		workflowExecutor,
 		"go_workflow_with_simple_task",

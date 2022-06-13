@@ -270,12 +270,9 @@ func ValidateTaskRegistration(taskDefs ...model.TaskDef) error {
 }
 
 func ValidateWorkflowRegistration(workflow *workflow.ConductorWorkflow) error {
-	response, err := workflow.Register(true)
+	err := workflow.Register(true)
 	if err != nil {
-		log.Debug(
-			"Failed to validate workflow registration. Reason: ", err.Error(),
-			", response: ", *response,
-		)
+		log.Error("Failed to validate workflow registration. Reason: ", err.Error())
 		return err
 	}
 	return nil

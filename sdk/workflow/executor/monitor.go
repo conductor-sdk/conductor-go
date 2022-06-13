@@ -14,14 +14,14 @@ import (
 	"fmt"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
-	model2 "github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"sync"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 )
 
-type WorkflowExecutionChannel chan *model2.Workflow
+type WorkflowExecutionChannel chan *model.Workflow
 
 type RunningWorkflow struct {
 	WorkflowId               string
@@ -95,12 +95,12 @@ func (w *WorkflowMonitor) monitorRunningWorkflows() error {
 	return nil
 }
 
-func (w *WorkflowMonitor) getWorkflowsInTerminalState() ([]*model2.Workflow, error) {
+func (w *WorkflowMonitor) getWorkflowsInTerminalState() ([]*model.Workflow, error) {
 	runningWorkflowIdList, err := w.getRunningWorkflowIdList()
 	if err != nil {
 		return nil, err
 	}
-	workflowsInTerminalState := make([]*model2.Workflow, 0)
+	workflowsInTerminalState := make([]*model.Workflow, 0)
 	for _, workflowId := range runningWorkflowIdList {
 		workflow, response, err := w.workflowClient.GetExecutionStatus(
 			context.Background(),
@@ -148,7 +148,7 @@ func (w *WorkflowMonitor) getRunningWorkflowIdList() ([]string, error) {
 	return runningWorkflowIdList, nil
 }
 
-func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *model2.Workflow) error {
+func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *model.Workflow) error {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 	log.Debug(fmt.Sprintf("Notifying finished workflowId: %s", workflowId))
@@ -165,8 +165,8 @@ func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *mo
 	return nil
 }
 
-func isWorkflowInTerminalState(workflow *model2.Workflow) bool {
-	for _, terminalState := range model2.WorkflowTerminalStates {
+func isWorkflowInTerminalState(workflow *model.Workflow) bool {
+	for _, terminalState := range model.WorkflowTerminalStates {
 		if workflow.Status == terminalState {
 			return true
 		}
