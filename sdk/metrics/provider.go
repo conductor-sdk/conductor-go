@@ -10,8 +10,8 @@
 package metrics
 
 import (
-	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 
@@ -22,7 +22,7 @@ import (
 //ProvideMetrics start collecting metrics for the workers
 //We use prometheus to collect metrics from the workers.  When called this function starts the metrics server and publishes the worker metrics
 func ProvideMetrics(metricsSettings *settings.MetricsSettings) {
-	defer concurrency.HandlePanicError("provide_metrics")
+	defer handlePanicError("provide_metrics")
 	if metricsSettings == nil {
 		metricsSettings = settings.NewDefaultMetricsSettings()
 	}
@@ -38,4 +38,17 @@ func ProvideMetrics(metricsSettings *settings.MetricsSettings) {
 	)
 	portString := strconv.Itoa(metricsSettings.Port)
 	http.ListenAndServe(":"+portString, nil)
+}
+
+func handlePanicError(message string) {
+	err := recover()
+	if err == nil {
+		return
+	}
+	metrics.IncrementUncaughtException(message)
+	log.Warning(
+		"Uncaught panic",
+		", message: ", message,
+		", error: ", err,
+	)
 }
