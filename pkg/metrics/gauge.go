@@ -9,7 +9,7 @@ var gaugeByName = map[MetricName]*prometheus.GaugeVec{}
 var gaugeTemplates = map[MetricName]*MetricDetails{
 	WORKFLOW_INPUT_SIZE: NewMetricDetails(
 		WORKFLOW_INPUT_SIZE,
-		WORKFLOW_INPUT_SIZE,
+		WORKFLOW_INPUT_SIZE_DOC,
 		[]MetricLabel{
 			WORKFLOW_TYPE,
 			WORKFLOW_VERSION,
@@ -17,28 +17,28 @@ var gaugeTemplates = map[MetricName]*MetricDetails{
 	),
 	TASK_RESULT_SIZE: NewMetricDetails(
 		TASK_RESULT_SIZE,
-		TASK_RESULT_SIZE,
+		TASK_RESULT_SIZE_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
 		},
 	),
 	TASK_POLL_TIME: NewMetricDetails(
 		TASK_POLL_TIME,
-		TASK_POLL_TIME,
+		TASK_POLL_TIME_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
 		},
 	),
 	TASK_EXECUTE_TIME: NewMetricDetails(
 		TASK_EXECUTE_TIME,
-		TASK_EXECUTE_TIME,
+		TASK_EXECUTE_TIME_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
 		},
 	),
 	TASK_UPDATE_TIME: NewMetricDetails(
 		TASK_UPDATE_TIME,
-		TASK_UPDATE_TIME,
+		TASK_UPDATE_TIME_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
 		},

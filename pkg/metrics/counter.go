@@ -9,28 +9,28 @@ var counterByName = map[MetricName]*prometheus.CounterVec{}
 var counterTemplates = map[MetricName]*MetricDetails{
 	TASK_POLL: NewMetricDetails(
 		TASK_POLL,
-		TASK_POLL,
+		TASK_POLL_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
 		},
 	),
 	TASK_EXECUTION_QUEUE_FULL: NewMetricDetails(
 		TASK_EXECUTION_QUEUE_FULL,
-		TASK_EXECUTION_QUEUE_FULL,
+		TASK_EXECUTION_QUEUE_FULL_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
 		},
 	),
 	THREAD_UNCAUGHT_EXCEPTION: NewMetricDetails(
 		THREAD_UNCAUGHT_EXCEPTION,
-		THREAD_UNCAUGHT_EXCEPTION,
+		THREAD_UNCAUGHT_EXCEPTION_DOC,
 		[]MetricLabel{
 			EXCEPTION,
 		},
 	),
 	TASK_POLL_ERROR: NewMetricDetails(
 		TASK_POLL_ERROR,
-		TASK_POLL_ERROR,
+		TASK_POLL_ERROR_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
 			EXCEPTION,
@@ -38,14 +38,14 @@ var counterTemplates = map[MetricName]*MetricDetails{
 	),
 	TASK_PAUSED: NewMetricDetails(
 		TASK_PAUSED,
-		TASK_PAUSED,
+		TASK_PAUSED_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
 		},
 	),
 	TASK_EXECUTE_ERROR: NewMetricDetails(
 		TASK_EXECUTE_ERROR,
-		TASK_EXECUTE_ERROR,
+		TASK_EXECUTE_ERROR_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
 			EXCEPTION,
@@ -53,14 +53,14 @@ var counterTemplates = map[MetricName]*MetricDetails{
 	),
 	TASK_ACK_FAILED: NewMetricDetails(
 		TASK_ACK_FAILED,
-		TASK_ACK_FAILED,
+		TASK_ACK_FAILED_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
 		},
 	),
 	TASK_ACK_ERROR: NewMetricDetails(
 		TASK_ACK_ERROR,
-		TASK_ACK_ERROR,
+		TASK_ACK_ERROR_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
 			EXCEPTION,
@@ -68,7 +68,7 @@ var counterTemplates = map[MetricName]*MetricDetails{
 	),
 	TASK_UPDATE_ERROR: NewMetricDetails(
 		TASK_UPDATE_ERROR,
-		TASK_UPDATE_ERROR,
+		TASK_UPDATE_ERROR_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
 			EXCEPTION,
@@ -76,7 +76,7 @@ var counterTemplates = map[MetricName]*MetricDetails{
 	),
 	EXTERNAL_PAYLOAD_USED: NewMetricDetails(
 		EXTERNAL_PAYLOAD_USED,
-		EXTERNAL_PAYLOAD_USED,
+		EXTERNAL_PAYLOAD_USED_DOC,
 		[]MetricLabel{
 			ENTITY_NAME,
 			OPERATION,
@@ -85,7 +85,7 @@ var counterTemplates = map[MetricName]*MetricDetails{
 	),
 	WORKFLOW_START_ERROR: NewMetricDetails(
 		WORKFLOW_START_ERROR,
-		WORKFLOW_START_ERROR,
+		WORKFLOW_START_ERROR_DOC,
 		[]MetricLabel{
 			WORKFLOW_TYPE,
 			EXCEPTION,
