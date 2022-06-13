@@ -7,45 +7,45 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package definition
+package workflow
 
-type SimpleTask struct {
+import (
+	"github.com/conductor-sdk/conductor-go/sdk/model"
+)
+
+type JoinTask struct {
 	Task
+	joinOn []string
 }
 
-func NewSimpleTask(taskType string, taskRefName string) *SimpleTask {
-	return &SimpleTask{
-		Task{
-			name:              taskType,
+func NewJoinTask(taskRefName string, joinOn ...string) *JoinTask {
+	return &JoinTask{
+		Task: Task{
+			name:              taskRefName,
 			taskReferenceName: taskRefName,
-			taskType:          SIMPLE,
+			description:       "",
+			taskType:          JOIN,
+			optional:          false,
 			inputParameters:   map[string]interface{}{},
 		},
+		joinOn: joinOn,
 	}
 }
 
-// Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
-func (task *SimpleTask) Input(key string, value interface{}) *SimpleTask {
-	task.Task.Input(key, value)
-	return task
-}
-
-// InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
-func (task *SimpleTask) InputMap(inputMap map[string]interface{}) *SimpleTask {
-	for k, v := range inputMap {
-		task.inputParameters[k] = v
-	}
-	return task
+func (task *JoinTask) toWorkflowTask() []model.WorkflowTask {
+	workflowTasks := task.Task.toWorkflowTask()
+	workflowTasks[0].JoinOn = task.joinOn
+	return workflowTasks
 }
 
 // Optional if set to true, the task will not fail the workflow if the task fails
-func (task *SimpleTask) Optional(optional bool) *SimpleTask {
+func (task *JoinTask) Optional(optional bool) *JoinTask {
 	task.Task.Optional(optional)
 	return task
 }
 
 // Description of the task
-func (task *SimpleTask) Description(description string) *SimpleTask {
+func (task *JoinTask) Description(description string) *JoinTask {
 	task.Task.Description(description)
 	return task
 }

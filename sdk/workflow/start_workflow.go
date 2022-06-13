@@ -7,46 +7,61 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package definition
+package workflow
 
 import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
-type TerminateTask struct {
+type StartWorkflowTask struct {
 	Task
 }
 
-func NewTerminateTask(taskRefName string, status model.WorkflowStatus, terminationReason string) *TerminateTask {
-	return &TerminateTask{
-		Task{
+func NewStartWorkflowTask(taskRefName string, workflowName string, version *int32, startWorkflowRequest *model.StartWorkflowRequest) *StartWorkflowTask {
+	return &StartWorkflowTask{
+		Task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",
-			taskType:          TERMINATE,
+			taskType:          START_WORKFLOW,
 			optional:          false,
 			inputParameters: map[string]interface{}{
-				"terminationStatus": status,
-				"terminationReason": terminationReason,
+				"startWorkflow": map[string]interface{}{
+					"name":          workflowName,
+					"version":       version,
+					"input":         startWorkflowRequest.Input,
+					"correlationId": startWorkflowRequest.CorrelationId,
+				},
 			},
 		},
 	}
 }
 
+func (task *StartWorkflowTask) toWorkflowTask() []model.WorkflowTask {
+	workflowTasks := task.Task.toWorkflowTask()
+	return workflowTasks
+}
+
 // Description of the task
-func (task *TerminateTask) Description(description string) *TerminateTask {
+func (task *StartWorkflowTask) Description(description string) *StartWorkflowTask {
 	task.Task.Description(description)
 	return task
 }
 
+// Optional if set to true, the task will not fail the workflow if the task fails
+func (task *StartWorkflowTask) Optional(optional bool) *StartWorkflowTask {
+	task.Task.Optional(optional)
+	return task
+}
+
 // Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
-func (task *TerminateTask) Input(key string, value interface{}) *TerminateTask {
+func (task *StartWorkflowTask) Input(key string, value interface{}) *StartWorkflowTask {
 	task.Task.Input(key, value)
 	return task
 }
 
 // InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
-func (task *TerminateTask) InputMap(inputMap map[string]interface{}) *TerminateTask {
+func (task *StartWorkflowTask) InputMap(inputMap map[string]interface{}) *StartWorkflowTask {
 	for k, v := range inputMap {
 		task.inputParameters[k] = v
 	}

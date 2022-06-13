@@ -10,7 +10,6 @@ import "github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 
 - [func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionChannel, timeout time.Duration) (workflow *model.Workflow, err error)](<#func-waitforworkflowcompletionuntiltimeout>)
 - [type RunningWorkflow](<#type-runningworkflow>)
-  - [func NewRunningWorkflow(workflowId string, workflowExecutionChannel WorkflowExecutionChannel, err error) *RunningWorkflow](<#func-newrunningworkflow>)
 - [type WorkflowExecutionChannel](<#type-workflowexecutionchannel>)
 - [type WorkflowExecutor](<#type-workflowexecutor>)
   - [func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor](<#func-newworkflowexecutor>)
@@ -33,11 +32,9 @@ import "github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
   - [func (e *WorkflowExecutor) UpdateTask(taskId string, workflowInstanceId string, status model.TaskResultStatus, output interface{}) error](<#func-workflowexecutor-updatetask>)
   - [func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInstanceId string, status model.TaskResultStatus, output interface{}) error](<#func-workflowexecutor-updatetaskbyrefname>)
 - [type WorkflowMonitor](<#type-workflowmonitor>)
-  - [func NewWorkflowMonitor(workflowClient *client.WorkflowResourceApiService) *WorkflowMonitor](<#func-newworkflowmonitor>)
-  - [func (w *WorkflowMonitor) GenerateWorkflowExecutionChannel(workflowId string) (WorkflowExecutionChannel, error)](<#func-workflowmonitor-generateworkflowexecutionchannel>)
 
 
-## func [WaitForWorkflowCompletionUntilTimeout](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L89>)
+## func [WaitForWorkflowCompletionUntilTimeout](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L98>)
 
 ```go
 func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionChannel, timeout time.Duration) (workflow *model.Workflow, err error)
@@ -45,7 +42,7 @@ func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionCha
 
 WaitForWorkflowCompletionUntilTimeout Helper method to wait on the channel until the timeout for the workflow execution to complete
 
-## type [RunningWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/monitor.go#L17-L21>)
+## type [RunningWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/monitor.go#L26-L30>)
 
 ```go
 type RunningWorkflow struct {
@@ -55,19 +52,13 @@ type RunningWorkflow struct {
 }
 ```
 
-### func [NewRunningWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/monitor.go#L23>)
-
-```go
-func NewRunningWorkflow(workflowId string, workflowExecutionChannel WorkflowExecutionChannel, err error) *RunningWorkflow
-```
-
-## type [WorkflowExecutionChannel](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/monitor.go#L15>)
+## type [WorkflowExecutionChannel](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/monitor.go#L24>)
 
 ```go
 type WorkflowExecutionChannel chan *model2.Workflow
 ```
 
-## type [WorkflowExecutor](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L16-L21>)
+## type [WorkflowExecutor](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L25-L30>)
 
 ```go
 type WorkflowExecutor struct {
@@ -75,7 +66,7 @@ type WorkflowExecutor struct {
 }
 ```
 
-### func [NewWorkflowExecutor](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L24>)
+### func [NewWorkflowExecutor](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L33>)
 
 ```go
 func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor
@@ -83,7 +74,7 @@ func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor
 
 NewWorkflowExecutor Create a new workflow executor
 
-### func \(\*WorkflowExecutor\) [GetByCorrelationIds](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L129>)
+### func \(\*WorkflowExecutor\) [GetByCorrelationIds](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L138>)
 
 ```go
 func (e *WorkflowExecutor) GetByCorrelationIds(workflowName string, includeClosed bool, includeTasks bool, correlationIds ...string) (map[string][]model.Workflow, error)
@@ -91,7 +82,7 @@ func (e *WorkflowExecutor) GetByCorrelationIds(workflowName string, includeClose
 
 GetByCorrelationIds Given the list of correlation ids\, find and return workflows Returns a map with key as correlationId and value as a list of Workflows When IncludeClosed is set to true\, the return value also includes workflows that are completed otherwise only running workflows are returned
 
-### func \(\*WorkflowExecutor\) [GetTask](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L292>)
+### func \(\*WorkflowExecutor\) [GetTask](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L301>)
 
 ```go
 func (e *WorkflowExecutor) GetTask(taskId string) (task *model.Task, err error)
@@ -99,7 +90,7 @@ func (e *WorkflowExecutor) GetTask(taskId string) (task *model.Task, err error)
 
 GetTask by task Id returns nil if no such task is found by the id
 
-### func \(\*WorkflowExecutor\) [GetWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L103>)
+### func \(\*WorkflowExecutor\) [GetWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L112>)
 
 ```go
 func (e *WorkflowExecutor) GetWorkflow(workflowId string, includeTasks bool) (*model.Workflow, error)
@@ -107,7 +98,7 @@ func (e *WorkflowExecutor) GetWorkflow(workflowId string, includeTasks bool) (*m
 
 GetWorkflow Get workflow execution by workflow Id\.  If includeTasks is set\, also fetches all the task details\. Returns nil if no workflow is found by the id
 
-### func \(\*WorkflowExecutor\) [GetWorkflowStatus](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L118>)
+### func \(\*WorkflowExecutor\) [GetWorkflowStatus](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L127>)
 
 ```go
 func (e *WorkflowExecutor) GetWorkflowStatus(workflowId string, includeOutput bool, includeVariables bool) (*model.WorkflowState, error)
@@ -115,7 +106,7 @@ func (e *WorkflowExecutor) GetWorkflowStatus(workflowId string, includeOutput bo
 
 GetWorkflowStatus Get the status of the workflow execution\. This is a lightweight method that returns only overall state of the workflow
 
-### func \(\*WorkflowExecutor\) [MonitorExecution](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L54>)
+### func \(\*WorkflowExecutor\) [MonitorExecution](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L63>)
 
 ```go
 func (e *WorkflowExecutor) MonitorExecution(workflowId string) (workflowMonitor WorkflowExecutionChannel, err error)
@@ -123,7 +114,7 @@ func (e *WorkflowExecutor) MonitorExecution(workflowId string) (workflowMonitor 
 
 MonitorExecution monitors the workflow execution Returns the channel with the execution result of the workflow Note: Channels will continue to grow if the workflows do not complete and/or are not taken out
 
-### func \(\*WorkflowExecutor\) [Pause](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L174>)
+### func \(\*WorkflowExecutor\) [Pause](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L183>)
 
 ```go
 func (e *WorkflowExecutor) Pause(workflowId string) error
@@ -131,7 +122,7 @@ func (e *WorkflowExecutor) Pause(workflowId string) error
 
 Pause the execution of a running workflow\. Any tasks that are currently running will finish but no new tasks are scheduled until the workflow is resumed
 
-### func \(\*WorkflowExecutor\) [ReRun](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L237>)
+### func \(\*WorkflowExecutor\) [ReRun](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L246>)
 
 ```go
 func (e *WorkflowExecutor) ReRun(workflowId string, reRunRequest model.RerunWorkflowRequest) (id string, error error)
@@ -139,7 +130,7 @@ func (e *WorkflowExecutor) ReRun(workflowId string, reRunRequest model.RerunWork
 
 ReRun a completed workflow from a specific task \(ReRunFromTaskId\) and optionally change the input Also update the completed tasks with new input \(ReRunFromTaskId\) if required
 
-### func \(\*WorkflowExecutor\) [RegisterWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L43>)
+### func \(\*WorkflowExecutor\) [RegisterWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L52>)
 
 ```go
 func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.WorkflowDef) (*http.Response, error)
@@ -147,7 +138,7 @@ func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.Work
 
 RegisterWorkflow Registers the workflow on the server\.  Overwrites if the flag is set\.  If the 'overwrite' flag is not set and the workflow definition differs from the one on the server\, the call will fail with response code 409
 
-### func \(\*WorkflowExecutor\) [Restart](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L205>)
+### func \(\*WorkflowExecutor\) [Restart](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L214>)
 
 ```go
 func (e *WorkflowExecutor) Restart(workflowId string, useLatestDefinition bool) error
@@ -155,7 +146,7 @@ func (e *WorkflowExecutor) Restart(workflowId string, useLatestDefinition bool) 
 
 Restart a workflow execution from the beginning with the same input\. When called on a workflow that is not in a terminal status\, this operation has no effect If useLatestDefinition is set\, the restarted workflow fetches the latest definition from the metadata store
 
-### func \(\*WorkflowExecutor\) [Resume](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L183>)
+### func \(\*WorkflowExecutor\) [Resume](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L192>)
 
 ```go
 func (e *WorkflowExecutor) Resume(workflowId string) error
@@ -163,7 +154,7 @@ func (e *WorkflowExecutor) Resume(workflowId string) error
 
 Resume the execution of a workflow that is paused\.  If the workflow is not paused\, this method has no effect
 
-### func \(\*WorkflowExecutor\) [Retry](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L221>)
+### func \(\*WorkflowExecutor\) [Retry](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L230>)
 
 ```go
 func (e *WorkflowExecutor) Retry(workflowId string, resumeSubworkflowTasks bool) error
@@ -171,7 +162,7 @@ func (e *WorkflowExecutor) Retry(workflowId string, resumeSubworkflowTasks bool)
 
 Retry a failed workflow from the last task that failed\.  When called the task in the failed state is scheduled again and workflow moves to RUNNING status\.  If resumeSubworkflowTasks is set and the last failed task was a sub\-workflow the server restarts the subworkflow from the failed task\.  If set to false\, the sub\-workflow is re\-executed\.
 
-### func \(\*WorkflowExecutor\) [Search](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L156>)
+### func \(\*WorkflowExecutor\) [Search](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L165>)
 
 ```go
 func (e *WorkflowExecutor) Search(start int32, size int32, query string, freeText string) ([]model.WorkflowSummary, error)
@@ -185,7 +176,7 @@ func (e *WorkflowExecutor) Search(start int32, size int32, query string, freeTex
 
 \- Query: Query expression\.  In the format FIELD = 'VALUE' or FIELD IN \(value1\, value2\) Only AND operations are supported\.  e\.g\. workflowId IN \('a'\, 'b'\, 'c'\) ADN workflowType ='test\_workflow' AND startTime BETWEEN 1000 and 2000 Supported fields for Query are:workflowId\,workflowType\,status\,startTime \- FreeText: Full text search\.  All the workflow input\, output and task outputs upto certain limit \(check with your admins to find the size limit\) are full text indexed and can be used to search
 
-### func \(\*WorkflowExecutor\) [SkipTasksFromWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L251>)
+### func \(\*WorkflowExecutor\) [SkipTasksFromWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L260>)
 
 ```go
 func (e *WorkflowExecutor) SkipTasksFromWorkflow(workflowId string, taskReferenceName string, skipTaskRequest model.SkipTaskRequest) error
@@ -193,7 +184,7 @@ func (e *WorkflowExecutor) SkipTasksFromWorkflow(workflowId string, taskReferenc
 
 SkipTasksFromWorkflow Skips a given task execution from a current running workflow\. When skipped the task's input and outputs are updated  from skipTaskRequest parameter\.
 
-### func \(\*WorkflowExecutor\) [StartWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L60>)
+### func \(\*WorkflowExecutor\) [StartWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L69>)
 
 ```go
 func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error)
@@ -201,7 +192,7 @@ func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequest *model.StartWorkfl
 
 StartWorkflow Start workflows Returns the id of the newly created workflow
 
-### func \(\*WorkflowExecutor\) [StartWorkflows](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L74>)
+### func \(\*WorkflowExecutor\) [StartWorkflows](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L83>)
 
 ```go
 func (e *WorkflowExecutor) StartWorkflows(monitorExecution bool, startWorkflowRequests ...*model.StartWorkflowRequest) []*RunningWorkflow
@@ -209,7 +200,7 @@ func (e *WorkflowExecutor) StartWorkflows(monitorExecution bool, startWorkflowRe
 
 StartWorkflows Start workflows in bulk Returns RunningWorkflow struct that contains the workflowId\, Err \(if failed to start\) and an execution channel which can be used to monitor the completion of the workflow execution\.  The channel is available if monitorExecution is set
 
-### func \(\*WorkflowExecutor\) [Terminate](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L192>)
+### func \(\*WorkflowExecutor\) [Terminate](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L201>)
 
 ```go
 func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error
@@ -217,7 +208,7 @@ func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error
 
 Terminate a running workflow\.  Reason must be provided that is captured as the termination resaon for the workflow
 
-### func \(\*WorkflowExecutor\) [UpdateTask](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L265>)
+### func \(\*WorkflowExecutor\) [UpdateTask](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L274>)
 
 ```go
 func (e *WorkflowExecutor) UpdateTask(taskId string, workflowInstanceId string, status model.TaskResultStatus, output interface{}) error
@@ -225,7 +216,7 @@ func (e *WorkflowExecutor) UpdateTask(taskId string, workflowInstanceId string, 
 
 UpdateTask update the task with output and status\.
 
-### func \(\*WorkflowExecutor\) [UpdateTaskByRefName](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L276>)
+### func \(\*WorkflowExecutor\) [UpdateTaskByRefName](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L285>)
 
 ```go
 func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInstanceId string, status model.TaskResultStatus, output interface{}) error
@@ -233,24 +224,12 @@ func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInsta
 
 UpdateTaskByRefName Update the execution status and output of the task and status
 
-## type [WorkflowMonitor](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/monitor.go#L31-L36>)
+## type [WorkflowMonitor](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/monitor.go#L40-L45>)
 
 ```go
 type WorkflowMonitor struct {
     // contains filtered or unexported fields
 }
-```
-
-### func [NewWorkflowMonitor](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/monitor.go#L42>)
-
-```go
-func NewWorkflowMonitor(workflowClient *client.WorkflowResourceApiService) *WorkflowMonitor
-```
-
-### func \(\*WorkflowMonitor\) [GenerateWorkflowExecutionChannel](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/monitor.go#L52>)
-
-```go
-func (w *WorkflowMonitor) GenerateWorkflowExecutionChannel(workflowId string) (WorkflowExecutionChannel, error)
 ```
 
 

@@ -12,7 +12,7 @@ package integration_tests
 import (
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"github.com/conductor-sdk/conductor-go/sdk/workflow/definition"
+	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"testing"
@@ -31,24 +31,24 @@ func init() {
 }
 
 var (
-	httpTask = definition.NewHttpTask(
+	httpTask = workflow.NewHttpTask(
 		"TEST_GO_TASK_HTTP",
-		&definition.HttpInput{
+		&workflow.HttpInput{
 			Uri: "https://catfact.ninja/fact",
 		},
 	)
 
-	simpleTask = definition.NewSimpleTask(
+	simpleTask = workflow.NewSimpleTask(
 		"TEST_GO_TASK_SIMPLE", "TEST_GO_TASK_SIMPLE",
 	)
 
-	terminateTask = definition.NewTerminateTask(
+	terminateTask = workflow.NewTerminateTask(
 		"TEST_GO_TASK_TERMINATE",
 		model.FailedWorkflow,
 		"Task used to mark workflow as failed",
 	)
 
-	switchTask = definition.NewSwitchTask(
+	switchTask = workflow.NewSwitchTask(
 		"TEST_GO_TASK_SWITCH",
 		"switchCaseValue",
 	).
@@ -63,14 +63,14 @@ var (
 			terminateTask,
 		)
 
-	inlineTask = definition.NewInlineTask(
+	inlineTask = workflow.NewInlineTask(
 		"TEST_GO_TASK_INLINE",
 		"function e() { if ($.value == 1){return {\"result\": true}} else { return {\"result\": false}}} e();",
 	)
 
-	kafkaPublishTask = definition.NewKafkaPublishTask(
+	kafkaPublishTask = workflow.NewKafkaPublishTask(
 		"TEST_GO_TASK_KAFKA_PUBLISH",
-		&definition.KafkaPublishTaskInput{
+		&workflow.KafkaPublishTaskInput{
 			Topic:            "userTopic",
 			Value:            "Message to publish",
 			BootStrapServers: "localhost:9092",
@@ -82,19 +82,19 @@ var (
 		},
 	)
 
-	sqsEventTask = definition.NewSqsEventTask(
+	sqsEventTask = workflow.NewSqsEventTask(
 		"TEST_GO_TASK_EVENT_SQS",
 		"QUEUE",
 	)
 
-	conductorEventTask = definition.NewConductorEventTask(
+	conductorEventTask = workflow.NewConductorEventTask(
 		"TEST_GO_TASK_EVENT_CONDUCTOR",
 		"EVENT_NAME",
 	)
 )
 
 func TestHttpTask(t *testing.T) {
-	httpTaskWorkflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
+	httpTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_HTTP").
 		Version(1).
 		Add(httpTask)
@@ -113,7 +113,7 @@ func TestSimpleTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	simpleTaskWorkflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
+	simpleTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_SIMPLE").
 		Version(1).
 		Add(simpleTask)
@@ -144,7 +144,7 @@ func TestSimpleTask(t *testing.T) {
 }
 
 func TestInlineTask(t *testing.T) {
-	inlineTaskWorkflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
+	inlineTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_INLINE_TASK").
 		Version(1).
 		Add(inlineTask)
@@ -159,7 +159,7 @@ func TestInlineTask(t *testing.T) {
 }
 
 func TestSqsEventTask(t *testing.T) {
-	workflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
+	workflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_EVENT_SQS").
 		Version(1).
 		Add(sqsEventTask)
@@ -170,7 +170,7 @@ func TestSqsEventTask(t *testing.T) {
 }
 
 func TestConductorEventTask(t *testing.T) {
-	workflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
+	workflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_EVENT_CONDUCTOR").
 		Version(1).
 		Add(conductorEventTask)
@@ -181,7 +181,7 @@ func TestConductorEventTask(t *testing.T) {
 }
 
 func TestKafkaPublishTask(t *testing.T) {
-	workflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
+	workflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_KAFKA_PUBLISH").
 		Version(1).
 		Add(kafkaPublishTask)
@@ -196,7 +196,7 @@ func TestDoWhileTask(t *testing.T) {
 }
 
 func TestTerminateTask(t *testing.T) {
-	workflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
+	workflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_TERMINATE").
 		Version(1).
 		Add(terminateTask)
@@ -207,7 +207,7 @@ func TestTerminateTask(t *testing.T) {
 }
 
 func TestSwitchTask(t *testing.T) {
-	workflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
+	workflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_SWITCH").
 		Version(1).
 		Add(switchTask)

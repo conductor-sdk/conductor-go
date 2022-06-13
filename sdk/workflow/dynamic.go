@@ -7,64 +7,50 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package definition
+package workflow
 
 import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
-const (
-	sqsEventPrefix       = "sqs"
-	conductorEventPrefix = "conductor"
-)
-
-// EventTask Task to publish Events to external queuing systems like SQS, NATS, AMQP etc.
-type EventTask struct {
+type DynamicTask struct {
 	Task
-	sink string
 }
 
-func NewSqsEventTask(taskRefName string, queueName string) *EventTask {
-	return newEventTask(
-		taskRefName,
-		sqsEventPrefix,
-		queueName,
-	)
-}
+const dynamicTaskNameParameter = "taskToExecute"
 
-func NewConductorEventTask(taskRefName string, eventName string) *EventTask {
-	return newEventTask(
-		taskRefName,
-		conductorEventPrefix,
-		eventName,
-	)
-}
-
-func newEventTask(taskRefName string, eventPrefix string, eventSuffix string) *EventTask {
-	return &EventTask{
+// NewDynamicTask
+//  - taskRefName Reference name for the task.  MUST be unique within the workflow
+//  - taskNameParameter Parameter that contains the expression for the dynamic task name.  e.g. ${workflow.input.dynamicTask}
+func NewDynamicTask(taskRefName string, taskNameParameter string) *DynamicTask {
+	return &DynamicTask{
 		Task: Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
-			taskType:          EVENT,
+			description:       "",
+			taskType:          DYNAMIC,
+			optional:          false,
+			inputParameters: map[string]interface{}{
+				dynamicTaskNameParameter: taskNameParameter,
+			},
 		},
-		sink: eventPrefix + ":" + eventSuffix,
 	}
 }
 
-func (task *EventTask) toWorkflowTask() []model.WorkflowTask {
+func (task *DynamicTask) toWorkflowTask() []model.WorkflowTask {
 	workflowTasks := task.Task.toWorkflowTask()
-	workflowTasks[0].Sink = task.sink
+	workflowTasks[0].DynamicTaskNameParam = dynamicTaskNameParameter
 	return workflowTasks
 }
 
-// Input to the task
-func (task *EventTask) Input(key string, value interface{}) *EventTask {
+// Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
+func (task *DynamicTask) Input(key string, value interface{}) *DynamicTask {
 	task.Task.Input(key, value)
 	return task
 }
 
 // InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
-func (task *EventTask) InputMap(inputMap map[string]interface{}) *EventTask {
+func (task *DynamicTask) InputMap(inputMap map[string]interface{}) *DynamicTask {
 	for k, v := range inputMap {
 		task.inputParameters[k] = v
 	}
@@ -72,13 +58,13 @@ func (task *EventTask) InputMap(inputMap map[string]interface{}) *EventTask {
 }
 
 // Optional if set to true, the task will not fail the workflow if the task fails
-func (task *EventTask) Optional(optional bool) *EventTask {
+func (task *DynamicTask) Optional(optional bool) *DynamicTask {
 	task.Task.Optional(optional)
 	return task
 }
 
 // Description of the task
-func (task *EventTask) Description(description string) *EventTask {
+func (task *DynamicTask) Description(description string) *DynamicTask {
 	task.Task.Description(description)
 	return task
 }

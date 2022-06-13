@@ -7,47 +7,48 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package definition
+package workflow
 
-type SetVariableTask struct {
+import (
+	"github.com/conductor-sdk/conductor-go/sdk/model"
+)
+
+type TerminateTask struct {
 	Task
 }
 
-func NewSetVariableTask(taskRefName string) *SetVariableTask {
-	return &SetVariableTask{
+func NewTerminateTask(taskRefName string, status model.WorkflowStatus, terminationReason string) *TerminateTask {
+	return &TerminateTask{
 		Task{
 			name:              taskRefName,
 			taskReferenceName: taskRefName,
 			description:       "",
-			taskType:          SET_VARIABLE,
+			taskType:          TERMINATE,
 			optional:          false,
-			inputParameters:   map[string]interface{}{},
+			inputParameters: map[string]interface{}{
+				"terminationStatus": status,
+				"terminationReason": terminationReason,
+			},
 		},
 	}
 }
 
+// Description of the task
+func (task *TerminateTask) Description(description string) *TerminateTask {
+	task.Task.Description(description)
+	return task
+}
+
 // Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
-func (task *SetVariableTask) Input(key string, value interface{}) *SetVariableTask {
+func (task *TerminateTask) Input(key string, value interface{}) *TerminateTask {
 	task.Task.Input(key, value)
 	return task
 }
 
 // InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
-func (task *SetVariableTask) InputMap(inputMap map[string]interface{}) *SetVariableTask {
+func (task *TerminateTask) InputMap(inputMap map[string]interface{}) *TerminateTask {
 	for k, v := range inputMap {
 		task.inputParameters[k] = v
 	}
-	return task
-}
-
-// Optional if set to true, the task will not fail the workflow if the task fails
-func (task *SetVariableTask) Optional(optional bool) *SetVariableTask {
-	task.Task.Optional(optional)
-	return task
-}
-
-// Description of the task
-func (task *SetVariableTask) Description(description string) *SetVariableTask {
-	task.Task.Description(description)
 	return task
 }

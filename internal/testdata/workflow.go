@@ -11,18 +11,18 @@ package testdata
 
 import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"github.com/conductor-sdk/conductor-go/sdk/workflow/definition"
+	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 )
 
-var HttpTask = definition.NewHttpTask(
+var HttpTask = workflow.NewHttpTask(
 	"go_task_of_http_type", // task name
-	&definition.HttpInput{ // http input
+	&workflow.HttpInput{ // http input
 		Uri: "https://catfact.ninja/fact",
 	},
 )
 
-var SimpleTask = definition.NewSimpleTask(
+var SimpleTask = workflow.NewSimpleTask(
 	"go_task_of_simple_type",
 	"go_task_of_simple_type",
 )
@@ -31,7 +31,7 @@ func IsWorkflowCompleted(workflow *model.Workflow) bool {
 	return workflow.Status == model.CompletedWorkflow
 }
 
-func NewHttpTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *definition.ConductorWorkflow {
+func NewHttpTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
 	return NewConductorWorkflow(
 		workflowExecutor,
 		"go_workflow_with_http_task",
@@ -39,7 +39,7 @@ func NewHttpTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *
 	)
 }
 
-func NewSimpleTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *definition.ConductorWorkflow {
+func NewSimpleTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
 	return NewConductorWorkflow(
 		workflowExecutor,
 		"go_workflow_with_simple_task",
@@ -47,8 +47,8 @@ func NewSimpleTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor)
 	)
 }
 
-func NewConductorWorkflow(workflowExecutor *executor.WorkflowExecutor, workflowName string, task definition.TaskInterface) *definition.ConductorWorkflow {
-	return definition.NewConductorWorkflow(workflowExecutor).
+func NewConductorWorkflow(workflowExecutor *executor.WorkflowExecutor, workflowName string, task workflow.TaskInterface) *workflow.ConductorWorkflow {
+	return workflow.NewConductorWorkflow(workflowExecutor).
 		Name(workflowName).
 		Version(1).
 		Add(task)

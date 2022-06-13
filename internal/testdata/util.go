@@ -16,7 +16,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/conductor-sdk/conductor-go/sdk/worker"
-	"github.com/conductor-sdk/conductor-go/sdk/workflow/definition"
+	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	"os"
 	"reflect"
@@ -189,7 +189,7 @@ func StartWorkflows(workflowQty int, workflowName string) ([]string, error) {
 	return workflowIdList, nil
 }
 
-func ValidateWorkflow(conductorWorkflow *definition.ConductorWorkflow, timeout time.Duration) error {
+func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout time.Duration) error {
 	err := ValidateWorkflowRegistration(conductorWorkflow)
 	if err != nil {
 		return err
@@ -220,7 +220,7 @@ func ValidateWorkflow(conductorWorkflow *definition.ConductorWorkflow, timeout t
 	return nil
 }
 
-func ValidateWorkflowBulk(conductorWorkflow *definition.ConductorWorkflow, timeout time.Duration, amount int) error {
+func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout time.Duration, amount int) error {
 	err := ValidateWorkflowRegistration(conductorWorkflow)
 	if err != nil {
 		return err
@@ -269,7 +269,7 @@ func ValidateTaskRegistration(taskDefs ...model.TaskDef) error {
 	return nil
 }
 
-func ValidateWorkflowRegistration(workflow *definition.ConductorWorkflow) error {
+func ValidateWorkflowRegistration(workflow *workflow.ConductorWorkflow) error {
 	response, err := workflow.Register(true)
 	if err != nil {
 		log.Debug(

@@ -42,7 +42,7 @@ func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 			APIClient: apiClient,
 		},
 		workflowClient:  workflowClient,
-		workflowMonitor: NewWorkflowMonitor(workflowClient),
+		workflowMonitor: newWorkflowMonitor(workflowClient),
 	}
 	return &workflowExecutor
 }
@@ -61,7 +61,7 @@ func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.Work
 //Returns the channel with the execution result of the workflow
 //Note: Channels will continue to grow if the workflows do not complete and/or are not taken out
 func (e *WorkflowExecutor) MonitorExecution(workflowId string) (workflowMonitor WorkflowExecutionChannel, err error) {
-	return e.workflowMonitor.GenerateWorkflowExecutionChannel(workflowId)
+	return e.workflowMonitor.generateWorkflowExecutionChannel(workflowId)
 }
 
 //StartWorkflow Start workflows
@@ -368,17 +368,17 @@ func (e *WorkflowExecutor) startWorkflowDaemon(monitorExecution bool, request *m
 	defer concurrency.HandlePanicError("start_workflow")
 	workflowId, err := e.executeWorkflow(nil, request)
 	if err != nil {
-		runningWorkflowChannel <- NewRunningWorkflow("", nil, err)
+		runningWorkflowChannel <- newRunningWorkflow("", nil, err)
 		return
 	}
 	if !monitorExecution {
-		runningWorkflowChannel <- NewRunningWorkflow(workflowId, nil, nil)
+		runningWorkflowChannel <- newRunningWorkflow(workflowId, nil, nil)
 		return
 	}
-	executionChannel, err := e.workflowMonitor.GenerateWorkflowExecutionChannel(workflowId)
+	executionChannel, err := e.workflowMonitor.generateWorkflowExecutionChannel(workflowId)
 	if err != nil {
-		runningWorkflowChannel <- NewRunningWorkflow(workflowId, nil, err)
+		runningWorkflowChannel <- newRunningWorkflow(workflowId, nil, err)
 		return
 	}
-	runningWorkflowChannel <- NewRunningWorkflow(workflowId, executionChannel, nil)
+	runningWorkflowChannel <- newRunningWorkflow(workflowId, executionChannel, nil)
 }
