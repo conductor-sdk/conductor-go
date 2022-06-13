@@ -1,7 +1,7 @@
 package worker_e2e
 
 import (
-	model2 "github.com/conductor-sdk/conductor-go/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"os"
 	"testing"
 	"time"
@@ -31,16 +31,16 @@ func TestWorkers(t *testing.T) {
 	outputData := map[string]interface{}{
 		"key": "value",
 	}
-	workerWithTaskResultOutput := func(t *model2.Task) (interface{}, error) {
-		taskResult := model2.GetTaskResultFromTask(t)
+	workerWithTaskResultOutput := func(t *model.Task) (interface{}, error) {
+		taskResult := model.GetTaskResultFromTask(t)
 		taskResult.OutputData = outputData
-		taskResult.Status = model2.COMPLETED
+		taskResult.Status = model.COMPLETED
 		return taskResult, nil
 	}
-	workerWithGenericOutput := func(t *model2.Task) (interface{}, error) {
+	workerWithGenericOutput := func(t *model.Task) (interface{}, error) {
 		return outputData, nil
 	}
-	workers := []model2.ExecuteTaskFunction{
+	workers := []model.ExecuteTaskFunction{
 		workerWithTaskResultOutput,
 		workerWithGenericOutput,
 	}
@@ -52,7 +52,7 @@ func TestWorkers(t *testing.T) {
 	}
 }
 
-func validateWorker(worker model2.ExecuteTaskFunction, expectedOutput map[string]interface{}) error {
+func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]interface{}) error {
 	workflowIdList, err := e2e_properties.StartWorkflows(
 		workflowExecutionQty,
 		workflowName,

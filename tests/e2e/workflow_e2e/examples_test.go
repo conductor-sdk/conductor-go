@@ -1,7 +1,7 @@
 package workflow_e2e
 
 import (
-	"github.com/conductor-sdk/conductor-go/workflow/def"
+	"github.com/conductor-sdk/conductor-go/sdk/workflow/def"
 	"testing"
 
 	"github.com/conductor-sdk/conductor-go/examples/shipment_example"

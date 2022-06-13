@@ -1,8 +1,8 @@
 package workflow_e2e
 
 import (
-	"github.com/conductor-sdk/conductor-go/model"
-	def2 "github.com/conductor-sdk/conductor-go/workflow/def"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/workflow/def"
 	"os"
 	"testing"
 	"time"
@@ -13,24 +13,24 @@ import (
 )
 
 var (
-	httpTask = def2.NewHttpTask(
+	httpTask = def.NewHttpTask(
 		"TEST_GO_TASK_HTTP",
-		&def2.HttpInput{
+		&def.HttpInput{
 			Uri: "https://catfact.ninja/fact",
 		},
 	)
 
-	simpleTask = def2.NewSimpleTask(
+	simpleTask = def.NewSimpleTask(
 		"TEST_GO_TASK_SIMPLE", "TEST_GO_TASK_SIMPLE",
 	)
 
-	terminateTask = def2.NewTerminateTask(
+	terminateTask = def.NewTerminateTask(
 		"TEST_GO_TASK_TERMINATE",
 		model.FAILED,
 		"Task used to mark workflow as failed",
 	)
 
-	switchTask = def2.NewSwitchTask(
+	switchTask = def.NewSwitchTask(
 		"TEST_GO_TASK_SWITCH",
 		"switchCaseValue",
 	).
@@ -45,14 +45,14 @@ var (
 			terminateTask,
 		)
 
-	inlineTask = def2.NewInlineTask(
+	inlineTask = def.NewInlineTask(
 		"TEST_GO_TASK_INLINE",
 		"function e() { if ($.value == 1){return {\"result\": true}} else { return {\"result\": false}}} e();",
 	)
 
-	kafkaPublishTask = def2.NewKafkaPublishTask(
+	kafkaPublishTask = def.NewKafkaPublishTask(
 		"TEST_GO_TASK_KAFKA_PUBLISH",
-		&def2.KafkaPublishTaskInput{
+		&def.KafkaPublishTaskInput{
 			Topic:            "userTopic",
 			Value:            "Message to publish",
 			BootStrapServers: "localhost:9092",
@@ -64,12 +64,12 @@ var (
 		},
 	)
 
-	sqsEventTask = def2.NewSqsEventTask(
+	sqsEventTask = def.NewSqsEventTask(
 		"TEST_GO_TASK_EVENT_SQS",
 		"QUEUE",
 	)
 
-	conductorEventTask = def2.NewConductorEventTask(
+	conductorEventTask = def.NewConductorEventTask(
 		"TEST_GO_TASK_EVENT_CONDUCTOR",
 		"EVENT_NAME",
 	)
@@ -90,7 +90,7 @@ func init() {
 }
 
 func TestHttpTask(t *testing.T) {
-	httpTaskWorkflow := def2.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
+	httpTaskWorkflow := def.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_HTTP").
 		Version(1).
 		Add(httpTask)
@@ -109,7 +109,7 @@ func TestSimpleTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	simpleTaskWorkflow := def2.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
+	simpleTaskWorkflow := def.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_SIMPLE").
 		Version(1).
 		Add(simpleTask)
@@ -140,7 +140,7 @@ func TestSimpleTask(t *testing.T) {
 }
 
 func TestInlineTask(t *testing.T) {
-	inlineTaskWorkflow := def2.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
+	inlineTaskWorkflow := def.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_INLINE_TASK").
 		Version(1).
 		Add(inlineTask)
@@ -155,7 +155,7 @@ func TestInlineTask(t *testing.T) {
 }
 
 func TestSqsEventTask(t *testing.T) {
-	workflow := def2.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
+	workflow := def.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_EVENT_SQS").
 		Version(1).
 		Add(sqsEventTask)
@@ -166,7 +166,7 @@ func TestSqsEventTask(t *testing.T) {
 }
 
 func TestConductorEventTask(t *testing.T) {
-	workflow := def2.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
+	workflow := def.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_EVENT_CONDUCTOR").
 		Version(1).
 		Add(conductorEventTask)
@@ -177,7 +177,7 @@ func TestConductorEventTask(t *testing.T) {
 }
 
 func TestKafkaPublishTask(t *testing.T) {
-	workflow := def2.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
+	workflow := def.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_KAFKA_PUBLISH").
 		Version(1).
 		Add(kafkaPublishTask)
@@ -192,7 +192,7 @@ func TestDoWhileTask(t *testing.T) {
 }
 
 func TestTerminateTask(t *testing.T) {
-	workflow := def2.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
+	workflow := def.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_TERMINATE").
 		Version(1).
 		Add(terminateTask)
@@ -203,7 +203,7 @@ func TestTerminateTask(t *testing.T) {
 }
 
 func TestSwitchTask(t *testing.T) {
-	workflow := def2.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
+	workflow := def.NewConductorWorkflow(e2e_properties.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_SWITCH").
 		Version(1).
 		Add(switchTask)

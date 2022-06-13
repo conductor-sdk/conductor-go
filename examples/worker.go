@@ -1,11 +1,11 @@
 package examples
 
 import (
-	model2 "github.com/conductor-sdk/conductor-go/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
-func ExampleWorker(t *model2.Task) (interface{}, error) {
-	taskResult := model2.GetTaskResultFromTask(t)
+func ExampleWorker(t *model.Task) (interface{}, error) {
+	taskResult := model.GetTaskResultFromTask(t)
 	taskResult.OutputData = map[string]interface{}{
 		"key0": nil,
 		"key1": 3,
@@ -14,28 +14,28 @@ func ExampleWorker(t *model2.Task) (interface{}, error) {
 	}
 	taskResult.Logs = append(
 		taskResult.Logs,
-		model2.TaskExecLog{
+		model.TaskExecLog{
 			Log: "log message",
 		},
 	)
-	taskResult.Status = model2.COMPLETED
+	taskResult.Status = model.COMPLETED
 	return taskResult, nil
 }
 
-func SimpleWorker(t *model2.Task) (interface{}, error) {
-	taskResult := model2.GetTaskResultFromTask(t)
+func SimpleWorker(t *model.Task) (interface{}, error) {
+	taskResult := model.GetTaskResultFromTask(t)
 	taskResult.OutputData = map[string]interface{}{
 		"key": "value",
 	}
-	taskResult.Status = model2.COMPLETED
+	taskResult.Status = model.COMPLETED
 	return taskResult, nil
 }
 
-func OpenTreasureChest(t *model2.Task) (interface{}, error) {
-	taskResult := model2.GetTaskResultFromTask(t)
+func OpenTreasureChest(t *model.Task) (interface{}, error) {
+	taskResult := model.GetTaskResultFromTask(t)
 	taskResult.OutputData = map[string]interface{}{
 		"treasure": t.InputData["importantValue"],
 	}
-	taskResult.Status = model2.COMPLETED
+	taskResult.Status = model.COMPLETED
 	return taskResult, nil
 }
