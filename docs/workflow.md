@@ -571,9 +571,30 @@ type ForkTask struct {
 ```go
 func NewForkTask(taskRefName string, forkedTask ...[]TaskInterface) *ForkTask
 ```
+<pre>
+execute task specified in the forkedTasks parameter in parallel.
+forkedTask is a two-dimensional list that executes the outermost list in parallel and list within that is executed sequentially.
 
-NewForkTask creates a new fork task that executes the given tasks in parallel \* \* execute task specified in the forkedTasks parameter in parallel\. \* \* \<p\>forkedTask is a two\-dimensional list that executes the outermost list in parallel and list \* within that is executed sequentially\. \* \* \<p\>e\.g\. \[\[task1\, task2\]\,\[task3\, task4\]\,\[task5\]\] are executed as: \* \* \<pre\> \*                    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\- \*                    |     fork    | \*                    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\- \*                    |       |     | \*                    |       |     | \*                  task1  task3  task5 \*                  task2  task4    | \*                    |      |      | \*                 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\- \*                 |       join        | \*                 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\- \* \</pre\> \* \*
+e.g. [[task1, task2],[task3, task4],[task5]] are executed as:
 
+
+                    ---------------
+                    |     fork    |
+                    ---------------
+                    |       |     |
+                    |       |     |
+                  task1  task3  task5
+                  task2  task4    |
+                    |      |      |
+                 ---------------------
+                 |       join        |
+                 ---------------------
+
+
+ This method automatically adds a join that waits for all the last tasks in the fork
+ (e.g. task2, task4 and task5 in the above example) to be completed.
+
+</pre>
 ### func \(\*ForkTask\) [Description](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/fork_join.go#L101>)
 
 ```go
