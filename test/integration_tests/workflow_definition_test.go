@@ -2,6 +2,7 @@ package integration_tests
 
 import (
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -9,7 +10,7 @@ import (
 
 func TestWorkflowCreation(t *testing.T) {
 
-	workflow := NewKitchenSinkWorkflow(WorkflowExecutor)
+	workflow := testdata.NewKitchenSinkWorkflow(testdata.WorkflowExecutor)
 	startWorkflowRequest := model.StartWorkflowRequest{
 		Name: workflow.GetName(),
 	}

@@ -7,10 +7,9 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package integration_tests
+package testdata
 
 import (
-	"fmt"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/definition"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
@@ -135,54 +134,4 @@ func DynamicForkWorker(t *model.Task) (output interface{}, err error) {
 	taskResult.Status = model.CompletedTask
 	err = nil
 	return taskResult, err
-}
-
-func SimpleTaskWorker(t *model.Task) (interface{}, error) {
-	taskResult := model.NewTaskResultFromTask(t)
-	taskResult.OutputData = map[string]interface{}{
-		"key0": nil,
-		"key1": 3,
-		"key2": false,
-		"foo":  "bar",
-	}
-	taskResult.Status = model.CompletedTask
-	return taskResult, nil
-}
-
-func FailingTaskWorker(t *model.Task) (interface{}, error) {
-	return nil, fmt.Errorf("error executing task")
-}
-
-func CompleteAfter2Tries(t *model.Task) (interface{}, error) {
-	if t.RetryCount < 2 {
-		return nil, fmt.Errorf("error executing task")
-	}
-	taskResult := model.NewTaskResultFromTask(t)
-	taskResult.OutputData = map[string]interface{}{
-		"key0": nil,
-		"key1": 3,
-		"key2": false,
-		"foo":  "bar",
-	}
-	taskResult.Status = model.CompletedTask
-	return taskResult, nil
-}
-
-func CompleteAfter2Times(t *model.Task) (interface{}, error) {
-	taskResult := model.NewTaskResultFromTask(t)
-	if t.RetryCount < 2 {
-
-		taskResult.CallbackAfterSeconds = 1
-		taskResult.Status = model.InProgressTask
-		return taskResult, nil
-	}
-
-	taskResult.OutputData = map[string]interface{}{
-		"key0": nil,
-		"key1": 3,
-		"key2": false,
-		"foo":  "bar",
-	}
-	taskResult.Status = model.CompletedTask
-	return taskResult, nil
 }

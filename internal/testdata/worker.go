@@ -7,7 +7,7 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package integration_tests
+package testdata
 
 import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
@@ -16,6 +16,23 @@ import (
 	"testing"
 	"time"
 )
+
+const (
+	TaskName = "TEST_GO_TASK_SIMPLE"
+
+	WorkflowName              = "TEST_GO_WORKFLOW_SIMPLE"
+	WorkflowCompletionTimeout = 5 * time.Second
+	WorkflowExecutionQty      = 15
+
+	WorkerQty          = 7
+	WorkerPollInterval = 250 * time.Millisecond
+)
+
+func init() {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.ErrorLevel)
+}
 
 func ExampleWorker(t *model.Task) (interface{}, error) {
 	taskResult := model.NewTaskResultFromTask(t)
@@ -42,23 +59,6 @@ func SimpleWorker(t *model.Task) (interface{}, error) {
 	}
 	taskResult.Status = model.CompletedTask
 	return taskResult, nil
-}
-
-const (
-	taskName = "TEST_GO_TASK_SIMPLE"
-
-	workflowName              = "TEST_GO_WORKFLOW_SIMPLE"
-	workflowCompletionTimeout = 5 * time.Second
-	workflowExecutionQty      = 15
-
-	workerQty          = 7
-	workerPollInterval = 250 * time.Millisecond
-)
-
-func init() {
-	log.SetFormatter(&log.JSONFormatter{})
-	log.SetOutput(os.Stdout)
-	log.SetLevel(log.ErrorLevel)
 }
 
 func TestWorkers(t *testing.T) {
@@ -88,17 +88,17 @@ func TestWorkers(t *testing.T) {
 
 func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]interface{}) error {
 	workflowIdList, err := StartWorkflows(
-		workflowExecutionQty,
-		workflowName,
+		WorkflowExecutionQty,
+		WorkflowName,
 	)
 	if err != nil {
 		return err
 	}
 	err = TaskRunner.StartWorker(
-		taskName,
+		TaskName,
 		worker,
-		workerQty,
-		workerPollInterval,
+		WorkerQty,
+		WorkerPollInterval,
 	)
 	if err != nil {
 		return err
@@ -107,7 +107,7 @@ func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]
 	for i, workflowId := range workflowIdList {
 		runningWorkflows[i] = make(chan error)
 		go ValidateWorkflowDaemon(
-			workflowCompletionTimeout,
+			WorkflowCompletionTimeout,
 			runningWorkflows[i],
 			workflowId,
 			expectedOutput,
@@ -120,7 +120,7 @@ func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]
 		}
 	}
 	return TaskRunner.RemoveWorker(
-		taskName,
-		workerQty,
+		TaskName,
+		WorkerQty,
 	)
 }

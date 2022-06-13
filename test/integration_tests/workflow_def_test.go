@@ -10,6 +10,7 @@
 package integration_tests
 
 import (
+	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/definition"
 	log "github.com/sirupsen/logrus"
@@ -17,6 +18,17 @@ import (
 	"testing"
 	"time"
 )
+
+const (
+	workflowValidationTimeout = 5 * time.Second
+	workflowBulkQty           = 10
+)
+
+func init() {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.ErrorLevel)
+}
 
 var (
 	httpTask = definition.NewHttpTask(
@@ -81,61 +93,50 @@ var (
 	)
 )
 
-const (
-	workflowValidationTimeout = 5 * time.Second
-	workflowBulkQty           = 10
-)
-
-func init() {
-	log.SetFormatter(&log.JSONFormatter{})
-	log.SetOutput(os.Stdout)
-	log.SetLevel(log.ErrorLevel)
-}
-
 func TestHttpTask(t *testing.T) {
-	httpTaskWorkflow := definition.NewConductorWorkflow(WorkflowExecutor).
+	httpTaskWorkflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_HTTP").
 		Version(1).
 		Add(httpTask)
-	err := ValidateWorkflow(httpTaskWorkflow, workflowValidationTimeout)
+	err := testdata.ValidateWorkflow(httpTaskWorkflow, workflowValidationTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = ValidateWorkflowBulk(httpTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
+	err = testdata.ValidateWorkflowBulk(httpTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestSimpleTask(t *testing.T) {
-	err := ValidateTaskRegistration(*simpleTask.ToTaskDef())
+	err := testdata.ValidateTaskRegistration(*simpleTask.ToTaskDef())
 	if err != nil {
 		t.Fatal(err)
 	}
-	simpleTaskWorkflow := definition.NewConductorWorkflow(WorkflowExecutor).
+	simpleTaskWorkflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_SIMPLE").
 		Version(1).
 		Add(simpleTask)
-	err = TaskRunner.StartWorker(
+	err = testdata.TaskRunner.StartWorker(
 		simpleTask.ReferenceName(),
-		SimpleWorker,
-		workerQty,
-		workerPollInterval,
+		testdata.SimpleWorker,
+		testdata.WorkerQty,
+		testdata.WorkerPollInterval,
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = ValidateWorkflow(simpleTaskWorkflow, workflowValidationTimeout)
+	err = testdata.ValidateWorkflow(simpleTaskWorkflow, workflowValidationTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = ValidateWorkflowBulk(simpleTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
+	err = testdata.ValidateWorkflowBulk(simpleTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = TaskRunner.RemoveWorker(
+	err = testdata.TaskRunner.RemoveWorker(
 		simpleTask.ReferenceName(),
-		workerQty,
+		testdata.WorkerQty,
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -143,48 +144,48 @@ func TestSimpleTask(t *testing.T) {
 }
 
 func TestInlineTask(t *testing.T) {
-	inlineTaskWorkflow := definition.NewConductorWorkflow(WorkflowExecutor).
+	inlineTaskWorkflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_INLINE_TASK").
 		Version(1).
 		Add(inlineTask)
-	err := ValidateWorkflow(inlineTaskWorkflow, workflowValidationTimeout)
+	err := testdata.ValidateWorkflow(inlineTaskWorkflow, workflowValidationTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = ValidateWorkflowBulk(inlineTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
+	err = testdata.ValidateWorkflowBulk(inlineTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestSqsEventTask(t *testing.T) {
-	workflow := definition.NewConductorWorkflow(WorkflowExecutor).
+	workflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_EVENT_SQS").
 		Version(1).
 		Add(sqsEventTask)
-	err := ValidateWorkflowRegistration(workflow)
+	err := testdata.ValidateWorkflowRegistration(workflow)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestConductorEventTask(t *testing.T) {
-	workflow := definition.NewConductorWorkflow(WorkflowExecutor).
+	workflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_EVENT_CONDUCTOR").
 		Version(1).
 		Add(conductorEventTask)
-	err := ValidateWorkflowRegistration(workflow)
+	err := testdata.ValidateWorkflowRegistration(workflow)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestKafkaPublishTask(t *testing.T) {
-	workflow := definition.NewConductorWorkflow(WorkflowExecutor).
+	workflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_KAFKA_PUBLISH").
 		Version(1).
 		Add(kafkaPublishTask)
-	err := ValidateWorkflowRegistration(workflow)
+	err := testdata.ValidateWorkflowRegistration(workflow)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -195,22 +196,22 @@ func TestDoWhileTask(t *testing.T) {
 }
 
 func TestTerminateTask(t *testing.T) {
-	workflow := definition.NewConductorWorkflow(WorkflowExecutor).
+	workflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_TERMINATE").
 		Version(1).
 		Add(terminateTask)
-	err := ValidateWorkflowRegistration(workflow)
+	err := testdata.ValidateWorkflowRegistration(workflow)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestSwitchTask(t *testing.T) {
-	workflow := definition.NewConductorWorkflow(WorkflowExecutor).
+	workflow := definition.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_SWITCH").
 		Version(1).
 		Add(switchTask)
-	err := ValidateWorkflowRegistration(workflow)
+	err := testdata.ValidateWorkflowRegistration(workflow)
 	if err != nil {
 		t.Fatal(err)
 	}
