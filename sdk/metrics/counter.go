@@ -60,21 +60,7 @@ var counterTemplates = map[MetricName]*MetricDetails{
 			EXCEPTION,
 		},
 	),
-	TASK_ACK_FAILED: NewMetricDetails(
-		TASK_ACK_FAILED,
-		TASK_ACK_FAILED_DOC,
-		[]MetricLabel{
-			TASK_TYPE,
-		},
-	),
-	TASK_ACK_ERROR: NewMetricDetails(
-		TASK_ACK_ERROR,
-		TASK_ACK_ERROR_DOC,
-		[]MetricLabel{
-			TASK_TYPE,
-			EXCEPTION,
-		},
-	),
+	
 	TASK_UPDATE_ERROR: NewMetricDetails(
 		TASK_UPDATE_ERROR,
 		TASK_UPDATE_ERROR_DOC,
@@ -158,25 +144,6 @@ func IncrementTaskPaused(taskType string) {
 func IncrementTaskExecuteError(taskType string, err error) {
 	incrementCounter(
 		TASK_EXECUTE_ERROR,
-		[]string{
-			taskType,
-			err.Error(),
-		},
-	)
-}
-
-func IncrementTaskAckFailed(taskType string) {
-	incrementCounter(
-		TASK_ACK_FAILED,
-		[]string{
-			taskType,
-		},
-	)
-}
-
-func IncrementTaskAckError(taskType string, err error) {
-	incrementCounter(
-		TASK_ACK_ERROR,
 		[]string{
 			taskType,
 			err.Error(),
