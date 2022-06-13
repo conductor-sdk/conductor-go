@@ -1,4 +1,4 @@
-package def
+package definition
 
 import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"

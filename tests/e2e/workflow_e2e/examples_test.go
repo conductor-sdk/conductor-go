@@ -1,7 +1,7 @@
 package workflow_e2e
 
 import (
-	"github.com/conductor-sdk/conductor-go/sdk/workflow/def"
+	"github.com/conductor-sdk/conductor-go/sdk/workflow/definition"
 	"testing"
 
 	"github.com/conductor-sdk/conductor-go/examples/shipment_example"
@@ -31,7 +31,7 @@ func TestTaskRegistration(t *testing.T) {
 }
 
 func TestWorkflowRegistration(t *testing.T) {
-	workflows := []*def.ConductorWorkflow{
+	workflows := []*definition.ConductorWorkflow{
 		shipment_example.NewOrderWorkflow(e2e_properties.WorkflowExecutor),
 		shipment_example.NewShipmentWorkflow(e2e_properties.WorkflowExecutor),
 	}

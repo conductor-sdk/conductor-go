@@ -3,14 +3,14 @@ package shipment_example
 import (
 	"github.com/conductor-sdk/conductor-go/examples/shipment_example/shipment_method_example"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"github.com/conductor-sdk/conductor-go/sdk/workflow/def"
+	"github.com/conductor-sdk/conductor-go/sdk/workflow/definition"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 )
 
-var TaskCalculateTaxAndTotal = def.NewSimpleTask("calculate_tax_and_total", "calculate_tax_and_total").
+var TaskCalculateTaxAndTotal = definition.NewSimpleTask("calculate_tax_and_total", "calculate_tax_and_total").
 	Input("orderDetail", "${workflow.input.orderDetail}")
 
-var TaskChargePayment = def.NewSimpleTask("charge_payment", "charge_payment").
+var TaskChargePayment = definition.NewSimpleTask("charge_payment", "charge_payment").
 	InputMap(
 		map[string]interface{}{
 			"billingId":   "${workflow.input.userDetails.billingId}",
@@ -26,19 +26,19 @@ var (
 		"orderNo": "${workflow.input.orderDetails.orderNumber}",
 	}
 
-	TaskGroundShippingLabel  = def.NewSimpleTask("ground_shipping_label", "ground_shipping_label").InputMap(shippingLabelInputMap)
-	SameDayShippingLabel     = def.NewSimpleTask("same_day_shipping_label", "same_day_shipping_label").InputMap(shippingLabelInputMap)
-	AirShippingLabel         = def.NewSimpleTask("air_shipping_label", "air_shipping_label").InputMap(shippingLabelInputMap)
-	UnsupportedShippingLabel = def.NewTerminateTask("unsupported_shipping_type", model.FAILED, "Unsupported Shipping Method")
+	TaskGroundShippingLabel  = definition.NewSimpleTask("ground_shipping_label", "ground_shipping_label").InputMap(shippingLabelInputMap)
+	SameDayShippingLabel     = definition.NewSimpleTask("same_day_shipping_label", "same_day_shipping_label").InputMap(shippingLabelInputMap)
+	AirShippingLabel         = definition.NewSimpleTask("air_shipping_label", "air_shipping_label").InputMap(shippingLabelInputMap)
+	UnsupportedShippingLabel = definition.NewTerminateTask("unsupported_shipping_type", model.FAILED, "Unsupported Shipping Method")
 
-	TaskShippingLabel = def.NewSwitchTask("shipping_label", "${workflow.input.orderDetail.shippingMethod}").
+	TaskShippingLabel = definition.NewSwitchTask("shipping_label", "${workflow.input.orderDetail.shippingMethod}").
 				SwitchCase(string(shipment_method_example.Ground), TaskGroundShippingLabel).
 				SwitchCase(string(shipment_method_example.SameDay), SameDayShippingLabel).
 				SwitchCase(string(shipment_method_example.NextDayAir), AirShippingLabel).
 				DefaultCase(UnsupportedShippingLabel)
 )
 
-var TaskSendEmail = def.NewSimpleTask("send_email", "send_email").
+var TaskSendEmail = definition.NewSimpleTask("send_email", "send_email").
 	InputMap(
 		map[string]interface{}{
 			"name":    "${workflow.input.userDetails.name}",
@@ -47,21 +47,21 @@ var TaskSendEmail = def.NewSimpleTask("send_email", "send_email").
 		},
 	)
 
-var TaskGetOrderDetails = def.NewSimpleTask("get_order_details", "get_order_details").
+var TaskGetOrderDetails = definition.NewSimpleTask("get_order_details", "get_order_details").
 	Input("orderNo", "${workflow.input.orderNo}")
 
-var TaskGetUserDetails = def.NewSimpleTask("get_user_details", "get_user_details").
+var TaskGetUserDetails = definition.NewSimpleTask("get_user_details", "get_user_details").
 	Input("userId", "${workflow.input.userId}")
 
-var TaskGetInParallel = def.NewForkTask(
+var TaskGetInParallel = definition.NewForkTask(
 	"get_in_parallel",
-	[]def.TaskInterface{
+	[]definition.TaskInterface{
 		TaskGetOrderDetails, TaskGetUserDetails,
 	},
 )
 
 var (
-	TaskGenerateDynamicFork = def.NewSimpleTask("generateDynamicFork", "generateDynamicFork").
+	TaskGenerateDynamicFork = definition.NewSimpleTask("generateDynamicFork", "generateDynamicFork").
 				InputMap(
 			map[string]interface{}{
 				"orderDetails": TaskGetOrderDetails.OutputRef("result"),
@@ -69,18 +69,18 @@ var (
 			},
 		)
 
-	TaskProcessOrder = def.NewDynamicForkTask("process_order", TaskGenerateDynamicFork)
+	TaskProcessOrder = definition.NewDynamicForkTask("process_order", TaskGenerateDynamicFork)
 )
 
-var TaskUpdateState = def.NewSetVariableTask("update_state").
+var TaskUpdateState = definition.NewSetVariableTask("update_state").
 	Input("shipped", true)
 
-func NewOrderWorkflow(workflowExecutor *executor.WorkflowExecutor) *def.ConductorWorkflow {
-	return def.NewConductorWorkflow(workflowExecutor).
+func NewOrderWorkflow(workflowExecutor *executor.WorkflowExecutor) *definition.ConductorWorkflow {
+	return definition.NewConductorWorkflow(workflowExecutor).
 		Name("example_go_order_workflow").
 		Version(1).
 		OwnerEmail("developers@orkes.io").
-		TimeoutPolicy(def.TimeOutWorkflow, 60).
+		TimeoutPolicy(definition.TimeOutWorkflow, 60).
 		Description("Workflow to track order").
 		Add(TaskCalculateTaxAndTotal).
 		Add(TaskChargePayment).
@@ -88,13 +88,13 @@ func NewOrderWorkflow(workflowExecutor *executor.WorkflowExecutor) *def.Conducto
 		Add(TaskSendEmail)
 }
 
-func NewShipmentWorkflow(workflowExecutor *executor.WorkflowExecutor) *def.ConductorWorkflow {
-	return def.NewConductorWorkflow(workflowExecutor).
+func NewShipmentWorkflow(workflowExecutor *executor.WorkflowExecutor) *definition.ConductorWorkflow {
+	return definition.NewConductorWorkflow(workflowExecutor).
 		Name("example_go_shipment_workflow").
 		Version(1).
 		OwnerEmail("developers@orkes.io").
 		Variables(NewShipmentState()).
-		TimeoutPolicy(def.TimeOutWorkflow, 60).
+		TimeoutPolicy(definition.TimeOutWorkflow, 60).
 		Description("Workflow to track shipment").
 		Add(TaskGetInParallel).
 		Add(TaskProcessOrder).

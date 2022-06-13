@@ -1,4 +1,4 @@
-package def
+package definition
 
 type HumanTask struct {
 	Task

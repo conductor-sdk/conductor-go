@@ -1,30 +1,35 @@
-package def
+package definition
 
-type JQTask struct {
+type InlineTask struct {
 	Task
 }
 
-func NewJQTask(name string, script string) *JQTask {
-	return &JQTask{
+const (
+	JavascriptEvaluator = "javascript"
+)
+
+func NewInlineTask(name string, script string) *InlineTask {
+	return &InlineTask{
 		Task{
 			name:              name,
 			taskReferenceName: name,
-			taskType:          JSON_JQ_TRANSFORM,
+			taskType:          INLINE,
 			inputParameters: map[string]interface{}{
-				"queryExpression": script,
+				"evaluatorType": JavascriptEvaluator,
+				"expression":    script,
 			},
 		},
 	}
 }
 
 // Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
-func (task *JQTask) Input(key string, value interface{}) *JQTask {
+func (task *InlineTask) Input(key string, value interface{}) *InlineTask {
 	task.Task.Input(key, value)
 	return task
 }
 
 // InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
-func (task *JQTask) InputMap(inputMap map[string]interface{}) *JQTask {
+func (task *InlineTask) InputMap(inputMap map[string]interface{}) *InlineTask {
 	for k, v := range inputMap {
 		task.inputParameters[k] = v
 	}
@@ -32,13 +37,13 @@ func (task *JQTask) InputMap(inputMap map[string]interface{}) *JQTask {
 }
 
 // Optional if set to true, the task will not fail the workflow if the task fails
-func (task *JQTask) Optional(optional bool) *JQTask {
+func (task *InlineTask) Optional(optional bool) *InlineTask {
 	task.Task.Optional(optional)
 	return task
 }
 
 // Description of the task
-func (task *JQTask) Description(description string) *JQTask {
+func (task *InlineTask) Description(description string) *InlineTask {
 	task.Task.Description(description)
 	return task
 }
