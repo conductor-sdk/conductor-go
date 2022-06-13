@@ -60,4 +60,4 @@ workflowId, err := executor.StartWorkflow(&model.StartWorkflowRequest{
   },
 })
 ```
-See [quickstart](examples/quickstart) for a fully working example of a simple workflow and a simple worker implementation.
+See [quickstart](examples/quickstart/workflow.go) for a fully working example of a simple workflow and a simple worker implementation.
