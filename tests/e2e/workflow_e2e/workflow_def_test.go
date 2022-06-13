@@ -26,7 +26,7 @@ var (
 
 	terminateTask = definition.NewTerminateTask(
 		"TEST_GO_TASK_TERMINATE",
-		model.FAILED,
+		model.WORKFLOW_STATUS_FAILED,
 		"Task used to mark workflow as failed",
 	)
 
