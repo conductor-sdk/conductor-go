@@ -7,12 +7,19 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package shipment_method_example
+package shipment
 
-type ShipmentMethod string
+type ShipmentState struct {
+	PaymentCompleted bool
+	EmailSent        bool
+	Shipped          bool
+	TrackingNumber   string
+}
 
-const (
-	Ground     ShipmentMethod = "GROUND"
-	NextDayAir ShipmentMethod = "NEXT_DAY_AIR"
-	SameDay    ShipmentMethod = "SAME_DAY"
-)
+func NewShipmentState() *ShipmentState {
+	return &ShipmentState{}
+}
+
+func (s *ShipmentState) IsPaymentCompleted() bool {
+	return s.PaymentCompleted
+}

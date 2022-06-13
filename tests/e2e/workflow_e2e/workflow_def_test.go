@@ -12,11 +12,11 @@ package workflow_e2e
 import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/definition"
+	"github.com/conductor-sdk/conductor-go/tests/testdata"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/conductor-sdk/conductor-go/examples"
 	"github.com/conductor-sdk/conductor-go/tests/e2e/e2e_properties"
 	log "github.com/sirupsen/logrus"
 )

@@ -7,10 +7,9 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package shipment_example
+package shipment
 
 import (
-	"github.com/conductor-sdk/conductor-go/examples/shipment_example/shipment_method_example"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/definition"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
@@ -41,9 +40,9 @@ var (
 	UnsupportedShippingLabel = definition.NewTerminateTask("unsupported_shipping_type", model.FailedWorkflow, "Unsupported Shipping Method")
 
 	TaskShippingLabel = definition.NewSwitchTask("shipping_label", "${workflow.input.orderDetail.shippingMethod}").
-				SwitchCase(string(shipment_method_example.Ground), TaskGroundShippingLabel).
-				SwitchCase(string(shipment_method_example.SameDay), SameDayShippingLabel).
-				SwitchCase(string(shipment_method_example.NextDayAir), AirShippingLabel).
+				SwitchCase(string(Ground), TaskGroundShippingLabel).
+				SwitchCase(string(SameDay), SameDayShippingLabel).
+				SwitchCase(string(NextDayAir), AirShippingLabel).
 				DefaultCase(UnsupportedShippingLabel)
 )
 

@@ -7,16 +7,23 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package shipment_example
+package shipment
 
-type Shipment struct {
-	UserId  string
-	OrderNo string
+type Order struct {
+	OrderNumber    string
+	Sku            string
+	Quantity       int
+	UnitPrice      float64
+	ZipCode        string
+	CountryCode    string
+	ShippingMethod ShipmentMethod
 }
 
-func NewShipment(userId string, orderNo string) *Shipment {
-	return &Shipment{
-		UserId:  userId,
-		OrderNo: orderNo,
+func NewOrder(orderNumber string, sku string, quantity int, unitPrice float64) *Order {
+	return &Order{
+		OrderNumber: orderNumber,
+		Sku:         sku,
+		Quantity:    quantity,
+		UnitPrice:   unitPrice,
 	}
 }

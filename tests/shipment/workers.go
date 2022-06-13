@@ -7,25 +7,4 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package shipment_example
-
-import "github.com/conductor-sdk/conductor-go/examples/shipment_example/shipment_method_example"
-
-type Order struct {
-	OrderNumber    string
-	Sku            string
-	Quantity       int
-	UnitPrice      float64
-	ZipCode        string
-	CountryCode    string
-	ShippingMethod shipment_method_example.ShipmentMethod
-}
-
-func NewOrder(orderNumber string, sku string, quantity int, unitPrice float64) *Order {
-	return &Order{
-		OrderNumber: orderNumber,
-		Sku:         sku,
-		Quantity:    quantity,
-		UnitPrice:   unitPrice,
-	}
-}
+package shipment
