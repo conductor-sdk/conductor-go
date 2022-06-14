@@ -218,7 +218,7 @@ func (c *APIClient) prepareRequest(
 }
 
 func (c *APIClient) mustRefreshToken() bool {
-	if c.authenticationSettings == nil {
+	if c.authenticationSettings == nil || c.authenticationSettings.IsEmpty() {
 		return false
 	}
 	return c.authenticationToken == nil
