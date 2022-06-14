@@ -28,3 +28,10 @@ func (s *AuthenticationSettings) GetBody() map[string]string {
 	}
 	return body
 }
+
+func (s *AuthenticationSettings) IsEmpty() bool {
+	if s.keyId == "" || s.keySecret == "" {
+		return true
+	}
+	return false
+}
