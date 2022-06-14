@@ -234,8 +234,9 @@ func (c *TaskRunner) executeTask(t *model.Task, executeFunction model.ExecuteTas
 		t.TaskDefName, float64(spentTime.Milliseconds()),
 	)
 	if err != nil {
-		return nil, err
+		return model.NewTaskResultFromTaskWithError(t, err), nil
 	}
+
 	taskResult, err := model.GetTaskResultFromTaskExecutionOutput(t, taskExecutionOutput)
 	if err != nil {
 		return nil, err
