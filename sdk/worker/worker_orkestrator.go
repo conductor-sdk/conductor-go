@@ -45,13 +45,13 @@ func NewWorkerOrkestrator(
 	}
 }
 
-func (wo *WorkerOrkestrator) GetPollInterval() (pollInterval time.Duration, err error) {
+func (wo *WorkerOrkestrator) GetPollInterval() (pollInterval time.Duration) {
 	wo.pollIntervalMutex.RLock()
 	defer wo.pollIntervalMutex.RUnlock()
-	return wo.pollInterval, nil
+	return wo.pollInterval
 }
 
-func (wo *WorkerOrkestrator) SetPollInterval(pollInterval time.Duration) (err error) {
+func (wo *WorkerOrkestrator) SetPollInterval(pollInterval time.Duration) {
 	wo.pollIntervalMutex.Lock()
 	defer wo.pollIntervalMutex.Unlock()
 	previous := wo.pollInterval
@@ -61,29 +61,27 @@ func (wo *WorkerOrkestrator) SetPollInterval(pollInterval time.Duration) (err er
 		", from: ", previous,
 		", to: ", wo.pollInterval,
 	)
-	return nil
 }
 
-func (wo *WorkerOrkestrator) GetExecuteTaskFunction() (executeTaskFunction model.ExecuteTaskFunction, err error) {
+func (wo *WorkerOrkestrator) GetExecuteTaskFunction() (executeTaskFunction model.ExecuteTaskFunction) {
 	wo.executeTaskFunctionMutex.RLock()
 	defer wo.executeTaskFunctionMutex.RUnlock()
-	return wo.executeTaskFunction, nil
+	return wo.executeTaskFunction
 }
 
-func (wo *WorkerOrkestrator) SetExecuteTaskFunction(executeTaskFunction model.ExecuteTaskFunction) (err error) {
+func (wo *WorkerOrkestrator) SetExecuteTaskFunction(executeTaskFunction model.ExecuteTaskFunction) {
 	wo.executeTaskFunctionMutex.Lock()
 	defer wo.executeTaskFunctionMutex.Unlock()
 	wo.executeTaskFunction = executeTaskFunction
-	return nil
 }
 
-func (wo *WorkerOrkestrator) GetDomain() (domain optional.String, err error) {
+func (wo *WorkerOrkestrator) GetDomain() (domain optional.String) {
 	wo.domainMutex.RLock()
 	defer wo.domainMutex.RUnlock()
-	return wo.domain, nil
+	return wo.domain
 }
 
-func (wo *WorkerOrkestrator) SetDomain(domain optional.String) (err error) {
+func (wo *WorkerOrkestrator) SetDomain(domain optional.String) {
 	wo.domainMutex.Lock()
 	defer wo.domainMutex.Unlock()
 	previous := wo.domain
@@ -93,28 +91,19 @@ func (wo *WorkerOrkestrator) SetDomain(domain optional.String) (err error) {
 		", from: ", previous,
 		", to: ", wo.domain,
 	)
-	return nil
 }
 
-func (wo *WorkerOrkestrator) GetAvailableWorkers() (availableWorkers int, err error) {
-	batchSizeLimit, err := wo.GetBatchSizeLimit()
-	if err != nil {
-		return -1, err
-	}
-	runningWorkers, err := wo.getRunningWorkers()
-	if err != nil {
-		return -1, err
-	}
-	return batchSizeLimit - runningWorkers, nil
+func (wo *WorkerOrkestrator) GetAvailableWorkers() (availableWorkers int) {
+	return wo.GetBatchSizeLimit() - wo.getRunningWorkers()
 }
 
-func (wo *WorkerOrkestrator) getRunningWorkers() (runningWorkers int, err error) {
+func (wo *WorkerOrkestrator) getRunningWorkers() (runningWorkers int) {
 	wo.runningWorkersMutex.RLock()
 	defer wo.runningWorkersMutex.RUnlock()
-	return wo.runningWorkers, nil
+	return wo.runningWorkers
 }
 
-func (wo *WorkerOrkestrator) IncreaseRunningWorkers(quantity int) (err error) {
+func (wo *WorkerOrkestrator) IncreaseRunningWorkers(quantity int) {
 	wo.runningWorkersMutex.Lock()
 	defer wo.runningWorkersMutex.Unlock()
 	previous := wo.runningWorkers
@@ -124,10 +113,9 @@ func (wo *WorkerOrkestrator) IncreaseRunningWorkers(quantity int) (err error) {
 		", from: ", previous,
 		", to: ", wo.runningWorkers,
 	)
-	return nil
 }
 
-func (wo *WorkerOrkestrator) DecreaseRunningWorker() (err error) {
+func (wo *WorkerOrkestrator) DecreaseRunningWorker() {
 	wo.runningWorkersMutex.Lock()
 	defer wo.runningWorkersMutex.Unlock()
 	previous := wo.runningWorkers
@@ -137,10 +125,9 @@ func (wo *WorkerOrkestrator) DecreaseRunningWorker() (err error) {
 		", from: ", previous,
 		", to: ", wo.runningWorkers,
 	)
-	return nil
 }
 
-func (wo *WorkerOrkestrator) IncreaseBatchSizeLimitForTask(batchSize int) (err error) {
+func (wo *WorkerOrkestrator) IncreaseBatchSizeLimitForTask(batchSize int) {
 	wo.batchSizeLimitMutex.Lock()
 	defer wo.batchSizeLimitMutex.Unlock()
 	previous := wo.batchSizeLimit
@@ -150,10 +137,9 @@ func (wo *WorkerOrkestrator) IncreaseBatchSizeLimitForTask(batchSize int) (err e
 		", from: ", previous,
 		", to: ", wo.batchSizeLimit,
 	)
-	return nil
 }
 
-func (wo *WorkerOrkestrator) DecreaseBatchSizeLimit(batchSize int) (err error) {
+func (wo *WorkerOrkestrator) DecreaseBatchSizeLimit(batchSize int) {
 	wo.batchSizeLimitMutex.Lock()
 	defer wo.batchSizeLimitMutex.Unlock()
 	previous := wo.batchSizeLimit
@@ -163,16 +149,15 @@ func (wo *WorkerOrkestrator) DecreaseBatchSizeLimit(batchSize int) (err error) {
 		", from: ", previous,
 		", to: ", wo.batchSizeLimit,
 	)
-	return nil
 }
 
-func (wo *WorkerOrkestrator) GetBatchSizeLimit() (batchSizeLimit int, err error) {
+func (wo *WorkerOrkestrator) GetBatchSizeLimit() (batchSizeLimit int) {
 	wo.batchSizeLimitMutex.RLock()
 	defer wo.batchSizeLimitMutex.RUnlock()
-	return wo.batchSizeLimit, nil
+	return wo.batchSizeLimit
 }
 
-func (wo *WorkerOrkestrator) SetBatchSizeLimit(batchSize int) (err error) {
+func (wo *WorkerOrkestrator) SetBatchSizeLimit(batchSize int) {
 	wo.batchSizeLimitMutex.Lock()
 	defer wo.batchSizeLimitMutex.Unlock()
 	previous := wo.batchSizeLimit
@@ -182,5 +167,4 @@ func (wo *WorkerOrkestrator) SetBatchSizeLimit(batchSize int) (err error) {
 		", from: ", previous,
 		", to: ", batchSize,
 	)
-	return nil
 }
