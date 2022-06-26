@@ -10,13 +10,14 @@
 package integration_tests
 
 import (
+	"os"
+	"testing"
+	"time"
+
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	log "github.com/sirupsen/logrus"
-	"os"
-	"testing"
-	"time"
 )
 
 const (
@@ -27,7 +28,7 @@ const (
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.ErrorLevel)
+	log.SetLevel(log.DebugLevel)
 }
 
 var (
@@ -131,13 +132,6 @@ func TestSimpleTask(t *testing.T) {
 		t.Fatal(err)
 	}
 	err = testdata.ValidateWorkflowBulk(simpleTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = testdata.TaskRunner.RemoveWorker(
-		simpleTask.ReferenceName(),
-		testdata.WorkerQty,
-	)
 	if err != nil {
 		t.Fatal(err)
 	}

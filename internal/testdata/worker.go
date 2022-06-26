@@ -10,11 +10,12 @@
 package testdata
 
 import (
-	"github.com/conductor-sdk/conductor-go/sdk/model"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/conductor-sdk/conductor-go/sdk/model"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -31,7 +32,7 @@ const (
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.ErrorLevel)
+	log.SetLevel(log.DebugLevel)
 }
 
 func ExampleWorker(t *model.Task) (interface{}, error) {
@@ -119,8 +120,5 @@ func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]
 			return err
 		}
 	}
-	return TaskRunner.RemoveWorker(
-		TaskName,
-		WorkerQty,
-	)
+	return nil
 }
