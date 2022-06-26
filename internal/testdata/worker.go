@@ -10,11 +10,12 @@
 package testdata
 
 import (
-	"github.com/conductor-sdk/conductor-go/sdk/model"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/conductor-sdk/conductor-go/sdk/model"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -119,7 +120,7 @@ func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]
 			return err
 		}
 	}
-	return TaskRunner.RemoveWorker(
+	return TaskRunner.DecreaseBatchSize(
 		TaskName,
 		WorkerQty,
 	)
