@@ -160,7 +160,7 @@ func (c *TaskRunner) startWorker(taskName string, executeFunction model.ExecuteT
 	}
 	if previousMaxAllowedWorkers < 1 {
 		c.workerWaitGroup.Add(1)
-		go c.pollAndExecute(taskName, executeFunction, optional.NewString(taskDomain))
+		go c.pollAndExecute(taskName, executeFunction, taskDomain)
 	}
 	log.Info(
 		fmt.Sprintf(
@@ -173,7 +173,7 @@ func (c *TaskRunner) startWorker(taskName string, executeFunction model.ExecuteT
 	return nil
 }
 
-func (c *TaskRunner) pollAndExecute(taskName string, executeFunction model.ExecuteTaskFunction, domain optional.String) error {
+func (c *TaskRunner) pollAndExecute(taskName string, executeFunction model.ExecuteTaskFunction, domain string) error {
 	defer c.workerWaitGroup.Done()
 	defer concurrency.HandlePanicError("poll_and_execute")
 	for c.isWorkerAlive(taskName) {
@@ -208,7 +208,7 @@ func (c *TaskRunner) pollAndExecute(taskName string, executeFunction model.Execu
 	return nil
 }
 
-func (c *TaskRunner) runBatch(taskName string, executeFunction model.ExecuteTaskFunction, pollInterval time.Duration, domain optional.String) (bool, error) {
+func (c *TaskRunner) runBatch(taskName string, executeFunction model.ExecuteTaskFunction, pollInterval time.Duration, domain string) (bool, error) {
 	batchSize, err := c.getAvailableWorkerAmount(taskName)
 	if err != nil {
 		return false, err
@@ -246,7 +246,11 @@ func (c *TaskRunner) executeAndUpdateTask(taskName string, task model.Task, exec
 	return err
 }
 
-func (c *TaskRunner) batchPoll(taskName string, count int, timeout time.Duration, domain optional.String) ([]model.Task, error) {
+func (c *TaskRunner) batchPoll(taskName string, count int, timeout time.Duration, domain string) ([]model.Task, error) {
+	var domainOptional optional.String
+	if domain != "" {
+		domainOptional = optional.NewString(domain)
+	}
 	log.Debug(
 		"Polling for task: ", taskName,
 		", in batches of size: ", count,
@@ -257,7 +261,7 @@ func (c *TaskRunner) batchPoll(taskName string, count int, timeout time.Duration
 		context.Background(),
 		taskName,
 		&client.TaskResourceApiBatchPollOpts{
-			Domain:   domain,
+			Domain:   domainOptional,
 			Workerid: optional.NewString(hostname),
 			Count:    optional.NewInt32(int32(count)),
 			Timeout:  optional.NewInt32(int32(timeout.Milliseconds())),
@@ -268,6 +272,7 @@ func (c *TaskRunner) batchPoll(taskName string, count int, timeout time.Duration
 		taskName,
 		spentTime.Seconds(),
 	)
+	log.Debug("response: ", response)
 	if err != nil {
 		metrics.IncrementTaskPollError(
 			taskName, err,
