@@ -12,11 +12,13 @@ package executor
 import (
 	"context"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -89,10 +91,13 @@ func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequest *model.StartWorkfl
 func (e *WorkflowExecutor) StartWorkflows(monitorExecution bool, startWorkflowRequests ...*model.StartWorkflowRequest) []*RunningWorkflow {
 	amount := len(startWorkflowRequests)
 	startingWorkflowChannel := make([]chan *RunningWorkflow, amount)
+	var waitGroup sync.WaitGroup
 	for i := 0; i < amount; i += 1 {
 		startingWorkflowChannel[i] = make(chan *RunningWorkflow)
-		go e.startWorkflowDaemon(monitorExecution, startWorkflowRequests[i], startingWorkflowChannel[i])
+		waitGroup.Add(1)
+		go e.startWorkflowDaemon(monitorExecution, startWorkflowRequests[i], startingWorkflowChannel[i], &waitGroup)
 	}
+	waitGroup.Wait()
 	startedWorkflows := make([]*RunningWorkflow, amount)
 	for i := 0; i < amount; i += 1 {
 		startedWorkflows[i] = <-startingWorkflowChannel[i]
@@ -370,7 +375,8 @@ func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request 
 	return workflowId, err
 }
 
-func (e *WorkflowExecutor) startWorkflowDaemon(monitorExecution bool, request *model.StartWorkflowRequest, runningWorkflowChannel chan *RunningWorkflow) {
+func (e *WorkflowExecutor) startWorkflowDaemon(monitorExecution bool, request *model.StartWorkflowRequest, runningWorkflowChannel chan *RunningWorkflow, waitGroup *sync.WaitGroup) {
+	defer waitGroup.Done()
 	defer concurrency.HandlePanicError("start_workflow")
 	workflowId, err := e.executeWorkflow(nil, request)
 	if err != nil {
