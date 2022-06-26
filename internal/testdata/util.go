@@ -199,14 +199,12 @@ func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 	if err != nil {
 		return err
 	}
-
-	if err != nil {
-		return err
-	}
+	log.Debug("Started workflowId: ", workflowId)
 	workflowExecutionChannel, err := WorkflowExecutor.MonitorExecution(workflowId)
 	if err != nil {
 		return err
 	}
+	log.Debug("Generated workflowExecutionChannel for workflowId: ", workflowId)
 	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
 		workflowExecutionChannel,
 		timeout,
@@ -214,10 +212,10 @@ func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 	if err != nil {
 		return err
 	}
+	log.Debug("Workflow completed, workflowId: ", workflowId)
 	if !isWorkflowCompleted(workflow) {
 		return fmt.Errorf("workflow finished with unexpected status: %s", workflow.Status)
 	}
-
 	return nil
 }
 
