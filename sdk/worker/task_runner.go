@@ -118,11 +118,11 @@ func (c *TaskRunner) DecreaseBatchSize(taskName string, batchSize int) error {
 	if batchSize < 1 {
 		return fmt.Errorf("batchSize value must be positive")
 	}
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
 	if !c.isWorkerAlive(taskName) {
 		return fmt.Errorf("no worker registered for taskName: %s", taskName)
 	}
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	if batchSize >= c.maxAllowedWorkersByTaskType[taskName] {
 		c.maxAllowedWorkersByTaskType[taskName] = 0
 	} else {

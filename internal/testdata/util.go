@@ -12,15 +12,16 @@ package testdata
 import (
 	"context"
 	"fmt"
+	"os"
+	"reflect"
+	"time"
+
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/conductor-sdk/conductor-go/sdk/worker"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
-	"os"
-	"reflect"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 )
