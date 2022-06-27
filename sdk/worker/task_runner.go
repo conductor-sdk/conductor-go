@@ -191,7 +191,7 @@ func (c *TaskRunner) pollAndExecute(taskName string, executeFunction model.Execu
 	for c.isWorkerAlive(taskName) {
 		err := c.runBatch(taskName, executeFunction, domain)
 		if err != nil {
-			log.Warning(
+			log.Error(
 				"Failed to poll and execute",
 				", reason: ", err.Error(),
 				", taskName: ", taskName,
