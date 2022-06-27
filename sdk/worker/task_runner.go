@@ -436,7 +436,7 @@ func (c *TaskRunner) GetPollIntervalForTask(taskName string) (pollInterval time.
 	return pollInterval, nil
 }
 
-func (c *TaskRunner) GetBatchSizeByTaskName() (batchSizeByTaskName map[string]int) {
+func (c *TaskRunner) GetBatchSizeForAll() (batchSizeByTaskName map[string]int) {
 	c.batchSizeByTaskNameMutex.RLock()
 	defer c.batchSizeByTaskNameMutex.RUnlock()
 	batchSizeByTaskName = make(map[string]int)
@@ -444,4 +444,14 @@ func (c *TaskRunner) GetBatchSizeByTaskName() (batchSizeByTaskName map[string]in
 		batchSizeByTaskName[taskName] = batchSize
 	}
 	return batchSizeByTaskName
+}
+
+func (c *TaskRunner) GetBatchSizeForTask(taskName string) (batchSize int) {
+	c.batchSizeByTaskNameMutex.RLock()
+	defer c.batchSizeByTaskNameMutex.RUnlock()
+	batchSize, ok := c.batchSizeByTaskName[taskName]
+	if !ok {
+		return 0
+	}
+	return batchSize
 }
