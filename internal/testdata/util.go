@@ -12,15 +12,16 @@ package testdata
 import (
 	"context"
 	"fmt"
+	"os"
+	"reflect"
+	"time"
+
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/conductor-sdk/conductor-go/sdk/worker"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
-	"os"
-	"reflect"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -198,14 +199,12 @@ func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 	if err != nil {
 		return err
 	}
-
-	if err != nil {
-		return err
-	}
+	log.Debug("Started workflowId: ", workflowId)
 	workflowExecutionChannel, err := WorkflowExecutor.MonitorExecution(workflowId)
 	if err != nil {
 		return err
 	}
+	log.Debug("Generated workflowExecutionChannel for workflowId: ", workflowId)
 	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
 		workflowExecutionChannel,
 		timeout,
@@ -213,10 +212,10 @@ func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 	if err != nil {
 		return err
 	}
+	log.Debug("Workflow completed, workflowId: ", workflowId)
 	if !isWorkflowCompleted(workflow) {
 		return fmt.Errorf("workflow finished with unexpected status: %s", workflow.Status)
 	}
-
 	return nil
 }
 

@@ -12,11 +12,13 @@ package executor
 import (
 	"context"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -88,15 +90,20 @@ func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequest *model.StartWorkfl
 //which can be used to monitor the completion of the workflow execution.  The channel is available if monitorExecution is set
 func (e *WorkflowExecutor) StartWorkflows(monitorExecution bool, startWorkflowRequests ...*model.StartWorkflowRequest) []*RunningWorkflow {
 	amount := len(startWorkflowRequests)
+	log.Debug(fmt.Sprintf("Starting %d workflows", amount))
 	startingWorkflowChannel := make([]chan *RunningWorkflow, amount)
+	var waitGroup sync.WaitGroup
+	waitGroup.Add(amount)
 	for i := 0; i < amount; i += 1 {
 		startingWorkflowChannel[i] = make(chan *RunningWorkflow)
-		go e.startWorkflowDaemon(monitorExecution, startWorkflowRequests[i], startingWorkflowChannel[i])
+		go e.startWorkflowDaemon(monitorExecution, startWorkflowRequests[i], startingWorkflowChannel[i], &waitGroup)
 	}
+	waitGroup.Wait()
 	startedWorkflows := make([]*RunningWorkflow, amount)
 	for i := 0; i < amount; i += 1 {
 		startedWorkflows[i] = <-startingWorkflowChannel[i]
 	}
+	log.Debug(fmt.Sprintf("Started %d workflows", amount))
 	return startedWorkflows
 }
 
@@ -370,9 +377,10 @@ func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request 
 	return workflowId, err
 }
 
-func (e *WorkflowExecutor) startWorkflowDaemon(monitorExecution bool, request *model.StartWorkflowRequest, runningWorkflowChannel chan *RunningWorkflow) {
+func (e *WorkflowExecutor) startWorkflowDaemon(monitorExecution bool, request *model.StartWorkflowRequest, runningWorkflowChannel chan *RunningWorkflow, waitGroup *sync.WaitGroup) {
 	defer concurrency.HandlePanicError("start_workflow")
 	workflowId, err := e.executeWorkflow(nil, request)
+	waitGroup.Done()
 	if err != nil {
 		runningWorkflowChannel <- NewRunningWorkflow("", nil, err)
 		return

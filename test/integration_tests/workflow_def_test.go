@@ -10,24 +10,25 @@
 package integration_tests
 
 import (
+	"os"
+	"testing"
+	"time"
+
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	log "github.com/sirupsen/logrus"
-	"os"
-	"testing"
-	"time"
 )
 
 const (
-	workflowValidationTimeout = 5 * time.Second
+	workflowValidationTimeout = 7 * time.Second
 	workflowBulkQty           = 10
 )
 
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.ErrorLevel)
+	log.SetLevel(log.DebugLevel)
 }
 
 var (
@@ -134,7 +135,7 @@ func TestSimpleTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = testdata.TaskRunner.RemoveWorker(
+	err = testdata.TaskRunner.DecreaseBatchSize(
 		simpleTask.ReferenceName(),
 		testdata.WorkerQty,
 	)
