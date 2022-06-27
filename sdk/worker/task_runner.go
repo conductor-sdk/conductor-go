@@ -28,6 +28,8 @@ import (
 )
 
 const taskUpdateRetryAttemptsLimit = 3
+const batchPollErrorRetryInterval = 100 * time.Millisecond
+const batchPollNoAvailableWorkerRetryInterval = 1 * time.Millisecond
 
 var hostname, _ = os.Hostname()
 
@@ -208,18 +210,19 @@ func (c *TaskRunner) runBatch(taskName string, executeFunction model.ExecuteTask
 	}
 	if batchSize < 1 {
 		// TODO wait until there is available workers
-		time.Sleep(1 * time.Millisecond)
+		time.Sleep(batchPollNoAvailableWorkerRetryInterval)
 		return nil
 	}
 	tasks, err := c.batchPoll(taskName, batchSize, domain)
 	if err != nil {
+		time.Sleep(batchPollErrorRetryInterval)
 		return err
 	}
 	if len(tasks) < 1 {
 		log.Debug("No tasks available for: ", taskName)
 		pollInterval, err := c.GetPollIntervalForTask(taskName)
 		if err != nil {
-			return fmt.Errorf("failed to get poll interval for task %s, reason: %s", taskName, err.Error())
+			return err
 		}
 		time.Sleep(pollInterval)
 		return nil
