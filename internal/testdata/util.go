@@ -239,10 +239,7 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 		if runningWorkflow.Err != nil {
 			return err
 		}
-		workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
-			runningWorkflow.WorkflowExecutionChannel,
-			timeout,
-		)
+		workflow, err := runningWorkflow.WaitForCompletionUntilTimeout(timeout)
 		if err != nil {
 			return err
 		}
