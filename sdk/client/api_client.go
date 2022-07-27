@@ -17,8 +17,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -32,6 +30,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/settings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -283,7 +284,7 @@ func (c *APIClient) getToken() (model.Token, *http.Response, error) {
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v model.Task

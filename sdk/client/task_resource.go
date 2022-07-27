@@ -12,12 +12,12 @@ package client
 import (
 	"context"
 	"fmt"
-	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/antihax/optional"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
 // Linger please
@@ -94,7 +94,7 @@ func (a *TaskResourceApiService) All(ctx context.Context) (map[string]int64, *ht
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v map[string]int64
@@ -177,7 +177,7 @@ func (a *TaskResourceApiService) AllVerbose(ctx context.Context) (map[string]map
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v map[string]map[string]map[string]int64
@@ -287,7 +287,7 @@ func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string,
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v []model.Task
@@ -370,7 +370,7 @@ func (a *TaskResourceApiService) GetAllPollData(ctx context.Context) ([]model.Po
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v []model.PollData
@@ -459,7 +459,7 @@ func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: localVarHttpResponse.Status,
+			error: string(localVarBody),
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v model.ExternalStorageLocation
