@@ -11,10 +11,11 @@ package client
 
 import (
 	"context"
-	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
 // Linger please
