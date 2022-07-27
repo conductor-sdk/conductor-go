@@ -12,30 +12,15 @@ package executor
 import (
 	"context"
 	"fmt"
-	"github.com/conductor-sdk/conductor-go/sdk/client"
-	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
-	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"sync"
 	"time"
 
+	"github.com/conductor-sdk/conductor-go/sdk/client"
+	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
+
 	log "github.com/sirupsen/logrus"
 )
-
-type WorkflowExecutionChannel chan *model.Workflow
-
-type RunningWorkflow struct {
-	WorkflowId               string
-	WorkflowExecutionChannel WorkflowExecutionChannel
-	Err                      error
-}
-
-func NewRunningWorkflow(workflowId string, workflowExecutionChannel WorkflowExecutionChannel, err error) *RunningWorkflow {
-	return &RunningWorkflow{
-		WorkflowId:               workflowId,
-		WorkflowExecutionChannel: workflowExecutionChannel,
-		Err:                      err,
-	}
-}
 
 type WorkflowMonitor struct {
 	mutex                        sync.Mutex
