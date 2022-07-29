@@ -22,6 +22,7 @@ type RunningWorkflow struct {
 	WorkflowId               string
 	WorkflowExecutionChannel WorkflowExecutionChannel
 	Err                      error
+	CompletedWorkflow        *model.Workflow
 }
 
 func NewRunningWorkflow(workflowId string, workflowExecutionChannel WorkflowExecutionChannel, err error) *RunningWorkflow {
@@ -29,6 +30,7 @@ func NewRunningWorkflow(workflowId string, workflowExecutionChannel WorkflowExec
 		WorkflowId:               workflowId,
 		WorkflowExecutionChannel: workflowExecutionChannel,
 		Err:                      err,
+		CompletedWorkflow:        nil,
 	}
 }
 
@@ -38,6 +40,7 @@ func (rw *RunningWorkflow) WaitForCompletionUntilTimeout(timeout time.Duration) 
 		if !ok {
 			return nil, fmt.Errorf("channel closed")
 		}
+		rw.CompletedWorkflow = workflow
 		return workflow, nil
 	case <-time.After(timeout):
 		return nil, fmt.Errorf("timeout")
