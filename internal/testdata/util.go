@@ -27,9 +27,9 @@ import (
 )
 
 const (
-	AUTHENTICATION_KEY_ID     = "KEY"
-	AUTHENTICATION_KEY_SECRET = "SECRET"
-	BASE_URL                  = "https://pg-staging.orkesconductor.com/api"
+	AUTHENTICATION_KEY_ID     = "GO_INTEGRATION_TESTS_SERVER_KEY_ID"
+	AUTHENTICATION_KEY_SECRET = "GO_INTEGRATION_TESTS_SERVER_KEY_SECRET"
+	BASE_URL                  = "GO_INTEGRATION_TESTS_SERVER_API_URL"
 )
 
 var (
@@ -106,7 +106,7 @@ func getAuthenticationSettings() *settings.AuthenticationSettings {
 
 func getHttpSettingsWithAuth() *settings.HttpSettings {
 	return settings.NewHttpSettings(
-		BASE_URL,
+		os.Getenv(BASE_URL),
 	)
 }
 
@@ -235,16 +235,16 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 		)
 	}
 	runningWorkflows := WorkflowExecutor.StartWorkflows(true, startWorkflowRequests...)
+	executor.WaitForRunningWorkflowUntilTimeout(timeout, runningWorkflows...)
 	for _, runningWorkflow := range runningWorkflows {
 		if runningWorkflow.Err != nil {
 			return err
 		}
-		workflow, err := runningWorkflow.WaitForCompletionUntilTimeout(timeout)
-		if err != nil {
-			return err
+		if runningWorkflow.CompletedWorkflow == nil {
+			return fmt.Errorf("invalid completed workflows")
 		}
-		if !isWorkflowCompleted(workflow) {
-			return fmt.Errorf("workflow finished with status: %s", workflow.Status)
+		if !isWorkflowCompleted(runningWorkflow.CompletedWorkflow) {
+			return fmt.Errorf("workflow finished with status: %s", runningWorkflow.CompletedWorkflow.Status)
 		}
 	}
 	return nil
