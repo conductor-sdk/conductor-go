@@ -132,6 +132,7 @@ func WaitForRunningWorkflowsUntilTimeout(timeout time.Duration, runningWorkflows
 	for idx := 0; idx < len(runningWorkflows); {
 		var waitGroup sync.WaitGroup
 		for batchIdx := 0; idx < len(runningWorkflows) && batchIdx < monitorWorkflowBatchSize; batchIdx, idx = batchIdx+1, idx+1 {
+			waitGroup.Add(1)
 			go waitForRunningWorkflowUntilTimeoutDaemon(timeout, runningWorkflows[idx], &waitGroup)
 		}
 		waitGroup.Wait()
