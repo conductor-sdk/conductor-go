@@ -128,14 +128,14 @@ func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionCha
 }
 
 //WaitForRunningWorkflowUntilTimeout Helper method to wait for running workflows until the timeout for the workflow execution to complete
-func WaitForRunningWorkflowUntilTimeout(timeout time.Duration, runningWorkflows ...*RunningWorkflow) error {
-	var waitGroup sync.WaitGroup
-	waitGroup.Add(len(runningWorkflows))
-	for _, runningWorkflow := range runningWorkflows {
-		go waitForRunningWorkflowUntilTimeoutDaemon(timeout, runningWorkflow, &waitGroup)
+func WaitForRunningWorkflowsUntilTimeout(timeout time.Duration, runningWorkflows ...*RunningWorkflow) {
+	for idx := 0; idx < len(runningWorkflows); {
+		var waitGroup sync.WaitGroup
+		for batchIdx := 0; idx < len(runningWorkflows) && batchIdx < monitorWorkflowBatchSize; batchIdx, idx = batchIdx+1, idx+1 {
+			go waitForRunningWorkflowUntilTimeoutDaemon(timeout, runningWorkflows[idx], &waitGroup)
+		}
+		waitGroup.Wait()
 	}
-	waitGroup.Wait()
-	return nil
 }
 
 func waitForRunningWorkflowUntilTimeoutDaemon(timeout time.Duration, runningWorkflow *RunningWorkflow, waitGroup *sync.WaitGroup) {
