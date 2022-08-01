@@ -30,6 +30,11 @@ type WorkflowExecutor struct {
 	workflowMonitor *WorkflowMonitor
 }
 
+const (
+	startWorkflowBatchSize   = 128
+	monitorWorkflowBatchSize = 128
+)
+
 // NewWorkflowExecutor Create a new workflow executor
 func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 	workflowClient := &client.WorkflowResourceApiService{
@@ -92,13 +97,15 @@ func (e *WorkflowExecutor) StartWorkflows(monitorExecution bool, startWorkflowRe
 	amount := len(startWorkflowRequests)
 	log.Debug(fmt.Sprintf("Starting %d workflows", amount))
 	startingWorkflowChannel := make([]chan *RunningWorkflow, amount)
-	var waitGroup sync.WaitGroup
-	waitGroup.Add(amount)
-	for i := 0; i < amount; i += 1 {
-		startingWorkflowChannel[i] = make(chan *RunningWorkflow)
-		go e.startWorkflowDaemon(monitorExecution, startWorkflowRequests[i], startingWorkflowChannel[i], &waitGroup)
+	for idx := 0; idx < len(startWorkflowRequests); {
+		var waitGroup sync.WaitGroup
+		for batchIdx := 0; idx < len(startWorkflowRequests) && batchIdx < startWorkflowBatchSize; batchIdx, idx = batchIdx+1, idx+1 {
+			waitGroup.Add(1)
+			startingWorkflowChannel[idx] = make(chan *RunningWorkflow)
+			go e.startWorkflowDaemon(monitorExecution, startWorkflowRequests[idx], startingWorkflowChannel[idx], &waitGroup)
+		}
+		waitGroup.Wait()
 	}
-	waitGroup.Wait()
 	startedWorkflows := make([]*RunningWorkflow, amount)
 	for i := 0; i < amount; i += 1 {
 		startedWorkflows[i] = <-startingWorkflowChannel[i]
