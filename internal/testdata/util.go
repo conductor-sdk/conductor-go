@@ -235,7 +235,7 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 		)
 	}
 	runningWorkflows := WorkflowExecutor.StartWorkflows(true, startWorkflowRequests...)
-	executor.WaitForRunningWorkflowUntilTimeout(timeout, runningWorkflows...)
+	WorkflowExecutor.WaitForRunningWorkflowsUntilTimeout(timeout, runningWorkflows...)
 	for _, runningWorkflow := range runningWorkflows {
 		if runningWorkflow.Err != nil {
 			return err

@@ -12,6 +12,7 @@ package executor
 import (
 	"context"
 	"fmt"
+	"github.com/antihax/optional"
 	"sync"
 	"time"
 
@@ -90,7 +91,7 @@ func (w *WorkflowMonitor) getWorkflowsInTerminalState() ([]*model.Workflow, erro
 		workflow, response, err := w.workflowClient.GetExecutionStatus(
 			context.Background(),
 			workflowId,
-			nil,
+			&client.WorkflowResourceApiGetExecutionStatusOpts{IncludeTasks: optional.NewBool(false)},
 		)
 		if err != nil {
 			log.Debug(

@@ -12,6 +12,8 @@ package executor
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -24,26 +26,47 @@ import (
 )
 
 type WorkflowExecutor struct {
-	metadataClient  *client.MetadataResourceApiService
-	taskClient      *client.TaskResourceApiService
-	workflowClient  *client.WorkflowResourceApiService
+	metadataClient *client.MetadataResourceApiService
+	taskClient     *client.TaskResourceApiService
+	workflowClient *client.WorkflowResourceApiService
+
 	workflowMonitor *WorkflowMonitor
+
+	startWorkflowBatchSize   int
+	waitForWorkflowBatchSize int
 }
+
+const (
+	startWorkflowBatchSizeEnv   = "WORKFLOW_EXECUTOR_START_BATCH_SIZE"
+	waitForWorkflowBatchSizeEnv = "WORKFLOW_EXECUTOR_WAIT_BATCH_SIZE"
+)
 
 // NewWorkflowExecutor Create a new workflow executor
 func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
-	workflowClient := &client.WorkflowResourceApiService{
+	metadataClient := client.MetadataResourceApiService{
 		APIClient: apiClient,
 	}
+	taskClient := client.TaskResourceApiService{
+		APIClient: apiClient,
+	}
+	workflowClient := client.WorkflowResourceApiService{
+		APIClient: apiClient,
+	}
+	startWorkflowBatchSize, err := getEnvInt(startWorkflowBatchSizeEnv)
+	if err != nil {
+		startWorkflowBatchSize = 256
+	}
+	waitForWorkflowBatchSize, err := getEnvInt(waitForWorkflowBatchSizeEnv)
+	if err != nil {
+		waitForWorkflowBatchSize = 256
+	}
 	workflowExecutor := WorkflowExecutor{
-		metadataClient: &client.MetadataResourceApiService{
-			APIClient: apiClient,
-		},
-		taskClient: &client.TaskResourceApiService{
-			APIClient: apiClient,
-		},
-		workflowClient:  workflowClient,
-		workflowMonitor: NewWorkflowMonitor(workflowClient),
+		metadataClient:           &metadataClient,
+		taskClient:               &taskClient,
+		workflowClient:           &workflowClient,
+		workflowMonitor:          NewWorkflowMonitor(&workflowClient),
+		startWorkflowBatchSize:   startWorkflowBatchSize,
+		waitForWorkflowBatchSize: waitForWorkflowBatchSize,
 	}
 	return &workflowExecutor
 }
@@ -92,13 +115,15 @@ func (e *WorkflowExecutor) StartWorkflows(monitorExecution bool, startWorkflowRe
 	amount := len(startWorkflowRequests)
 	log.Debug(fmt.Sprintf("Starting %d workflows", amount))
 	startingWorkflowChannel := make([]chan *RunningWorkflow, amount)
-	var waitGroup sync.WaitGroup
-	waitGroup.Add(amount)
-	for i := 0; i < amount; i += 1 {
-		startingWorkflowChannel[i] = make(chan *RunningWorkflow)
-		go e.startWorkflowDaemon(monitorExecution, startWorkflowRequests[i], startingWorkflowChannel[i], &waitGroup)
+	for idx := 0; idx < len(startWorkflowRequests); {
+		var waitGroup sync.WaitGroup
+		for batchIdx := 0; idx < len(startWorkflowRequests) && batchIdx < e.startWorkflowBatchSize; batchIdx, idx = batchIdx+1, idx+1 {
+			waitGroup.Add(1)
+			startingWorkflowChannel[idx] = make(chan *RunningWorkflow)
+			go e.startWorkflowDaemon(monitorExecution, startWorkflowRequests[idx], startingWorkflowChannel[idx], &waitGroup)
+		}
+		waitGroup.Wait()
 	}
-	waitGroup.Wait()
 	startedWorkflows := make([]*RunningWorkflow, amount)
 	for i := 0; i < amount; i += 1 {
 		startedWorkflows[i] = <-startingWorkflowChannel[i]
@@ -121,14 +146,15 @@ func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionCha
 }
 
 //WaitForRunningWorkflowUntilTimeout Helper method to wait for running workflows until the timeout for the workflow execution to complete
-func WaitForRunningWorkflowUntilTimeout(timeout time.Duration, runningWorkflows ...*RunningWorkflow) error {
-	var waitGroup sync.WaitGroup
-	waitGroup.Add(len(runningWorkflows))
-	for _, runningWorkflow := range runningWorkflows {
-		go waitForRunningWorkflowUntilTimeoutDaemon(timeout, runningWorkflow, &waitGroup)
+func (e *WorkflowExecutor) WaitForRunningWorkflowsUntilTimeout(timeout time.Duration, runningWorkflows ...*RunningWorkflow) {
+	for idx := 0; idx < len(runningWorkflows); {
+		var waitGroup sync.WaitGroup
+		for batchIdx := 0; idx < len(runningWorkflows) && batchIdx < e.waitForWorkflowBatchSize; batchIdx, idx = batchIdx+1, idx+1 {
+			waitGroup.Add(1)
+			go waitForRunningWorkflowUntilTimeoutDaemon(timeout, runningWorkflows[idx], &waitGroup)
+		}
+		waitGroup.Wait()
 	}
-	waitGroup.Wait()
-	return nil
 }
 
 func waitForRunningWorkflowUntilTimeoutDaemon(timeout time.Duration, runningWorkflow *RunningWorkflow, waitGroup *sync.WaitGroup) {
@@ -139,14 +165,28 @@ func waitForRunningWorkflowUntilTimeoutDaemon(timeout time.Duration, runningWork
 //GetWorkflow Get workflow execution by workflow Id.  If includeTasks is set, also fetches all the task details.
 //Returns nil if no workflow is found by the id
 func (e *WorkflowExecutor) GetWorkflow(workflowId string, includeTasks bool) (*model.Workflow, error) {
+	return e.getWorkflow(4, workflowId, includeTasks)
+}
+
+func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTasks bool) (*model.Workflow, error) {
 	workflow, response, err := e.workflowClient.GetExecutionStatus(
 		context.Background(),
 		workflowId,
 		&client.WorkflowResourceApiGetExecutionStatusOpts{
 			IncludeTasks: optional.NewBool(includeTasks)},
 	)
+	if err != nil {
+		if retry < 0 {
+			return nil, err
+		} else {
+			time.Sleep(time.Duration(4-retry) * 10 * time.Second)
+			retry = retry - 1
+			return e.getWorkflow(retry, workflowId, includeTasks)
+		}
+
+	}
 	if response.StatusCode == 404 {
-		return nil, nil
+		return nil, fmt.Errorf("no such workflow by Id %s", workflowId)
 	}
 	return &workflow, err
 }
@@ -411,4 +451,24 @@ func (e *WorkflowExecutor) startWorkflowDaemon(monitorExecution bool, request *m
 		return
 	}
 	runningWorkflowChannel <- NewRunningWorkflow(workflowId, executionChannel, nil)
+}
+
+func getEnvStr(key string) (string, error) {
+	v := os.Getenv(key)
+	if v == "" {
+		return v, fmt.Errorf("env not set: %s", key)
+	}
+	return v, nil
+}
+
+func getEnvInt(key string) (int, error) {
+	s, err := getEnvStr(key)
+	if err != nil {
+		return 0, err
+	}
+	v, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, err
+	}
+	return v, nil
 }
