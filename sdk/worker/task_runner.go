@@ -344,7 +344,7 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 			", workflowId: ", taskResult.WorkflowInstanceId,
 			", response: ", *response,
 		)
-		amount := (1 << attempt)
+		amount := 10 << attempt
 		time.Sleep(time.Duration(amount) * time.Second)
 	}
 	return fmt.Errorf("failed to update task %s after %d attempts", taskName, taskUpdateRetryAttemptsLimit)
