@@ -31,8 +31,8 @@ type WorkflowExecutor struct {
 }
 
 const (
-	startWorkflowBatchSize   = 256
-	monitorWorkflowBatchSize = 256
+	startWorkflowBatchSize   = 1024
+	monitorWorkflowBatchSize = 1024
 )
 
 // NewWorkflowExecutor Create a new workflow executor
@@ -147,14 +147,28 @@ func waitForRunningWorkflowUntilTimeoutDaemon(timeout time.Duration, runningWork
 //GetWorkflow Get workflow execution by workflow Id.  If includeTasks is set, also fetches all the task details.
 //Returns nil if no workflow is found by the id
 func (e *WorkflowExecutor) GetWorkflow(workflowId string, includeTasks bool) (*model.Workflow, error) {
+	return e.getWorkflow(4, workflowId, includeTasks)
+}
+
+func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTasks bool) (*model.Workflow, error) {
 	workflow, response, err := e.workflowClient.GetExecutionStatus(
 		context.Background(),
 		workflowId,
 		&client.WorkflowResourceApiGetExecutionStatusOpts{
 			IncludeTasks: optional.NewBool(includeTasks)},
 	)
+	if err != nil {
+		if retry < 0 {
+			return nil, err
+		} else {
+			time.Sleep(time.Duration(4-retry) * 10 * time.Second)
+			retry = retry - 1
+			return e.getWorkflow(retry, workflowId, includeTasks)
+		}
+
+	}
 	if response.StatusCode == 404 {
-		return nil, nil
+		return nil, fmt.Errorf("no such workflow by Id %s", workflowId)
 	}
 	return &workflow, err
 }
