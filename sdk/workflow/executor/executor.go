@@ -31,8 +31,8 @@ type WorkflowExecutor struct {
 }
 
 const (
-	startWorkflowBatchSize   = 1024
-	monitorWorkflowBatchSize = 1024
+	startWorkflowBatchSize   = 256
+	monitorWorkflowBatchSize = 256
 )
 
 // NewWorkflowExecutor Create a new workflow executor
