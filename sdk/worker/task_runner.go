@@ -227,6 +227,8 @@ func (c *TaskRunner) runBatch(taskName string, executeFunction model.ExecuteTask
 	if err != nil {
 		return err
 	}
+	c.pausedWorkersMutex.RLock()
+	defer c.pausedWorkersMutex.RUnlock()
 	if batchSize < 1 || c.pausedWorkers[taskName] {
 		time.Sleep(batchPollNoAvailableWorkerRetryInterval)
 		return nil
