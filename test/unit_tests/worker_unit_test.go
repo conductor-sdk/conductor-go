@@ -11,9 +11,12 @@ package unit_tests
 
 import (
 	"github.com/conductor-sdk/conductor-go/sdk/client"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/conductor-sdk/conductor-go/sdk/worker"
+	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestSimpleTaskRunner(t *testing.T) {
@@ -51,4 +54,29 @@ func TestTaskRunnerWithAuthenticationSettings(t *testing.T) {
 	if taskRunner == nil {
 		t.Fail()
 	}
+}
+func TestPauseResume(t *testing.T) {
+	authenticationSettings := settings.NewAuthenticationSettings(
+		"keyId",
+		"keySecret",
+	)
+	apiClient := client.NewAPIClient(
+		authenticationSettings,
+		settings.NewHttpDefaultSettings(),
+	)
+	taskRunner := worker.NewTaskRunnerWithApiClient(
+		apiClient,
+	)
+	taskRunner.StartWorker("test", TaskWorker, 21, time.Second)
+	taskRunner.Pause("test")
+	assert.Equal(t, 21, taskRunner.GetBatchSizeForTask("test"))
+	taskRunner.Resume("test")
+	assert.Equal(t, 21, taskRunner.GetBatchSizeForTask("test"))
+
+}
+
+func TaskWorker(task *model.Task) (interface{}, error) {
+	return map[string]interface{}{
+		"zip": "10121",
+	}, nil
 }
