@@ -47,7 +47,9 @@ type TaskRunner struct {
 
 	pollIntervalByTaskNameMutex sync.RWMutex
 	pollIntervalByTaskName      map[string]time.Duration
-	pausedWorkers               map[string]bool
+
+	pausedWorkersMutex sync.RWMutex
+	pausedWorkers      map[string]bool
 }
 
 func NewTaskRunner(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings) *TaskRunner {
@@ -162,11 +164,15 @@ func (c *TaskRunner) DecreaseBatchSize(taskName string, batchSize int) error {
 
 // Pause a running worker.  When paused worker will not poll for new task.  Worker must be resumed using Resume
 func (c *TaskRunner) Pause(taskName string) {
+	c.pausedWorkersMutex.Lock()
+	defer c.pausedWorkersMutex.Unlock()
 	c.pausedWorkers[taskName] = true
 }
 
 // Resume a running worker.  If the worker is not paused, calling this method has no impact
 func (c *TaskRunner) Resume(taskName string) {
+	c.pausedWorkersMutex.Lock()
+	defer c.pausedWorkersMutex.Unlock()
 	c.pausedWorkers[taskName] = false
 }
 
@@ -176,7 +182,7 @@ func (c *TaskRunner) WaitWorkers() {
 
 func (c *TaskRunner) startWorker(taskName string, executeFunction model.ExecuteTaskFunction, batchSize int, pollInterval time.Duration, taskDomain string) error {
 	c.SetPollIntervalForTask(taskName, pollInterval)
-	c.pausedWorkers[taskName] = false
+	c.Resume(taskName)
 	previousMaxAllowedWorkers, err := c.getMaxAllowedWorkers(taskName)
 	if err != nil {
 		return err
