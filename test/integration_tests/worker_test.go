@@ -14,9 +14,14 @@ import (
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
+	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 )
 
 func TestWorkerBatchSize(t *testing.T) {
+	simpleTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("TEST_GO_WORKFLOW_SIMPLE").
+		Version(1).
+		Add(simpleTask)
 	err := testdata.TaskRunner.StartWorker(
 		simpleTask.ReferenceName(),
 		testdata.SimpleWorker,
@@ -30,7 +35,10 @@ func TestWorkerBatchSize(t *testing.T) {
 	if testdata.TaskRunner.GetBatchSizeForTask(simpleTask.ReferenceName()) != 5 {
 		t.Fatal("unexpected batch size")
 	}
-	time.Sleep(1 * time.Second)
+	err = testdata.ValidateWorkflowBulk(simpleTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
+	if err != nil {
+		t.Fatal(err)
+	}
 	err = testdata.TaskRunner.SetBatchSize(
 		simpleTask.ReferenceName(),
 		0,
@@ -52,5 +60,9 @@ func TestWorkerBatchSize(t *testing.T) {
 	time.Sleep(1 * time.Second)
 	if testdata.TaskRunner.GetBatchSizeForTask(simpleTask.ReferenceName()) != 8 {
 		t.Fatal("unexpected batch size")
+	}
+	err = testdata.ValidateWorkflowBulk(simpleTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
