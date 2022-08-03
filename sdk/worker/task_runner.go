@@ -176,6 +176,11 @@ func (c *TaskRunner) Resume(taskName string) {
 	c.pausedWorkers[taskName] = false
 }
 
+func (c *TaskRunner) isPaused(taskName string) bool {
+	c.pausedWorkersMutex.RLock()
+	defer c.pausedWorkersMutex.RUnlock()
+	return c.pausedWorkers[taskName]
+}
 func (c *TaskRunner) WaitWorkers() {
 	c.workerWaitGroup.Wait()
 }
@@ -227,9 +232,8 @@ func (c *TaskRunner) runBatch(taskName string, executeFunction model.ExecuteTask
 	if err != nil {
 		return err
 	}
-	c.pausedWorkersMutex.RLock()
-	defer c.pausedWorkersMutex.RUnlock()
-	if batchSize < 1 || c.pausedWorkers[taskName] {
+
+	if batchSize < 1 || c.isPaused(taskName) {
 		time.Sleep(batchPollNoAvailableWorkerRetryInterval)
 		return nil
 	}
