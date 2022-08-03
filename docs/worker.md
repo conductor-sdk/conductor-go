@@ -53,19 +53,19 @@ func NewTaskRunnerWithApiClient(apiClient *client.APIClient) *TaskRunner
 func (c *TaskRunner) DecreaseBatchSize(taskName string, batchSize int) error
 ```
 
-### func \(\*TaskRunner\) [GetBatchSizeForAll](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L452>)
+### func \(\*TaskRunner\) [GetBatchSizeForAll](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L454>)
 
 ```go
 func (c *TaskRunner) GetBatchSizeForAll() (batchSizeByTaskName map[string]int)
 ```
 
-### func \(\*TaskRunner\) [GetBatchSizeForTask](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L462>)
+### func \(\*TaskRunner\) [GetBatchSizeForTask](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L464>)
 
 ```go
 func (c *TaskRunner) GetBatchSizeForTask(taskName string) (batchSize int)
 ```
 
-### func \(\*TaskRunner\) [GetPollIntervalForTask](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L442>)
+### func \(\*TaskRunner\) [GetPollIntervalForTask](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L444>)
 
 ```go
 func (c *TaskRunner) GetPollIntervalForTask(taskName string) (pollInterval time.Duration, err error)
@@ -77,17 +77,21 @@ func (c *TaskRunner) GetPollIntervalForTask(taskName string) (pollInterval time.
 func (c *TaskRunner) IncreaseBatchSize(taskName string, batchSize int) error
 ```
 
-### func \(\*TaskRunner\) [Pause](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L163>)
+### func \(\*TaskRunner\) [Pause](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L164>)
 
 ```go
 func (c *TaskRunner) Pause(taskName string)
 ```
 
-### func \(\*TaskRunner\) [Resume](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L167>)
+Pause a running worker.  When paused worker will not poll for new task.  Worker must be resumed using Resume
+
+### func \(\*TaskRunner\) [Resume](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L169>)
 
 ```go
 func (c *TaskRunner) Resume(taskName string)
 ```
+
+Resume a running worker.  If the worker is not paused, calling this method has no impact
 
 ### func \(\*TaskRunner\) [SetBatchSize](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L94>)
 
@@ -95,7 +99,7 @@ func (c *TaskRunner) Resume(taskName string)
 func (c *TaskRunner) SetBatchSize(taskName string, batchSize int) error
 ```
 
-### func \(\*TaskRunner\) [SetPollIntervalForTask](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L434>)
+### func \(\*TaskRunner\) [SetPollIntervalForTask](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L436>)
 
 ```go
 func (c *TaskRunner) SetPollIntervalForTask(taskName string, pollInterval time.Duration) error
@@ -117,7 +121,7 @@ func (c *TaskRunner) StartWorkerWithDomain(taskName string, executeFunction mode
 
 StartWorkerWithDomain \- taskName Task name to poll and execute the work \- executeFunction Task execution function \- batchSize Amount of tasks to be polled. Each polled task will be executed and updated within its own unique goroutine. \- pollInterval Time to wait for between polls if there are no tasks available. Reduces excessive polling on the server when there is no work \- domain Task domain. Optional for polling
 
-### func \(\*TaskRunner\) [WaitWorkers](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L171>)
+### func \(\*TaskRunner\) [WaitWorkers](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/worker/task_runner.go#L173>)
 
 ```go
 func (c *TaskRunner) WaitWorkers()

@@ -160,10 +160,12 @@ func (c *TaskRunner) DecreaseBatchSize(taskName string, batchSize int) error {
 	return nil
 }
 
+// Pause a running worker.  When paused worker will not poll for new task.  Worker must be resumed using Resume
 func (c *TaskRunner) Pause(taskName string) {
 	c.pausedWorkers[taskName] = true
 }
 
+// Resume a running worker.  If the worker is not paused, calling this method has no impact
 func (c *TaskRunner) Resume(taskName string) {
 	c.pausedWorkers[taskName] = false
 }
