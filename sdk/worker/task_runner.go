@@ -47,6 +47,7 @@ type TaskRunner struct {
 
 	pollIntervalByTaskNameMutex sync.RWMutex
 	pollIntervalByTaskName      map[string]time.Duration
+	pausedWorkers               map[string]bool
 }
 
 func NewTaskRunner(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings) *TaskRunner {
@@ -67,6 +68,7 @@ func NewTaskRunnerWithApiClient(
 		batchSizeByTaskName:      make(map[string]int),
 		runningWorkersByTaskName: make(map[string]int),
 		pollIntervalByTaskName:   make(map[string]time.Duration),
+		pausedWorkers:            make(map[string]bool),
 	}
 }
 
@@ -158,12 +160,21 @@ func (c *TaskRunner) DecreaseBatchSize(taskName string, batchSize int) error {
 	return nil
 }
 
+func (c *TaskRunner) Pause(taskName string) {
+	c.pausedWorkers[taskName] = true
+}
+
+func (c *TaskRunner) Resume(taskName string) {
+	c.pausedWorkers[taskName] = false
+}
+
 func (c *TaskRunner) WaitWorkers() {
 	c.workerWaitGroup.Wait()
 }
 
 func (c *TaskRunner) startWorker(taskName string, executeFunction model.ExecuteTaskFunction, batchSize int, pollInterval time.Duration, taskDomain string) error {
 	c.SetPollIntervalForTask(taskName, pollInterval)
+	c.pausedWorkers[taskName] = false
 	previousMaxAllowedWorkers, err := c.getMaxAllowedWorkers(taskName)
 	if err != nil {
 		return err
@@ -193,8 +204,8 @@ func (c *TaskRunner) pollAndExecute(taskName string, executeFunction model.Execu
 	for c.isWorkerRegistered(taskName) {
 		err := c.runBatch(taskName, executeFunction, domain)
 		if err != nil {
-			log.Error(
-				"Failed to poll and execute",
+			log.Debug(
+				"transient error when poll and execute",
 				", reason: ", err.Error(),
 				", taskName: ", taskName,
 				", domain: ", domain,
@@ -208,8 +219,7 @@ func (c *TaskRunner) runBatch(taskName string, executeFunction model.ExecuteTask
 	if err != nil {
 		return err
 	}
-	if batchSize < 1 {
-		// TODO wait until there is available workers
+	if batchSize < 1 || c.pausedWorkers[taskName] {
 		time.Sleep(batchPollNoAvailableWorkerRetryInterval)
 		return nil
 	}
