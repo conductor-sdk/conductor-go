@@ -93,7 +93,7 @@ func (c *TaskRunner) SetBatchSize(taskName string, batchSize int) error {
 	if batchSize < 0 {
 		return fmt.Errorf("batchSize can not be negative")
 	}
-	if !c.isWorkerAlive(taskName) {
+	if !c.isWorkerRegistered(taskName) {
 		return fmt.Errorf("no worker registered for taskName: %s", taskName)
 	}
 	c.batchSizeByTaskNameMutex.Lock()
@@ -117,7 +117,7 @@ func (c *TaskRunner) IncreaseBatchSize(taskName string, batchSize int) error {
 	if batchSize < 1 {
 		return fmt.Errorf("batchSize value must be positive")
 	}
-	if !c.isWorkerAlive(taskName) {
+	if !c.isWorkerRegistered(taskName) {
 		return fmt.Errorf("no worker registered for taskName: %s", taskName)
 	}
 	c.batchSizeByTaskNameMutex.Lock()
@@ -139,7 +139,7 @@ func (c *TaskRunner) DecreaseBatchSize(taskName string, batchSize int) error {
 	if batchSize < 1 {
 		return fmt.Errorf("batchSize value must be positive")
 	}
-	if !c.isWorkerAlive(taskName) {
+	if !c.isWorkerRegistered(taskName) {
 		return fmt.Errorf("no worker registered for taskName: %s", taskName)
 	}
 	c.batchSizeByTaskNameMutex.Lock()
@@ -190,7 +190,7 @@ func (c *TaskRunner) startWorker(taskName string, executeFunction model.ExecuteT
 func (c *TaskRunner) pollAndExecute(taskName string, executeFunction model.ExecuteTaskFunction, domain string) {
 	defer c.workerWaitGroup.Done()
 	defer concurrency.HandlePanicError("poll_and_execute")
-	for c.isWorkerAlive(taskName) {
+	for c.isWorkerRegistered(taskName) {
 		err := c.runBatch(taskName, executeFunction, domain)
 		if err != nil {
 			log.Error(
@@ -390,11 +390,11 @@ func (c *TaskRunner) getRunningWorkers(taskName string) (int, error) {
 	return amount, nil
 }
 
-func (c *TaskRunner) isWorkerAlive(taskName string) bool {
+func (c *TaskRunner) isWorkerRegistered(taskName string) bool {
 	c.batchSizeByTaskNameMutex.RLock()
 	defer c.batchSizeByTaskNameMutex.RUnlock()
-	allowed, ok := c.batchSizeByTaskName[taskName]
-	return ok && allowed > 0
+	_, ok := c.batchSizeByTaskName[taskName]
+	return ok
 }
 
 func (c *TaskRunner) increaseRunningWorkers(taskName string, amount int) error {
