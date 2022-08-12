@@ -175,6 +175,12 @@ func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTask
 		&client.WorkflowResourceApiGetExecutionStatusOpts{
 			IncludeTasks: optional.NewBool(includeTasks)},
 	)
+	if response.StatusCode == 404 {
+		return nil, fmt.Errorf("no such workflow by Id %s", workflowId)
+	}
+	if response.StatusCode > 399 && response.StatusCode < 500 {
+		return nil, fmt.Errorf("no such workflow by Id %s", workflowId)
+	}
 	if err != nil {
 		if retry < 0 {
 			return nil, err
@@ -185,9 +191,7 @@ func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTask
 		}
 
 	}
-	if response.StatusCode == 404 {
-		return nil, fmt.Errorf("no such workflow by Id %s", workflowId)
-	}
+
 	return &workflow, err
 }
 
@@ -376,6 +380,19 @@ func (e *WorkflowExecutor) GetTask(taskId string) (task *model.Task, err error) 
 		return nil, nil
 	}
 	return &t, nil
+}
+
+//RemoveWorkflow Remove workflow execution permanently from the system
+//Returns nil if no workflow is found by the id
+func (e *WorkflowExecutor) RemoveWorkflow(workflowId string) error {
+	response, err := e.workflowClient.Delete(context.Background(), workflowId, &client.WorkflowResourceApiDeleteOpts{ArchiveWorkflow: optional.NewBool(false)})
+	if err != nil {
+		return err
+	}
+	if response.StatusCode != 200 {
+		return fmt.Errorf(response.Status)
+	}
+	return nil
 }
 
 func getTaskResultFromOutput(taskId string, workflowInstanceId string, taskExecutionOutput interface{}) (*model.TaskResult, error) {
