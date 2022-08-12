@@ -178,8 +178,8 @@ func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTask
 	if response.StatusCode == 404 {
 		return nil, fmt.Errorf("no such workflow by Id %s", workflowId)
 	}
-	if response.StatusCode > 399 && response.StatusCode < 500 {
-		return nil, fmt.Errorf("no such workflow by Id %s", workflowId)
+	if response.StatusCode > 399 && response.StatusCode < 500 && response.StatusCode != 429 {
+		return nil, err
 	}
 	if err != nil {
 		if retry < 0 {
