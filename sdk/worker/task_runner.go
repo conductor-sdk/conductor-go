@@ -228,12 +228,15 @@ func (c *TaskRunner) pollAndExecute(taskName string, executeFunction model.Execu
 }
 
 func (c *TaskRunner) runBatch(taskName string, executeFunction model.ExecuteTaskFunction, domain string) error {
+	if c.isPaused(taskName) {
+		time.Sleep(batchPollErrorRetryInterval)
+		return nil
+	}
 	batchSize, err := c.getAvailableWorkerAmount(taskName)
 	if err != nil {
 		return err
 	}
-
-	if batchSize < 1 || c.isPaused(taskName) {
+	if batchSize < 1 {
 		time.Sleep(batchPollNoAvailableWorkerRetryInterval)
 		return nil
 	}
