@@ -349,7 +349,12 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 		", taskId: ", taskResult.TaskId,
 		", workflowId: ", taskResult.WorkflowInstanceId,
 	)
-	for attempt := 0; attempt < taskUpdateRetryAttemptsLimit; attempt += 1 {
+	for attempt := 0; attempt <= taskUpdateRetryAttemptsLimit; attempt += 1 {
+		if attempt > 0 {
+			// Wait for [10s, 20s, 30s] before next attempt
+			amount := attempt * 10
+			time.Sleep(time.Duration(amount) * time.Second)
+		}
 		response, err := c.updateTask(taskName, taskResult)
 		if err == nil {
 			log.Debug(
@@ -368,8 +373,6 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 			", workflowId: ", taskResult.WorkflowInstanceId,
 			", response: ", *response,
 		)
-		amount := 10 * attempt
-		time.Sleep(time.Duration(amount) * time.Second)
 	}
 	return fmt.Errorf("failed to update task %s after %d attempts", taskName, taskUpdateRetryAttemptsLimit)
 }
