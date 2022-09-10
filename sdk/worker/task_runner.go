@@ -263,7 +263,7 @@ func (c *TaskRunner) runBatch(taskName string, executeFunction model.ExecuteTask
 
 func (c *TaskRunner) executeAndUpdateTask(taskName string, task model.Task, executeFunction model.ExecuteTaskFunction) error {
 	defer c.runningWorkerDone(taskName)
-	defer concurrency.HandlePanicError("execute_and_update_task")
+	defer concurrency.HandlePanicError("execute_and_update_task " + string(task.TaskId) + ": " + string(task.Status))
 	taskResult, err := c.executeTask(&task, executeFunction)
 	if err != nil {
 		metrics.IncrementTaskExecuteError(
@@ -358,7 +358,7 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 			amount := attempt * 10
 			time.Sleep(time.Duration(amount) * time.Second)
 		}
-		response, err := c.updateTask(taskName, taskResult)
+		_, err := c.updateTask(taskName, taskResult)
 		if err == nil {
 			log.Debug(
 				"Updated task of type: ", taskName,
@@ -374,7 +374,7 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 			", task type: ", taskName,
 			", taskId: ", taskResult.TaskId,
 			", workflowId: ", taskResult.WorkflowInstanceId,
-			", response: ", *response,
+			", response: ", err,
 		)
 	}
 	return fmt.Errorf("failed to update task %s after %d attempts", taskName, taskUpdateRetryAttemptsLimit)
