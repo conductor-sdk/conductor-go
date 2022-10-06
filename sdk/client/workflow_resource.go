@@ -10,7 +10,6 @@
 package client
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -168,7 +167,6 @@ func (a *WorkflowResourceApiService) Delete(workflowId string, localVarOptionals
 
 /*
 WorkflowResourceApiService Execute a workflow synchronously
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param body
  * @param requestId
  * @param name
@@ -182,7 +180,7 @@ type WorkflowResourceApiExecuteWorkflowOpts struct {
 	WaitUntilTaskRef optional.String
 }
 
-func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, localVarOptionals *WorkflowResourceApiExecuteWorkflowOpts) (model.WorkflowRun, *http.Response, error) {
+func (a *WorkflowResourceApiService) ExecuteWorkflow(body model.StartWorkflowRequest, requestId string, name string, version int32, localVarOptionals *WorkflowResourceApiExecuteWorkflowOpts) (model.WorkflowRun, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
