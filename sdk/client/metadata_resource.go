@@ -11,7 +11,6 @@ package client
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -85,8 +84,7 @@ func (a *MetadataResourceApiService) Create(body model.WorkflowDef, localVarOpti
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -185,8 +183,7 @@ func (a *MetadataResourceApiService) Get(name string, localVarOptionals *Metadat
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -293,8 +290,7 @@ func (a *MetadataResourceApiService) GetAllWorkflows(localVarOptionals *Metadata
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -388,8 +384,7 @@ func (a *MetadataResourceApiService) GetTaskDef(tasktype string, localVarOptiona
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -496,8 +491,7 @@ func (a *MetadataResourceApiService) GetTaskDefs(localVarOptionals *MetadataReso
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -583,8 +577,7 @@ func (a *MetadataResourceApiService) RegisterTaskDef(body []model.TaskDef) (inte
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -666,8 +659,7 @@ func (a *MetadataResourceApiService) UnregisterTaskDef(tasktype string) (*http.R
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -733,8 +725,7 @@ func (a *MetadataResourceApiService) UnregisterWorkflowDef(name string, version 
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -811,8 +802,7 @@ func (a *MetadataResourceApiService) Update(body []model.WorkflowDef, localVarOp
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -898,8 +888,7 @@ func (a *MetadataResourceApiService) UpdateTaskDef(body model.TaskDef) (interfac
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}

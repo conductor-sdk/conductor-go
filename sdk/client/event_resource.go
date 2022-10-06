@@ -10,6 +10,7 @@
 package client
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -61,6 +62,7 @@ func (a *EventResourceApiService) AddEventHandler(body model.EventHandler) (*htt
 	}
 	// body params
 	localVarPostBody = &body
+
 	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -72,7 +74,6 @@ func (a *EventResourceApiService) AddEventHandler(body model.EventHandler) (*htt
 	}
 
 	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -80,7 +81,72 @@ func (a *EventResourceApiService) AddEventHandler(body model.EventHandler) (*htt
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: string(localVarBody),
+			error: localVarHttpResponse.Status,
+		}
+		return localVarHttpResponse, newErr
+	}
+
+	return localVarHttpResponse, nil
+}
+
+/*
+EventResourceApiService Delete queue config by name
+  - @param queueType
+  - @param queueName
+*/
+func (a *EventResourceApiService) DeleteQueueConfig(queueType string, queueName string) (*http.Response, error) {
+	var (
+		localVarHttpMethod = strings.ToUpper("Delete")
+		localVarPostBody   interface{}
+		localVarFileName   string
+		localVarFileBytes  []byte
+	)
+
+	// create path and map variables
+	localVarPath := "/event/queue/config/{queueType}/{queueName}"
+	localVarPath = strings.Replace(localVarPath, "{"+"queueType"+"}", fmt.Sprintf("%v", queueType), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"queueName"+"}", fmt.Sprintf("%v", queueName), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarHttpResponse, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	if err != nil {
+		return localVarHttpResponse, err
+	}
+
+	if localVarHttpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  localVarBody,
+			error: localVarHttpResponse.Status,
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -90,9 +156,10 @@ func (a *EventResourceApiService) AddEventHandler(body model.EventHandler) (*htt
 
 /*
 EventResourceApiService Get all the event handlers
-@return []http_model.EventHandler
+
+@return []model.EventHandler
 */
-func (a *EventResourceApiService) GetEventHandlers() ([]model.EventHandler, *http.Response, error) {
+func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]model.EventHandler, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -125,6 +192,7 @@ func (a *EventResourceApiService) GetEventHandlers() ([]model.EventHandler, *htt
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
+
 	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -136,7 +204,6 @@ func (a *EventResourceApiService) GetEventHandlers() ([]model.EventHandler, *htt
 	}
 
 	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -152,7 +219,7 @@ func (a *EventResourceApiService) GetEventHandlers() ([]model.EventHandler, *htt
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: string(localVarBody),
+			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v []model.EventHandler
@@ -172,10 +239,11 @@ func (a *EventResourceApiService) GetEventHandlers() ([]model.EventHandler, *htt
 
 /*
 EventResourceApiService Get event handlers for a given event
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param event
  * @param optional nil or *EventResourceApiGetEventHandlersForEventOpts - Optional Parameters:
      * @param "ActiveOnly" (optional.Bool) -
-@return []http_model.EventHandler
+@return []model.EventHandler
 */
 
 type EventResourceApiGetEventHandlersForEventOpts struct {
@@ -219,6 +287,7 @@ func (a *EventResourceApiService) GetEventHandlersForEvent(event string, localVa
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
+
 	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -230,7 +299,6 @@ func (a *EventResourceApiService) GetEventHandlersForEvent(event string, localVa
 	}
 
 	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -246,7 +314,7 @@ func (a *EventResourceApiService) GetEventHandlersForEvent(event string, localVa
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: string(localVarBody),
+			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v []model.EventHandler
@@ -262,6 +330,245 @@ func (a *EventResourceApiService) GetEventHandlersForEvent(event string, localVa
 	}
 
 	return localVarReturnValue, localVarHttpResponse, nil
+}
+
+/*
+EventResourceApiService Get queue config by name
+  - @param queueType
+  - @param queueName
+
+@return map[string]interface{}
+*/
+func (a *EventResourceApiService) GetQueueConfig(queueType string, queueName string) (map[string]interface{}, *http.Response, error) {
+	var (
+		localVarHttpMethod  = strings.ToUpper("Get")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue map[string]interface{}
+	)
+
+	// create path and map variables
+	localVarPath := "/event/queue/config/{queueType}/{queueName}"
+	localVarPath = strings.Replace(localVarPath, "{"+"queueType"+"}", fmt.Sprintf("%v", queueType), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"queueName"+"}", fmt.Sprintf("%v", queueName), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{"*/*"}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+
+	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	if err != nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
+
+	if localVarHttpResponse.StatusCode < 300 {
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return localVarReturnValue, localVarHttpResponse, err
+		}
+	}
+
+	if localVarHttpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  localVarBody,
+			error: localVarHttpResponse.Status,
+		}
+		if localVarHttpResponse.StatusCode == 200 {
+			var v map[string]interface{}
+			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHttpResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHttpResponse, newErr
+		}
+		return localVarReturnValue, localVarHttpResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHttpResponse, nil
+}
+
+/*
+EventResourceApiService Get all queue configs
+
+@return map[string]string
+*/
+func (a *EventResourceApiService) GetQueueNames(ctx context.Context) (map[string]string, *http.Response, error) {
+	var (
+		localVarHttpMethod  = strings.ToUpper("Get")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue map[string]string
+	)
+
+	// create path and map variables
+	localVarPath := "/event/queue/config"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{"*/*"}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+
+	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	if err != nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
+
+	if localVarHttpResponse.StatusCode < 300 {
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return localVarReturnValue, localVarHttpResponse, err
+		}
+	}
+
+	if localVarHttpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  localVarBody,
+			error: localVarHttpResponse.Status,
+		}
+		if localVarHttpResponse.StatusCode == 200 {
+			var v map[string]string
+			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHttpResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHttpResponse, newErr
+		}
+		return localVarReturnValue, localVarHttpResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHttpResponse, nil
+}
+
+/*
+EventResourceApiService Create or update queue config by name
+  - @param body
+  - @param queueType
+  - @param queueName
+*/
+func (a *EventResourceApiService) PutQueueConfig(body string, queueType string, queueName string) (*http.Response, error) {
+	var (
+		localVarHttpMethod = strings.ToUpper("Put")
+		localVarPostBody   interface{}
+		localVarFileName   string
+		localVarFileBytes  []byte
+	)
+
+	// create path and map variables
+	localVarPath := "/event/queue/config/{queueType}/{queueName}"
+	localVarPath = strings.Replace(localVarPath, "{"+"queueType"+"}", fmt.Sprintf("%v", queueType), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"queueName"+"}", fmt.Sprintf("%v", queueName), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	// body params
+	localVarPostBody = &body
+
+	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarHttpResponse, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	if err != nil {
+		return localVarHttpResponse, err
+	}
+
+	if localVarHttpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  localVarBody,
+			error: localVarHttpResponse.Status,
+		}
+		return localVarHttpResponse, newErr
+	}
+
+	return localVarHttpResponse, nil
 }
 
 /*
@@ -301,6 +608,7 @@ func (a *EventResourceApiService) RemoveEventHandlerStatus(name string) (*http.R
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
+
 	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -312,7 +620,6 @@ func (a *EventResourceApiService) RemoveEventHandlerStatus(name string) (*http.R
 	}
 
 	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -320,7 +627,7 @@ func (a *EventResourceApiService) RemoveEventHandlerStatus(name string) (*http.R
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: string(localVarBody),
+			error: localVarHttpResponse.Status,
 		}
 		return localVarHttpResponse, newErr
 	}
@@ -366,6 +673,7 @@ func (a *EventResourceApiService) UpdateEventHandler(body model.EventHandler) (*
 	}
 	// body params
 	localVarPostBody = &body
+
 	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -377,7 +685,6 @@ func (a *EventResourceApiService) UpdateEventHandler(body model.EventHandler) (*
 	}
 
 	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -385,7 +692,7 @@ func (a *EventResourceApiService) UpdateEventHandler(body model.EventHandler) (*
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: string(localVarBody),
+			error: localVarHttpResponse.Status,
 		}
 		return localVarHttpResponse, newErr
 	}

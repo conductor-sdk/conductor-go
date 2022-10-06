@@ -10,7 +10,6 @@
 package client
 
 import (
-	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -75,8 +74,7 @@ func (a *WorkflowBulkResourceApiService) PauseWorkflow1(body []string) (model.Bu
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -171,8 +169,7 @@ func (a *WorkflowBulkResourceApiService) Restart1(body []string, localVarOptiona
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -258,8 +255,7 @@ func (a *WorkflowBulkResourceApiService) ResumeWorkflow1(body []string) (model.B
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -345,8 +341,7 @@ func (a *WorkflowBulkResourceApiService) Retry1(body []string) (model.BulkRespon
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -441,8 +436,7 @@ func (a *WorkflowBulkResourceApiService) Terminate(body []string, localVarOption
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}

@@ -11,7 +11,6 @@ package client
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -72,8 +71,7 @@ func (a *TaskResourceApiService) All() (map[string]int64, *http.Response, error)
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -155,8 +153,7 @@ func (a *TaskResourceApiService) AllVerbose() (map[string]map[string]map[string]
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -265,8 +262,7 @@ func (a *TaskResourceApiService) BatchPoll(tasktype string, localVarOptionals *T
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -348,8 +344,7 @@ func (a *TaskResourceApiService) GetAllPollData() ([]model.PollData, *http.Respo
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -438,8 +433,7 @@ func (a *TaskResourceApiService) GetExternalStorageLocation1(path string, operat
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -524,8 +518,7 @@ func (a *TaskResourceApiService) GetPollData(taskType string) ([]model.PollData,
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -610,8 +603,7 @@ func (a *TaskResourceApiService) GetTask(taskId string) (model.Task, *http.Respo
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -696,8 +688,7 @@ func (a *TaskResourceApiService) GetTaskLogs(taskId string) ([]model.TaskExecLog
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -782,8 +773,7 @@ func (a *TaskResourceApiService) Log(body string, taskId string) (*http.Response
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarHttpResponse, err
 	}
@@ -864,8 +854,7 @@ func (a *TaskResourceApiService) Poll(tasktype string, localVarOptionals *TaskRe
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -950,8 +939,7 @@ func (a *TaskResourceApiService) RequeuePendingTask(taskType string) (string, *h
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1064,8 +1052,7 @@ func (a *TaskResourceApiService) Search1(localVarOptionals *TaskResourceApiSearc
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1178,8 +1165,7 @@ func (a *TaskResourceApiService) SearchV21(localVarOptionals *TaskResourceApiSea
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1271,8 +1257,7 @@ func (a *TaskResourceApiService) Size(localVarOptionals *TaskResourceApiSizeOpts
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1358,8 +1343,7 @@ func (a *TaskResourceApiService) UpdateTask(body model.TaskResult) (string, *htt
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -1451,8 +1435,7 @@ func (a *TaskResourceApiService) UpdateTask1(body map[string]interface{}, workfl
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
