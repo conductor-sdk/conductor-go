@@ -10,17 +10,11 @@
 package client
 
 import (
-	"context"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-)
-
-// Linger please
-var (
-	_ context.Context
 )
 
 type HealthCheckResourceApiService struct {
@@ -29,10 +23,9 @@ type HealthCheckResourceApiService struct {
 
 /*
 HealthCheckResourceApiService
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return http_model.HealthCheckStatus
 */
-func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (model.HealthCheckStatus, *http.Response, error) {
+func (a *HealthCheckResourceApiService) DoCheck() (model.HealthCheckStatus, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -65,7 +58,7 @@ func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (model.Heal
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}

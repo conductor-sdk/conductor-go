@@ -10,11 +10,11 @@
 package executor
 
 import (
-	"context"
 	"fmt"
-	"github.com/antihax/optional"
 	"sync"
 	"time"
+
+	"github.com/antihax/optional"
 
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
@@ -89,7 +89,7 @@ func (w *WorkflowMonitor) getWorkflowsInTerminalState() ([]*model.Workflow, erro
 	workflowsInTerminalState := make([]*model.Workflow, 0)
 	for _, workflowId := range runningWorkflowIdList {
 		workflow, response, err := w.workflowClient.GetExecutionStatus(
-			context.Background(),
+
 			workflowId,
 			&client.WorkflowResourceApiGetExecutionStatusOpts{IncludeTasks: optional.NewBool(false)},
 		)

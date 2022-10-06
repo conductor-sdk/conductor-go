@@ -10,7 +10,7 @@
 package client
 
 import (
-	"context"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -19,22 +19,18 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
-// Linger please
-var (
-	_ context.Context
-)
-
 type WorkflowBulkResourceApiService struct {
 	*APIClient
 }
 
 /*
 WorkflowBulkResourceApiService Pause the list of workflows
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param body
-@return http_model.BulkResponse
+
+  - @param body
+
+@return model.BulkResponse
 */
-func (a *WorkflowBulkResourceApiService) PauseWorkflow1(ctx context.Context, body []string) (model.BulkResponse, *http.Response, error) {
+func (a *WorkflowBulkResourceApiService) PauseWorkflow1(body []string) (model.BulkResponse, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Put")
 		localVarPostBody    interface{}
@@ -69,7 +65,7 @@ func (a *WorkflowBulkResourceApiService) PauseWorkflow1(ctx context.Context, bod
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -79,8 +75,8 @@ func (a *WorkflowBulkResourceApiService) PauseWorkflow1(ctx context.Context, bod
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
+	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
+	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -96,7 +92,7 @@ func (a *WorkflowBulkResourceApiService) PauseWorkflow1(ctx context.Context, bod
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: string(localVarBody),
+			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v model.BulkResponse
@@ -116,18 +112,18 @@ func (a *WorkflowBulkResourceApiService) PauseWorkflow1(ctx context.Context, bod
 
 /*
 WorkflowBulkResourceApiService Restart the list of completed workflow
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+
  * @param body
  * @param optional nil or *WorkflowBulkResourceApiRestart1Opts - Optional Parameters:
      * @param "UseLatestDefinitions" (optional.Bool) -
-@return http_model.BulkResponse
+@return model.BulkResponse
 */
 
 type WorkflowBulkResourceApiRestart1Opts struct {
 	UseLatestDefinitions optional.Bool
 }
 
-func (a *WorkflowBulkResourceApiService) Restart1(ctx context.Context, body []string, localVarOptionals *WorkflowBulkResourceApiRestart1Opts) (model.BulkResponse, *http.Response, error) {
+func (a *WorkflowBulkResourceApiService) Restart1(body []string, localVarOptionals *WorkflowBulkResourceApiRestart1Opts) (model.BulkResponse, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -165,7 +161,7 @@ func (a *WorkflowBulkResourceApiService) Restart1(ctx context.Context, body []st
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -175,8 +171,8 @@ func (a *WorkflowBulkResourceApiService) Restart1(ctx context.Context, body []st
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
+	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
+	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -192,7 +188,7 @@ func (a *WorkflowBulkResourceApiService) Restart1(ctx context.Context, body []st
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: string(localVarBody),
+			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v model.BulkResponse
@@ -212,11 +208,12 @@ func (a *WorkflowBulkResourceApiService) Restart1(ctx context.Context, body []st
 
 /*
 WorkflowBulkResourceApiService Resume the list of workflows
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param body
-@return http_model.BulkResponse
+
+  - @param body
+
+@return model.BulkResponse
 */
-func (a *WorkflowBulkResourceApiService) ResumeWorkflow1(ctx context.Context, body []string) (model.BulkResponse, *http.Response, error) {
+func (a *WorkflowBulkResourceApiService) ResumeWorkflow1(body []string) (model.BulkResponse, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Put")
 		localVarPostBody    interface{}
@@ -251,7 +248,7 @@ func (a *WorkflowBulkResourceApiService) ResumeWorkflow1(ctx context.Context, bo
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -261,8 +258,8 @@ func (a *WorkflowBulkResourceApiService) ResumeWorkflow1(ctx context.Context, bo
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
+	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
+	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -278,7 +275,7 @@ func (a *WorkflowBulkResourceApiService) ResumeWorkflow1(ctx context.Context, bo
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: string(localVarBody),
+			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v model.BulkResponse
@@ -298,11 +295,12 @@ func (a *WorkflowBulkResourceApiService) ResumeWorkflow1(ctx context.Context, bo
 
 /*
 WorkflowBulkResourceApiService Retry the last failed task for each workflow from the list
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param body
-@return http_model.BulkResponse
+
+  - @param body
+
+@return model.BulkResponse
 */
-func (a *WorkflowBulkResourceApiService) Retry1(ctx context.Context, body []string) (model.BulkResponse, *http.Response, error) {
+func (a *WorkflowBulkResourceApiService) Retry1(body []string) (model.BulkResponse, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -337,7 +335,7 @@ func (a *WorkflowBulkResourceApiService) Retry1(ctx context.Context, body []stri
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -347,8 +345,8 @@ func (a *WorkflowBulkResourceApiService) Retry1(ctx context.Context, body []stri
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
+	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
+	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -364,7 +362,7 @@ func (a *WorkflowBulkResourceApiService) Retry1(ctx context.Context, body []stri
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: string(localVarBody),
+			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v model.BulkResponse
@@ -384,18 +382,18 @@ func (a *WorkflowBulkResourceApiService) Retry1(ctx context.Context, body []stri
 
 /*
 WorkflowBulkResourceApiService Terminate workflows execution
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+
  * @param body
  * @param optional nil or *WorkflowBulkResourceApiTerminateOpts - Optional Parameters:
      * @param "Reason" (optional.String) -
-@return http_model.BulkResponse
+@return model.BulkResponse
 */
 
 type WorkflowBulkResourceApiTerminateOpts struct {
 	Reason optional.String
 }
 
-func (a *WorkflowBulkResourceApiService) Terminate(ctx context.Context, body []string, localVarOptionals *WorkflowBulkResourceApiTerminateOpts) (model.BulkResponse, *http.Response, error) {
+func (a *WorkflowBulkResourceApiService) Terminate(body []string, localVarOptionals *WorkflowBulkResourceApiTerminateOpts) (model.BulkResponse, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -433,7 +431,7 @@ func (a *WorkflowBulkResourceApiService) Terminate(ctx context.Context, body []s
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -443,8 +441,8 @@ func (a *WorkflowBulkResourceApiService) Terminate(ctx context.Context, body []s
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
+	localVarBody, err := io.ReadAll(localVarHttpResponse.Body)
+	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -460,7 +458,7 @@ func (a *WorkflowBulkResourceApiService) Terminate(ctx context.Context, body []s
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: string(localVarBody),
+			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
 			var v model.BulkResponse

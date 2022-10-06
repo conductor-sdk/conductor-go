@@ -10,7 +10,6 @@
 package testdata
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"reflect"
@@ -65,7 +64,7 @@ type TreasureChest struct {
 func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, workflowId string, expectedOutput map[string]interface{}) {
 	time.Sleep(waitTime)
 	workflow, _, err := WorkflowClient.GetExecutionStatus(
-		context.Background(),
+
 		workflowId,
 		nil,
 	)
@@ -171,8 +170,7 @@ var (
 func StartWorkflows(workflowQty int, workflowName string) ([]string, error) {
 	workflowIdList := make([]string, workflowQty)
 	for i := 0; i < workflowQty; i += 1 {
-		workflowId, _, err := WorkflowClient.StartWorkflow(
-			context.Background(),
+		workflowId, _, err := WorkflowClient.StartWorkflow1(
 			make(map[string]interface{}),
 			workflowName,
 			nil,
@@ -251,8 +249,7 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 }
 
 func ValidateTaskRegistration(taskDefs ...model.TaskDef) error {
-	response, err := MetadataClient.RegisterTaskDef(
-		context.Background(),
+	_, response, err := MetadataClient.RegisterTaskDef(
 		taskDefs,
 	)
 	if err != nil {

@@ -1,15 +1,15 @@
 package integration_tests
 
 import (
-	"context"
 	"fmt"
+	"strconv"
+	"testing"
+	"time"
+
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/stretchr/testify/assert"
-	"strconv"
-	"testing"
-	"time"
 )
 
 func TestWorkflowCreation(t *testing.T) {
@@ -47,7 +47,7 @@ func TestRemoveWorkflow(t *testing.T) {
 	execution, err = executor.GetWorkflow(id, true)
 	assert.Error(t, err, "Workflow found even after removing")
 
-	_, err = testdata.MetadataClient.UnregisterWorkflowDef(context.Background(), wf.GetName(), wf.GetVersion())
+	_, err = testdata.MetadataClient.UnregisterWorkflowDef(wf.GetName(), wf.GetVersion())
 	assert.NoError(t, err, "Failed to delete workflow definition ", err)
 
 }

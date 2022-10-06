@@ -11,6 +11,7 @@ package workflow
 
 import (
 	"encoding/json"
+
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	log "github.com/sirupsen/logrus"
@@ -74,42 +75,42 @@ func (workflow *ConductorWorkflow) TimeoutSeconds(timeoutSeconds int64) *Conduct
 	return workflow
 }
 
-//FailureWorkflow name of the workflow to execute when this workflow fails.
-//Failure workflows can be used for handling compensation logic
+// FailureWorkflow name of the workflow to execute when this workflow fails.
+// Failure workflows can be used for handling compensation logic
 func (workflow *ConductorWorkflow) FailureWorkflow(failureWorkflow string) *ConductorWorkflow {
 	workflow.failureWorkflow = failureWorkflow
 	return workflow
 }
 
-//Restartable if the workflow can be restarted after it has reached terminal state.
-//Set this to false if restarting workflow can have side effects
+// Restartable if the workflow can be restarted after it has reached terminal state.
+// Set this to false if restarting workflow can have side effects
 func (workflow *ConductorWorkflow) Restartable(restartable bool) *ConductorWorkflow {
 	workflow.restartable = restartable
 	return workflow
 }
 
-//OutputParameters Workflow outputs. Workflow output follows similar structure as task inputs
-//See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for more details
+// OutputParameters Workflow outputs. Workflow output follows similar structure as task inputs
+// See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for more details
 func (workflow *ConductorWorkflow) OutputParameters(outputParameters interface{}) *ConductorWorkflow {
 	workflow.outputParameters = getInputAsMap(outputParameters)
 	return workflow
 }
 
-//InputTemplate template input to the workflow.  Can have combination of variables (e.g. ${workflow.input.abc}) and
-//static values
+// InputTemplate template input to the workflow.  Can have combination of variables (e.g. ${workflow.input.abc}) and
+// static values
 func (workflow *ConductorWorkflow) InputTemplate(inputTemplate interface{}) *ConductorWorkflow {
 	workflow.inputTemplate = getInputAsMap(inputTemplate)
 	return workflow
 }
 
-//Variables Workflow variables are set using SET_VARIABLE task.  Excellent way to maintain business state
-//e.g. Variables can maintain business/user specific states which can be queried and inspected to find out the state of the workflow
+// Variables Workflow variables are set using SET_VARIABLE task.  Excellent way to maintain business state
+// e.g. Variables can maintain business/user specific states which can be queried and inspected to find out the state of the workflow
 func (workflow *ConductorWorkflow) Variables(variables interface{}) *ConductorWorkflow {
 	workflow.variables = getInputAsMap(variables)
 	return workflow
 }
 
-//InputParameters List of the input parameters to the workflow.  Used ONLY for the documentation purpose.
+// InputParameters List of the input parameters to the workflow.  Used ONLY for the documentation purpose.
 func (workflow *ConductorWorkflow) InputParameters(inputParameters ...string) *ConductorWorkflow {
 	workflow.inputParameters = inputParameters
 	return workflow
@@ -133,14 +134,14 @@ func (workflow *ConductorWorkflow) Add(task TaskInterface) *ConductorWorkflow {
 	return workflow
 }
 
-//Register the workflow definition with the server. If overwrite is set, the definition on the server will be overwritten.
-//When not set, the call fails if there is any change in the workflow definition between the server and what is being registered.
+// Register the workflow definition with the server. If overwrite is set, the definition on the server will be overwritten.
+// When not set, the call fails if there is any change in the workflow definition between the server and what is being registered.
 func (workflow *ConductorWorkflow) Register(overwrite bool) error {
 	return workflow.executor.RegisterWorkflow(overwrite, workflow.ToWorkflowDef())
 }
 
 // StartWorkflowWithInput ExecuteWorkflowWithInput Execute the workflow with specific input.  The input struct MUST be serializable to JSON
-//Returns the workflow Id that can be used to monitor and get the status of the workflow execution
+// Returns the workflow Id that can be used to monitor and get the status of the workflow execution
 func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) (workflowId string, err error) {
 	version := workflow.GetVersion()
 	return workflow.executor.StartWorkflow(
@@ -153,15 +154,15 @@ func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) (wo
 	)
 }
 
-//StartWorkflow starts the workflow execution with startWorkflowRequest that allows you to specify more details like task domains, correlationId etc.
-//Returns the ID of the newly created workflow
+// StartWorkflow starts the workflow execution with startWorkflowRequest that allows you to specify more details like task domains, correlationId etc.
+// Returns the ID of the newly created workflow
 func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error) {
 	startWorkflowRequest.WorkflowDef = workflow.ToWorkflowDef()
 	return workflow.executor.StartWorkflow(startWorkflowRequest)
 }
 
-//StartWorkflowsAndMonitorExecution Starts the workflow execution and returns a channel that can be used to monitor the workflow execution
-//This method is useful for short duration workflows that are expected to complete in few seconds.  For long-running workflows use GetStatus APIs to periodically check the status
+// StartWorkflowsAndMonitorExecution Starts the workflow execution and returns a channel that can be used to monitor the workflow execution
+// This method is useful for short duration workflows that are expected to complete in few seconds.  For long-running workflows use GetStatus APIs to periodically check the status
 func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkflowRequest *model.StartWorkflowRequest) (executionChannel executor.WorkflowExecutionChannel, err error) {
 	workflowId, err := workflow.StartWorkflow(startWorkflowRequest)
 	if err != nil {
@@ -191,7 +192,7 @@ func getInputAsMap(input interface{}) map[string]interface{} {
 	return parsedInput
 }
 
-//ToWorkflowDef converts the workflow to the JSON serializable format
+// ToWorkflowDef converts the workflow to the JSON serializable format
 func (workflow *ConductorWorkflow) ToWorkflowDef() *model.WorkflowDef {
 	return &model.WorkflowDef{
 		Name:             workflow.name,

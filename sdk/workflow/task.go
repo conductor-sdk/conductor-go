@@ -11,6 +11,7 @@ package workflow
 
 import (
 	"fmt"
+
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
