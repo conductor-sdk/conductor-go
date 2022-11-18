@@ -10,6 +10,7 @@
 package client
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -25,10 +26,10 @@ type WorkflowResourceApiService struct {
 
 /*
 WorkflowResourceApiService Starts the decision task for a workflow
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param workflowId
 */
-func (a *WorkflowResourceApiService) Decide(workflowId string) (*http.Response, error) {
+func (a *WorkflowResourceApiService) Decide(ctx context.Context, workflowId string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -61,7 +62,7 @@ func (a *WorkflowResourceApiService) Decide(workflowId string) (*http.Response, 
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +90,7 @@ func (a *WorkflowResourceApiService) Decide(workflowId string) (*http.Response, 
 
 /*
 WorkflowResourceApiService Removes the workflow from the system
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param workflowId
  * @param optional nil or *WorkflowResourceApiDeleteOpts - Optional Parameters:
      * @param "ArchiveWorkflow" (optional.Bool) -
@@ -100,7 +101,7 @@ type WorkflowResourceApiDeleteOpts struct {
 	ArchiveWorkflow optional.Bool
 }
 
-func (a *WorkflowResourceApiService) Delete(workflowId string, localVarOptionals *WorkflowResourceApiDeleteOpts) (*http.Response, error) {
+func (a *WorkflowResourceApiService) Delete(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiDeleteOpts) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -136,7 +137,7 @@ func (a *WorkflowResourceApiService) Delete(workflowId string, localVarOptionals
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -164,20 +165,21 @@ func (a *WorkflowResourceApiService) Delete(workflowId string, localVarOptionals
 
 /*
 WorkflowResourceApiService Execute a workflow synchronously
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param body
  * @param requestId
  * @param name
  * @param version
  * @param optional nil or *WorkflowResourceApiExecuteWorkflowOpts - Optional Parameters:
      * @param "WaitUntilTaskRef" (optional.String) -
-@return WorkflowRun
+@return model.WorkflowRun
 */
 
 type WorkflowResourceApiExecuteWorkflowOpts struct {
 	WaitUntilTaskRef optional.String
 }
 
-func (a *WorkflowResourceApiService) ExecuteWorkflow(body model.StartWorkflowRequest, requestId string, name string, version int32, localVarOptionals *WorkflowResourceApiExecuteWorkflowOpts) (model.WorkflowRun, *http.Response, error) {
+func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, localVarOptionals *WorkflowResourceApiExecuteWorkflowOpts) (model.WorkflowRun, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -218,7 +220,7 @@ func (a *WorkflowResourceApiService) ExecuteWorkflow(body model.StartWorkflowReq
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -264,7 +266,7 @@ func (a *WorkflowResourceApiService) ExecuteWorkflow(body model.StartWorkflowReq
 
 /*
 WorkflowResourceApiService Gets the workflow by workflow id
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param workflowId
  * @param optional nil or *WorkflowResourceApiGetExecutionStatusOpts - Optional Parameters:
      * @param "IncludeTasks" (optional.Bool) -
@@ -277,7 +279,7 @@ type WorkflowResourceApiGetExecutionStatusOpts struct {
 	Summarize    optional.Bool
 }
 
-func (a *WorkflowResourceApiService) GetExecutionStatus(workflowId string, localVarOptionals *WorkflowResourceApiGetExecutionStatusOpts) (model.Workflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiGetExecutionStatusOpts) (model.Workflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -317,7 +319,7 @@ func (a *WorkflowResourceApiService) GetExecutionStatus(workflowId string, local
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -363,7 +365,7 @@ func (a *WorkflowResourceApiService) GetExecutionStatus(workflowId string, local
 
 /*
 WorkflowResourceApiService Gets the workflow tasks by workflow id
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param workflowId
  * @param optional nil or *WorkflowResourceApiGetExecutionStatusTaskListOpts - Optional Parameters:
      * @param "Start" (optional.Int32) -
@@ -378,7 +380,7 @@ type WorkflowResourceApiGetExecutionStatusTaskListOpts struct {
 	Status optional.String
 }
 
-func (a *WorkflowResourceApiService) GetExecutionStatusTaskList(workflowId string, localVarOptionals *WorkflowResourceApiGetExecutionStatusTaskListOpts) (model.SearchResultTask, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetExecutionStatusTaskList(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiGetExecutionStatusTaskListOpts) (model.SearchResultTask, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -421,7 +423,7 @@ func (a *WorkflowResourceApiService) GetExecutionStatusTaskList(workflowId strin
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -467,14 +469,14 @@ func (a *WorkflowResourceApiService) GetExecutionStatusTaskList(workflowId strin
 
 /*
 WorkflowResourceApiService Get the uri and path of the external storage where the workflow payload is to be stored
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param path
   - @param operation
   - @param payloadType
 
 @return model.ExternalStorageLocation
 */
-func (a *WorkflowResourceApiService) GetExternalStorageLocation(path string, operation string, payloadType string) (model.ExternalStorageLocation, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Context, path string, operation string, payloadType string) (model.ExternalStorageLocation, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -510,7 +512,7 @@ func (a *WorkflowResourceApiService) GetExternalStorageLocation(path string, ope
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -556,7 +558,7 @@ func (a *WorkflowResourceApiService) GetExternalStorageLocation(path string, ope
 
 /*
 WorkflowResourceApiService Retrieve all the running workflows
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param name
  * @param optional nil or *WorkflowResourceApiGetRunningWorkflowOpts - Optional Parameters:
      * @param "Version" (optional.Int32) -
@@ -571,7 +573,7 @@ type WorkflowResourceApiGetRunningWorkflowOpts struct {
 	EndTime   optional.Int64
 }
 
-func (a *WorkflowResourceApiService) GetRunningWorkflow(name string, localVarOptionals *WorkflowResourceApiGetRunningWorkflowOpts) ([]string, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetRunningWorkflow(ctx context.Context, name string, localVarOptionals *WorkflowResourceApiGetRunningWorkflowOpts) ([]string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -614,7 +616,7 @@ func (a *WorkflowResourceApiService) GetRunningWorkflow(name string, localVarOpt
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -660,7 +662,7 @@ func (a *WorkflowResourceApiService) GetRunningWorkflow(name string, localVarOpt
 
 /*
 WorkflowResourceApiService Gets the workflow by workflow id
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param workflowId
  * @param optional nil or *WorkflowResourceApiGetWorkflowStatusSummaryOpts - Optional Parameters:
      * @param "IncludeOutput" (optional.Bool) -
@@ -673,7 +675,7 @@ type WorkflowResourceApiGetWorkflowStatusSummaryOpts struct {
 	IncludeVariables optional.Bool
 }
 
-func (a *WorkflowResourceApiService) GetWorkflowStatusSummary(workflowId string, localVarOptionals *WorkflowResourceApiGetWorkflowStatusSummaryOpts) (model.WorkflowStatus, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetWorkflowStatusSummary(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiGetWorkflowStatusSummaryOpts) (model.WorkflowStatus, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -713,7 +715,7 @@ func (a *WorkflowResourceApiService) GetWorkflowStatusSummary(workflowId string,
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -759,7 +761,7 @@ func (a *WorkflowResourceApiService) GetWorkflowStatusSummary(workflowId string,
 
 /*
 WorkflowResourceApiService Lists workflows for the given correlation id list
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param body
  * @param name
  * @param optional nil or *WorkflowResourceApiGetWorkflowsOpts - Optional Parameters:
@@ -773,7 +775,7 @@ type WorkflowResourceApiGetWorkflowsOpts struct {
 	IncludeTasks  optional.Bool
 }
 
-func (a *WorkflowResourceApiService) GetWorkflows(body []string, name string, localVarOptionals *WorkflowResourceApiGetWorkflowsOpts) (map[string][]model.Workflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []string, name string, localVarOptionals *WorkflowResourceApiGetWorkflowsOpts) (map[string][]model.Workflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -815,7 +817,7 @@ func (a *WorkflowResourceApiService) GetWorkflows(body []string, name string, lo
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -861,7 +863,7 @@ func (a *WorkflowResourceApiService) GetWorkflows(body []string, name string, lo
 
 /*
 WorkflowResourceApiService Lists workflows for the given correlation id
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param name
  * @param correlationId
  * @param optional nil or *WorkflowResourceApiGetWorkflows1Opts - Optional Parameters:
@@ -875,7 +877,7 @@ type WorkflowResourceApiGetWorkflows1Opts struct {
 	IncludeTasks  optional.Bool
 }
 
-func (a *WorkflowResourceApiService) GetWorkflows1(name string, correlationId string, localVarOptionals *WorkflowResourceApiGetWorkflows1Opts) ([]model.Workflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name string, correlationId string, localVarOptionals *WorkflowResourceApiGetWorkflows1Opts) ([]model.Workflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -916,7 +918,7 @@ func (a *WorkflowResourceApiService) GetWorkflows1(name string, correlationId st
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -962,12 +964,12 @@ func (a *WorkflowResourceApiService) GetWorkflows1(name string, correlationId st
 
 /*
 WorkflowResourceApiService
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param workflowId
 
 @return string
 */
-func (a *WorkflowResourceApiService) NotifyWorkflowCompletion(workflowId string) (string, *http.Response, error) {
+func (a *WorkflowResourceApiService) NotifyWorkflowCompletion(ctx context.Context, workflowId string) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -1001,7 +1003,7 @@ func (a *WorkflowResourceApiService) NotifyWorkflowCompletion(workflowId string)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -1047,10 +1049,10 @@ func (a *WorkflowResourceApiService) NotifyWorkflowCompletion(workflowId string)
 
 /*
 WorkflowResourceApiService Pauses the workflow
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param workflowId
 */
-func (a *WorkflowResourceApiService) PauseWorkflow(workflowId string) (*http.Response, error) {
+func (a *WorkflowResourceApiService) PauseWorkflow(ctx context.Context, workflowId string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -1083,7 +1085,7 @@ func (a *WorkflowResourceApiService) PauseWorkflow(workflowId string) (*http.Res
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -1111,13 +1113,13 @@ func (a *WorkflowResourceApiService) PauseWorkflow(workflowId string) (*http.Res
 
 /*
 WorkflowResourceApiService Reruns the workflow from a specific task
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
   - @param workflowId
 
 @return string
 */
-func (a *WorkflowResourceApiService) Rerun(body model.RerunWorkflowRequest, workflowId string) (string, *http.Response, error) {
+func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body model.RerunWorkflowRequest, workflowId string) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -1153,7 +1155,7 @@ func (a *WorkflowResourceApiService) Rerun(body model.RerunWorkflowRequest, work
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -1199,10 +1201,10 @@ func (a *WorkflowResourceApiService) Rerun(body model.RerunWorkflowRequest, work
 
 /*
 WorkflowResourceApiService Resets callback times of all non-terminal SIMPLE tasks to 0
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param workflowId
 */
-func (a *WorkflowResourceApiService) ResetWorkflow(workflowId string) (*http.Response, error) {
+func (a *WorkflowResourceApiService) ResetWorkflow(ctx context.Context, workflowId string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -1235,7 +1237,7 @@ func (a *WorkflowResourceApiService) ResetWorkflow(workflowId string) (*http.Res
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -1263,7 +1265,7 @@ func (a *WorkflowResourceApiService) ResetWorkflow(workflowId string) (*http.Res
 
 /*
 WorkflowResourceApiService Restarts a completed workflow
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param workflowId
  * @param optional nil or *WorkflowResourceApiRestartOpts - Optional Parameters:
      * @param "UseLatestDefinitions" (optional.Bool) -
@@ -1274,7 +1276,7 @@ type WorkflowResourceApiRestartOpts struct {
 	UseLatestDefinitions optional.Bool
 }
 
-func (a *WorkflowResourceApiService) Restart(workflowId string, localVarOptionals *WorkflowResourceApiRestartOpts) (*http.Response, error) {
+func (a *WorkflowResourceApiService) Restart(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiRestartOpts) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -1310,7 +1312,7 @@ func (a *WorkflowResourceApiService) Restart(workflowId string, localVarOptional
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -1338,10 +1340,10 @@ func (a *WorkflowResourceApiService) Restart(workflowId string, localVarOptional
 
 /*
 WorkflowResourceApiService Resumes the workflow
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param workflowId
 */
-func (a *WorkflowResourceApiService) ResumeWorkflow(workflowId string) (*http.Response, error) {
+func (a *WorkflowResourceApiService) ResumeWorkflow(ctx context.Context, workflowId string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -1374,7 +1376,7 @@ func (a *WorkflowResourceApiService) ResumeWorkflow(workflowId string) (*http.Re
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -1402,7 +1404,7 @@ func (a *WorkflowResourceApiService) ResumeWorkflow(workflowId string) (*http.Re
 
 /*
 WorkflowResourceApiService Retries the last failed task
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param workflowId
  * @param optional nil or *WorkflowResourceApiRetryOpts - Optional Parameters:
      * @param "ResumeSubworkflowTasks" (optional.Bool) -
@@ -1413,7 +1415,7 @@ type WorkflowResourceApiRetryOpts struct {
 	ResumeSubworkflowTasks optional.Bool
 }
 
-func (a *WorkflowResourceApiService) Retry(workflowId string, localVarOptionals *WorkflowResourceApiRetryOpts) (*http.Response, error) {
+func (a *WorkflowResourceApiService) Retry(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiRetryOpts) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -1449,7 +1451,7 @@ func (a *WorkflowResourceApiService) Retry(workflowId string, localVarOptionals 
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -1478,7 +1480,7 @@ func (a *WorkflowResourceApiService) Retry(workflowId string, localVarOptionals 
 /*
 WorkflowResourceApiService Search for workflows based on payload and other parameters
 use sort options as sort&#x3D;&lt;field&gt;:ASC|DESC e.g. sort&#x3D;name&amp;sort&#x3D;workflowId:DESC. If order is not specified, defaults to ASC.
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param optional nil or *WorkflowResourceApiSearchOpts - Optional Parameters:
      * @param "QueryId" (optional.String) -
      * @param "Start" (optional.Int32) -
@@ -1500,7 +1502,7 @@ type WorkflowResourceApiSearchOpts struct {
 	SkipCache optional.Bool
 }
 
-func (a *WorkflowResourceApiService) Search(localVarOptionals *WorkflowResourceApiSearchOpts) (model.ScrollableSearchResultWorkflowSummary, *http.Response, error) {
+func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchOpts) (model.ScrollableSearchResultWorkflowSummary, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -1554,7 +1556,7 @@ func (a *WorkflowResourceApiService) Search(localVarOptionals *WorkflowResourceA
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -1601,7 +1603,7 @@ func (a *WorkflowResourceApiService) Search(localVarOptionals *WorkflowResourceA
 /*
 WorkflowResourceApiService Search for workflows based on payload and other parameters
 use sort options as sort&#x3D;&lt;field&gt;:ASC|DESC e.g. sort&#x3D;name&amp;sort&#x3D;workflowId:DESC. If order is not specified, defaults to ASC.
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param optional nil or *WorkflowResourceApiSearchV2Opts - Optional Parameters:
      * @param "Start" (optional.Int32) -
      * @param "Size" (optional.Int32) -
@@ -1619,7 +1621,7 @@ type WorkflowResourceApiSearchV2Opts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) SearchV2(localVarOptionals *WorkflowResourceApiSearchV2Opts) (model.SearchResultWorkflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchV2Opts) (model.SearchResultWorkflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -1667,7 +1669,7 @@ func (a *WorkflowResourceApiService) SearchV2(localVarOptionals *WorkflowResourc
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -1714,7 +1716,7 @@ func (a *WorkflowResourceApiService) SearchV2(localVarOptionals *WorkflowResourc
 /*
 WorkflowResourceApiService Search for workflows based on task parameters
 use sort options as sort&#x3D;&lt;field&gt;:ASC|DESC e.g. sort&#x3D;name&amp;sort&#x3D;workflowId:DESC. If order is not specified, defaults to ASC
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param optional nil or *WorkflowResourceApiSearchWorkflowsByTasksOpts - Optional Parameters:
      * @param "Start" (optional.Int32) -
      * @param "Size" (optional.Int32) -
@@ -1732,7 +1734,7 @@ type WorkflowResourceApiSearchWorkflowsByTasksOpts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksOpts) (model.SearchResultWorkflowSummary, *http.Response, error) {
+func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksOpts) (model.SearchResultWorkflowSummary, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -1780,7 +1782,7 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(localVarOptionals *W
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -1827,7 +1829,7 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(localVarOptionals *W
 /*
 WorkflowResourceApiService Search for workflows based on task parameters
 use sort options as sort&#x3D;&lt;field&gt;:ASC|DESC e.g. sort&#x3D;name&amp;sort&#x3D;workflowId:DESC. If order is not specified, defaults to ASC
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param optional nil or *WorkflowResourceApiSearchWorkflowsByTasksV2Opts - Optional Parameters:
      * @param "Start" (optional.Int32) -
      * @param "Size" (optional.Int32) -
@@ -1845,7 +1847,7 @@ type WorkflowResourceApiSearchWorkflowsByTasksV2Opts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksV2Opts) (model.SearchResultWorkflow, *http.Response, error) {
+func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksV2Opts) (model.SearchResultWorkflow, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -1893,7 +1895,7 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(localVarOptionals 
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -1939,12 +1941,12 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(localVarOptionals 
 
 /*
 WorkflowResourceApiService Skips a given task from a current running workflow
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param workflowId
   - @param taskReferenceName
   - @param skipTaskRequest
 */
-func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(workflowId string, taskReferenceName string, skipTaskRequest model.SkipTaskRequest) (*http.Response, error) {
+func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, workflowId string, taskReferenceName string, skipTaskRequest model.SkipTaskRequest) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -1979,7 +1981,7 @@ func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(workflowId string, tas
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -2007,12 +2009,12 @@ func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(workflowId string, tas
 
 /*
 WorkflowResourceApiService Start a new workflow with model.StartWorkflowRequest, which allows task to be executed in a domain
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
 
 @return string
 */
-func (a *WorkflowResourceApiService) StartWorkflow(body model.StartWorkflowRequest) (string, *http.Response, error) {
+func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body model.StartWorkflowRequest) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -2047,7 +2049,7 @@ func (a *WorkflowResourceApiService) StartWorkflow(body model.StartWorkflowReque
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -2093,23 +2095,23 @@ func (a *WorkflowResourceApiService) StartWorkflow(body model.StartWorkflowReque
 
 /*
 WorkflowResourceApiService Start a new workflow. Returns the ID of the workflow instance that can be later used for tracking
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param body
  * @param name
- * @param optional nil or *WorkflowResourceApiStartWorkflowOpts - Optional Parameters:
+ * @param optional nil or *WorkflowResourceApiStartWorkflow1Opts - Optional Parameters:
      * @param "Version" (optional.Int32) -
      * @param "CorrelationId" (optional.String) -
      * @param "Priority" (optional.Int32) -
 @return string
 */
 
-type WorkflowResourceApiStartWorkflowOpts struct {
+type WorkflowResourceApiStartWorkflow1Opts struct {
 	Version       optional.Int32
 	CorrelationId optional.String
 	Priority      optional.Int32
 }
 
-func (a *WorkflowResourceApiService) StartWorkflow1(body map[string]interface{}, name string, localVarOptionals *WorkflowResourceApiStartWorkflowOpts) (string, *http.Response, error) {
+func (a *WorkflowResourceApiService) StartWorkflow1(ctx context.Context, body map[string]interface{}, name string, localVarOptionals *WorkflowResourceApiStartWorkflow1Opts) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -2154,7 +2156,7 @@ func (a *WorkflowResourceApiService) StartWorkflow1(body map[string]interface{},
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -2200,18 +2202,18 @@ func (a *WorkflowResourceApiService) StartWorkflow1(body map[string]interface{},
 
 /*
 WorkflowResourceApiService Terminate workflow execution
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param workflowId
- * @param optional nil or *WorkflowResourceApiTerminateOpts - Optional Parameters:
+ * @param optional nil or *WorkflowResourceApiTerminate1Opts - Optional Parameters:
      * @param "Reason" (optional.String) -
 
 */
 
-type WorkflowResourceApiTerminateOpts struct {
+type WorkflowResourceApiTerminate1Opts struct {
 	Reason optional.String
 }
 
-func (a *WorkflowResourceApiService) Terminate(workflowId string, localVarOptionals *WorkflowResourceApiTerminateOpts) (*http.Response, error) {
+func (a *WorkflowResourceApiService) Terminate1(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiTerminate1Opts) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -2247,7 +2249,7 @@ func (a *WorkflowResourceApiService) Terminate(workflowId string, localVarOption
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -2275,10 +2277,11 @@ func (a *WorkflowResourceApiService) Terminate(workflowId string, localVarOption
 
 /*
 WorkflowResourceApiService Force upload all completed workflows to document store
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 
 @return interface{}
 */
-func (a *WorkflowResourceApiService) UploadCompletedWorkflows() (interface{}, *http.Response, error) {
+func (a *WorkflowResourceApiService) UploadCompletedWorkflows(ctx context.Context) (interface{}, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -2311,7 +2314,7 @@ func (a *WorkflowResourceApiService) UploadCompletedWorkflows() (interface{}, *h
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}

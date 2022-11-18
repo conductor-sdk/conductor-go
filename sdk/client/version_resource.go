@@ -15,27 +15,27 @@ import (
 	"strings"
 )
 
-type HealthCheckResourceApiService struct {
+type VersionResourceApiService struct {
 	*APIClient
 }
 
 /*
-HealthCheckResourceApiService
+VersionResourceApiService Get the server&#x27;s version
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 
-@return map[string]interface{}
+@return string
 */
-func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (map[string]interface{}, *http.Response, error) {
+func (a *VersionResourceApiService) GetVersion(ctx context.Context) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue map[string]interface{}
+		localVarReturnValue string
 	)
 
 	// create path and map variables
-	localVarPath := "/health"
+	localVarPath := "/version"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -51,7 +51,7 @@ func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (map[string
 	}
 
 	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
+	localVarHttpHeaderAccepts := []string{"text/plain"}
 
 	// set Accept header
 	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
@@ -87,7 +87,7 @@ func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (map[string
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v map[string]interface{}
+			var v string
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

@@ -12,6 +12,7 @@ package client
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
@@ -88,6 +89,7 @@ func (c *APIClient) callAPI(request *http.Request) (*http.Response, error) {
 
 // prepareRequest build the request
 func (c *APIClient) prepareRequest(
+	ctx context.Context,
 	path string, method string,
 	postBody interface{},
 	headerParams map[string]string,

@@ -1,46 +1,42 @@
-//  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
-//  the License. You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+// the License. You may obtain a copy of the License at
 //
-//  http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
-//  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
-//  specific language governing permissions and limitations under the License.
-
+// Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+// an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
 package client
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 
-	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
-type WorkflowBulkResourceApiService struct {
+type MetadataMigrationResourceApiService struct {
 	*APIClient
 }
 
 /*
-WorkflowBulkResourceApiService Pause the list of workflows
+MetadataMigrationResourceApiService Creates a new environment
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
-
-@return model.BulkResponse
 */
-func (a *WorkflowBulkResourceApiService) PauseWorkflow1(ctx context.Context, body []string) (model.BulkResponse, *http.Response, error) {
+func (a *MetadataMigrationResourceApiService) AddEnvironment(ctx context.Context, body model.OrkesConductorEnvironment) (*http.Response, error) {
 	var (
-		localVarHttpMethod  = strings.ToUpper("Put")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.BulkResponse
+		localVarHttpMethod = strings.ToUpper("Post")
+		localVarPostBody   interface{}
+		localVarFileName   string
+		localVarFileBytes  []byte
 	)
 
 	// create path and map variables
-	localVarPath := "/workflow/bulk/pause"
+	localVarPath := "/metadata-migrations/environments"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -56,7 +52,7 @@ func (a *WorkflowBulkResourceApiService) PauseWorkflow1(ctx context.Context, bod
 	}
 
 	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
+	localVarHttpHeaderAccepts := []string{}
 
 	// set Accept header
 	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
@@ -67,25 +63,17 @@ func (a *WorkflowBulkResourceApiService) PauseWorkflow1(ctx context.Context, bod
 	localVarPostBody = &body
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, err
 	}
 
 	localVarHttpResponse, err := a.callAPI(r)
 	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
+		return localVarHttpResponse, err
 	}
 
 	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if localVarHttpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return localVarReturnValue, localVarHttpResponse, err
-		}
+		return localVarHttpResponse, err
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
@@ -93,54 +81,99 @@ func (a *WorkflowBulkResourceApiService) PauseWorkflow1(ctx context.Context, bod
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
 		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v model.BulkResponse
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		return localVarReturnValue, localVarHttpResponse, newErr
+		return localVarHttpResponse, newErr
 	}
 
-	return localVarReturnValue, localVarHttpResponse, nil
+	return localVarHttpResponse, nil
 }
 
 /*
-WorkflowBulkResourceApiService Restart the list of completed workflow
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param body
- * @param optional nil or *WorkflowBulkResourceApiRestart1Opts - Optional Parameters:
-     * @param "UseLatestDefinitions" (optional.Bool) -
-@return model.BulkResponse
+MetadataMigrationResourceApiService Deletes an environment
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param id
 */
+func (a *MetadataMigrationResourceApiService) DeleteEnvironment(ctx context.Context, id string) (*http.Response, error) {
+	var (
+		localVarHttpMethod = strings.ToUpper("Delete")
+		localVarPostBody   interface{}
+		localVarFileName   string
+		localVarFileBytes  []byte
+	)
 
-type WorkflowBulkResourceApiRestart1Opts struct {
-	UseLatestDefinitions optional.Bool
+	// create path and map variables
+	localVarPath := "/metadata-migrations/environments/{id}"
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarHttpResponse, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	if err != nil {
+		return localVarHttpResponse, err
+	}
+
+	if localVarHttpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  localVarBody,
+			error: localVarHttpResponse.Status,
+		}
+		return localVarHttpResponse, newErr
+	}
+
+	return localVarHttpResponse, nil
 }
 
-func (a *WorkflowBulkResourceApiService) Restart1(ctx context.Context, body []string, localVarOptionals *WorkflowBulkResourceApiRestart1Opts) (model.BulkResponse, *http.Response, error) {
+/*
+MetadataMigrationResourceApiService Creates a new migration request in this environment
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param body
+
+@return string
+*/
+func (a *MetadataMigrationResourceApiService) IncomingRequests(ctx context.Context, body model.MigrationDescriptor) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue model.BulkResponse
+		localVarReturnValue string
 	)
 
 	// create path and map variables
-	localVarPath := "/workflow/bulk/restart"
+	localVarPath := "/metadata-migrations/requests"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarOptionals != nil && localVarOptionals.UseLatestDefinitions.IsSet() {
-		localVarQueryParams.Add("useLatestDefinitions", parameterToString(localVarOptionals.UseLatestDefinitions.Value(), ""))
-	}
 	// to determine the Content-Type header
 	localVarHttpContentTypes := []string{"application/json"}
 
@@ -151,7 +184,7 @@ func (a *WorkflowBulkResourceApiService) Restart1(ctx context.Context, body []st
 	}
 
 	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
+	localVarHttpHeaderAccepts := []string{"text/plain"}
 
 	// set Accept header
 	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
@@ -189,7 +222,7 @@ func (a *WorkflowBulkResourceApiService) Restart1(ctx context.Context, body []st
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v model.BulkResponse
+			var v string
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -205,30 +238,29 @@ func (a *WorkflowBulkResourceApiService) Restart1(ctx context.Context, body []st
 }
 
 /*
-WorkflowBulkResourceApiService Resume the list of workflows
+MetadataMigrationResourceApiService Lists all available environments
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param body
 
-@return model.BulkResponse
+@return []model.OrkesConductorEnvironment
 */
-func (a *WorkflowBulkResourceApiService) ResumeWorkflow1(ctx context.Context, body []string) (model.BulkResponse, *http.Response, error) {
+func (a *MetadataMigrationResourceApiService) ListEnvironment(ctx context.Context) ([]model.OrkesConductorEnvironment, *http.Response, error) {
 	var (
-		localVarHttpMethod  = strings.ToUpper("Put")
+		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue model.BulkResponse
+		localVarReturnValue []model.OrkesConductorEnvironment
 	)
 
 	// create path and map variables
-	localVarPath := "/workflow/bulk/resume"
+	localVarPath := "/metadata-migrations/environments"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{"application/json"}
+	localVarHttpContentTypes := []string{}
 
 	// set Content-Type header
 	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
@@ -244,8 +276,6 @@ func (a *WorkflowBulkResourceApiService) ResumeWorkflow1(ctx context.Context, bo
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	// body params
-	localVarPostBody = &body
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -275,7 +305,7 @@ func (a *WorkflowBulkResourceApiService) ResumeWorkflow1(ctx context.Context, bo
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v model.BulkResponse
+			var v []model.OrkesConductorEnvironment
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -291,23 +321,25 @@ func (a *WorkflowBulkResourceApiService) ResumeWorkflow1(ctx context.Context, bo
 }
 
 /*
-WorkflowBulkResourceApiService Retry the last failed task for each workflow from the list
+MetadataMigrationResourceApiService Creates a new migration request in the given environment
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
+  - @param envId
 
-@return model.BulkResponse
+@return string
 */
-func (a *WorkflowBulkResourceApiService) Retry1(ctx context.Context, body []string) (model.BulkResponse, *http.Response, error) {
+func (a *MetadataMigrationResourceApiService) SendMigrationRequestToEnvironment(ctx context.Context, body model.MigrationRequest, envId string) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue model.BulkResponse
+		localVarReturnValue string
 	)
 
 	// create path and map variables
-	localVarPath := "/workflow/bulk/retry"
+	localVarPath := "/metadata-migrations/environments/{envId}/requests"
+	localVarPath = strings.Replace(localVarPath, "{"+"envId"+"}", fmt.Sprintf("%v", envId), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -323,7 +355,7 @@ func (a *WorkflowBulkResourceApiService) Retry1(ctx context.Context, body []stri
 	}
 
 	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
+	localVarHttpHeaderAccepts := []string{"text/plain"}
 
 	// set Accept header
 	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
@@ -361,102 +393,7 @@ func (a *WorkflowBulkResourceApiService) Retry1(ctx context.Context, body []stri
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v model.BulkResponse
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, nil
-}
-
-/*
-WorkflowBulkResourceApiService Terminate workflows execution
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param body
- * @param optional nil or *WorkflowBulkResourceApiTerminateOpts - Optional Parameters:
-     * @param "Reason" (optional.String) -
-@return model.BulkResponse
-*/
-
-type WorkflowBulkResourceApiTerminateOpts struct {
-	Reason optional.String
-}
-
-func (a *WorkflowBulkResourceApiService) Terminate(ctx context.Context, body []string, localVarOptionals *WorkflowBulkResourceApiTerminateOpts) (model.BulkResponse, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.BulkResponse
-	)
-
-	// create path and map variables
-	localVarPath := "/workflow/bulk/terminate"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.Reason.IsSet() {
-		localVarQueryParams.Add("reason", parameterToString(localVarOptionals.Reason.Value(), ""))
-	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
-	// body params
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if localVarHttpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return localVarReturnValue, localVarHttpResponse, err
-		}
-	}
-
-	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: localVarHttpResponse.Status,
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v model.BulkResponse
+			var v string
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
