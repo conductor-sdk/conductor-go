@@ -8,7 +8,9 @@
 // specific language governing permissions and limitations under the License.
 package model
 
-type SearchResultWorkflowSummary struct {
-	Results   []WorkflowSummary `json:"results,omitempty"`
-	TotalHits int64             `json:"totalHits,omitempty"`
+type WebhookExecutionHistory struct {
+	EventId     string   `json:"eventId,omitempty"`
+	Matched     bool     `json:"matched,omitempty"`
+	TimeStamp   int64    `json:"timeStamp,omitempty"`
+	WorkflowIds []string `json:"workflowIds,omitempty"`
 }

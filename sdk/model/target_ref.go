@@ -8,7 +8,8 @@
 // specific language governing permissions and limitations under the License.
 package model
 
-type SearchResultWorkflowSummary struct {
-	Results   []WorkflowSummary `json:"results,omitempty"`
-	TotalHits int64             `json:"totalHits,omitempty"`
+// The object over which access is being granted or removed
+type TargetRef struct {
+	Id    string `json:"id"`
+	Type_ string `json:"type"`
 }

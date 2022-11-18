@@ -8,7 +8,9 @@
 // specific language governing permissions and limitations under the License.
 package model
 
-type SearchResultWorkflowSummary struct {
-	Results   []WorkflowSummary `json:"results,omitempty"`
-	TotalHits int64             `json:"totalHits,omitempty"`
+// User, group or role which is granted/removed access
+type SubjectRef struct {
+	Id string `json:"id"`
+	// User, role or group
+	Type_ string `json:"type,omitempty"`
 }

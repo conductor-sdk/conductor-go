@@ -8,7 +8,10 @@
 // specific language governing permissions and limitations under the License.
 package model
 
-type SearchResultWorkflowSummary struct {
-	Results   []WorkflowSummary `json:"results,omitempty"`
-	TotalHits int64             `json:"totalHits,omitempty"`
+type UpsertUserRequest struct {
+	// Ids of the groups this user belongs to
+	Groups []string `json:"groups,omitempty"`
+	// User's full name
+	Name  string   `json:"name"`
+	Roles []string `json:"roles,omitempty"`
 }

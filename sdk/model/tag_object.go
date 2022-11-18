@@ -8,7 +8,8 @@
 // specific language governing permissions and limitations under the License.
 package model
 
-type SearchResultWorkflowSummary struct {
-	Results   []WorkflowSummary `json:"results,omitempty"`
-	TotalHits int64             `json:"totalHits,omitempty"`
+type TagObject struct {
+	Key   string       `json:"key,omitempty"`
+	Type_ string       `json:"type,omitempty"`
+	Value *interface{} `json:"value,omitempty"`
 }

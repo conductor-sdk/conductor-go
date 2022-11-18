@@ -8,7 +8,10 @@
 // specific language governing permissions and limitations under the License.
 package model
 
-type SearchResultWorkflowSummary struct {
-	Results   []WorkflowSummary `json:"results,omitempty"`
-	TotalHits int64             `json:"totalHits,omitempty"`
+type UpsertGroupRequest struct {
+	// a default Map<TargetType, Set<Access> to share permissions, allowed target types: WORKFLOW_DEF, TASK_DEF, WORKFLOW_SCHEDULE
+	DefaultAccess map[string][]string `json:"defaultAccess,omitempty"`
+	// A general description of the group
+	Description string   `json:"description"`
+	Roles       []string `json:"roles,omitempty"`
 }
