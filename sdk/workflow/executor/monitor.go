@@ -10,6 +10,7 @@
 package executor
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
@@ -19,6 +20,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model/status"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -89,7 +91,7 @@ func (w *WorkflowMonitor) getWorkflowsInTerminalState() ([]*model.Workflow, erro
 	workflowsInTerminalState := make([]*model.Workflow, 0)
 	for _, workflowId := range runningWorkflowIdList {
 		workflow, response, err := w.workflowClient.GetExecutionStatus(
-
+			context.Background(),
 			workflowId,
 			&client.WorkflowResourceApiGetExecutionStatusOpts{IncludeTasks: optional.NewBool(false)},
 		)
@@ -152,8 +154,8 @@ func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *mo
 }
 
 func isWorkflowInTerminalState(workflow *model.Workflow) bool {
-	for _, terminalState := range model.WorkflowTerminalStates {
-		if workflow.Status == terminalState {
+	for _, terminalState := range status.WorkflowTerminalStates {
+		if workflow.Status == string(terminalState) {
 			return true
 		}
 	}

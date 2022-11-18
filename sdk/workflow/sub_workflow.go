@@ -56,20 +56,16 @@ func (task *SubWorkflowTask) TaskToDomain(taskToDomainMap map[string]string) *Su
 }
 func (task *SubWorkflowTask) toWorkflowTask() []model.WorkflowTask {
 	workflowTasks := task.Task.toWorkflowTask()
+	var subWorkflowParams model.SubWorkflowParams
+	subWorkflowParams.Name = task.workflowName
+	subWorkflowParams.TaskToDomain = task.taskToDomainMap
 	if task.workflow != nil {
-		workflowTasks[0].SubWorkflowParam = &model.SubWorkflowParams{
-			Name:               task.workflow.name,
-			TaskToDomain:       task.taskToDomainMap,
-			WorkflowDefinition: task.workflow.ToWorkflowDef(),
-		}
+		subWorkflowParams.WorkflowDefinition = task.workflow.ToWorkflowDef()
 	} else {
-		workflowTasks[0].SubWorkflowParam = &model.SubWorkflowParams{
-			Name:               task.workflowName,
-			Version:            task.version,
-			TaskToDomain:       task.taskToDomainMap,
-			WorkflowDefinition: nil,
-		}
+		subWorkflowParams.WorkflowDefinition = nil
+		subWorkflowParams.Version = *task.version
 	}
+	workflowTasks[0].SubWorkflowParam = &subWorkflowParams
 	return workflowTasks
 }
 

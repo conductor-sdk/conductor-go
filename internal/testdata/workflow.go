@@ -11,6 +11,7 @@ package testdata
 
 import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model/status"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 )
@@ -28,7 +29,7 @@ var SimpleTask = workflow.NewSimpleTask(
 )
 
 func IsWorkflowCompleted(workflow *model.Workflow) bool {
-	return workflow.Status == model.CompletedWorkflow
+	return workflow.Status == string(status.CompletedWorkflow)
 }
 
 func NewHttpTaskConductorWorkflow(workflowExecutor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {

@@ -1,6 +1,7 @@
 package integration_tests
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"testing"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model/status"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/stretchr/testify/assert"
 )
@@ -39,7 +41,7 @@ func TestRemoveWorkflow(t *testing.T) {
 
 	execution, err := executor.GetWorkflow(id, true)
 	assert.NoError(t, err, "Failed to get workflow execution")
-	assert.Equal(t, model.CompletedWorkflow, execution.Status, "Workflow is not in the completed state")
+	assert.Equal(t, status.CompletedWorkflow, execution.Status, "Workflow is not in the completed state")
 
 	err = executor.RemoveWorkflow(id)
 	assert.NoError(t, err, "Failed to remove workflow execution")
@@ -47,7 +49,11 @@ func TestRemoveWorkflow(t *testing.T) {
 	execution, err = executor.GetWorkflow(id, true)
 	assert.Error(t, err, "Workflow found even after removing")
 
-	_, err = testdata.MetadataClient.UnregisterWorkflowDef(wf.GetName(), wf.GetVersion())
+	_, err = testdata.MetadataClient.UnregisterWorkflowDef(
+		context.Background(),
+		wf.GetName(),
+		wf.GetVersion().Value(),
+	)
 	assert.NoError(t, err, "Failed to delete workflow definition ", err)
 
 }

@@ -10,6 +10,7 @@
 package executor
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strconv"
@@ -20,6 +21,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model/status"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -73,9 +75,13 @@ func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 // RegisterWorkflow Registers the workflow on the server.  Overwrites if the flag is set.  If the 'overwrite' flag is not set
 // and the workflow definition differs from the one on the server, the call will fail with response code 409
 func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.WorkflowDef) error {
-	_, response, err := e.metadataClient.Create(*workflow, &client.MetadataResourceApiCreateOpts{
-		Overwrite: optional.NewBool(overwrite),
-	})
+	_, response, err := e.metadataClient.Create(
+		context.Background(),
+		*workflow,
+		&client.MetadataResourceApiCreateOpts{
+			Overwrite: optional.NewBool(overwrite),
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -96,6 +102,7 @@ func (e *WorkflowExecutor) MonitorExecution(workflowId string) (workflowMonitor 
 // Returns the id of the newly created workflow
 func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error) {
 	id, _, err := e.workflowClient.StartWorkflow(
+		context.Background(),
 		*startWorkflowRequest,
 	)
 	if err != nil {
@@ -166,7 +173,7 @@ func (e *WorkflowExecutor) GetWorkflow(workflowId string, includeTasks bool) (*m
 
 func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTasks bool) (*model.Workflow, error) {
 	workflow, response, err := e.workflowClient.GetExecutionStatus(
-
+		context.Background(),
 		workflowId,
 		&client.WorkflowResourceApiGetExecutionStatusOpts{
 			IncludeTasks: optional.NewBool(includeTasks)},
@@ -195,6 +202,7 @@ func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTask
 // This is a lightweight method that returns only overall state of the workflow
 func (e *WorkflowExecutor) GetWorkflowStatus(workflowId string, includeOutput bool, includeVariables bool) (*model.WorkflowStatus, error) {
 	state, response, err := e.workflowClient.GetWorkflowStatusSummary(
+		context.Background(),
 		workflowId,
 		&client.WorkflowResourceApiGetWorkflowStatusSummaryOpts{
 			IncludeOutput:    optional.NewBool(includeOutput),
@@ -212,13 +220,14 @@ func (e *WorkflowExecutor) GetWorkflowStatus(workflowId string, includeOutput bo
 // When IncludeClosed is set to true, the return value also includes workflows that are completed otherwise only running workflows are returned
 func (e *WorkflowExecutor) GetByCorrelationIds(workflowName string, includeClosed bool, includeTasks bool, correlationIds ...string) (map[string][]model.Workflow, error) {
 	workflows, _, err := e.workflowClient.GetWorkflows(
-
+		context.Background(),
 		correlationIds,
 		workflowName,
 		&client.WorkflowResourceApiGetWorkflowsOpts{
 			IncludeClosed: optional.NewBool(includeClosed),
 			IncludeTasks:  optional.NewBool(includeTasks),
-		})
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -239,7 +248,7 @@ func (e *WorkflowExecutor) GetByCorrelationIds(workflowName string, includeClose
 //     are full text indexed and can be used to search
 func (e *WorkflowExecutor) Search(start int32, size int32, query string, freeText string) ([]model.WorkflowSummary, error) {
 	workflows, _, err := e.workflowClient.Search(
-
+		context.Background(),
 		&client.WorkflowResourceApiSearchOpts{
 			Start:    optional.NewInt32(start),
 			Size:     optional.NewInt32(size),
@@ -256,7 +265,10 @@ func (e *WorkflowExecutor) Search(start int32, size int32, query string, freeTex
 // Pause the execution of a running workflow.
 // Any tasks that are currently running will finish but no new tasks are scheduled until the workflow is resumed
 func (e *WorkflowExecutor) Pause(workflowId string) error {
-	_, err := e.workflowClient.PauseWorkflow(workflowId)
+	_, err := e.workflowClient.PauseWorkflow(
+		context.Background(),
+		workflowId,
+	)
 	if err != nil {
 		return err
 	}
@@ -265,7 +277,10 @@ func (e *WorkflowExecutor) Pause(workflowId string) error {
 
 // Resume the execution of a workflow that is paused.  If the workflow is not paused, this method has no effect
 func (e *WorkflowExecutor) Resume(workflowId string) error {
-	_, err := e.workflowClient.ResumeWorkflow(workflowId)
+	_, err := e.workflowClient.ResumeWorkflow(
+		context.Background(),
+		workflowId,
+	)
 	if err != nil {
 		return err
 	}
@@ -274,8 +289,10 @@ func (e *WorkflowExecutor) Resume(workflowId string) error {
 
 // Terminate a running workflow.  Reason must be provided that is captured as the termination reason for the workflow
 func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error {
-	_, err := e.workflowClient.Terminate(workflowId,
-		&client.WorkflowResourceApiTerminateOpts{Reason: optional.NewString(reason)},
+	_, err := e.workflowClient.Terminate1(
+		context.Background(),
+		workflowId,
+		&client.WorkflowResourceApiTerminate1Opts{Reason: optional.NewString(reason)},
 	)
 	if err != nil {
 		return err
@@ -288,11 +305,12 @@ func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error {
 // If useLatestDefinition is set, the restarted workflow fetches the latest definition from the metadata store
 func (e *WorkflowExecutor) Restart(workflowId string, useLatestDefinition bool) error {
 	_, err := e.workflowClient.Restart(
-
+		context.Background(),
 		workflowId,
 		&client.WorkflowResourceApiRestartOpts{
 			UseLatestDefinitions: optional.NewBool(useLatestDefinition),
-		})
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -304,7 +322,7 @@ func (e *WorkflowExecutor) Restart(workflowId string, useLatestDefinition bool) 
 // the server restarts the subworkflow from the failed task.  If set to false, the sub-workflow is re-executed.
 func (e *WorkflowExecutor) Retry(workflowId string, resumeSubworkflowTasks bool) error {
 	_, err := e.workflowClient.Retry(
-
+		context.Background(),
 		workflowId,
 		&client.WorkflowResourceApiRetryOpts{
 			ResumeSubworkflowTasks: optional.NewBool(resumeSubworkflowTasks),
@@ -320,7 +338,7 @@ func (e *WorkflowExecutor) Retry(workflowId string, resumeSubworkflowTasks bool)
 // Also update the completed tasks with new input (ReRunFromTaskId) if required
 func (e *WorkflowExecutor) ReRun(workflowId string, reRunRequest model.RerunWorkflowRequest) (id string, error error) {
 	id, _, err := e.workflowClient.Rerun(
-
+		context.Background(),
 		reRunRequest,
 		workflowId,
 	)
@@ -334,7 +352,7 @@ func (e *WorkflowExecutor) ReRun(workflowId string, reRunRequest model.RerunWork
 // When skipped the task's input and outputs are updated  from skipTaskRequest parameter.
 func (e *WorkflowExecutor) SkipTasksFromWorkflow(workflowId string, taskReferenceName string, skipTaskRequest model.SkipTaskRequest) error {
 	_, err := e.workflowClient.SkipTaskFromWorkflow(
-
+		context.Background(),
 		workflowId,
 		taskReferenceName,
 		skipTaskRequest,
@@ -346,23 +364,27 @@ func (e *WorkflowExecutor) SkipTasksFromWorkflow(workflowId string, taskReferenc
 }
 
 // UpdateTask update the task with output and status.
-func (e *WorkflowExecutor) UpdateTask(taskId string, workflowInstanceId string, status model.TaskResultStatus, output interface{}) error {
+func (e *WorkflowExecutor) UpdateTask(taskId string, workflowInstanceId string, status status.TaskResultStatus, output interface{}) error {
 	taskResult, err := getTaskResultFromOutput(taskId, workflowInstanceId, output)
 	if err != nil {
 		return err
 	}
-	taskResult.Status = status
-	e.taskClient.UpdateTask(*taskResult)
+	taskResult.Status = string(status)
+	e.taskClient.UpdateTask(
+		context.Background(),
+		*taskResult,
+	)
 	return nil
 }
 
 // UpdateTaskByRefName Update the execution status and output of the task and status
-func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInstanceId string, status model.TaskResultStatus, output interface{}) error {
+func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInstanceId string, status status.TaskResultStatus, output interface{}) error {
 	outputData, err := model.ConvertToMap(output)
 	if err != nil {
 		return err
 	}
 	_, response, err := e.taskClient.UpdateTask1(
+		context.Background(),
 		outputData,
 		workflowInstanceId,
 		taskRefName,
@@ -379,7 +401,10 @@ func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInsta
 
 // GetTask by task Id returns nil if no such task is found by the id
 func (e *WorkflowExecutor) GetTask(taskId string) (task *model.Task, err error) {
-	t, response, err := e.taskClient.GetTask(taskId)
+	t, response, err := e.taskClient.GetTask(
+		context.Background(),
+		taskId,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -392,7 +417,11 @@ func (e *WorkflowExecutor) GetTask(taskId string) (task *model.Task, err error) 
 // RemoveWorkflow Remove workflow execution permanently from the system
 // Returns nil if no workflow is found by the id
 func (e *WorkflowExecutor) RemoveWorkflow(workflowId string) error {
-	response, err := e.workflowClient.Delete(workflowId, &client.WorkflowResourceApiDeleteOpts{ArchiveWorkflow: optional.NewBool(false)})
+	response, err := e.workflowClient.Delete(
+		context.Background(),
+		workflowId,
+		&client.WorkflowResourceApiDeleteOpts{ArchiveWorkflow: optional.NewBool(false)},
+	)
 	if err != nil {
 		return err
 	}
@@ -411,7 +440,7 @@ func getTaskResultFromOutput(taskId string, workflowInstanceId string, taskExecu
 			return nil, err
 		}
 		taskResult.OutputData = outputData
-		taskResult.Status = model.CompletedTask
+		taskResult.Status = string(status.CompletedTask)
 	}
 	return taskResult, nil
 }
@@ -432,6 +461,7 @@ func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request 
 		startWorkflowRequest.WorkflowDef = workflow
 	}
 	workflowId, response, err := e.workflowClient.StartWorkflow(
+		context.Background(),
 		startWorkflowRequest,
 	)
 	if err != nil {

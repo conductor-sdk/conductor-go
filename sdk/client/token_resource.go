@@ -29,13 +29,13 @@ TokenResourceApiService Generate JWT with the given access key
 
 @return Response
 */
-func (a *TokenResourceApiService) GenerateToken(ctx context.Context, body model.GenerateTokenRequest) (Response, *http.Response, error) {
+func (a *TokenResourceApiService) GenerateToken(ctx context.Context, body model.GenerateTokenRequest) (model.Token, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue Response
+		localVarReturnValue model.Token
 	)
 
 	// create path and map variables
@@ -93,7 +93,7 @@ func (a *TokenResourceApiService) GenerateToken(ctx context.Context, body model.
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v Response
+			var v model.Token
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

@@ -10,6 +10,7 @@
 package testdata
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"reflect"
@@ -17,6 +18,7 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model/status"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/conductor-sdk/conductor-go/sdk/worker"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
@@ -64,7 +66,7 @@ type TreasureChest struct {
 func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, workflowId string, expectedOutput map[string]interface{}) {
 	time.Sleep(waitTime)
 	workflow, _, err := WorkflowClient.GetExecutionStatus(
-
+		context.Background(),
 		workflowId,
 		nil,
 	)
@@ -72,7 +74,7 @@ func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, wo
 		outputChannel <- err
 		return
 	}
-	if workflow.Status != model.CompletedWorkflow {
+	if workflow.Status != string(status.CompletedWorkflow) {
 		outputChannel <- fmt.Errorf(
 			"workflow status different than expected, workflowId: %s, workflowStatus: %s",
 			workflow.WorkflowId, workflow.Status,
@@ -171,6 +173,7 @@ func StartWorkflows(workflowQty int, workflowName string) ([]string, error) {
 	workflowIdList := make([]string, workflowQty)
 	for i := 0; i < workflowQty; i += 1 {
 		workflowId, _, err := WorkflowClient.StartWorkflow1(
+			context.Background(),
 			make(map[string]interface{}),
 			workflowName,
 			nil,
@@ -225,12 +228,14 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 	version := conductorWorkflow.GetVersion()
 	startWorkflowRequests := make([]*model.StartWorkflowRequest, amount)
 	for i := 0; i < amount; i += 1 {
-		startWorkflowRequests[i] = model.NewStartWorkflowRequest(
-			conductorWorkflow.GetName(),
-			&version,
-			"",
-			make(map[string]interface{}),
-		)
+		startWorkflowRequests[i] = &model.StartWorkflowRequest{
+			Name:          conductorWorkflow.GetName(),
+			CorrelationId: "",
+			Input:         make(map[string]interface{}),
+		}
+		if version.IsSet() {
+			startWorkflowRequests[i].Version = version.Value()
+		}
 	}
 	runningWorkflows := WorkflowExecutor.StartWorkflows(true, startWorkflowRequests...)
 	WorkflowExecutor.WaitForRunningWorkflowsUntilTimeout(timeout, runningWorkflows...)
@@ -250,6 +255,7 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 
 func ValidateTaskRegistration(taskDefs ...model.TaskDef) error {
 	_, response, err := MetadataClient.RegisterTaskDef(
+		context.Background(),
 		taskDefs,
 	)
 	if err != nil {
@@ -272,5 +278,5 @@ func ValidateWorkflowRegistration(workflow *workflow.ConductorWorkflow) error {
 }
 
 func isWorkflowCompleted(workflow *model.Workflow) bool {
-	return workflow.Status == model.CompletedWorkflow
+	return workflow.Status == string(status.CompletedWorkflow)
 }

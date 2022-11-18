@@ -12,6 +12,7 @@ package workflow
 import (
 	"encoding/json"
 
+	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	log "github.com/sirupsen/logrus"
@@ -27,7 +28,7 @@ const (
 type ConductorWorkflow struct {
 	executor         *executor.WorkflowExecutor
 	name             string
-	version          int32
+	version          optional.Int32
 	description      string
 	ownerEmail       string
 	tasks            []TaskInterface
@@ -55,7 +56,7 @@ func (workflow *ConductorWorkflow) Name(name string) *ConductorWorkflow {
 }
 
 func (workflow *ConductorWorkflow) Version(version int32) *ConductorWorkflow {
-	workflow.version = version
+	workflow.version = optional.NewInt32(version)
 	return workflow
 }
 
@@ -125,7 +126,7 @@ func (workflow *ConductorWorkflow) GetName() (name string) {
 	return workflow.name
 }
 
-func (workflow *ConductorWorkflow) GetVersion() (version int32) {
+func (workflow *ConductorWorkflow) GetVersion() (version optional.Int32) {
 	return workflow.version
 }
 
@@ -143,15 +144,15 @@ func (workflow *ConductorWorkflow) Register(overwrite bool) error {
 // StartWorkflowWithInput ExecuteWorkflowWithInput Execute the workflow with specific input.  The input struct MUST be serializable to JSON
 // Returns the workflow Id that can be used to monitor and get the status of the workflow execution
 func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) (workflowId string, err error) {
-	version := workflow.GetVersion()
-	return workflow.executor.StartWorkflow(
-		&model.StartWorkflowRequest{
-			Name:        workflow.GetName(),
-			Version:     &version,
-			Input:       getInputAsMap(input),
-			WorkflowDef: workflow.ToWorkflowDef(),
-		},
-	)
+	startWorkflowRequest := &model.StartWorkflowRequest{
+		Name:        workflow.GetName(),
+		Input:       getInputAsMap(input),
+		WorkflowDef: workflow.ToWorkflowDef(),
+	}
+	if workflow.GetVersion().IsSet() {
+		startWorkflowRequest.Version = workflow.GetVersion().Value()
+	}
+	return workflow.executor.StartWorkflow(startWorkflowRequest)
 }
 
 // StartWorkflow starts the workflow execution with startWorkflowRequest that allows you to specify more details like task domains, correlationId etc.
@@ -194,10 +195,9 @@ func getInputAsMap(input interface{}) map[string]interface{} {
 
 // ToWorkflowDef converts the workflow to the JSON serializable format
 func (workflow *ConductorWorkflow) ToWorkflowDef() *model.WorkflowDef {
-	return &model.WorkflowDef{
+	workflowDef := &model.WorkflowDef{
 		Name:             workflow.name,
 		Description:      workflow.description,
-		Version:          workflow.version,
 		Tasks:            getWorkflowTasksFromConductorWorkflow(workflow),
 		InputParameters:  workflow.inputParameters,
 		OutputParameters: workflow.outputParameters,
@@ -209,6 +209,10 @@ func (workflow *ConductorWorkflow) ToWorkflowDef() *model.WorkflowDef {
 		Variables:        workflow.variables,
 		InputTemplate:    workflow.inputTemplate,
 	}
+	if workflow.version.IsSet() {
+		workflowDef.Version = workflow.version.Value()
+	}
+	return workflowDef
 }
 
 func getWorkflowTasksFromConductorWorkflow(workflow *ConductorWorkflow) []model.WorkflowTask {

@@ -30,13 +30,13 @@ UserResourceApiService Delete a user
 
 @return Response
 */
-func (a *UserResourceApiService) DeleteUser(ctx context.Context, id string) (Response, *http.Response, error) {
+func (a *UserResourceApiService) DeleteUser(ctx context.Context, id string) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Delete")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue Response
+		localVarReturnValue string
 	)
 
 	// create path and map variables
@@ -93,7 +93,7 @@ func (a *UserResourceApiService) DeleteUser(ctx context.Context, id string) (Res
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v Response
+			var v string
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

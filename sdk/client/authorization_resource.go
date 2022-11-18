@@ -116,13 +116,13 @@ AuthorizationResourceApiService Grant access to a user over the target
 
 @return Response
 */
-func (a *AuthorizationResourceApiService) GrantPermissions(ctx context.Context, body model.AuthorizationRequest) (Response, *http.Response, error) {
+func (a *AuthorizationResourceApiService) GrantPermissions(ctx context.Context, body model.AuthorizationRequest) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue Response
+		localVarReturnValue string
 	)
 
 	// create path and map variables
@@ -180,7 +180,7 @@ func (a *AuthorizationResourceApiService) GrantPermissions(ctx context.Context, 
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v Response
+			var v string
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -202,13 +202,13 @@ AuthorizationResourceApiService Remove user&#x27;s access over the target
 
 @return Response
 */
-func (a *AuthorizationResourceApiService) RemovePermissions(ctx context.Context, body model.AuthorizationRequest) (Response, *http.Response, error) {
+func (a *AuthorizationResourceApiService) RemovePermissions(ctx context.Context, body model.AuthorizationRequest) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Delete")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue Response
+		localVarReturnValue string
 	)
 
 	// create path and map variables
@@ -266,7 +266,7 @@ func (a *AuthorizationResourceApiService) RemovePermissions(ctx context.Context,
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v Response
+			var v string
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

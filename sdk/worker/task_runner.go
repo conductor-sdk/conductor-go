@@ -10,6 +10,7 @@
 package worker
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -290,6 +291,7 @@ func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]mod
 	metrics.IncrementTaskPoll(taskName)
 	startTime := time.Now()
 	tasks, response, err := c.conductorTaskResourceClient.BatchPoll(
+		context.Background(),
 		taskName,
 		&client.TaskResourceApiBatchPollOpts{
 			Domain:   domainOptional,
@@ -380,7 +382,7 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 
 func (c *TaskRunner) updateTask(taskName string, taskResult *model.TaskResult) (*http.Response, error) {
 	startTime := time.Now()
-	_, response, err := c.conductorTaskResourceClient.UpdateTask(*taskResult)
+	_, response, err := c.conductorTaskResourceClient.UpdateTask(context.Background(), *taskResult)
 	spentTime := time.Since(startTime).Milliseconds()
 	metrics.RecordTaskUpdateTime(taskName, float64(spentTime))
 	return response, err
