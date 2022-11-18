@@ -1,15 +1,15 @@
-//  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
-//  the License. You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+// the License. You may obtain a copy of the License at
 //
-//  http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
-//  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
-//  specific language governing permissions and limitations under the License.
-
+// Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+// an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
 package client
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -25,10 +25,11 @@ type TaskResourceApiService struct {
 
 /*
 TaskResourceApiService Get the details about each queue
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 
 @return map[string]int64
 */
-func (a *TaskResourceApiService) All() (map[string]int64, *http.Response, error) {
+func (a *TaskResourceApiService) All(ctx context.Context) (map[string]int64, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -61,7 +62,7 @@ func (a *TaskResourceApiService) All() (map[string]int64, *http.Response, error)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -107,10 +108,11 @@ func (a *TaskResourceApiService) All() (map[string]int64, *http.Response, error)
 
 /*
 TaskResourceApiService Get the details about each queue
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 
 @return map[string]map[string]map[string]int64
 */
-func (a *TaskResourceApiService) AllVerbose() (map[string]map[string]map[string]int64, *http.Response, error) {
+func (a *TaskResourceApiService) AllVerbose(ctx context.Context) (map[string]map[string]map[string]int64, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -143,7 +145,7 @@ func (a *TaskResourceApiService) AllVerbose() (map[string]map[string]map[string]
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -189,7 +191,7 @@ func (a *TaskResourceApiService) AllVerbose() (map[string]map[string]map[string]
 
 /*
 TaskResourceApiService Batch poll for a task of a certain type
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param tasktype
  * @param optional nil or *TaskResourceApiBatchPollOpts - Optional Parameters:
      * @param "Workerid" (optional.String) -
@@ -206,7 +208,7 @@ type TaskResourceApiBatchPollOpts struct {
 	Timeout  optional.Int32
 }
 
-func (a *TaskResourceApiService) BatchPoll(tasktype string, localVarOptionals *TaskResourceApiBatchPollOpts) ([]model.Task, *http.Response, error) {
+func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiBatchPollOpts) ([]model.Task, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -252,7 +254,7 @@ func (a *TaskResourceApiService) BatchPoll(tasktype string, localVarOptionals *T
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -298,10 +300,11 @@ func (a *TaskResourceApiService) BatchPoll(tasktype string, localVarOptionals *T
 
 /*
 TaskResourceApiService Get the last poll data for all task types
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 
 @return []model.PollData
 */
-func (a *TaskResourceApiService) GetAllPollData() ([]model.PollData, *http.Response, error) {
+func (a *TaskResourceApiService) GetAllPollData(ctx context.Context) ([]model.PollData, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -334,7 +337,7 @@ func (a *TaskResourceApiService) GetAllPollData() ([]model.PollData, *http.Respo
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -380,14 +383,14 @@ func (a *TaskResourceApiService) GetAllPollData() ([]model.PollData, *http.Respo
 
 /*
 TaskResourceApiService Get the external uri where the task payload is to be stored
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param path
   - @param operation
   - @param payloadType
 
 @return model.ExternalStorageLocation
 */
-func (a *TaskResourceApiService) GetExternalStorageLocation1(path string, operation string, payloadType string) (model.ExternalStorageLocation, *http.Response, error) {
+func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context, path string, operation string, payloadType string) (model.ExternalStorageLocation, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -423,7 +426,7 @@ func (a *TaskResourceApiService) GetExternalStorageLocation1(path string, operat
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -469,12 +472,12 @@ func (a *TaskResourceApiService) GetExternalStorageLocation1(path string, operat
 
 /*
 TaskResourceApiService Get the last poll data for a given task type
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param taskType
 
 @return []model.PollData
 */
-func (a *TaskResourceApiService) GetPollData(taskType string) ([]model.PollData, *http.Response, error) {
+func (a *TaskResourceApiService) GetPollData(ctx context.Context, taskType string) ([]model.PollData, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -508,7 +511,7 @@ func (a *TaskResourceApiService) GetPollData(taskType string) ([]model.PollData,
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -554,12 +557,12 @@ func (a *TaskResourceApiService) GetPollData(taskType string) ([]model.PollData,
 
 /*
 TaskResourceApiService Get task by Id
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param taskId
 
 @return model.Task
 */
-func (a *TaskResourceApiService) GetTask(taskId string) (model.Task, *http.Response, error) {
+func (a *TaskResourceApiService) GetTask(ctx context.Context, taskId string) (model.Task, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -593,7 +596,7 @@ func (a *TaskResourceApiService) GetTask(taskId string) (model.Task, *http.Respo
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -639,12 +642,12 @@ func (a *TaskResourceApiService) GetTask(taskId string) (model.Task, *http.Respo
 
 /*
 TaskResourceApiService Get model.Task Execution Logs
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param taskId
 
 @return []model.TaskExecLog
 */
-func (a *TaskResourceApiService) GetTaskLogs(taskId string) ([]model.TaskExecLog, *http.Response, error) {
+func (a *TaskResourceApiService) GetTaskLogs(ctx context.Context, taskId string) ([]model.TaskExecLog, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -678,7 +681,7 @@ func (a *TaskResourceApiService) GetTaskLogs(taskId string) ([]model.TaskExecLog
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -724,11 +727,11 @@ func (a *TaskResourceApiService) GetTaskLogs(taskId string) ([]model.TaskExecLog
 
 /*
 TaskResourceApiService Log model.Task Execution Details
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
   - @param taskId
 */
-func (a *TaskResourceApiService) Log(body string, taskId string) (*http.Response, error) {
+func (a *TaskResourceApiService) Log(ctx context.Context, body string, taskId string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -763,7 +766,7 @@ func (a *TaskResourceApiService) Log(body string, taskId string) (*http.Response
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -791,7 +794,7 @@ func (a *TaskResourceApiService) Log(body string, taskId string) (*http.Response
 
 /*
 TaskResourceApiService Poll for a task of a certain type
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param tasktype
  * @param optional nil or *TaskResourceApiPollOpts - Optional Parameters:
      * @param "Workerid" (optional.String) -
@@ -804,7 +807,7 @@ type TaskResourceApiPollOpts struct {
 	Domain   optional.String
 }
 
-func (a *TaskResourceApiService) Poll(tasktype string, localVarOptionals *TaskResourceApiPollOpts) (model.Task, *http.Response, error) {
+func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiPollOpts) (model.Task, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -844,7 +847,7 @@ func (a *TaskResourceApiService) Poll(tasktype string, localVarOptionals *TaskRe
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -890,12 +893,12 @@ func (a *TaskResourceApiService) Poll(tasktype string, localVarOptionals *TaskRe
 
 /*
 TaskResourceApiService Requeue pending tasks
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param taskType
 
 @return string
 */
-func (a *TaskResourceApiService) RequeuePendingTask(taskType string) (string, *http.Response, error) {
+func (a *TaskResourceApiService) RequeuePendingTask(ctx context.Context, taskType string) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -929,7 +932,7 @@ func (a *TaskResourceApiService) RequeuePendingTask(taskType string) (string, *h
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -976,7 +979,7 @@ func (a *TaskResourceApiService) RequeuePendingTask(taskType string) (string, *h
 /*
 TaskResourceApiService Search for tasks based in payload and other parameters
 use sort options as sort&#x3D;&lt;field&gt;:ASC|DESC e.g. sort&#x3D;name&amp;sort&#x3D;workflowId:DESC. If order is not specified, defaults to ASC
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param optional nil or *TaskResourceApiSearch1Opts - Optional Parameters:
      * @param "Start" (optional.Int32) -
      * @param "Size" (optional.Int32) -
@@ -994,7 +997,7 @@ type TaskResourceApiSearch1Opts struct {
 	Query    optional.String
 }
 
-func (a *TaskResourceApiService) Search1(localVarOptionals *TaskResourceApiSearch1Opts) (model.SearchResultTaskSummary, *http.Response, error) {
+func (a *TaskResourceApiService) Search1(ctx context.Context, localVarOptionals *TaskResourceApiSearch1Opts) (model.SearchResultTaskSummary, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -1042,7 +1045,7 @@ func (a *TaskResourceApiService) Search1(localVarOptionals *TaskResourceApiSearc
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -1089,7 +1092,7 @@ func (a *TaskResourceApiService) Search1(localVarOptionals *TaskResourceApiSearc
 /*
 TaskResourceApiService Search for tasks based in payload and other parameters
 use sort options as sort&#x3D;&lt;field&gt;:ASC|DESC e.g. sort&#x3D;name&amp;sort&#x3D;workflowId:DESC. If order is not specified, defaults to ASC
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param optional nil or *TaskResourceApiSearchV21Opts - Optional Parameters:
      * @param "Start" (optional.Int32) -
      * @param "Size" (optional.Int32) -
@@ -1107,7 +1110,7 @@ type TaskResourceApiSearchV21Opts struct {
 	Query    optional.String
 }
 
-func (a *TaskResourceApiService) SearchV21(localVarOptionals *TaskResourceApiSearchV21Opts) (model.SearchResultTask, *http.Response, error) {
+func (a *TaskResourceApiService) SearchV21(ctx context.Context, localVarOptionals *TaskResourceApiSearchV21Opts) (model.SearchResultTask, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -1155,7 +1158,7 @@ func (a *TaskResourceApiService) SearchV21(localVarOptionals *TaskResourceApiSea
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -1201,7 +1204,7 @@ func (a *TaskResourceApiService) SearchV21(localVarOptionals *TaskResourceApiSea
 
 /*
 TaskResourceApiService Get model.Task type queue sizes
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param optional nil or *TaskResourceApiSizeOpts - Optional Parameters:
      * @param "TaskType" (optional.Interface of []string) -
 @return map[string]int32
@@ -1211,7 +1214,7 @@ type TaskResourceApiSizeOpts struct {
 	TaskType optional.Interface
 }
 
-func (a *TaskResourceApiService) Size(localVarOptionals *TaskResourceApiSizeOpts) (map[string]int32, *http.Response, error) {
+func (a *TaskResourceApiService) Size(ctx context.Context, localVarOptionals *TaskResourceApiSizeOpts) (map[string]int32, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -1247,7 +1250,7 @@ func (a *TaskResourceApiService) Size(localVarOptionals *TaskResourceApiSizeOpts
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -1293,12 +1296,12 @@ func (a *TaskResourceApiService) Size(localVarOptionals *TaskResourceApiSizeOpts
 
 /*
 TaskResourceApiService Update a task
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
 
 @return string
 */
-func (a *TaskResourceApiService) UpdateTask(body model.TaskResult) (string, *http.Response, error) {
+func (a *TaskResourceApiService) UpdateTask(ctx context.Context, body model.TaskResult) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -1333,7 +1336,7 @@ func (a *TaskResourceApiService) UpdateTask(body model.TaskResult) (string, *htt
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -1379,7 +1382,7 @@ func (a *TaskResourceApiService) UpdateTask(body model.TaskResult) (string, *htt
 
 /*
 TaskResourceApiService Update a task By Ref Name
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
   - @param workflowId
   - @param taskRefName
@@ -1387,7 +1390,7 @@ TaskResourceApiService Update a task By Ref Name
 
 @return string
 */
-func (a *TaskResourceApiService) UpdateTask1(body map[string]interface{}, workflowId string, taskRefName string, status string) (string, *http.Response, error) {
+func (a *TaskResourceApiService) UpdateTask1(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -1425,7 +1428,7 @@ func (a *TaskResourceApiService) UpdateTask1(body map[string]interface{}, workfl
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}

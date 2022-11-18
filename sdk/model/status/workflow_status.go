@@ -7,10 +7,24 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package model
+package status
 
-type HealthCheckStatus struct {
-	HealthResults           []Health `json:"healthResults,omitempty"`
-	SuppressedHealthResults []Health `json:"suppressedHealthResults,omitempty"`
-	Healthy                 bool     `json:"healthy,omitempty"`
-}
+type WorkflowStatus string
+
+const (
+	RunningWorkflow    WorkflowStatus = "RUNNING"
+	CompletedWorkflow  WorkflowStatus = "COMPLETED"
+	FailedWorkflow     WorkflowStatus = "FAILED"
+	TimedOutWorkflow   WorkflowStatus = "TIMED_OUT"
+	TerminatedWorkflow WorkflowStatus = "TERMINATED"
+	PausedWorkflow     WorkflowStatus = "PAUSED"
+)
+
+var (
+	WorkflowTerminalStates = []WorkflowStatus{
+		CompletedWorkflow,
+		FailedWorkflow,
+		TimedOutWorkflow,
+		TerminatedWorkflow,
+	}
+)

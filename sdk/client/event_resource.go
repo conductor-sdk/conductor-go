@@ -1,12 +1,11 @@
-//  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
-//  the License. You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+// the License. You may obtain a copy of the License at
 //
-//  http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
-//  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
-//  specific language governing permissions and limitations under the License.
-
+// Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+// an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
 package client
 
 import (
@@ -26,9 +25,10 @@ type EventResourceApiService struct {
 
 /*
 EventResourceApiService Add a new event handler.
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
 */
-func (a *EventResourceApiService) AddEventHandler(body model.EventHandler) (*http.Response, error) {
+func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body model.EventHandler) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -62,8 +62,7 @@ func (a *EventResourceApiService) AddEventHandler(body model.EventHandler) (*htt
 	}
 	// body params
 	localVarPostBody = &body
-
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -91,10 +90,11 @@ func (a *EventResourceApiService) AddEventHandler(body model.EventHandler) (*htt
 
 /*
 EventResourceApiService Delete queue config by name
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param queueType
   - @param queueName
 */
-func (a *EventResourceApiService) DeleteQueueConfig(queueType string, queueName string) (*http.Response, error) {
+func (a *EventResourceApiService) DeleteQueueConfig(ctx context.Context, queueType string, queueName string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -128,7 +128,7 @@ func (a *EventResourceApiService) DeleteQueueConfig(queueType string, queueName 
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -156,6 +156,7 @@ func (a *EventResourceApiService) DeleteQueueConfig(queueType string, queueName 
 
 /*
 EventResourceApiService Get all the event handlers
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 
 @return []model.EventHandler
 */
@@ -192,8 +193,7 @@ func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]model
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -250,7 +250,7 @@ type EventResourceApiGetEventHandlersForEventOpts struct {
 	ActiveOnly optional.Bool
 }
 
-func (a *EventResourceApiService) GetEventHandlersForEvent(event string, localVarOptionals *EventResourceApiGetEventHandlersForEventOpts) ([]model.EventHandler, *http.Response, error) {
+func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, event string, localVarOptionals *EventResourceApiGetEventHandlersForEventOpts) ([]model.EventHandler, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -287,8 +287,7 @@ func (a *EventResourceApiService) GetEventHandlersForEvent(event string, localVa
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -334,12 +333,13 @@ func (a *EventResourceApiService) GetEventHandlersForEvent(event string, localVa
 
 /*
 EventResourceApiService Get queue config by name
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param queueType
   - @param queueName
 
 @return map[string]interface{}
 */
-func (a *EventResourceApiService) GetQueueConfig(queueType string, queueName string) (map[string]interface{}, *http.Response, error) {
+func (a *EventResourceApiService) GetQueueConfig(ctx context.Context, queueType string, queueName string) (map[string]interface{}, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -374,8 +374,7 @@ func (a *EventResourceApiService) GetQueueConfig(queueType string, queueName str
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -421,6 +420,7 @@ func (a *EventResourceApiService) GetQueueConfig(queueType string, queueName str
 
 /*
 EventResourceApiService Get all queue configs
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 
 @return map[string]string
 */
@@ -457,8 +457,7 @@ func (a *EventResourceApiService) GetQueueNames(ctx context.Context) (map[string
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -504,11 +503,12 @@ func (a *EventResourceApiService) GetQueueNames(ctx context.Context) (map[string
 
 /*
 EventResourceApiService Create or update queue config by name
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
   - @param queueType
   - @param queueName
 */
-func (a *EventResourceApiService) PutQueueConfig(body string, queueType string, queueName string) (*http.Response, error) {
+func (a *EventResourceApiService) PutQueueConfig(ctx context.Context, body string, queueType string, queueName string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -544,8 +544,7 @@ func (a *EventResourceApiService) PutQueueConfig(body string, queueType string, 
 	}
 	// body params
 	localVarPostBody = &body
-
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -573,9 +572,10 @@ func (a *EventResourceApiService) PutQueueConfig(body string, queueType string, 
 
 /*
 EventResourceApiService Remove an event handler
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param name
 */
-func (a *EventResourceApiService) RemoveEventHandlerStatus(name string) (*http.Response, error) {
+func (a *EventResourceApiService) RemoveEventHandlerStatus(ctx context.Context, name string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -608,8 +608,7 @@ func (a *EventResourceApiService) RemoveEventHandlerStatus(name string) (*http.R
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -637,9 +636,10 @@ func (a *EventResourceApiService) RemoveEventHandlerStatus(name string) (*http.R
 
 /*
 EventResourceApiService Update an existing event handler.
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
 */
-func (a *EventResourceApiService) UpdateEventHandler(body model.EventHandler) (*http.Response, error) {
+func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body model.EventHandler) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -673,8 +673,7 @@ func (a *EventResourceApiService) UpdateEventHandler(body model.EventHandler) (*
 	}
 	// body params
 	localVarPostBody = &body
-
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}

@@ -12,6 +12,7 @@ package client
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
@@ -88,6 +89,7 @@ func (c *APIClient) callAPI(request *http.Request) (*http.Response, error) {
 
 // prepareRequest build the request
 func (c *APIClient) prepareRequest(
+	ctx context.Context,
 	path string, method string,
 	postBody interface{},
 	headerParams map[string]string,
@@ -501,7 +503,7 @@ type GenericSwaggerError struct {
 
 // Error returns non-empty string if there was an error.
 func (e GenericSwaggerError) Error() string {
-	return e.error
+	return fmt.Sprintf("error: %s, body: %s", e.error, e.body)
 }
 
 // Body returns the raw bytes of the response

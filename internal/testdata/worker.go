@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model/status"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -49,7 +50,7 @@ func ExampleWorker(t *model.Task) (interface{}, error) {
 			Log: "log message",
 		},
 	)
-	taskResult.Status = model.CompletedTask
+	taskResult.Status = string(status.CompletedTask)
 	return taskResult, nil
 }
 
@@ -58,7 +59,7 @@ func SimpleWorker(t *model.Task) (interface{}, error) {
 	taskResult.OutputData = map[string]interface{}{
 		"key": "value",
 	}
-	taskResult.Status = model.CompletedTask
+	taskResult.Status = string(status.CompletedTask)
 	return taskResult, nil
 }
 
@@ -69,7 +70,7 @@ func TestWorkers(t *testing.T) {
 	workerWithTaskResultOutput := func(t *model.Task) (interface{}, error) {
 		taskResult := model.NewTaskResultFromTask(t)
 		taskResult.OutputData = outputData
-		taskResult.Status = model.CompletedTask
+		taskResult.Status = string(status.CompletedTask)
 		return taskResult, nil
 	}
 	workerWithGenericOutput := func(t *model.Task) (interface{}, error) {

@@ -1,20 +1,18 @@
-//  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
-//  the License. You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+// the License. You may obtain a copy of the License at
 //
-//  http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
-//  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
-//  specific language governing permissions and limitations under the License.
-
+// Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+// an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
 package client
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
 type HealthCheckResourceApiService struct {
@@ -23,15 +21,17 @@ type HealthCheckResourceApiService struct {
 
 /*
 HealthCheckResourceApiService
-@return http_model.HealthCheckStatus
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+
+@return map[string]interface{}
 */
-func (a *HealthCheckResourceApiService) DoCheck() (model.HealthCheckStatus, *http.Response, error) {
+func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (map[string]interface{}, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
 		localVarFileName    string
 		localVarFileBytes   []byte
-		localVarReturnValue model.HealthCheckStatus
+		localVarReturnValue map[string]interface{}
 	)
 
 	// create path and map variables
@@ -58,7 +58,7 @@ func (a *HealthCheckResourceApiService) DoCheck() (model.HealthCheckStatus, *htt
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -69,7 +69,6 @@ func (a *HealthCheckResourceApiService) DoCheck() (model.HealthCheckStatus, *htt
 	}
 
 	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
@@ -85,10 +84,10 @@ func (a *HealthCheckResourceApiService) DoCheck() (model.HealthCheckStatus, *htt
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
-			error: string(localVarBody),
+			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v model.HealthCheckStatus
+			var v map[string]interface{}
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

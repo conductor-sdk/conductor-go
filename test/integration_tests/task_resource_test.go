@@ -10,15 +10,17 @@
 package integration_tests
 
 import (
+	"context"
 	"testing"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
-	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model/status"
 )
 
 func TestUpdateTaskRefByName(t *testing.T) {
 	workflowId, response, err := testdata.WorkflowClient.StartWorkflow1(
+		context.Background(),
 		make(map[string]interface{}),
 		testdata.WorkflowName,
 		nil,
@@ -34,10 +36,11 @@ func TestUpdateTaskRefByName(t *testing.T) {
 		"key": "value",
 	}
 	returnValue, response, err := testdata.TaskClient.UpdateTask1(
+		context.Background(),
 		outputData,
 		workflowId,
 		testdata.TaskName,
-		string(model.CompletedTask),
+		string(status.CompletedTask),
 	)
 	if err != nil {
 		t.Fatal(

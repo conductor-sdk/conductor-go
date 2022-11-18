@@ -11,6 +11,7 @@ package testdata
 
 import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model/status"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 )
@@ -39,7 +40,7 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 			"SHORT",
 			workflow.NewTerminateTask(
 				"too_short",
-				model.FailedWorkflow,
+				status.FailedWorkflow,
 				"value too short",
 			),
 		)
@@ -131,7 +132,7 @@ func DynamicForkWorker(t *model.Task) (output interface{}, err error) {
 		"forkedTasks":       tasks,
 		"forkedTasksInputs": inputs,
 	}
-	taskResult.Status = model.CompletedTask
+	taskResult.Status = string(status.CompletedTask)
 	err = nil
 	return taskResult, err
 }

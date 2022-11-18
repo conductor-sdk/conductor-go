@@ -1,15 +1,15 @@
-//  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
-//  the License. You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+// the License. You may obtain a copy of the License at
 //
-//  http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
-//  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
-//  specific language governing permissions and limitations under the License.
-
+// Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+// an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
 package client
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -25,7 +25,7 @@ type MetadataResourceApiService struct {
 
 /*
 MetadataResourceApiService Create a new workflow definition
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param body
  * @param optional nil or *MetadataResourceApiCreateOpts - Optional Parameters:
      * @param "Overwrite" (optional.Bool) -
@@ -36,7 +36,7 @@ type MetadataResourceApiCreateOpts struct {
 	Overwrite optional.Bool
 }
 
-func (a *MetadataResourceApiService) Create(body model.WorkflowDef, localVarOptionals *MetadataResourceApiCreateOpts) (interface{}, *http.Response, error) {
+func (a *MetadataResourceApiService) Create(ctx context.Context, body model.WorkflowDef, localVarOptionals *MetadataResourceApiCreateOpts) (interface{}, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -74,7 +74,7 @@ func (a *MetadataResourceApiService) Create(body model.WorkflowDef, localVarOpti
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -120,7 +120,7 @@ func (a *MetadataResourceApiService) Create(body model.WorkflowDef, localVarOpti
 
 /*
 MetadataResourceApiService Retrieves workflow definition along with blueprint
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param name
  * @param optional nil or *MetadataResourceApiGetOpts - Optional Parameters:
      * @param "Version" (optional.Int32) -
@@ -133,7 +133,7 @@ type MetadataResourceApiGetOpts struct {
 	Metadata optional.Bool
 }
 
-func (a *MetadataResourceApiService) Get(name string, localVarOptionals *MetadataResourceApiGetOpts) (model.WorkflowDef, *http.Response, error) {
+func (a *MetadataResourceApiService) Get(ctx context.Context, name string, localVarOptionals *MetadataResourceApiGetOpts) (model.WorkflowDef, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -173,7 +173,7 @@ func (a *MetadataResourceApiService) Get(name string, localVarOptionals *Metadat
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -219,7 +219,7 @@ func (a *MetadataResourceApiService) Get(name string, localVarOptionals *Metadat
 
 /*
 MetadataResourceApiService Retrieves all workflow definition along with blueprint
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param optional nil or *MetadataResourceApiGetAllWorkflowsOpts - Optional Parameters:
      * @param "Access" (optional.String) -
      * @param "Metadata" (optional.Bool) -
@@ -235,7 +235,7 @@ type MetadataResourceApiGetAllWorkflowsOpts struct {
 	TagValue optional.String
 }
 
-func (a *MetadataResourceApiService) GetAllWorkflows(localVarOptionals *MetadataResourceApiGetAllWorkflowsOpts) ([]model.WorkflowDef, *http.Response, error) {
+func (a *MetadataResourceApiService) GetAllWorkflows(ctx context.Context, localVarOptionals *MetadataResourceApiGetAllWorkflowsOpts) ([]model.WorkflowDef, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -280,7 +280,7 @@ func (a *MetadataResourceApiService) GetAllWorkflows(localVarOptionals *Metadata
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -326,7 +326,7 @@ func (a *MetadataResourceApiService) GetAllWorkflows(localVarOptionals *Metadata
 
 /*
 MetadataResourceApiService Gets the task definition
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param tasktype
  * @param optional nil or *MetadataResourceApiGetTaskDefOpts - Optional Parameters:
      * @param "Metadata" (optional.Bool) -
@@ -337,7 +337,7 @@ type MetadataResourceApiGetTaskDefOpts struct {
 	Metadata optional.Bool
 }
 
-func (a *MetadataResourceApiService) GetTaskDef(tasktype string, localVarOptionals *MetadataResourceApiGetTaskDefOpts) (interface{}, *http.Response, error) {
+func (a *MetadataResourceApiService) GetTaskDef(ctx context.Context, tasktype string, localVarOptionals *MetadataResourceApiGetTaskDefOpts) (interface{}, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -374,7 +374,7 @@ func (a *MetadataResourceApiService) GetTaskDef(tasktype string, localVarOptiona
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -420,7 +420,7 @@ func (a *MetadataResourceApiService) GetTaskDef(tasktype string, localVarOptiona
 
 /*
 MetadataResourceApiService Gets all task definition
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param optional nil or *MetadataResourceApiGetTaskDefsOpts - Optional Parameters:
      * @param "Access" (optional.String) -
      * @param "Metadata" (optional.Bool) -
@@ -436,7 +436,7 @@ type MetadataResourceApiGetTaskDefsOpts struct {
 	TagValue optional.String
 }
 
-func (a *MetadataResourceApiService) GetTaskDefs(localVarOptionals *MetadataResourceApiGetTaskDefsOpts) ([]model.TaskDef, *http.Response, error) {
+func (a *MetadataResourceApiService) GetTaskDefs(ctx context.Context, localVarOptionals *MetadataResourceApiGetTaskDefsOpts) ([]model.TaskDef, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -481,7 +481,7 @@ func (a *MetadataResourceApiService) GetTaskDefs(localVarOptionals *MetadataReso
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -527,12 +527,12 @@ func (a *MetadataResourceApiService) GetTaskDefs(localVarOptionals *MetadataReso
 
 /*
 MetadataResourceApiService Create or update task definition(s)
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
 
 @return interface{}
 */
-func (a *MetadataResourceApiService) RegisterTaskDef(body []model.TaskDef) (interface{}, *http.Response, error) {
+func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body []model.TaskDef) (interface{}, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -567,7 +567,7 @@ func (a *MetadataResourceApiService) RegisterTaskDef(body []model.TaskDef) (inte
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -613,10 +613,10 @@ func (a *MetadataResourceApiService) RegisterTaskDef(body []model.TaskDef) (inte
 
 /*
 MetadataResourceApiService Remove a task definition
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param tasktype
 */
-func (a *MetadataResourceApiService) UnregisterTaskDef(tasktype string) (*http.Response, error) {
+func (a *MetadataResourceApiService) UnregisterTaskDef(ctx context.Context, tasktype string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -649,7 +649,7 @@ func (a *MetadataResourceApiService) UnregisterTaskDef(tasktype string) (*http.R
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -677,11 +677,11 @@ func (a *MetadataResourceApiService) UnregisterTaskDef(tasktype string) (*http.R
 
 /*
 MetadataResourceApiService Removes workflow definition. It does not remove workflows associated with the definition.
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param name
   - @param version
 */
-func (a *MetadataResourceApiService) UnregisterWorkflowDef(name string, version int32) (*http.Response, error) {
+func (a *MetadataResourceApiService) UnregisterWorkflowDef(ctx context.Context, name string, version int32) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -715,7 +715,7 @@ func (a *MetadataResourceApiService) UnregisterWorkflowDef(name string, version 
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -743,7 +743,7 @@ func (a *MetadataResourceApiService) UnregisterWorkflowDef(name string, version 
 
 /*
 MetadataResourceApiService Create or update workflow definition(s)
-
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param body
  * @param optional nil or *MetadataResourceApiUpdateOpts - Optional Parameters:
      * @param "Overwrite" (optional.Bool) -
@@ -754,7 +754,7 @@ type MetadataResourceApiUpdateOpts struct {
 	Overwrite optional.Bool
 }
 
-func (a *MetadataResourceApiService) Update(body []model.WorkflowDef, localVarOptionals *MetadataResourceApiUpdateOpts) (interface{}, *http.Response, error) {
+func (a *MetadataResourceApiService) Update(ctx context.Context, body []model.WorkflowDef, localVarOptionals *MetadataResourceApiUpdateOpts) (interface{}, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Put")
 		localVarPostBody    interface{}
@@ -792,7 +792,7 @@ func (a *MetadataResourceApiService) Update(body []model.WorkflowDef, localVarOp
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -838,12 +838,12 @@ func (a *MetadataResourceApiService) Update(body []model.WorkflowDef, localVarOp
 
 /*
 MetadataResourceApiService Update an existing task
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
 
 @return interface{}
 */
-func (a *MetadataResourceApiService) UpdateTaskDef(body model.TaskDef) (interface{}, *http.Response, error) {
+func (a *MetadataResourceApiService) UpdateTaskDef(ctx context.Context, body model.TaskDef) (interface{}, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Put")
 		localVarPostBody    interface{}
@@ -878,7 +878,90 @@ func (a *MetadataResourceApiService) UpdateTaskDef(body model.TaskDef) (interfac
 	}
 	// body params
 	localVarPostBody = &body
-	r, err := a.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	if err != nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
+
+	if localVarHttpResponse.StatusCode < 300 {
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return localVarReturnValue, localVarHttpResponse, err
+		}
+	}
+
+	if localVarHttpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  localVarBody,
+			error: localVarHttpResponse.Status,
+		}
+		if localVarHttpResponse.StatusCode == 200 {
+			var v interface{}
+			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHttpResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHttpResponse, newErr
+		}
+		return localVarReturnValue, localVarHttpResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHttpResponse, nil
+}
+
+/*
+MetadataResourceApiService Upload all workflows and tasks definitions to S3
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+
+@return interface{}
+*/
+func (a *MetadataResourceApiService) UploadWorkflowsAndTasksDefinitionsToS3(ctx context.Context) (interface{}, *http.Response, error) {
+	var (
+		localVarHttpMethod  = strings.ToUpper("Post")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue interface{}
+	)
+
+	// create path and map variables
+	localVarPath := "/metadata/workflow-task-defs/upload"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{"*/*"}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
