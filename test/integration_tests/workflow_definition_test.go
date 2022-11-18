@@ -15,15 +15,19 @@ import (
 )
 
 func TestWorkflowCreation(t *testing.T) {
-
 	workflow := testdata.NewKitchenSinkWorkflow(testdata.WorkflowExecutor)
-	startWorkflowRequest := model.StartWorkflowRequest{
+	err := workflow.Register(true)
+	if err != nil {
+		t.Fatalf("Failed to register workflow: %s, reason: %s", workflow.GetName(), err.Error())
+	}
+	startWorkflowRequest := &model.StartWorkflowRequest{
 		Name: workflow.GetName(),
 	}
-	id, err := workflow.StartWorkflow(&startWorkflowRequest)
-	assert.NoError(t, err, "Failed to start the workflow", err)
+	id, err := workflow.StartWorkflow(startWorkflowRequest)
+	if err != nil {
+		t.Fatalf("Failed to start the workflow, reason: %s", err)
+	}
 	assert.NotEmpty(t, id, "Workflow Id is null", id)
-	fmt.Println("Workflow Id is ", id)
 }
 
 func TestRemoveWorkflow(t *testing.T) {
@@ -41,13 +45,14 @@ func TestRemoveWorkflow(t *testing.T) {
 
 	execution, err := executor.GetWorkflow(id, true)
 	assert.NoError(t, err, "Failed to get workflow execution")
-	assert.Equal(t, status.CompletedWorkflow, execution.Status, "Workflow is not in the completed state")
+	assert.Equal(t, string(status.CompletedWorkflow), execution.Status, "Workflow is not in the completed state")
 
 	err = executor.RemoveWorkflow(id)
 	assert.NoError(t, err, "Failed to remove workflow execution")
 
-	execution, err = executor.GetWorkflow(id, true)
-	assert.Error(t, err, "Workflow found even after removing")
+	_, err = executor.GetWorkflow(id, true)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "no such workflow by Id")
 
 	_, err = testdata.MetadataClient.UnregisterWorkflowDef(
 		context.Background(),
@@ -55,5 +60,4 @@ func TestRemoveWorkflow(t *testing.T) {
 		wf.GetVersion().Value(),
 	)
 	assert.NoError(t, err, "Failed to delete workflow definition ", err)
-
 }

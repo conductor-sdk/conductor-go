@@ -11,6 +11,7 @@ package workflow
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
@@ -159,6 +160,7 @@ func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) (wo
 // Returns the ID of the newly created workflow
 func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error) {
 	startWorkflowRequest.WorkflowDef = workflow.ToWorkflowDef()
+	fmt.Println("startWorkflowRequest: ", startWorkflowRequest)
 	return workflow.executor.StartWorkflow(startWorkflowRequest)
 }
 

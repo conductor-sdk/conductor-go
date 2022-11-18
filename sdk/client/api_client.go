@@ -503,7 +503,7 @@ type GenericSwaggerError struct {
 
 // Error returns non-empty string if there was an error.
 func (e GenericSwaggerError) Error() string {
-	return e.error
+	return fmt.Sprintf("error: %s, body: %s", e.error, e.body)
 }
 
 // Body returns the raw bytes of the response
