@@ -2098,20 +2098,20 @@ WorkflowResourceApiService Start a new workflow. Returns the ID of the workflow 
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param body
  * @param name
- * @param optional nil or *WorkflowResourceApiStartWorkflow1Opts - Optional Parameters:
+ * @param optional nil or *WorkflowResourceApiStartWorkflowOpts - Optional Parameters:
      * @param "Version" (optional.Int32) -
      * @param "CorrelationId" (optional.String) -
      * @param "Priority" (optional.Int32) -
 @return string
 */
 
-type WorkflowResourceApiStartWorkflow1Opts struct {
+type WorkflowResourceApiStartWorkflowOpts struct {
 	Version       optional.Int32
 	CorrelationId optional.String
 	Priority      optional.Int32
 }
 
-func (a *WorkflowResourceApiService) StartWorkflow1(ctx context.Context, body map[string]interface{}, name string, localVarOptionals *WorkflowResourceApiStartWorkflow1Opts) (string, *http.Response, error) {
+func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map[string]interface{}, name string, localVarOptionals *WorkflowResourceApiStartWorkflowOpts) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -2213,7 +2213,7 @@ type WorkflowResourceApiTerminate1Opts struct {
 	Reason optional.String
 }
 
-func (a *WorkflowResourceApiService) Terminate1(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiTerminate1Opts) (*http.Response, error) {
+func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiTerminate1Opts) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
