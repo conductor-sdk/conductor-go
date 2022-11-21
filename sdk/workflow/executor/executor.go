@@ -100,7 +100,7 @@ func (e *WorkflowExecutor) MonitorExecution(workflowId string) (workflowMonitor 
 // StartWorkflow Start workflows
 // Returns the id of the newly created workflow
 func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error) {
-	id, _, err := e.workflowClient.StartWorkflow(
+	id, _, err := e.workflowClient.StartWorkflowWithRequest(
 		context.Background(),
 		*startWorkflowRequest,
 	)
@@ -288,10 +288,10 @@ func (e *WorkflowExecutor) Resume(workflowId string) error {
 
 // Terminate a running workflow.  Reason must be provided that is captured as the termination reason for the workflow
 func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error {
-	_, err := e.workflowClient.Terminate1(
+	_, err := e.workflowClient.Terminate(
 		context.Background(),
 		workflowId,
-		&client.WorkflowResourceApiTerminate1Opts{Reason: optional.NewString(reason)},
+		&client.WorkflowResourceApiTerminateOpts{Reason: optional.NewString(reason)},
 	)
 	if err != nil {
 		return err
@@ -459,7 +459,7 @@ func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request 
 	if workflow != nil {
 		startWorkflowRequest.WorkflowDef = workflow
 	}
-	workflowId, response, err := e.workflowClient.StartWorkflow(
+	workflowId, response, err := e.workflowClient.StartWorkflowWithRequest(
 		context.Background(),
 		startWorkflowRequest,
 	)

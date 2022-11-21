@@ -2014,7 +2014,7 @@ WorkflowResourceApiService Start a new workflow with model.StartWorkflowRequest,
 
 @return string
 */
-func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body model.StartWorkflowRequest) (string, *http.Response, error) {
+func (a *WorkflowResourceApiService) StartWorkflowWithRequest(ctx context.Context, body model.StartWorkflowRequest) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -2204,16 +2204,16 @@ func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map
 WorkflowResourceApiService Terminate workflow execution
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param workflowId
- * @param optional nil or *WorkflowResourceApiTerminate1Opts - Optional Parameters:
+ * @param optional nil or *WorkflowResourceApiTerminateOpts - Optional Parameters:
      * @param "Reason" (optional.String) -
 
 */
 
-type WorkflowResourceApiTerminate1Opts struct {
+type WorkflowResourceApiTerminateOpts struct {
 	Reason optional.String
 }
 
-func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiTerminate1Opts) (*http.Response, error) {
+func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiTerminateOpts) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}

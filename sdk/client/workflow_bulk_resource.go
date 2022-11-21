@@ -113,16 +113,16 @@ func (a *WorkflowBulkResourceApiService) PauseWorkflow1(ctx context.Context, bod
 WorkflowBulkResourceApiService Restart the list of completed workflow
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param body
- * @param optional nil or *WorkflowBulkResourceApiRestart1Opts - Optional Parameters:
+ * @param optional nil or *WorkflowBulkResourceApiRestartOpts - Optional Parameters:
      * @param "UseLatestDefinitions" (optional.Bool) -
 @return model.BulkResponse
 */
 
-type WorkflowBulkResourceApiRestart1Opts struct {
+type WorkflowBulkResourceApiRestartOpts struct {
 	UseLatestDefinitions optional.Bool
 }
 
-func (a *WorkflowBulkResourceApiService) Restart1(ctx context.Context, body []string, localVarOptionals *WorkflowBulkResourceApiRestart1Opts) (model.BulkResponse, *http.Response, error) {
+func (a *WorkflowBulkResourceApiService) Restart(ctx context.Context, body []string, localVarOptionals *WorkflowBulkResourceApiRestartOpts) (model.BulkResponse, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}

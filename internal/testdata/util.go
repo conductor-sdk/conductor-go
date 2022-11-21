@@ -171,7 +171,7 @@ var (
 func StartWorkflows(workflowQty int, workflowName string) ([]string, error) {
 	workflowIdList := make([]string, workflowQty)
 	for i := 0; i < workflowQty; i += 1 {
-		workflowId, _, err := WorkflowClient.StartWorkflow1(
+		workflowId, _, err := WorkflowClient.StartWorkflow(
 			context.Background(),
 			make(map[string]interface{}),
 			workflowName,

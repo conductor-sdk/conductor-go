@@ -19,7 +19,7 @@ import (
 )
 
 func TestUpdateTaskRefByName(t *testing.T) {
-	workflowId, response, err := testdata.WorkflowClient.StartWorkflow1(
+	workflowId, response, err := testdata.WorkflowClient.StartWorkflow(
 		context.Background(),
 		make(map[string]interface{}),
 		testdata.WorkflowName,
@@ -40,7 +40,7 @@ func TestUpdateTaskRefByName(t *testing.T) {
 		outputData,
 		workflowId,
 		testdata.TaskName,
-		string(model.CompletedTask),
+		model.CompletedTask.ToString(),
 	)
 	if err != nil {
 		t.Fatal(
