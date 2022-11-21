@@ -21,8 +21,8 @@ import (
 )
 
 const (
-	workflowValidationTimeout = 7 * time.Second
-	workflowBulkQty           = 10
+	workflowValidationTimeout = 10 * time.Second
+	workflowBulkQty           = 5
 )
 
 func init() {
