@@ -13,7 +13,6 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/conductor-sdk/conductor-go/sdk/model/status"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -34,7 +33,7 @@ func NewTaskResultFromTask(task *Task) *TaskResult {
 
 func NewTaskResultFromTaskWithError(t *Task, err error) *TaskResult {
 	taskResult := NewTaskResultFromTask(t)
-	taskResult.Status = string(status.FailedTask)
+	taskResult.Status = FailedTask
 	taskResult.ReasonForIncompletion = err.Error()
 	return taskResult
 }
@@ -57,7 +56,7 @@ func GetTaskResultFromTaskExecutionOutput(t *Task, taskExecutionOutput interface
 			return nil, err
 		}
 		taskResult.OutputData = outputData
-		taskResult.Status = string(status.CompletedTask)
+		taskResult.Status = CompletedTask
 	}
 	return taskResult, nil
 }

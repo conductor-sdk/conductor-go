@@ -21,7 +21,6 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"github.com/conductor-sdk/conductor-go/sdk/model/status"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -364,12 +363,12 @@ func (e *WorkflowExecutor) SkipTasksFromWorkflow(workflowId string, taskReferenc
 }
 
 // UpdateTask update the task with output and status.
-func (e *WorkflowExecutor) UpdateTask(taskId string, workflowInstanceId string, status status.TaskResultStatus, output interface{}) error {
+func (e *WorkflowExecutor) UpdateTask(taskId string, workflowInstanceId string, status model.TaskResultStatusEnum, output interface{}) error {
 	taskResult, err := getTaskResultFromOutput(taskId, workflowInstanceId, output)
 	if err != nil {
 		return err
 	}
-	taskResult.Status = string(status)
+	taskResult.Status = status
 	e.taskClient.UpdateTask(
 		context.Background(),
 		*taskResult,
@@ -378,7 +377,7 @@ func (e *WorkflowExecutor) UpdateTask(taskId string, workflowInstanceId string, 
 }
 
 // UpdateTaskByRefName Update the execution status and output of the task and status
-func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInstanceId string, status status.TaskResultStatus, output interface{}) error {
+func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInstanceId string, status model.TaskResultStatusEnum, output interface{}) error {
 	outputData, err := model.ConvertToMap(output)
 	if err != nil {
 		return err
@@ -388,7 +387,7 @@ func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInsta
 		outputData,
 		workflowInstanceId,
 		taskRefName,
-		string(status),
+		status.ToString(),
 	)
 	if err != nil {
 		return err
@@ -440,7 +439,7 @@ func getTaskResultFromOutput(taskId string, workflowInstanceId string, taskExecu
 			return nil, err
 		}
 		taskResult.OutputData = outputData
-		taskResult.Status = string(status.CompletedTask)
+		taskResult.Status = model.CompletedTask
 	}
 	return taskResult, nil
 }

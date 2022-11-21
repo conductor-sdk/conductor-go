@@ -9,13 +9,13 @@
 
 package workflow
 
-import "github.com/conductor-sdk/conductor-go/sdk/model/status"
+import "github.com/conductor-sdk/conductor-go/sdk/model"
 
 type TerminateTask struct {
 	Task
 }
 
-func NewTerminateTask(taskRefName string, status status.WorkflowStatus, terminationReason string) *TerminateTask {
+func NewTerminateTask(taskRefName string, status model.WorkflowStatusEnum, terminationReason string) *TerminateTask {
 	return &TerminateTask{
 		Task{
 			name:              taskRefName,
@@ -24,7 +24,7 @@ func NewTerminateTask(taskRefName string, status status.WorkflowStatus, terminat
 			taskType:          TERMINATE,
 			optional:          false,
 			inputParameters: map[string]interface{}{
-				"terminationStatus": status,
+				"terminationStatus": status.ToString(),
 				"terminationReason": terminationReason,
 			},
 		},

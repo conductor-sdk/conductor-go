@@ -14,7 +14,7 @@ type TaskResult struct {
 	Logs                             []TaskExecLog          `json:"logs,omitempty"`
 	OutputData                       map[string]interface{} `json:"outputData,omitempty"`
 	ReasonForIncompletion            string                 `json:"reasonForIncompletion,omitempty"`
-	Status                           string                 `json:"status,omitempty"`
+	Status                           TaskResultStatusEnum   `json:"status,omitempty"`
 	SubWorkflowId                    string                 `json:"subWorkflowId,omitempty"`
 	TaskId                           string                 `json:"taskId"`
 	WorkerId                         string                 `json:"workerId,omitempty"`

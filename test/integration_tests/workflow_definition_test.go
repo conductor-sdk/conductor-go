@@ -9,7 +9,6 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"github.com/conductor-sdk/conductor-go/sdk/model/status"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/stretchr/testify/assert"
 )
@@ -45,7 +44,7 @@ func TestRemoveWorkflow(t *testing.T) {
 
 	execution, err := executor.GetWorkflow(id, true)
 	assert.NoError(t, err, "Failed to get workflow execution")
-	assert.Equal(t, string(status.CompletedWorkflow), execution.Status, "Workflow is not in the completed state")
+	assert.Equal(t, model.CompletedWorkflow, execution.Status, "Workflow is not in the completed state")
 
 	err = executor.RemoveWorkflow(id)
 	assert.NoError(t, err, "Failed to remove workflow execution")

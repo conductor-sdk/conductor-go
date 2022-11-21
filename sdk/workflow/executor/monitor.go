@@ -20,7 +20,6 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"github.com/conductor-sdk/conductor-go/sdk/model/status"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -154,8 +153,8 @@ func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *mo
 }
 
 func isWorkflowInTerminalState(workflow *model.Workflow) bool {
-	for _, terminalState := range status.WorkflowTerminalStates {
-		if workflow.Status == string(terminalState) {
+	for _, terminalState := range model.WorkflowTerminalStates {
+		if workflow.Status == terminalState {
 			return true
 		}
 	}

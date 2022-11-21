@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
-	"github.com/conductor-sdk/conductor-go/sdk/model/status"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	log "github.com/sirupsen/logrus"
 )
@@ -45,7 +45,7 @@ var (
 
 	terminateTask = workflow.NewTerminateTask(
 		"TEST_GO_TASK_TERMINATE",
-		status.FailedWorkflow,
+		model.FailedWorkflow,
 		"Task used to mark workflow as failed",
 	)
 

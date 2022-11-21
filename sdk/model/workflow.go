@@ -27,7 +27,7 @@ type Workflow struct {
 	ReRunFromWorkflowId              string                 `json:"reRunFromWorkflowId,omitempty"`
 	ReasonForIncompletion            string                 `json:"reasonForIncompletion,omitempty"`
 	StartTime                        int64                  `json:"startTime,omitempty"`
-	Status                           string                 `json:"status,omitempty"`
+	Status                           WorkflowStatusEnum     `json:"status,omitempty"`
 	TaskToDomain                     map[string]string      `json:"taskToDomain,omitempty"`
 	Tasks                            []Task                 `json:"tasks,omitempty"`
 	UpdateTime                       int64                  `json:"updateTime,omitempty"`

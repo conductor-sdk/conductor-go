@@ -7,13 +7,17 @@
 //  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 //  specific language governing permissions and limitations under the License.
 
-package status
+package model
 
-type TaskResultStatus string
+type TaskResultStatusEnum string
 
 const (
-	InProgressTask              TaskResultStatus = "IN_PROGRESS"
-	FailedTask                  TaskResultStatus = "FAILED"
-	FailedWithTerminalErrorTask TaskResultStatus = "FAILED_WITH_TERMINAL_ERROR"
-	CompletedTask               TaskResultStatus = "COMPLETED"
+	InProgressTask              TaskResultStatusEnum = "IN_PROGRESS"
+	FailedTask                  TaskResultStatusEnum = "FAILED"
+	FailedWithTerminalErrorTask TaskResultStatusEnum = "FAILED_WITH_TERMINAL_ERROR"
+	CompletedTask               TaskResultStatusEnum = "COMPLETED"
 )
+
+func (t TaskResultStatusEnum) ToString() string {
+	return string(t)
+}

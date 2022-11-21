@@ -18,7 +18,6 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"github.com/conductor-sdk/conductor-go/sdk/model/status"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/conductor-sdk/conductor-go/sdk/worker"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
@@ -74,7 +73,7 @@ func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, wo
 		outputChannel <- err
 		return
 	}
-	if workflow.Status != string(status.CompletedWorkflow) {
+	if !isWorkflowCompleted(&workflow) {
 		outputChannel <- fmt.Errorf(
 			"workflow status different than expected, workflowId: %s, workflowStatus: %s",
 			workflow.WorkflowId, workflow.Status,
@@ -278,5 +277,5 @@ func ValidateWorkflowRegistration(workflow *workflow.ConductorWorkflow) error {
 }
 
 func isWorkflowCompleted(workflow *model.Workflow) bool {
-	return workflow.Status == string(status.CompletedWorkflow)
+	return workflow.Status == model.CompletedWorkflow
 }

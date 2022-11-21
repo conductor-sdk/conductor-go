@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
-	"github.com/conductor-sdk/conductor-go/sdk/model/status"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
 func TestUpdateTaskRefByName(t *testing.T) {
@@ -40,7 +40,7 @@ func TestUpdateTaskRefByName(t *testing.T) {
 		outputData,
 		workflowId,
 		testdata.TaskName,
-		string(status.CompletedTask),
+		string(model.CompletedTask),
 	)
 	if err != nil {
 		t.Fatal(
