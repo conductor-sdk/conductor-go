@@ -60,7 +60,7 @@ var counterTemplates = map[MetricName]*MetricDetails{
 			EXCEPTION,
 		},
 	),
-	
+
 	TASK_UPDATE_ERROR: NewMetricDetails(
 		TASK_UPDATE_ERROR,
 		TASK_UPDATE_ERROR_DOC,

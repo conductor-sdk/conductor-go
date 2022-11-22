@@ -17,7 +17,7 @@ type WaitTask struct {
 	Task
 }
 
-//NewWaitTask creates WAIT task used to wait until an external event or a timeout occurs
+// NewWaitTask creates WAIT task used to wait until an external event or a timeout occurs
 func NewWaitTask(taskRefName string) *WaitTask {
 	return &WaitTask{
 		Task{

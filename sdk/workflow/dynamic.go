@@ -20,8 +20,8 @@ type DynamicTask struct {
 const dynamicTaskNameParameter = "taskToExecute"
 
 // NewDynamicTask
-//  - taskRefName Reference name for the task.  MUST be unique within the workflow
-//  - taskNameParameter Parameter that contains the expression for the dynamic task name.  e.g. ${workflow.input.dynamicTask}
+//   - taskRefName Reference name for the task.  MUST be unique within the workflow
+//   - taskNameParameter Parameter that contains the expression for the dynamic task name.  e.g. ${workflow.input.dynamicTask}
 func NewDynamicTask(taskRefName string, taskNameParameter string) *DynamicTask {
 	return &DynamicTask{
 		Task: Task{

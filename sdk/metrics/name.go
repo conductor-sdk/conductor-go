@@ -11,7 +11,7 @@ package metrics
 
 type MetricName string
 
-//List of metrics that are collected when metrics server is enabled
+// List of metrics that are collected when metrics server is enabled
 const (
 	EXTERNAL_PAYLOAD_USED     MetricName = "external_payload_used"
 	TASK_EXECUTE_ERROR        MetricName = "task_execute_error"
