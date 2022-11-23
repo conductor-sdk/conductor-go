@@ -3,25 +3,30 @@ package integration_tests
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"testing"
+	"time"
+
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/stretchr/testify/assert"
-	"strconv"
-	"testing"
-	"time"
 )
 
 func TestWorkflowCreation(t *testing.T) {
-
 	workflow := testdata.NewKitchenSinkWorkflow(testdata.WorkflowExecutor)
-	startWorkflowRequest := model.StartWorkflowRequest{
+	err := workflow.Register(true)
+	if err != nil {
+		t.Fatalf("Failed to register workflow: %s, reason: %s", workflow.GetName(), err.Error())
+	}
+	startWorkflowRequest := &model.StartWorkflowRequest{
 		Name: workflow.GetName(),
 	}
-	id, err := workflow.StartWorkflow(&startWorkflowRequest)
-	assert.NoError(t, err, "Failed to start the workflow", err)
+	id, err := workflow.StartWorkflow(startWorkflowRequest)
+	if err != nil {
+		t.Fatalf("Failed to start the workflow, reason: %s", err)
+	}
 	assert.NotEmpty(t, id, "Workflow Id is null", id)
-	fmt.Println("Workflow Id is ", id)
 }
 
 func TestRemoveWorkflow(t *testing.T) {
@@ -44,10 +49,14 @@ func TestRemoveWorkflow(t *testing.T) {
 	err = executor.RemoveWorkflow(id)
 	assert.NoError(t, err, "Failed to remove workflow execution")
 
-	execution, err = executor.GetWorkflow(id, true)
-	assert.Error(t, err, "Workflow found even after removing")
+	_, err = executor.GetWorkflow(id, true)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "no such workflow by Id")
 
-	_, err = testdata.MetadataClient.UnregisterWorkflowDef(context.Background(), wf.GetName(), wf.GetVersion())
+	_, err = testdata.MetadataClient.UnregisterWorkflowDef(
+		context.Background(),
+		wf.GetName(),
+		wf.GetVersion(),
+	)
 	assert.NoError(t, err, "Failed to delete workflow definition ", err)
-
 }
