@@ -74,7 +74,7 @@ func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 // RegisterWorkflow Registers the workflow on the server.  Overwrites if the flag is set.  If the 'overwrite' flag is not set
 // and the workflow definition differs from the one on the server, the call will fail with response code 409
 func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.WorkflowDef) error {
-	_, response, err := e.metadataClient.Create(
+	_, response, err := e.metadataClient.RegisterWorkflowDef(
 		context.Background(),
 		*workflow,
 		&client.MetadataResourceApiCreateOpts{

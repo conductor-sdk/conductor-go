@@ -36,7 +36,7 @@ type MetadataResourceApiCreateOpts struct {
 	Overwrite optional.Bool
 }
 
-func (a *MetadataResourceApiService) Create(ctx context.Context, body model.WorkflowDef, localVarOptionals *MetadataResourceApiCreateOpts) (interface{}, *http.Response, error) {
+func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, body model.WorkflowDef, localVarOptionals *MetadataResourceApiCreateOpts) (interface{}, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
