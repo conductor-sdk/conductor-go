@@ -18,7 +18,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net"
 	"net/http"
@@ -262,7 +261,7 @@ func (c *APIClient) getToken() (model.Token, *http.Response, error) {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 	localVarPostBody = c.authenticationSettings.GetBody()
-	r, err := c.prepareRefreshTokenRequest(context.Background(), localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := c.prepareRefreshTokenRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
@@ -504,7 +503,7 @@ type GenericSwaggerError struct {
 
 // Error returns non-empty string if there was an error.
 func (e GenericSwaggerError) Error() string {
-	return e.error
+	return fmt.Sprintf("error: %s, body: %s", e.error, e.body)
 }
 
 // Body returns the raw bytes of the response
@@ -518,7 +517,6 @@ func (e GenericSwaggerError) Model() interface{} {
 }
 
 func (c *APIClient) prepareRefreshTokenRequest(
-	ctx context.Context,
 	path string, method string,
 	postBody interface{},
 	headerParams map[string]string,
@@ -620,6 +618,6 @@ func getDecompressedBody(response *http.Response) ([]byte, error) {
 		reader = response.Body
 	}
 	defer reader.Close()
-	return ioutil.ReadAll(reader)
+	return io.ReadAll(reader)
 
 }
