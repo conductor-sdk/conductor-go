@@ -12,6 +12,7 @@ package executor
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"sync"
@@ -20,6 +21,7 @@ import (
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
+	"github.com/conductor-sdk/conductor-go/sdk/event/queue"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 
 	log "github.com/sirupsen/logrus"
@@ -29,6 +31,7 @@ type WorkflowExecutor struct {
 	metadataClient *client.MetadataResourceApiService
 	taskClient     *client.TaskResourceApiService
 	workflowClient *client.WorkflowResourceApiService
+	eventClient    *client.EventResourceApiService
 
 	workflowMonitor *WorkflowMonitor
 
@@ -52,6 +55,9 @@ func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 	workflowClient := client.WorkflowResourceApiService{
 		APIClient: apiClient,
 	}
+	eventClient := client.EventResourceApiService{
+		APIClient: apiClient,
+	}
 	startWorkflowBatchSize, err := getEnvInt(startWorkflowBatchSizeEnv)
 	if err != nil {
 		startWorkflowBatchSize = 256
@@ -64,6 +70,7 @@ func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 		metadataClient:           &metadataClient,
 		taskClient:               &taskClient,
 		workflowClient:           &workflowClient,
+		eventClient:              &eventClient,
 		workflowMonitor:          NewWorkflowMonitor(&workflowClient),
 		startWorkflowBatchSize:   startWorkflowBatchSize,
 		waitForWorkflowBatchSize: waitForWorkflowBatchSize,
@@ -71,8 +78,8 @@ func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 	return &workflowExecutor
 }
 
-//RegisterWorkflow Registers the workflow on the server.  Overwrites if the flag is set.  If the 'overwrite' flag is not set
-//and the workflow definition differs from the one on the server, the call will fail with response code 409
+// RegisterWorkflow Registers the workflow on the server.  Overwrites if the flag is set.  If the 'overwrite' flag is not set
+// and the workflow definition differs from the one on the server, the call will fail with response code 409
 func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.WorkflowDef) error {
 	response, err := e.metadataClient.RegisterWorkflowDef(
 		context.Background(),
@@ -88,15 +95,15 @@ func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.Work
 	return nil
 }
 
-//MonitorExecution monitors the workflow execution
-//Returns the channel with the execution result of the workflow
-//Note: Channels will continue to grow if the workflows do not complete and/or are not taken out
+// MonitorExecution monitors the workflow execution
+// Returns the channel with the execution result of the workflow
+// Note: Channels will continue to grow if the workflows do not complete and/or are not taken out
 func (e *WorkflowExecutor) MonitorExecution(workflowId string) (workflowMonitor WorkflowExecutionChannel, err error) {
 	return e.workflowMonitor.generateWorkflowExecutionChannel(workflowId)
 }
 
-//StartWorkflow Start workflows
-//Returns the id of the newly created workflow
+// StartWorkflow Start workflows
+// Returns the id of the newly created workflow
 func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error) {
 	id, _, err := e.workflowClient.StartWorkflowWithRequest(
 		context.Background(),
@@ -108,9 +115,9 @@ func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequest *model.StartWorkfl
 	return id, err
 }
 
-//StartWorkflows Start workflows in bulk
-//Returns RunningWorkflow struct that contains the workflowId, Err (if failed to start) and an execution channel
-//which can be used to monitor the completion of the workflow execution.  The channel is available if monitorExecution is set
+// StartWorkflows Start workflows in bulk
+// Returns RunningWorkflow struct that contains the workflowId, Err (if failed to start) and an execution channel
+// which can be used to monitor the completion of the workflow execution.  The channel is available if monitorExecution is set
 func (e *WorkflowExecutor) StartWorkflows(monitorExecution bool, startWorkflowRequests ...*model.StartWorkflowRequest) []*RunningWorkflow {
 	amount := len(startWorkflowRequests)
 	log.Debug(fmt.Sprintf("Starting %d workflows", amount))
@@ -132,7 +139,7 @@ func (e *WorkflowExecutor) StartWorkflows(monitorExecution bool, startWorkflowRe
 	return startedWorkflows
 }
 
-//WaitForWorkflowCompletionUntilTimeout Helper method to wait on the channel until the timeout for the workflow execution to complete
+// WaitForWorkflowCompletionUntilTimeout Helper method to wait on the channel until the timeout for the workflow execution to complete
 func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionChannel, timeout time.Duration) (workflow *model.Workflow, err error) {
 	select {
 	case workflow, ok := <-executionChannel:
@@ -145,7 +152,7 @@ func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionCha
 	}
 }
 
-//WaitForRunningWorkflowUntilTimeout Helper method to wait for running workflows until the timeout for the workflow execution to complete
+// WaitForRunningWorkflowUntilTimeout Helper method to wait for running workflows until the timeout for the workflow execution to complete
 func (e *WorkflowExecutor) WaitForRunningWorkflowsUntilTimeout(timeout time.Duration, runningWorkflows ...*RunningWorkflow) {
 	for idx := 0; idx < len(runningWorkflows); {
 		var waitGroup sync.WaitGroup
@@ -162,8 +169,8 @@ func waitForRunningWorkflowUntilTimeoutDaemon(timeout time.Duration, runningWork
 	runningWorkflow.WaitForCompletionUntilTimeout(timeout)
 }
 
-//GetWorkflow Get workflow execution by workflow Id.  If includeTasks is set, also fetches all the task details.
-//Returns nil if no workflow is found by the id
+// GetWorkflow Get workflow execution by workflow Id.  If includeTasks is set, also fetches all the task details.
+// Returns nil if no workflow is found by the id
 func (e *WorkflowExecutor) GetWorkflow(workflowId string, includeTasks bool) (*model.Workflow, error) {
 	return e.getWorkflow(4, workflowId, includeTasks)
 }
@@ -195,8 +202,8 @@ func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTask
 	return &workflow, err
 }
 
-//GetWorkflowStatus Get the status of the workflow execution.
-//This is a lightweight method that returns only overall state of the workflow
+// GetWorkflowStatus Get the status of the workflow execution.
+// This is a lightweight method that returns only overall state of the workflow
 func (e *WorkflowExecutor) GetWorkflowStatus(workflowId string, includeOutput bool, includeVariables bool) (*model.WorkflowState, error) {
 	state, response, err := e.workflowClient.GetWorkflowState(context.Background(), workflowId, includeOutput, includeVariables)
 	if response.StatusCode == 404 {
@@ -205,9 +212,9 @@ func (e *WorkflowExecutor) GetWorkflowStatus(workflowId string, includeOutput bo
 	return &state, err
 }
 
-//GetByCorrelationIds Given the list of correlation ids, find and return workflows
-//Returns a map with key as correlationId and value as a list of Workflows
-//When IncludeClosed is set to true, the return value also includes workflows that are completed otherwise only running workflows are returned
+// GetByCorrelationIds Given the list of correlation ids, find and return workflows
+// Returns a map with key as correlationId and value as a list of Workflows
+// When IncludeClosed is set to true, the return value also includes workflows that are completed otherwise only running workflows are returned
 func (e *WorkflowExecutor) GetByCorrelationIds(workflowName string, includeClosed bool, includeTasks bool, correlationIds ...string) (map[string][]model.Workflow, error) {
 	workflows, _, err := e.workflowClient.GetWorkflows(
 		context.Background(),
@@ -223,18 +230,18 @@ func (e *WorkflowExecutor) GetByCorrelationIds(workflowName string, includeClose
 	return workflows, nil
 }
 
-//Search searches for workflows
+// Search searches for workflows
 //
 // - Start: Start index - used for pagination
 //
 // - Size:  Number of results to return
 //
-// - Query: Query expression.  In the format FIELD = 'VALUE' or FIELD IN (value1, value2)
-//   		Only AND operations are supported.  e.g. workflowId IN ('a', 'b', 'c') ADN workflowType ='test_workflow'
-//			AND startTime BETWEEN 1000 and 2000
-//			Supported fields for Query are:workflowId,workflowType,status,startTime
-// - FreeText: Full text search.  All the workflow input, output and task outputs upto certain limit (check with your admins to find the size limit)
-//			are full text indexed and can be used to search
+//   - Query: Query expression.  In the format FIELD = 'VALUE' or FIELD IN (value1, value2)
+//     Only AND operations are supported.  e.g. workflowId IN ('a', 'b', 'c') ADN workflowType ='test_workflow'
+//     AND startTime BETWEEN 1000 and 2000
+//     Supported fields for Query are:workflowId,workflowType,status,startTime
+//   - FreeText: Full text search.  All the workflow input, output and task outputs upto certain limit (check with your admins to find the size limit)
+//     are full text indexed and can be used to search
 func (e *WorkflowExecutor) Search(start int32, size int32, query string, freeText string) ([]model.WorkflowSummary, error) {
 	workflows, _, err := e.workflowClient.Search(
 		context.Background(),
@@ -251,8 +258,8 @@ func (e *WorkflowExecutor) Search(start int32, size int32, query string, freeTex
 	return workflows.Results, nil
 }
 
-//Pause the execution of a running workflow.
-//Any tasks that are currently running will finish but no new tasks are scheduled until the workflow is resumed
+// Pause the execution of a running workflow.
+// Any tasks that are currently running will finish but no new tasks are scheduled until the workflow is resumed
 func (e *WorkflowExecutor) Pause(workflowId string) error {
 	_, err := e.workflowClient.PauseWorkflow(context.Background(), workflowId)
 	if err != nil {
@@ -261,7 +268,7 @@ func (e *WorkflowExecutor) Pause(workflowId string) error {
 	return err
 }
 
-//Resume the execution of a workflow that is paused.  If the workflow is not paused, this method has no effect
+// Resume the execution of a workflow that is paused.  If the workflow is not paused, this method has no effect
 func (e *WorkflowExecutor) Resume(workflowId string) error {
 	_, err := e.workflowClient.ResumeWorkflow(context.Background(), workflowId)
 	if err != nil {
@@ -270,7 +277,7 @@ func (e *WorkflowExecutor) Resume(workflowId string) error {
 	return err
 }
 
-//Terminate a running workflow.  Reason must be provided that is captured as the termination resaon for the workflow
+// Terminate a running workflow.  Reason must be provided that is captured as the termination resaon for the workflow
 func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error {
 	_, err := e.workflowClient.Terminate(context.Background(), workflowId,
 		&client.WorkflowResourceApiTerminateOpts{Reason: optional.NewString(reason)},
@@ -281,9 +288,9 @@ func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error {
 	return err
 }
 
-//Restart a workflow execution from the beginning with the same input.
-//When called on a workflow that is not in a terminal status, this operation has no effect
-//If useLatestDefinition is set, the restarted workflow fetches the latest definition from the metadata store
+// Restart a workflow execution from the beginning with the same input.
+// When called on a workflow that is not in a terminal status, this operation has no effect
+// If useLatestDefinition is set, the restarted workflow fetches the latest definition from the metadata store
 func (e *WorkflowExecutor) Restart(workflowId string, useLatestDefinition bool) error {
 	_, err := e.workflowClient.Restart(
 		context.Background(),
@@ -297,9 +304,9 @@ func (e *WorkflowExecutor) Restart(workflowId string, useLatestDefinition bool) 
 	return err
 }
 
-//Retry a failed workflow from the last task that failed.  When called the task in the failed state is scheduled again
-//and workflow moves to RUNNING status.  If resumeSubworkflowTasks is set and the last failed task was a sub-workflow
-//the server restarts the subworkflow from the failed task.  If set to false, the sub-workflow is re-executed.
+// Retry a failed workflow from the last task that failed.  When called the task in the failed state is scheduled again
+// and workflow moves to RUNNING status.  If resumeSubworkflowTasks is set and the last failed task was a sub-workflow
+// the server restarts the subworkflow from the failed task.  If set to false, the sub-workflow is re-executed.
 func (e *WorkflowExecutor) Retry(workflowId string, resumeSubworkflowTasks bool) error {
 	_, err := e.workflowClient.Retry(
 		context.Background(),
@@ -328,8 +335,8 @@ func (e *WorkflowExecutor) ReRun(workflowId string, reRunRequest model.RerunWork
 	return id, err
 }
 
-//SkipTasksFromWorkflow Skips a given task execution from a current running workflow.
-//When skipped the task's input and outputs are updated  from skipTaskRequest parameter.
+// SkipTasksFromWorkflow Skips a given task execution from a current running workflow.
+// When skipped the task's input and outputs are updated  from skipTaskRequest parameter.
 func (e *WorkflowExecutor) SkipTasksFromWorkflow(workflowId string, taskReferenceName string, skipTaskRequest model.SkipTaskRequest) error {
 	_, err := e.workflowClient.SkipTaskFromWorkflow(
 		context.Background(),
@@ -343,7 +350,7 @@ func (e *WorkflowExecutor) SkipTasksFromWorkflow(workflowId string, taskReferenc
 	return nil
 }
 
-//UpdateTask update the task with output and status.
+// UpdateTask update the task with output and status.
 func (e *WorkflowExecutor) UpdateTask(taskId string, workflowInstanceId string, status model.TaskResultStatus, output interface{}) error {
 	taskResult, err := getTaskResultFromOutput(taskId, workflowInstanceId, output)
 	if err != nil {
@@ -354,7 +361,7 @@ func (e *WorkflowExecutor) UpdateTask(taskId string, workflowInstanceId string, 
 	return nil
 }
 
-//UpdateTaskByRefName Update the execution status and output of the task and status
+// UpdateTaskByRefName Update the execution status and output of the task and status
 func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInstanceId string, status model.TaskResultStatus, output interface{}) error {
 	outputData, err := model.ConvertToMap(output)
 	if err != nil {
@@ -370,7 +377,7 @@ func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInsta
 	return nil
 }
 
-//GetTask by task Id returns nil if no such task is found by the id
+// GetTask by task Id returns nil if no such task is found by the id
 func (e *WorkflowExecutor) GetTask(taskId string) (task *model.Task, err error) {
 	t, response, err := e.taskClient.GetTask(context.Background(), taskId)
 	if err != nil {
@@ -382,8 +389,8 @@ func (e *WorkflowExecutor) GetTask(taskId string) (task *model.Task, err error) 
 	return &t, nil
 }
 
-//RemoveWorkflow Remove workflow execution permanently from the system
-//Returns nil if no workflow is found by the id
+// RemoveWorkflow Remove workflow execution permanently from the system
+// Returns nil if no workflow is found by the id
 func (e *WorkflowExecutor) RemoveWorkflow(workflowId string) error {
 	response, err := e.workflowClient.Delete(context.Background(), workflowId, &client.WorkflowResourceApiDeleteOpts{ArchiveWorkflow: optional.NewBool(false)})
 	if err != nil {
@@ -393,6 +400,28 @@ func (e *WorkflowExecutor) RemoveWorkflow(workflowId string) error {
 		return fmt.Errorf(response.Status)
 	}
 	return nil
+}
+
+// DeleteQueueConfiguration Delete queue configuration permanently from the system
+// Returns nil if no error occurred
+func (e *WorkflowExecutor) DeleteQueueConfiguration(queueConfiguration queue.QueueConfiguration) (*http.Response, error) {
+	return e.eventClient.DeleteQueueConfig(context.Background(), queueConfiguration.QueueType, queueConfiguration.QueueName)
+}
+
+// GetQueueConfiguration Get queue configuration if present
+// Returns queue configuration if present
+func (e *WorkflowExecutor) GetQueueConfiguration(queueConfiguration queue.QueueConfiguration) (map[string]interface{}, *http.Response, error) {
+	return e.eventClient.GetQueueConfig(context.Background(), queueConfiguration.QueueType, queueConfiguration.QueueName)
+}
+
+// GetQueueConfiguration Create or update a queue configuration
+// Returns nil if no error occurred
+func (e *WorkflowExecutor) PutQueueConfiguration(queueConfiguration queue.QueueConfiguration) (*http.Response, error) {
+	body, err := queueConfiguration.GetConfiguration()
+	if err != nil {
+		return nil, err
+	}
+	return e.eventClient.PutQueueConfig(context.Background(), body, queueConfiguration.QueueType, queueConfiguration.QueueName)
 }
 
 func getTaskResultFromOutput(taskId string, workflowInstanceId string, taskExecutionOutput interface{}) (*model.TaskResult, error) {
