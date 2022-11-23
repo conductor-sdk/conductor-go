@@ -46,6 +46,9 @@ var (
 	WorkflowClient = client.WorkflowResourceApiService{
 		APIClient: apiClient,
 	}
+	EventClient = client.EventResourceApiService{
+		APIClient: apiClient,
+	}
 )
 
 var TaskRunner = worker.NewTaskRunnerWithApiClient(apiClient)
@@ -73,7 +76,7 @@ func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, wo
 		outputChannel <- err
 		return
 	}
-	if workflow.Status != model.CompletedWorkflow {
+	if !isWorkflowCompleted(&workflow) {
 		outputChannel <- fmt.Errorf(
 			"workflow status different than expected, workflowId: %s, workflowStatus: %s",
 			workflow.WorkflowId, workflow.Status,
