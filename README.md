@@ -1,34 +1,34 @@
 # Netflix Conductor Go SDK
 
-`conductor-go` repository provides the client SDKs to build Task Workers in Go
+The `conductor-go` repository provides the client SDKs to build task workers in Go.
 
-## Quick Start
+Building the task workers in Go mainly consists of the following steps:
 
-1. [Setup conductor-go package](#Setup-conductor-go-package)
-2. [Create and run Task Workers](workers_sdk.md)
-3. [Create workflows using Code](workflow_sdk.md)
-4. [API Documentation](docs/)
+1. Setup conductor-go package
+2. Create and run task workers
+3. Create workflows using code
+4. [API Documentation](https://github.com/conductor-sdk/conductor-go/tree/main/docs)
    
-### Setup conductor go package
+### Setup Conductor Go Package​
 
-Create a folder to build your package:
+* Create a folder to build your package
 ```shell
 mkdir quickstart/
 cd quickstart/
 go mod init quickstart
 ```
 
-Get Conductor Go SDK
+* Get Conductor Go SDK
 
 ```shell
 go get github.com/conductor-sdk/conductor-go
 ```
-## Configuration
+## Configurations
 
-### Authentication settings (optional)
-Use if your conductor server requires authentication
-* keyId: Key
-* keySecret: Secret for the Key
+### Authentication Settings (Optional)
+Configure the authentication settings if your Conductor server requires authentication.
+* keyId: Key for authentication.
+* keySecret: Secret for the key.
 
 ```go
 authenticationSettings := settings.NewAuthenticationSettings(
@@ -38,7 +38,7 @@ authenticationSettings := settings.NewAuthenticationSettings(
 ```
 
 ### Access Control Setup
-See [Access Control](https://orkes.io/content/docs/getting-started/concepts/access-control) for more details on role based access control with Conductor and generating API keys for your environment.
+See [Access Control](https://orkes.io/content/docs/getting-started/concepts/access-control) for more details on role-based access control with Conductor and generating API keys for your environment.
 
 ### Configure API Client
 ```go
@@ -56,7 +56,7 @@ apiClient := client.NewAPIClient(
 ```
 
 ### Setup Logging
-SDK uses [logrus](https://github.com/sirupsen/logrus) for the logging.
+SDK uses [logrus](https://github.com/sirupsen/logrus) for logging.
 
 ```go
 func init() {
@@ -66,4 +66,4 @@ func init() {
 }
 ```
 
-### Next: [Create and run Task Workers](workers_sdk.md)
+### Next: [Create and run task workers](workers_sdk.md)
