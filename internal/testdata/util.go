@@ -58,7 +58,7 @@ var WorkflowExecutor = executor.NewWorkflowExecutor(apiClient)
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.InfoLevel)
 }
 
 type TreasureChest struct {
