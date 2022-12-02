@@ -23,6 +23,7 @@ import "github.com/conductor-sdk/conductor-go/sdk/workflow"
   - [func (workflow *ConductorWorkflow) OwnerEmail(ownerEmail string) *ConductorWorkflow](<#func-conductorworkflow-owneremail>)
   - [func (workflow *ConductorWorkflow) Register(overwrite bool) error](<#func-conductorworkflow-register>)
   - [func (workflow *ConductorWorkflow) Restartable(restartable bool) *ConductorWorkflow](<#func-conductorworkflow-restartable>)
+  - [func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string) (run *model.WorkflowRun, err error)](<#func-workflowexecutor-executeworkflow>)
   - [func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error)](<#func-conductorworkflow-startworkflow>)
   - [func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) (workflowId string, err error)](<#func-conductorworkflow-startworkflowwithinput>)
   - [func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkflowRequest *model.StartWorkflowRequest) (executionChannel executor.WorkflowExecutionChannel, err error)](<#func-conductorworkflow-startworkflowsandmonitorexecution>)
@@ -268,6 +269,12 @@ func (workflow *ConductorWorkflow) Restartable(restartable bool) *ConductorWorkf
 ```
 
 Restartable if the workflow can be restarted after it has reached terminal state\. Set this to false if restarting workflow can have side effects
+
+### func \(\*WorkflowExecutor\) [ExecuteWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L98>)
+
+```go
+func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string) (run *model.WorkflowRun, err error)
+```
 
 ### func \(\*ConductorWorkflow\) [StartWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/workflow.go#L158>)
 
