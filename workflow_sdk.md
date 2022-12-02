@@ -44,8 +44,31 @@ workflowId, err := executor.StartWorkflow(&model.StartWorkflowRequest{
 })
 ```
 
+#### Using Workflow Executor to synchronously execute a workflow and get the output as a result
+```go
+//Input can be either a map or a struct that is serializable to a JSON map
+workflowInput := map[string]interface{}{}
 
-Using struct instance as workflow input
+workflowRun, err := executor.ExecuteWorkflow(&model.StartWorkflowRequest{Name: wf.GetName(), Version: &version, Input: workflowInput}, "")
+//workfowRun is a struct that contains the output of the workflow execution
+type WorkflowRun struct {
+    CorrelationId string                 `json:"correlationId,omitempty"`
+    CreateTime    int64                  `json:"createTime,omitempty"`
+    CreatedBy     string                 `json:"createdBy,omitempty"`
+    Input         map[string]interface{} `json:"input,omitempty"`
+    Output        map[string]interface{} `json:"output,omitempty"`
+    Priority      int32                  `json:"priority,omitempty"`
+    RequestId     string                 `json:"requestId,omitempty"`
+    Status        string                 `json:"status,omitempty"`
+    Tasks         []Task                 `json:"tasks,omitempty"`
+    UpdateTime    int64                  `json:"updateTime,omitempty"`
+    Variables     map[string]interface{} `json:"variables,omitempty"`
+    WorkflowId    string                 `json:"workflowId,omitempty"`
+}
+```
+**Note:** Synchronous workflow execution is useful for workflows that complete in few seconds at max.  For longer running workflows use `StartWorkflow` and use the Id of the workflow to monitor the output.
+
+#### Using struct instance as workflow input
 ```go
 type WorkflowInput struct {
     Name string
