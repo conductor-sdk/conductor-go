@@ -35,7 +35,7 @@ var (
 	httpTask = workflow.NewHttpTask(
 		"TEST_GO_TASK_HTTP",
 		&workflow.HttpInput{
-			Uri: "https://catfact.ninja/fact",
+			Uri: "https://orkes-api-tester.orkesconductor.com/get",
 		},
 	)
 
