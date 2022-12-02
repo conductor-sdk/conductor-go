@@ -29,6 +29,7 @@ import "github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
   - [func (e *WorkflowExecutor) Retry(workflowId string, resumeSubworkflowTasks bool) error](<#func-workflowexecutor-retry>)
   - [func (e *WorkflowExecutor) Search(start int32, size int32, query string, freeText string) ([]model.WorkflowSummary, error)](<#func-workflowexecutor-search>)
   - [func (e *WorkflowExecutor) SkipTasksFromWorkflow(workflowId string, taskReferenceName string, skipTaskRequest model.SkipTaskRequest) error](<#func-workflowexecutor-skiptasksfromworkflow>)
+  - [func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string) (run *model.WorkflowRun, err error)](<#func-workflowexecutor-executeworkflow>)
   - [func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error)](<#func-workflowexecutor-startworkflow>)
   - [func (e *WorkflowExecutor) StartWorkflows(monitorExecution bool, startWorkflowRequests ...*model.StartWorkflowRequest) []*RunningWorkflow](<#func-workflowexecutor-startworkflows>)
   - [func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error](<#func-workflowexecutor-terminate>)
@@ -209,6 +210,13 @@ func (e *WorkflowExecutor) SkipTasksFromWorkflow(workflowId string, taskReferenc
 ```
 
 SkipTasksFromWorkflow Skips a given task execution from a current running workflow. When skipped the task's input and outputs are updated  from skipTaskRequest parameter.
+
+### func \(\*WorkflowExecutor\) [ExecuteWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L98>)
+
+```go
+func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string) (run *model.WorkflowRun, err error)
+```
+
 
 ### func \(\*WorkflowExecutor\) [StartWorkflow](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L100>)
 

@@ -28,14 +28,14 @@ const (
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.InfoLevel)
 }
 
 var (
 	httpTask = workflow.NewHttpTask(
 		"TEST_GO_TASK_HTTP",
 		&workflow.HttpInput{
-			Uri: "https://catfact.ninja/fact",
+			Uri: "https://orkes-api-tester.orkesconductor.com/get",
 		},
 	)
 
@@ -97,6 +97,7 @@ var (
 func TestHttpTask(t *testing.T) {
 	httpTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_HTTP").
+		OwnerEmail("test@orkes.io").
 		Version(1).
 		Add(httpTask)
 	err := testdata.ValidateWorkflow(httpTaskWorkflow, workflowValidationTimeout)
