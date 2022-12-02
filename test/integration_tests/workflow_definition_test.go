@@ -83,9 +83,6 @@ func TestExecuteWorkflow(t *testing.T) {
 	assert.NoError(t, err, "Failed to get workflow execution")
 	assert.Equal(t, model.CompletedWorkflow, execution.Status, "Workflow is not in the completed state")
 
-	err = executor.RemoveWorkflow(run.WorkflowId)
-	assert.NoError(t, err, "Failed to remove workflow execution")
-
 	_, err = testdata.MetadataClient.UnregisterWorkflowDef(
 		context.Background(),
 		wf.GetName(),

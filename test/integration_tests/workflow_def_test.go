@@ -28,7 +28,7 @@ const (
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.InfoLevel)
 }
 
 var (
@@ -97,6 +97,7 @@ var (
 func TestHttpTask(t *testing.T) {
 	httpTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_HTTP").
+		OwnerEmail("test@orkes.io").
 		Version(1).
 		Add(httpTask)
 	err := testdata.ValidateWorkflow(httpTaskWorkflow, workflowValidationTimeout)
