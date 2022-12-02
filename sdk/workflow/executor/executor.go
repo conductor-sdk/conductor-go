@@ -95,6 +95,16 @@ func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.Work
 	return nil
 }
 
+func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string) (run *model.WorkflowRun, err error) {
+	requestId := ""
+	version := startWorkflowRequest.Version
+	workflowRun, _, error := e.workflowClient.ExecuteWorkflow(context.Background(), *startWorkflowRequest, requestId, startWorkflowRequest.Name, *version, waitUntilTask)
+	if error != nil {
+		return nil, error
+	}
+	return &workflowRun, err
+}
+
 // MonitorExecution monitors the workflow execution
 // Returns the channel with the execution result of the workflow
 // Note: Channels will continue to grow if the workflows do not complete and/or are not taken out
