@@ -160,6 +160,24 @@ func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.Sta
 	return workflow.executor.StartWorkflow(startWorkflowRequest)
 }
 
+// ExecuteWorkflowWithInput Execute the workflow with specific input and wait for the workflow to complete or until the task specified as waitUntil is completed.
+// waitUntilTask Reference name of the task which MUST be completed before returning the output.  if specified as empty string, then the call waits until the
+// workflow completes or reaches the timeout (as specified on the server)
+// The input struct MUST be serializable to JSON
+//Returns the workflow output
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, waitUntilTask string) (worfklowRun *model.WorkflowRun, err error) {
+	version := workflow.GetVersion()
+	return workflow.executor.ExecuteWorkflow(
+		&model.StartWorkflowRequest{
+			Name:        workflow.GetName(),
+			Version:     &version,
+			Input:       getInputAsMap(input),
+			WorkflowDef: workflow.ToWorkflowDef(),
+		},
+		waitUntilTask,
+	)
+}
+
 //StartWorkflowsAndMonitorExecution Starts the workflow execution and returns a channel that can be used to monitor the workflow execution
 //This method is useful for short duration workflows that are expected to complete in few seconds.  For long-running workflows use GetStatus APIs to periodically check the status
 func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkflowRequest *model.StartWorkflowRequest) (executionChannel executor.WorkflowExecutionChannel, err error) {
