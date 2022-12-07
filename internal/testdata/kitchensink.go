@@ -73,12 +73,17 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 		"value2": []string{"d", "e"},
 	})
 
+	graalTask := workflow.NewInlineGraalJSTask("graaljstask", "(function () { return $.value1 + $.value2; })();")
+	graalTask.Input("value1", "value-1")
+	graalTask.Input("value2", 23.4)
+
 	workflow := workflow.NewConductorWorkflow(executor).
 		Name("sdk_kitchen_sink2").
 		Version(1).
 		OwnerEmail("orkes-workers@apps.orkes.io").
 		Add(task).
 		Add(jqTask).
+		Add(graalTask).
 		Add(setVariable).
 		Add(subWorkflow).
 		Add(dynamicFork).

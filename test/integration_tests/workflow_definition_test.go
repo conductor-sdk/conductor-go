@@ -19,14 +19,24 @@ func TestWorkflowCreation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to register workflow: %s, reason: %s", workflow.GetName(), err.Error())
 	}
-	startWorkflowRequest := &model.StartWorkflowRequest{
-		Name: workflow.GetName(),
-	}
-	id, err := workflow.StartWorkflow(startWorkflowRequest)
+	//Start all the workers
+	taskRunner := testdata.TaskRunner
+	taskRunner.StartWorker("simple_task", testdata.SimpleWorker, 1, time.Millisecond)
+	taskRunner.StartWorker("simple_task_5", testdata.SimpleWorker, 1, time.Millisecond)
+	taskRunner.StartWorker("simple_task_3", testdata.SimpleWorker, 1, time.Millisecond)
+	taskRunner.StartWorker("simple_task_1", testdata.SimpleWorker, 1, time.Millisecond)
+	taskRunner.StartWorker("dynamic_fork_prep", testdata.DynamicForkWorker, 1, time.Millisecond)
+
+	run, err := workflow.ExecuteWorkflowWithInput(map[string]interface{}{
+		"key1": "input1",
+		"key2": 101,
+	}, "")
 	if err != nil {
-		t.Fatalf("Failed to start the workflow, reason: %s", err)
+		t.Fatalf("Failed to complete the workflow, reason: %s", err)
 	}
-	assert.NotEmpty(t, id, "Workflow Id is null", id)
+	assert.NotEmpty(t, run, "Workflow is null", run)
+	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
+	assert.Equal(t, "input1", run.Input["key1"])
 }
 
 func TestRemoveWorkflow(t *testing.T) {
@@ -75,6 +85,35 @@ func TestExecuteWorkflow(t *testing.T) {
 	assert.NoError(t, err, "Failed to register workflow")
 	version := wf.GetVersion()
 	run, err := executor.ExecuteWorkflow(&model.StartWorkflowRequest{Name: wf.GetName(), Version: &version}, "")
+	assert.NoError(t, err, "Failed to start workflow")
+	fmt.Print("Id of the workflow, ", run.WorkflowId)
+	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
+
+	execution, err := executor.GetWorkflow(run.WorkflowId, true)
+	assert.NoError(t, err, "Failed to get workflow execution")
+	assert.Equal(t, model.CompletedWorkflow, execution.Status, "Workflow is not in the completed state")
+
+	_, err = testdata.MetadataClient.UnregisterWorkflowDef(
+		context.Background(),
+		wf.GetName(),
+		wf.GetVersion(),
+	)
+	assert.NoError(t, err, "Failed to delete workflow definition ", err)
+}
+
+func TestExecuteWorkflowSync(t *testing.T) {
+	executor := testdata.WorkflowExecutor
+	wf := workflow.NewConductorWorkflow(executor)
+	wf.Name("temp_wf_3_" + strconv.Itoa(time.Now().Nanosecond())).Version(1)
+	wf = wf.Add(workflow.NewSetVariableTask("set_var").Input("var_value", 42))
+	wf.OutputParameters(map[string]interface{}{
+		"param1": "Test",
+		"param2": 123,
+	})
+	err := wf.Register(true)
+
+	assert.NoError(t, err, "Failed to register workflow")
+	run, err := wf.ExecuteWorkflowWithInput(map[string]interface{}{}, "")
 	assert.NoError(t, err, "Failed to start workflow")
 	fmt.Print("Id of the workflow, ", run.WorkflowId)
 	assert.Equal(t, string(model.CompletedWorkflow), run.Status)

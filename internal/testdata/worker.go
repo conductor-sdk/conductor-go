@@ -56,7 +56,9 @@ func ExampleWorker(t *model.Task) (interface{}, error) {
 func SimpleWorker(t *model.Task) (interface{}, error) {
 	taskResult := model.NewTaskResultFromTask(t)
 	taskResult.OutputData = map[string]interface{}{
-		"key": "value",
+		"key":  "value",
+		"key1": "value1",
+		"key2": 42,
 	}
 	taskResult.Status = model.CompletedTask
 	return taskResult, nil
