@@ -15,8 +15,11 @@ type InlineTask struct {
 
 const (
 	JavascriptEvaluator = "javascript"
+	graalJS             = "graaljs"
 )
 
+// NewInlineTask An inline task with that executes the given javascript
+// Legacy -- please use NewInlineGraalJSTask which provides better performance
 func NewInlineTask(name string, script string) *InlineTask {
 	return &InlineTask{
 		Task{
@@ -25,6 +28,21 @@ func NewInlineTask(name string, script string) *InlineTask {
 			taskType:          INLINE,
 			inputParameters: map[string]interface{}{
 				"evaluatorType": JavascriptEvaluator,
+				"expression":    script,
+			},
+		},
+	}
+}
+
+// NewInlineGraalJSTask An inline task with that executes the given javascript.  Uses GraalVM for faster execution
+func NewInlineGraalJSTask(name string, script string) *InlineTask {
+	return &InlineTask{
+		Task{
+			name:              name,
+			taskReferenceName: name,
+			taskType:          INLINE,
+			inputParameters: map[string]interface{}{
+				"evaluatorType": graalJS,
 				"expression":    script,
 			},
 		},
