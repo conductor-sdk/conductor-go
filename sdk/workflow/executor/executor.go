@@ -242,6 +242,26 @@ func (e *WorkflowExecutor) GetByCorrelationIds(workflowName string, includeClose
 	return workflows, nil
 }
 
+// GetByCorrelationIdsAndNames Given the list of correlation ids and list of workflow names, find and return workflows
+// Returns a map with key as correlationId and value as a list of Workflows
+// When IncludeClosed is set to true, the return value also includes workflows that are completed otherwise only running workflows are returned
+func (e *WorkflowExecutor) GetByCorrelationIdsAndNames(includeClosed bool, includeTasks bool, correlationIds []string, workflowNames []string) (map[string][]model.Workflow, error) {
+	workflows, _, err := e.workflowClient.GetWorkflowsBatch(
+		context.Background(),
+		map[string][]string{
+			"workflowNames":  workflowNames,
+			"correlationIds": correlationIds,
+		},
+		&client.WorkflowResourceApiGetWorkflowsOpts{
+			IncludeClosed: optional.NewBool(includeClosed),
+			IncludeTasks:  optional.NewBool(includeTasks),
+		})
+	if err != nil {
+		return nil, err
+	}
+	return workflows, nil
+}
+
 // Search searches for workflows
 //
 // - Start: Start index - used for pagination
