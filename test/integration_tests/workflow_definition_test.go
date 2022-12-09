@@ -3,6 +3,7 @@ package integration_tests
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"strconv"
 	"testing"
 	"time"
@@ -128,4 +129,43 @@ func TestExecuteWorkflowSync(t *testing.T) {
 		wf.GetVersion(),
 	)
 	assert.NoError(t, err, "Failed to delete workflow definition ", err)
+}
+
+func TestExecuteWorkflowWithCorrelationIds(t *testing.T) {
+	executor := testdata.WorkflowExecutor
+	correlationId1 := "correlationId1-" + uuid.New().String()
+	correlationId2 := "correlationId2-" + uuid.New().String()
+	httpTaskWorkflow1 := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("TEST_GO_WORKFLOW_HTTP" + correlationId1).
+		OwnerEmail("test@orkes.io").
+		Version(1).
+		Add(httpTask)
+	httpTaskWorkflow2 := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("TEST_GO_WORKFLOW_HTTP" + correlationId2).
+		OwnerEmail("test@orkes.io").
+		Version(1).
+		Add(httpTask)
+
+	_, err := httpTaskWorkflow1.StartWorkflow(&model.StartWorkflowRequest{CorrelationId: correlationId1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = httpTaskWorkflow2.StartWorkflow(&model.StartWorkflowRequest{CorrelationId: correlationId2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// wait a bit until indexed, no need to wait until completion
+	time.Sleep(5 * time.Second)
+
+	workflows, err := executor.GetByCorrelationIdsAndNames(true, true,
+		[]string{correlationId1, correlationId2}, []string{httpTaskWorkflow1.GetName(), httpTaskWorkflow2.GetName()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Contains(t, workflows, correlationId1)
+	assert.Contains(t, workflows, correlationId2)
+	assert.NotEmpty(t, workflows[correlationId1])
+	assert.NotEmpty(t, workflows[correlationId2])
+	assert.Equal(t, workflows[correlationId1][0].CorrelationId, correlationId1)
+	assert.Equal(t, workflows[correlationId2][0].CorrelationId, correlationId2)
 }
