@@ -102,35 +102,6 @@ func TestExecuteWorkflow(t *testing.T) {
 	assert.NoError(t, err, "Failed to delete workflow definition ", err)
 }
 
-func TestExecuteWorkflowSync(t *testing.T) {
-	executor := testdata.WorkflowExecutor
-	wf := workflow.NewConductorWorkflow(executor)
-	wf.Name("temp_wf_3_" + strconv.Itoa(time.Now().Nanosecond())).Version(1)
-	wf = wf.Add(workflow.NewSetVariableTask("set_var").Input("var_value", 42))
-	wf.OutputParameters(map[string]interface{}{
-		"param1": "Test",
-		"param2": 123,
-	})
-	err := wf.Register(true)
-
-	assert.NoError(t, err, "Failed to register workflow")
-	run, err := wf.ExecuteWorkflowWithInput(map[string]interface{}{}, "")
-	assert.NoError(t, err, "Failed to start workflow")
-	fmt.Print("Id of the workflow, ", run.WorkflowId)
-	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
-
-	execution, err := executor.GetWorkflow(run.WorkflowId, true)
-	assert.NoError(t, err, "Failed to get workflow execution")
-	assert.Equal(t, model.CompletedWorkflow, execution.Status, "Workflow is not in the completed state")
-
-	_, err = testdata.MetadataClient.UnregisterWorkflowDef(
-		context.Background(),
-		wf.GetName(),
-		wf.GetVersion(),
-	)
-	assert.NoError(t, err, "Failed to delete workflow definition ", err)
-}
-
 func TestExecuteWorkflowWithCorrelationIds(t *testing.T) {
 	executor := testdata.WorkflowExecutor
 	correlationId1 := "correlationId1-" + uuid.New().String()
@@ -166,4 +137,33 @@ func TestExecuteWorkflowWithCorrelationIds(t *testing.T) {
 	assert.NotEmpty(t, workflows[correlationId2])
 	assert.Equal(t, workflows[correlationId1][0].CorrelationId, correlationId1)
 	assert.Equal(t, workflows[correlationId2][0].CorrelationId, correlationId2)
+}
+
+func TestExecuteWorkflowSync(t *testing.T) {
+	executor := testdata.WorkflowExecutor
+	wf := workflow.NewConductorWorkflow(executor)
+	wf.Name("temp_wf_3_" + strconv.Itoa(time.Now().Nanosecond())).Version(1)
+	wf = wf.Add(workflow.NewSetVariableTask("set_var").Input("var_value", 42))
+	wf.OutputParameters(map[string]interface{}{
+		"param1": "Test",
+		"param2": 123,
+	})
+	err := wf.Register(true)
+
+	assert.NoError(t, err, "Failed to register workflow")
+	run, err := wf.ExecuteWorkflowWithInput(map[string]interface{}{}, "")
+	assert.NoError(t, err, "Failed to start workflow")
+	fmt.Print("Id of the workflow, ", run.WorkflowId)
+	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
+
+	execution, err := executor.GetWorkflow(run.WorkflowId, true)
+	assert.NoError(t, err, "Failed to get workflow execution")
+	assert.Equal(t, model.CompletedWorkflow, execution.Status, "Workflow is not in the completed state")
+
+	_, err = testdata.MetadataClient.UnregisterWorkflowDef(
+		context.Background(),
+		wf.GetName(),
+		wf.GetVersion(),
+	)
+	assert.NoError(t, err, "Failed to delete workflow definition ", err)
 }
