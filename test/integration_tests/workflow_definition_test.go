@@ -154,8 +154,6 @@ func TestExecuteWorkflowWithCorrelationIds(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// wait a bit until indexed, no need to wait until completion
-	time.Sleep(5 * time.Second)
 
 	workflows, err := executor.GetByCorrelationIdsAndNames(true, true,
 		[]string{correlationId1, correlationId2}, []string{httpTaskWorkflow1.GetName(), httpTaskWorkflow2.GetName()})
