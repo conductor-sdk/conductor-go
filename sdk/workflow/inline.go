@@ -9,9 +9,7 @@
 
 package workflow
 
-type InlineTask struct {
-	Task
-}
+import "github.com/conductor-sdk/conductor-go/sdk/model"
 
 const (
 	JavascriptEvaluator = "javascript"
@@ -19,14 +17,14 @@ const (
 )
 
 // NewInlineTask An inline task with that executes the given javascript
-// Legacy -- please use NewInlineGraalJSTask which provides better performance
-func NewInlineTask(name string, script string) *InlineTask {
-	return &InlineTask{
-		Task{
-			name:              name,
-			taskReferenceName: name,
-			taskType:          INLINE,
-			inputParameters: map[string]interface{}{
+// Deprecated: please use NewInlineGraalJSTask which provides better performance
+func NewInlineTask(name string, script string) *Task {
+	return &Task{
+		model.WorkflowTask{
+			Name:              name,
+			TaskReferenceName: name,
+			WorkflowTaskType:  string(INLINE),
+			InputParameters: map[string]interface{}{
 				"evaluatorType": JavascriptEvaluator,
 				"expression":    script,
 			},
@@ -35,42 +33,16 @@ func NewInlineTask(name string, script string) *InlineTask {
 }
 
 // NewInlineGraalJSTask An inline task with that executes the given javascript.  Uses GraalVM for faster execution
-func NewInlineGraalJSTask(name string, script string) *InlineTask {
-	return &InlineTask{
-		Task{
-			name:              name,
-			taskReferenceName: name,
-			taskType:          INLINE,
-			inputParameters: map[string]interface{}{
+func NewInlineGraalJSTask(name string, script string) *Task {
+	return &Task{
+		model.WorkflowTask{
+			Name:              name,
+			TaskReferenceName: name,
+			WorkflowTaskType:  string(INLINE),
+			InputParameters: map[string]interface{}{
 				"evaluatorType": graalJS,
 				"expression":    script,
 			},
 		},
 	}
-}
-
-// Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
-func (task *InlineTask) Input(key string, value interface{}) *InlineTask {
-	task.Task.Input(key, value)
-	return task
-}
-
-// InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
-func (task *InlineTask) InputMap(inputMap map[string]interface{}) *InlineTask {
-	for k, v := range inputMap {
-		task.inputParameters[k] = v
-	}
-	return task
-}
-
-// Optional if set to true, the task will not fail the workflow if the task fails
-func (task *InlineTask) Optional(optional bool) *InlineTask {
-	task.Task.Optional(optional)
-	return task
-}
-
-// Description of the task
-func (task *InlineTask) Description(description string) *InlineTask {
-	task.Task.Description(description)
-	return task
 }

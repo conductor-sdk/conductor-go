@@ -9,9 +9,7 @@
 
 package workflow
 
-type HttpTask struct {
-	Task
-}
+import "github.com/conductor-sdk/conductor-go/sdk/model"
 
 type HttpMethod string
 
@@ -25,18 +23,18 @@ const (
 )
 
 // NewHttpTask Create a new HTTP Task
-func NewHttpTask(taskRefName string, input *HttpInput) *HttpTask {
+func NewHttpTask(taskRefName string, input *HttpInput) *Task {
 	if len(input.Method) == 0 {
 		input.Method = GET
 	}
-	return &HttpTask{
-		Task{
-			name:              taskRefName,
-			taskReferenceName: taskRefName,
-			description:       "",
-			taskType:          HTTP,
-			optional:          false,
-			inputParameters: map[string]interface{}{
+	return &Task{
+		model.WorkflowTask{
+			Name:              taskRefName,
+			TaskReferenceName: taskRefName,
+			Description:       "",
+			WorkflowTaskType:  string(HTTP),
+			Optional:          false,
+			InputParameters: map[string]interface{}{
 				"http_request": input,
 			},
 		},
@@ -53,30 +51,4 @@ type HttpInput struct {
 	ConnectionTimeOut int16               `json:"ConnectionTimeOut,omitempty"`
 	ReadTimeout       int16               `json:"readTimeout,omitempty"`
 	Body              interface{}         `json:"body,omitempty"`
-}
-
-// Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
-func (task *HttpTask) Input(key string, value interface{}) *HttpTask {
-	task.Task.Input(key, value)
-	return task
-}
-
-// InputMap to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
-func (task *HttpTask) InputMap(inputMap map[string]interface{}) *HttpTask {
-	for k, v := range inputMap {
-		task.inputParameters[k] = v
-	}
-	return task
-}
-
-// Optional if set to true, the task will not fail the workflow if the task fails
-func (task *HttpTask) Optional(optional bool) *HttpTask {
-	task.Task.Optional(optional)
-	return task
-}
-
-// Description of the task
-func (task *HttpTask) Description(description string) *HttpTask {
-	task.Task.Description(description)
-	return task
 }
