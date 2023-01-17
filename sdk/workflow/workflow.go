@@ -146,7 +146,7 @@ func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) (wo
 	return workflow.executor.StartWorkflow(
 		&model.StartWorkflowRequest{
 			Name:        workflow.GetName(),
-			Version:     &version,
+			Version:     version,
 			Input:       getInputAsMap(input),
 			WorkflowDef: workflow.ToWorkflowDef(),
 		},
@@ -170,7 +170,7 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, w
 	return workflow.executor.ExecuteWorkflow(
 		&model.StartWorkflowRequest{
 			Name:        workflow.GetName(),
-			Version:     &version,
+			Version:     version,
 			Input:       getInputAsMap(input),
 			WorkflowDef: workflow.ToWorkflowDef(),
 		},

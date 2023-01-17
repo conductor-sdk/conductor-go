@@ -100,7 +100,7 @@ func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.Work
 func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string) (run *model.WorkflowRun, err error) {
 	requestId := ""
 	version := startWorkflowRequest.Version
-	workflowRun, _, error := e.workflowClient.ExecuteWorkflow(context.Background(), *startWorkflowRequest, requestId, startWorkflowRequest.Name, *version, waitUntilTask)
+	workflowRun, _, error := e.workflowClient.ExecuteWorkflow(context.Background(), *startWorkflowRequest, requestId, startWorkflowRequest.Name, version, waitUntilTask)
 	if error != nil {
 		return nil, error
 	}
