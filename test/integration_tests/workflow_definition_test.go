@@ -85,7 +85,7 @@ func TestExecuteWorkflow(t *testing.T) {
 
 	assert.NoError(t, err, "Failed to register workflow")
 	version := wf.GetVersion()
-	run, err := executor.ExecuteWorkflow(&model.StartWorkflowRequest{Name: wf.GetName(), Version: &version}, "")
+	run, err := executor.ExecuteWorkflow(&model.StartWorkflowRequest{Name: wf.GetName(), Version: version}, "")
 	assert.NoError(t, err, "Failed to start workflow")
 	fmt.Print("Id of the workflow, ", run.WorkflowId)
 	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
