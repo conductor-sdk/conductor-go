@@ -29,10 +29,10 @@ func NewStartWorkflowRequest(name string, version int32, correlationId string, i
 	}
 }
 
-func NewStartWorkflowRequestLegacy(name string, version *int32, correlationId string, input interface{}) *StartWorkflowRequest {
+func NewStartWorkflowRequestLegacy(name string, version int32, correlationId string, input interface{}) *StartWorkflowRequest {
 	return &StartWorkflowRequest{
 		Name:          name,
-		Version:       *version,
+		Version:       version,
 		CorrelationId: correlationId,
 		Input:         input,
 	}
