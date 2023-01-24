@@ -11,10 +11,12 @@ package executor
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -311,6 +313,11 @@ func (e *WorkflowExecutor) Resume(workflowId string) error {
 
 // Terminate a running workflow.  Reason must be provided that is captured as the termination resaon for the workflow
 func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error {
+	if strings.TrimSpace(workflowId) == "" {
+		err := errors.New("workflow id cannot be empty when calling terminate workflow API")
+		log.Error("Failed to terminate workflow: ", err.Error())
+		return err
+	}
 	_, err := e.workflowClient.Terminate(context.Background(), workflowId,
 		&client.WorkflowResourceApiTerminateOpts{Reason: optional.NewString(reason), TriggerFailureWorkflow: optional.NewBool(false)},
 	)
@@ -321,6 +328,11 @@ func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error {
 }
 
 func (e *WorkflowExecutor) TerminateWithFailure(workflowId string, reason string, triggerFailureWorkflow bool) error {
+	if strings.TrimSpace(workflowId) == "" {
+		err := errors.New("workflow id cannot be empty when calling terminate workflow API")
+		log.Error("Failed to terminate workflow: ", err.Error())
+		return err
+	}
 	_, err := e.workflowClient.Terminate(context.Background(), workflowId,
 		&client.WorkflowResourceApiTerminateOpts{Reason: optional.NewString(reason), TriggerFailureWorkflow: optional.NewBool(triggerFailureWorkflow)},
 	)
