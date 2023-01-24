@@ -2086,7 +2086,8 @@ WorkflowResourceApiService Terminate workflow execution
 */
 
 type WorkflowResourceApiTerminateOpts struct {
-	Reason optional.String
+	Reason                 optional.String
+	TriggerFailureWorkflow optional.Bool
 }
 
 func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiTerminateOpts) (*http.Response, error) {
@@ -2107,6 +2108,10 @@ func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId s
 
 	if localVarOptionals != nil && localVarOptionals.Reason.IsSet() {
 		localVarQueryParams.Add("reason", parameterToString(localVarOptionals.Reason.Value(), ""))
+	}
+
+	if localVarOptionals != nil && localVarOptionals.TriggerFailureWorkflow.IsSet() {
+		localVarQueryParams.Add("triggerFailureWorkflow", parameterToString(localVarOptionals.TriggerFailureWorkflow.Value(), ""))
 	}
 	// to determine the Content-Type header
 	localVarHttpContentTypes := []string{}
