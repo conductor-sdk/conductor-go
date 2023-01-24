@@ -272,7 +272,13 @@ StartWorkflows Start workflows in bulk Returns RunningWorkflow struct that conta
 ### func \(\*WorkflowExecutor\) [Terminate](<https://github.com/conductor-sdk/conductor-go/blob/main/sdk/workflow/executor/executor.go#L293>)
 
 ```go
-func (e *WorkflowExecutor) Terminate(workflowId string, reason string, triggerFailureWorkflow bool) error
+func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error
+```
+
+Terminate a running workflow.  Reason must be provided that is captured as the termination resaon for the workflow.
+
+```go
+func (e *WorkflowExecutor) TerminateWithFailure(workflowId string, reason string, triggerFailureWorkflow bool) error
 ```
 
 Terminate a running workflow.  Reason must be provided that is captured as the termination resaon for the workflow.
