@@ -310,7 +310,17 @@ func (e *WorkflowExecutor) Resume(workflowId string) error {
 }
 
 // Terminate a running workflow.  Reason must be provided that is captured as the termination resaon for the workflow
-func (e *WorkflowExecutor) Terminate(workflowId string, reason string, triggerFailureWorkflow bool) error {
+func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error {
+	_, err := e.workflowClient.Terminate(context.Background(), workflowId,
+		&client.WorkflowResourceApiTerminateOpts{Reason: optional.NewString(reason), TriggerFailureWorkflow: optional.NewBool(false)},
+	)
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func (e *WorkflowExecutor) TerminateWithFailure(workflowId string, reason string, triggerFailureWorkflow bool) error {
 	_, err := e.workflowClient.Terminate(context.Background(), workflowId,
 		&client.WorkflowResourceApiTerminateOpts{Reason: optional.NewString(reason), TriggerFailureWorkflow: optional.NewBool(triggerFailureWorkflow)},
 	)
