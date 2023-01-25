@@ -139,6 +139,43 @@ func TestExecuteWorkflowWithCorrelationIds(t *testing.T) {
 	assert.Equal(t, workflows[correlationId2][0].CorrelationId, correlationId2)
 }
 
+func TestTerminateWorkflowWithFailure(t *testing.T) {
+
+	executor := testdata.WorkflowExecutor
+	wf := workflow.NewConductorWorkflow(executor).
+		Name("TEST_GO_SET_VAR_USED_AS_FAILURE").
+		Version(1).
+		Add(workflow.NewSetVariableTask("set_var").Input("var_value", 42))
+	err := testdata.ValidateWorkflowRegistration(wf)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	workflowWait := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("TEST_GO_WORKFLOW_WAIT_CONDUCTOR").
+		Version(1).
+		Add(workflow.NewWaitTask("termination_wait")).
+		FailureWorkflow(wf.GetName())
+	err = testdata.ValidateWorkflowRegistration(workflowWait)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	id, err := workflowWait.StartWorkflow(&model.StartWorkflowRequest{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = executor.TerminateWithFailure(id, "Terminated to trigger failure workflow", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	terminatedWfStatus, err := executor.GetWorkflow(id, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.NotEmpty(t, terminatedWfStatus.Output["conductor.failure_workflow"])
+}
+
 func TestExecuteWorkflowSync(t *testing.T) {
 	executor := testdata.WorkflowExecutor
 	wf := workflow.NewConductorWorkflow(executor)
