@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
@@ -209,7 +208,7 @@ func executeWorkflowWithRetriesWithStartWorkflowRequest(startWorkflowRequest *mo
 		workflowRun, err := testdata.WorkflowExecutor.ExecuteWorkflow(startWorkflowRequest, "")
 		if err != nil {
 			time.Sleep(time.Duration(attempt+2) * time.Second)
-			logrus.Debug("Failed to execute workflow, reason: " + err.Error())
+			fmt.Printf("Failed to execute workflow, reason: %s", err.Error())
 			continue
 		}
 		return workflowRun, nil
