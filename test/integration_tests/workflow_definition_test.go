@@ -3,10 +3,11 @@ package integration_tests
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
@@ -104,8 +105,8 @@ func TestExecuteWorkflow(t *testing.T) {
 
 func TestExecuteWorkflowWithCorrelationIds(t *testing.T) {
 	executor := testdata.WorkflowExecutor
-	correlationId1 := "correlationId1-" + uuid.New().String()
-	correlationId2 := "correlationId2-" + uuid.New().String()
+	correlationId1 := fmt.Sprintf("TEST_GO_WORKFLOW_HTTP-correlationId1-%s", uuid.New().String())
+	correlationId2 := fmt.Sprintf("TEST_GO_WORKFLOW_HTTP-correlationId2-%s", uuid.New().String())
 	httpTaskWorkflow1 := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_HTTP" + correlationId1).
 		OwnerEmail("test@orkes.io").
