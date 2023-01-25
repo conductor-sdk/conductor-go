@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
@@ -180,17 +181,21 @@ func TestExecuteWorkflowSync(t *testing.T) {
 }
 
 func startWorkers() {
+	taskNames := make([]string, 10)
 	for i := 0; i < 10; i += 1 {
-		taskName := fmt.Sprintf("simple_task_%d", i)
-		testdata.TaskRunner.StartWorker(taskName, testdata.SimpleWorker, 1, time.Millisecond)
+		taskNames[i] = fmt.Sprintf("simple_task_%d", i)
+	}
+	taskNames = append(taskNames, "dynamic_fork_prep")
+	for _, taskName := range taskNames {
+		testdata.TaskRunner.StartWorker(taskName, testdata.SimpleWorker, 1, 100*time.Millisecond)
 	}
 }
 
-func executeWorkflowWithRetries(wf *workflow.ConductorWorkflow, workflowInput interface{}) (workflowRun *model.WorkflowRun, err error) {
+func executeWorkflowWithRetries(wf *workflow.ConductorWorkflow, workflowInput interface{}) (*model.WorkflowRun, error) {
 	for attempt := 0; attempt < retryLimit; attempt += 1 {
-		workflowRun, err = wf.ExecuteWorkflowWithInput(workflowInput, "")
+		workflowRun, err := wf.ExecuteWorkflowWithInput(workflowInput, "")
 		if err != nil {
-			time.Sleep(time.Second * time.Duration(attempt+2))
+			time.Sleep(time.Duration(attempt+2) * time.Second)
 			fmt.Println("Failed to execute workflow, reason: " + err.Error())
 			continue
 		}
@@ -199,12 +204,12 @@ func executeWorkflowWithRetries(wf *workflow.ConductorWorkflow, workflowInput in
 	return nil, fmt.Errorf("exhausted retries for workflow execution")
 }
 
-func executeWorkflowWithRetriesWithStartWorkflowRequest(startWorkflowRequest *model.StartWorkflowRequest) (workflowRun *model.WorkflowRun, err error) {
+func executeWorkflowWithRetriesWithStartWorkflowRequest(startWorkflowRequest *model.StartWorkflowRequest) (*model.WorkflowRun, error) {
 	for attempt := 1; attempt <= retryLimit; attempt += 1 {
-		workflowRun, err = testdata.WorkflowExecutor.ExecuteWorkflow(startWorkflowRequest, "")
+		workflowRun, err := testdata.WorkflowExecutor.ExecuteWorkflow(startWorkflowRequest, "")
 		if err != nil {
-			time.Sleep(time.Second * time.Duration(attempt*10))
-			fmt.Println("Failed to execute workflow, reason: " + err.Error())
+			time.Sleep(time.Duration(attempt+2) * time.Second)
+			logrus.Debug("Failed to execute workflow, reason: " + err.Error())
 			continue
 		}
 		return workflowRun, nil
