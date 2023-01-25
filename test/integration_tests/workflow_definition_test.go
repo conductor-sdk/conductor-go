@@ -108,12 +108,12 @@ func TestExecuteWorkflowWithCorrelationIds(t *testing.T) {
 	correlationId1 := fmt.Sprintf("TEST_GO_WORKFLOW_HTTP-correlationId1-%s", uuid.New().String())
 	correlationId2 := fmt.Sprintf("TEST_GO_WORKFLOW_HTTP-correlationId2-%s", uuid.New().String())
 	httpTaskWorkflow1 := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
-		Name("TEST_GO_WORKFLOW_HTTP" + correlationId1).
+		Name(correlationId1).
 		OwnerEmail("test@orkes.io").
 		Version(1).
 		Add(httpTask)
 	httpTaskWorkflow2 := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
-		Name("TEST_GO_WORKFLOW_HTTP" + correlationId2).
+		Name(correlationId2).
 		OwnerEmail("test@orkes.io").
 		Version(1).
 		Add(httpTask)
