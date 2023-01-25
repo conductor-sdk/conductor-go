@@ -108,13 +108,11 @@ func TestExecuteWorkflowWithCorrelationIds(t *testing.T) {
 		OwnerEmail("test@orkes.io").
 		Version(1).
 		Add(httpTask)
-	httpTaskWorkflow1.Register(true)
 	httpTaskWorkflow2 := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_HTTP" + correlationId2).
 		OwnerEmail("test@orkes.io").
 		Version(1).
 		Add(httpTask)
-	httpTaskWorkflow2.Register(true)
 	_, err := httpTaskWorkflow1.StartWorkflow(&model.StartWorkflowRequest{CorrelationId: correlationId1})
 	if err != nil {
 		t.Fatal(err)
@@ -123,7 +121,7 @@ func TestExecuteWorkflowWithCorrelationIds(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	time.Sleep(2000)
+	time.Sleep(3 * time.Second)
 	workflows, err := executor.GetByCorrelationIdsAndNames(true, true,
 		[]string{correlationId1, correlationId2}, []string{httpTaskWorkflow1.GetName(), httpTaskWorkflow2.GetName()})
 	if err != nil {
