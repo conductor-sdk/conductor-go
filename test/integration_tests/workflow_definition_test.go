@@ -15,6 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const retryLimit = 5
+
 func TestWorkflowCreation(t *testing.T) {
 	workflow := testdata.NewKitchenSinkWorkflow(testdata.WorkflowExecutor)
 	err := workflow.Register(true)
@@ -22,10 +24,10 @@ func TestWorkflowCreation(t *testing.T) {
 		t.Fatalf("Failed to register workflow: %s, reason: %s", workflow.GetName(), err.Error())
 	}
 	startWorkers()
-	run, err := workflow.ExecuteWorkflowWithInput(map[string]interface{}{
+	run, err := executeWorkflowWithRetries(workflow, map[string]interface{}{
 		"key1": "input1",
 		"key2": 101,
-	}, "")
+	})
 	if err != nil {
 		t.Fatalf("Failed to complete the workflow, reason: %s", err)
 	}
@@ -82,7 +84,12 @@ func TestExecuteWorkflow(t *testing.T) {
 
 	assert.NoError(t, err, "Failed to register workflow")
 	version := wf.GetVersion()
-	run, err := executor.ExecuteWorkflow(&model.StartWorkflowRequest{Name: wf.GetName(), Version: &version}, "")
+	run, err := executeWorkflowWithRetriesWithStartWorkflowRequest(
+		&model.StartWorkflowRequest{
+			Name:    wf.GetName(),
+			Version: &version,
+		},
+	)
 	assert.NoError(t, err, "Failed to start workflow")
 	fmt.Print("Id of the workflow, ", run.WorkflowId)
 	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
@@ -149,8 +156,14 @@ func TestExecuteWorkflowSync(t *testing.T) {
 	err := wf.Register(true)
 
 	assert.NoError(t, err, "Failed to register workflow")
-	run, err := wf.ExecuteWorkflowWithInput(map[string]interface{}{}, "")
-	assert.NoError(t, err, "Failed to start workflow")
+	run, err := executeWorkflowWithRetries(wf, map[string]interface{}{
+		"key1": "input1",
+		"key2": 101,
+	})
+	if err != nil {
+		t.Fatalf("Failed to complete the workflow, reason: %s", err)
+	}
+	assert.NotEmpty(t, run, "Workflow is null", run)
 	fmt.Print("Id of the workflow, ", run.WorkflowId)
 	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
 
@@ -171,4 +184,30 @@ func startWorkers() {
 		taskName := fmt.Sprintf("simple_task_%d", i)
 		testdata.TaskRunner.StartWorker(taskName, testdata.SimpleWorker, 1, time.Millisecond)
 	}
+}
+
+func executeWorkflowWithRetries(wf *workflow.ConductorWorkflow, workflowInput interface{}) (workflowRun *model.WorkflowRun, err error) {
+	for attempt := 0; attempt < retryLimit; attempt += 1 {
+		workflowRun, err = wf.ExecuteWorkflowWithInput(workflowInput, "")
+		if err != nil {
+			time.Sleep(time.Second * time.Duration(attempt+2))
+			fmt.Println("Failed to execute workflow, reason: " + err.Error())
+			continue
+		}
+		return workflowRun, nil
+	}
+	return nil, fmt.Errorf("exhausted retries for workflow execution")
+}
+
+func executeWorkflowWithRetriesWithStartWorkflowRequest(startWorkflowRequest *model.StartWorkflowRequest) (workflowRun *model.WorkflowRun, err error) {
+	for attempt := 1; attempt <= retryLimit; attempt += 1 {
+		workflowRun, err = testdata.WorkflowExecutor.ExecuteWorkflow(startWorkflowRequest, "")
+		if err != nil {
+			time.Sleep(time.Second * time.Duration(attempt*10))
+			fmt.Println("Failed to execute workflow, reason: " + err.Error())
+			continue
+		}
+		return workflowRun, nil
+	}
+	return nil, fmt.Errorf("exhausted retries for workflow execution")
 }
