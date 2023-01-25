@@ -3,10 +3,11 @@ package integration_tests
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
@@ -20,14 +21,7 @@ func TestWorkflowCreation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to register workflow: %s, reason: %s", workflow.GetName(), err.Error())
 	}
-	//Start all the workers
-	taskRunner := testdata.TaskRunner
-	taskRunner.StartWorker("simple_task", testdata.SimpleWorker, 1, time.Millisecond)
-	taskRunner.StartWorker("simple_task_5", testdata.SimpleWorker, 1, time.Millisecond)
-	taskRunner.StartWorker("simple_task_3", testdata.SimpleWorker, 1, time.Millisecond)
-	taskRunner.StartWorker("simple_task_1", testdata.SimpleWorker, 1, time.Millisecond)
-	taskRunner.StartWorker("dynamic_fork_prep", testdata.DynamicForkWorker, 1, time.Millisecond)
-
+	startWorkers()
 	run, err := workflow.ExecuteWorkflowWithInput(map[string]interface{}{
 		"key1": "input1",
 		"key2": 101,
@@ -36,6 +30,7 @@ func TestWorkflowCreation(t *testing.T) {
 		t.Fatalf("Failed to complete the workflow, reason: %s", err)
 	}
 	assert.NotEmpty(t, run, "Workflow is null", run)
+	fmt.Println("workflowId: ", run.WorkflowId)
 	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
 	assert.Equal(t, "input1", run.Input["key1"])
 }
@@ -74,8 +69,10 @@ func TestRemoveWorkflow(t *testing.T) {
 
 func TestExecuteWorkflow(t *testing.T) {
 	executor := testdata.WorkflowExecutor
-	wf := workflow.NewConductorWorkflow(executor)
-	wf.Name("temp_wf_2_" + strconv.Itoa(time.Now().Nanosecond())).Version(1)
+	wf := workflow.NewConductorWorkflow(executor).
+		Name("temp_wf_2_" + strconv.Itoa(time.Now().Nanosecond())).
+		Version(1).
+		OwnerEmail("test@orkes.io")
 	wf = wf.Add(workflow.NewSetVariableTask("set_var").Input("var_value", 42))
 	wf.OutputParameters(map[string]interface{}{
 		"param1": "Test",
@@ -141,8 +138,10 @@ func TestExecuteWorkflowWithCorrelationIds(t *testing.T) {
 
 func TestExecuteWorkflowSync(t *testing.T) {
 	executor := testdata.WorkflowExecutor
-	wf := workflow.NewConductorWorkflow(executor)
-	wf.Name("temp_wf_3_" + strconv.Itoa(time.Now().Nanosecond())).Version(1)
+	wf := workflow.NewConductorWorkflow(executor).
+		Name("temp_wf_3_" + strconv.Itoa(time.Now().Nanosecond())).
+		Version(1).
+		OwnerEmail("test@orkes.io")
 	wf = wf.Add(workflow.NewSetVariableTask("set_var").Input("var_value", 42))
 	wf.OutputParameters(map[string]interface{}{
 		"param1": "Test",
@@ -166,4 +165,11 @@ func TestExecuteWorkflowSync(t *testing.T) {
 		wf.GetVersion(),
 	)
 	assert.NoError(t, err, "Failed to delete workflow definition ", err)
+}
+
+func startWorkers() {
+	for i := 0; i < 10; i += 1 {
+		taskName := fmt.Sprintf("simple_task_%d", i)
+		testdata.TaskRunner.StartWorker(taskName, testdata.SimpleWorker, 1, time.Millisecond)
+	}
 }
