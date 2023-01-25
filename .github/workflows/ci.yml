@@ -1,4 +1,4 @@
-name: Continuous Build
+name: Continuous Integration
 
 on: pull_request
 
@@ -6,16 +6,20 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.17
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Build
-        run: go build -v ./...
+        run: >
+          DOCKER_BUILDKIT=1 docker build
+          --progress=plain
+          --target=build          
+          .
       - name: Test
-        run: go test -v ./...
-        env:
-          GO_INTEGRATION_TESTS_SERVER_KEY_ID: ${{ secrets.KEY }}
-          GO_INTEGRATION_TESTS_SERVER_KEY_SECRET: ${{ secrets.SECRET }}
-          GO_INTEGRATION_TESTS_SERVER_API_URL: ${{ secrets.SERVER_API_URL }}
+        run: >
+          DOCKER_BUILDKIT=1 docker build
+          --progress=plain
+          --build-arg KEY=${{ secrets.KEY }}
+          --build-arg SECRET=${{ secrets.SECRET }}
+          --build-arg CONDUCTOR_SERVER_URL=${{ secrets.CONDUCTOR_SERVER_URL }}
+          --target=test          
+          .
