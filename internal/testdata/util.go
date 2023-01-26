@@ -27,9 +27,9 @@ import (
 )
 
 const (
-	AUTHENTICATION_KEY_ID     = "GO_INTEGRATION_TESTS_SERVER_KEY_ID"
-	AUTHENTICATION_KEY_SECRET = "GO_INTEGRATION_TESTS_SERVER_KEY_SECRET"
-	BASE_URL                  = "GO_INTEGRATION_TESTS_SERVER_API_URL"
+	AUTHENTICATION_KEY_ID     = "KEY"
+	AUTHENTICATION_KEY_SECRET = "SECRET"
+	BASE_URL                  = "CONDUCTOR_SERVER_URL"
 )
 
 var (
@@ -58,11 +58,7 @@ var WorkflowExecutor = executor.NewWorkflowExecutor(apiClient)
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.InfoLevel)
-}
-
-type TreasureChest struct {
-	ImportantValue string `json:"importantValue"`
+	log.SetLevel(log.DebugLevel)
 }
 
 func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, workflowId string, expectedOutput map[string]interface{}) {
@@ -112,64 +108,6 @@ func getHttpSettingsWithAuth() *settings.HttpSettings {
 		os.Getenv(BASE_URL),
 	)
 }
-
-var (
-	TREASURE_CHEST_WORKFLOW_NAME = "treasure_chest_workflow"
-	TREASURE_CHEST_TASK_NAME     = "treasure_chest_task"
-
-	TREASURE_WORKFLOW_DEFINITION = model.WorkflowDef{
-		UpdateTime:  1650595431465,
-		Name:        TREASURE_CHEST_WORKFLOW_NAME,
-		Description: "What's inside the treasure chest?",
-		Version:     1,
-		Tasks: []model.WorkflowTask{
-			{
-				Name:              TREASURE_CHEST_TASK_NAME,
-				TaskReferenceName: TREASURE_CHEST_TASK_NAME,
-				Type_:             "SIMPLE",
-				StartDelay:        0,
-				Optional:          false,
-				AsyncComplete:     false,
-				InputParameters: map[string]interface{}{
-					"importantValue": "${workflow.input.importantValue}",
-				},
-			},
-		},
-		InputParameters: []string{"importantValue"},
-		OutputParameters: map[string]interface{}{
-			"workerOutput": fmt.Sprintf("${%s.output}", TREASURE_CHEST_TASK_NAME),
-		},
-		SchemaVersion:                 2,
-		Restartable:                   true,
-		WorkflowStatusListenerEnabled: false,
-		OwnerEmail:                    "gustavo.gardusi@orkes.io",
-		TimeoutPolicy:                 "ALERT_ONLY",
-		TimeoutSeconds:                0,
-	}
-
-	TREASURE_TASK_DEFINITION = model.TaskDef{
-		Name:                        TREASURE_CHEST_TASK_NAME,
-		Description:                 "Go task example from code",
-		RetryCount:                  3,
-		TimeoutSeconds:              300,
-		InputKeys:                   []string{"importantValue"},
-		OutputKeys:                  make([]string, 0),
-		TimeoutPolicy:               "TIME_OUT_WF",
-		RetryLogic:                  "FIXED",
-		RetryDelaySeconds:           10,
-		ResponseTimeoutSeconds:      180,
-		RateLimitPerFrequency:       0,
-		RateLimitFrequencyInSeconds: 1,
-		OwnerEmail:                  "gustavo.gardusi@orkes.io",
-		BackoffScaleFactor:          1,
-	}
-
-	IMPORTANT_VALUE = "Go is really nice :)"
-
-	TREASURE_WORKFLOW_INPUT = &TreasureChest{
-		ImportantValue: IMPORTANT_VALUE,
-	}
-)
 
 func StartWorkflows(workflowQty int, workflowName string) ([]string, error) {
 	workflowIdList := make([]string, workflowQty)
@@ -269,12 +207,16 @@ func ValidateTaskRegistration(taskDefs ...model.TaskDef) error {
 }
 
 func ValidateWorkflowRegistration(workflow *workflow.ConductorWorkflow) error {
-	err := workflow.Register(true)
-	if err != nil {
-		log.Error("Failed to validate workflow registration. Reason: ", err.Error())
-		return err
+	for attempt := 0; attempt < 5; attempt += 1 {
+		err := workflow.Register(true)
+		if err != nil {
+			time.Sleep(time.Duration(attempt+2) * time.Second)
+			fmt.Println("Failed to validate workflow registration, reason: " + err.Error())
+			continue
+		}
+		return nil
 	}
-	return nil
+	return fmt.Errorf("exhausted retries")
 }
 
 func isWorkflowCompleted(workflow *model.Workflow) bool {
