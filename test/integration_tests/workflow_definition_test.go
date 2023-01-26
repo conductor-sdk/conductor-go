@@ -180,11 +180,9 @@ func TestExecuteWorkflowSync(t *testing.T) {
 }
 
 func startWorkers() {
-	taskNames := make([]string, 10)
-	for i := 0; i < 10; i += 1 {
-		taskNames[i] = fmt.Sprintf("simple_task_%d", i)
+	taskNames := []string{
+		"simple_task", "dynamic_fork_prep",
 	}
-	taskNames = append(taskNames, "dynamic_fork_prep")
 	for _, taskName := range taskNames {
 		testdata.TaskRunner.StartWorker(taskName, testdata.SimpleWorker, 1, 100*time.Millisecond)
 	}

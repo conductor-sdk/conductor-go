@@ -20,7 +20,7 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 	simpleWorkflow := workflow.NewConductorWorkflow(executor).
 		Name("inline_sub").
 		Add(
-			workflow.NewSimpleTask("simple_task", "simple_task_0"),
+			workflow.NewSimpleTask("simple_task", "simple_task_1"),
 		)
 	subWorkflowInline := workflow.NewSubWorkflowInlineTask(
 		"sub_flow_inline",
@@ -28,12 +28,12 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 	)
 	decide := workflow.NewSwitchTask("fact_length", "$.number < 15 ? 'LONG':'LONG'").
 		Description("Fail if the fact is too short").
-		Input("number", "${get_data.output.number}").
+		Input("number", "${simple_task_0.output.key2}").
 		UseJavascript(true).
 		SwitchCase(
 			"LONG",
-			workflow.NewSimpleTask("simple_task", "simple_task_1"),
-			workflow.NewSimpleTask("simple_task", "simple_task_1"),
+			workflow.NewSimpleTask("simple_task", "simple_task_2"),
+			workflow.NewSimpleTask("simple_task", "simple_task_3"),
 		).
 		SwitchCase(
 			"SHORT",
