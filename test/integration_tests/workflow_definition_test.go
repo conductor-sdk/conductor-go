@@ -32,7 +32,6 @@ func TestWorkflowCreation(t *testing.T) {
 		t.Fatalf("Failed to complete the workflow, reason: %s", err)
 	}
 	assert.NotEmpty(t, run, "Workflow is null", run)
-	fmt.Println("workflowId: ", run.WorkflowId)
 	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
 	assert.Equal(t, "input1", run.Input["key1"])
 }
@@ -48,7 +47,6 @@ func TestRemoveWorkflow(t *testing.T) {
 
 	id, err := executor.StartWorkflow(&model.StartWorkflowRequest{Name: wf.GetName()})
 	assert.NoError(t, err, "Failed to start workflow")
-	fmt.Print("Id of the workflow, ", id)
 
 	execution, err := executor.GetWorkflow(id, true)
 	assert.NoError(t, err, "Failed to get workflow execution")
@@ -91,7 +89,6 @@ func TestExecuteWorkflow(t *testing.T) {
 		},
 	)
 	assert.NoError(t, err, "Failed to start workflow")
-	fmt.Print("Id of the workflow, ", run.WorkflowId)
 	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
 
 	execution, err := executor.GetWorkflow(run.WorkflowId, true)
@@ -164,7 +161,6 @@ func TestExecuteWorkflowSync(t *testing.T) {
 		t.Fatalf("Failed to complete the workflow, reason: %s", err)
 	}
 	assert.NotEmpty(t, run, "Workflow is null", run)
-	fmt.Print("Id of the workflow, ", run.WorkflowId)
 	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
 
 	execution, err := executor.GetWorkflow(run.WorkflowId, true)
