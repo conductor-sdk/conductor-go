@@ -180,8 +180,8 @@ func TestExecuteWorkflowSync(t *testing.T) {
 }
 
 func startWorkers() {
-	testdata.TaskRunner.StartWorker("simple_task", testdata.SimpleWorker, 5, 100*time.Millisecond)
-	testdata.TaskRunner.StartWorker("dynamic_fork_prep", testdata.DynamicForkWorker, 2, 100*time.Millisecond)
+	testdata.TaskRunner.StartWorker("simple_task", testdata.SimpleWorker, 10, 100*time.Millisecond)
+	testdata.TaskRunner.StartWorker("dynamic_fork_prep", testdata.DynamicForkWorker, 3, 100*time.Millisecond)
 }
 
 func executeWorkflowWithRetries(wf *workflow.ConductorWorkflow, workflowInput interface{}) (*model.WorkflowRun, error) {
