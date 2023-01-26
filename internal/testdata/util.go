@@ -207,12 +207,16 @@ func ValidateTaskRegistration(taskDefs ...model.TaskDef) error {
 }
 
 func ValidateWorkflowRegistration(workflow *workflow.ConductorWorkflow) error {
-	err := workflow.Register(true)
-	if err != nil {
-		log.Error("Failed to validate workflow registration. Reason: ", err.Error())
-		return err
+	for attempt := 0; attempt < 5; attempt += 1 {
+		err := workflow.Register(true)
+		if err != nil {
+			time.Sleep(time.Duration(attempt+2) * time.Second)
+			fmt.Println("Failed to validate workflow registration, reason: " + err.Error())
+			continue
+		}
+		return nil
 	}
-	return nil
+	return fmt.Errorf("exhausted retries")
 }
 
 func isWorkflowCompleted(workflow *model.Workflow) bool {
