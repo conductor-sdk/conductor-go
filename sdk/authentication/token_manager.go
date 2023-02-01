@@ -11,18 +11,12 @@ package authentication
 
 import (
 	"net/http"
-	"regexp"
 	"sync"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/patrickmn/go-cache"
 	log "github.com/sirupsen/logrus"
-)
-
-var (
-	jsonCheck = regexp.MustCompile("(?i:[application|text]/json)")
-	xmlCheck  = regexp.MustCompile("(?i:[application|text]/xml)")
 )
 
 const (

@@ -24,11 +24,17 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	log "github.com/sirupsen/logrus"
+)
+
+var (
+	jsonCheck = regexp.MustCompile("(?i:[application|text]/json)")
+	xmlCheck  = regexp.MustCompile("(?i:[application|text]/xml)")
 )
 
 func getToken(credentials settings.AuthenticationSettings, httpSettings *settings.HttpSettings, httpClient *http.Client) (model.Token, *http.Response, error) {
