@@ -27,10 +27,11 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
-	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
+	"github.com/patrickmn/go-cache"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -39,16 +40,20 @@ var (
 	xmlCheck  = regexp.MustCompile("(?i:[application|text]/xml)")
 )
 
+const (
+	tokenKey = "TOKEN_KEY"
+)
+
 type TokenManager struct {
-	token       optional.String
 	mutex       sync.RWMutex
 	credentials settings.AuthenticationSettings
+	database    cache.Cache
 }
 
-func NewTokenManager(credentials settings.AuthenticationSettings) *TokenManager {
+func NewTokenManager(credentials settings.AuthenticationSettings, defaultExpiration time.Duration, cleanupInterval time.Duration) *TokenManager {
 	return &TokenManager{
 		credentials: credentials,
-		token:       optional.EmptyString(),
+		database:    *cache.New(defaultExpiration, cleanupInterval),
 	}
 }
 
@@ -63,8 +68,9 @@ func (t *TokenManager) RefreshToken(httpSettings *settings.HttpSettings, httpCli
 func (t *TokenManager) getTokenIfCached() string {
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()
-	if t.token.IsSet() {
-		return t.token.Value()
+	token, found := t.database.Get(tokenKey)
+	if found {
+		return token.(string)
 	}
 	return ""
 }
@@ -80,11 +86,11 @@ func (t *TokenManager) refreshToken(httpSettings *settings.HttpSettings, httpCli
 			", response: ", response,
 			", error: ", err,
 		)
-		t.token = optional.EmptyString()
+		t.database.Delete(tokenKey)
 		return "", err
 	}
 	log.Debug("Refreshed authentication token")
-	t.token = optional.NewString(token.Token)
+	t.database.Set(tokenKey, token.Token, cache.DefaultExpiration)
 	return token.Token, nil
 }
 
