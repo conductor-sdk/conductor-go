@@ -29,6 +29,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/conductor-sdk/conductor-go/sdk/authentication"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/sirupsen/logrus"
 )
@@ -46,15 +47,33 @@ func NewAPIClient(
 	authenticationSettings *settings.AuthenticationSettings,
 	httpSettings *settings.HttpSettings,
 ) *APIClient {
+	return newAPIClient(
+		authenticationSettings,
+		httpSettings,
+		nil,
+	)
+}
+
+func NewAPIClientWithTokenExpiration(
+	authenticationSettings *settings.AuthenticationSettings,
+	httpSettings *settings.HttpSettings,
+	tokenExpiration *authentication.TokenExpiration,
+) *APIClient {
+	return newAPIClient(
+		authenticationSettings,
+		httpSettings,
+		tokenExpiration,
+	)
+}
+
+func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings, tokenExpiration *authentication.TokenExpiration) *APIClient {
 	if httpSettings == nil {
 		httpSettings = settings.NewHttpDefaultSettings()
 	}
-
 	baseDialer := &net.Dialer{
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,
 	}
-
 	netTransport := &http.Transport{
 		DialContext:         baseDialer.DialContext,
 		MaxIdleConns:        100,
@@ -69,7 +88,7 @@ func NewAPIClient(
 	}
 	return &APIClient{
 		httpRequester: NewHttpRequester(
-			authenticationSettings, httpSettings, &client,
+			authenticationSettings, httpSettings, &client, tokenExpiration,
 		),
 	}
 }

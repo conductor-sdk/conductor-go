@@ -19,7 +19,6 @@ import (
 	"net/url"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/conductor-sdk/conductor-go/sdk/authentication"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
@@ -31,14 +30,12 @@ type HttpRequester struct {
 	tokenManager *authentication.TokenManager
 }
 
-func NewHttpRequester(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings, httpClient *http.Client) *HttpRequester {
+func NewHttpRequester(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings, httpClient *http.Client, tokenExpiration *authentication.TokenExpiration) *HttpRequester {
 	var tokenManager *authentication.TokenManager
 	tokenManager = nil
 	if authenticationSettings != nil && !authenticationSettings.IsEmpty() {
 		tokenManager = authentication.NewTokenManager(
-			*authenticationSettings,
-			30*time.Minute,
-			2*time.Hour,
+			*authenticationSettings, tokenExpiration,
 		)
 	}
 	return &HttpRequester{

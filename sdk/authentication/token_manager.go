@@ -12,7 +12,6 @@ package authentication
 import (
 	"net/http"
 	"sync"
-	"time"
 
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/patrickmn/go-cache"
@@ -29,10 +28,16 @@ type TokenManager struct {
 	database    cache.Cache
 }
 
-func NewTokenManager(credentials settings.AuthenticationSettings, defaultExpiration time.Duration, cleanupInterval time.Duration) *TokenManager {
+func NewTokenManager(credentials settings.AuthenticationSettings, tokenExpiration *TokenExpiration) *TokenManager {
+	if tokenExpiration == nil {
+		tokenExpiration = NewDefaultTokenExpiration()
+	}
 	return &TokenManager{
 		credentials: credentials,
-		database:    *cache.New(defaultExpiration, cleanupInterval),
+		database: *cache.New(
+			tokenExpiration.DefaultExpiration,
+			tokenExpiration.CleanupInterval,
+		),
 	}
 }
 
