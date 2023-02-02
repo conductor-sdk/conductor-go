@@ -16,6 +16,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/conductor-sdk/conductor-go/sdk/authentication"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
@@ -90,9 +91,13 @@ func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, wo
 }
 
 func getApiClientWithAuthentication() *client.APIClient {
-	return client.NewAPIClient(
+	return client.NewAPIClientWithTokenExpiration(
 		getAuthenticationSettings(),
 		getHttpSettingsWithAuth(),
+		authentication.NewTokenExpiration(
+			3*time.Second,
+			30*time.Second,
+		),
 	)
 }
 
