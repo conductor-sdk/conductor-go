@@ -44,9 +44,10 @@ func NewWorkerPropertiesCustom(taskName string, executeFunction model.ExecuteTas
 		TaskName:             taskName,
 		ExecuteFunction:      executeFunction,
 		batchSize:            batchSize,
-		runningWorkerCounter: 0,
-		pollInterval:         pollInterval,
 		paused:               false,
+		pollInterval:         pollInterval,
+		runningWorkerCounter: 0,
+		taskDomain:           "",
 	}
 }
 
@@ -131,10 +132,8 @@ func (w *WorkerProperties) SetTaskDomain(taskDomain string) {
 	)
 }
 
-func (w *WorkerProperties) GetRunningWorkers() int {
-	w.runningWorkerCounterMutex.RLock()
-	defer w.runningWorkerCounterMutex.RUnlock()
-	return w.runningWorkerCounter
+func (w *WorkerProperties) GetAvailableWorkers() int {
+	return w.GetBatchSize() - w.getRunningWorkers()
 }
 
 func (w *WorkerProperties) IncrementRunningWorker(amount int) {
@@ -143,7 +142,7 @@ func (w *WorkerProperties) IncrementRunningWorker(amount int) {
 	previousValue := w.runningWorkerCounter
 	w.runningWorkerCounter += amount
 	log.Trace(
-		"Increased running workers for task: ", w.TaskName,
+		"Increased runningWorkerCounter for task: ", w.TaskName,
 		", from: ", previousValue,
 		", to: ", w.runningWorkerCounter,
 	)
@@ -159,4 +158,10 @@ func (w *WorkerProperties) DecreaseRunningWorker() {
 		", from: ", previousValue,
 		", to: ", w.runningWorkerCounter,
 	)
+}
+
+func (w *WorkerProperties) getRunningWorkers() int {
+	w.runningWorkerCounterMutex.RLock()
+	defer w.runningWorkerCounterMutex.RUnlock()
+	return w.runningWorkerCounter
 }
