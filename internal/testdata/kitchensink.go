@@ -20,7 +20,7 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 	simpleWorkflow := workflow.NewConductorWorkflow(executor).
 		Name("inline_sub").
 		Add(
-			workflow.NewSimpleTask("simple_task", "simple_task_0"),
+			workflow.NewSimpleTask("simple_task", "simple_task_1"),
 		)
 	subWorkflowInline := workflow.NewSubWorkflowInlineTask(
 		"sub_flow_inline",
@@ -28,12 +28,12 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 	)
 	decide := workflow.NewSwitchTask("fact_length", "$.number < 15 ? 'LONG':'LONG'").
 		Description("Fail if the fact is too short").
-		Input("number", "${get_data.output.number}").
+		Input("number", "${simple_task_0.output.key2}").
 		UseJavascript(true).
 		SwitchCase(
 			"LONG",
-			workflow.NewSimpleTask("simple_task", "simple_task_1"),
-			workflow.NewSimpleTask("simple_task", "simple_task_1"),
+			workflow.NewSimpleTask("simple_task", "simple_task_2"),
+			workflow.NewSimpleTask("simple_task", "simple_task_3"),
 		).
 		SwitchCase(
 			"SHORT",
@@ -102,31 +102,31 @@ func DynamicForkWorker(t *model.Task) (output interface{}, err error) {
 	taskResult := model.NewTaskResultFromTask(t)
 	tasks := []WorkflowTask{
 		{
-			Name:              "simple_task_1",
-			TaskReferenceName: "simple_task_11",
+			Name:              "simple_task",
+			TaskReferenceName: "simple_task_6",
 			Type:              "SIMPLE",
 		},
 		{
-			Name:              "simple_task_3",
-			TaskReferenceName: "simple_task_12",
+			Name:              "simple_task",
+			TaskReferenceName: "simple_task_7",
 			Type:              "SIMPLE",
 		},
 		{
-			Name:              "simple_task_5",
-			TaskReferenceName: "simple_task_13",
+			Name:              "simple_task",
+			TaskReferenceName: "simple_task_8",
 			Type:              "SIMPLE",
 		},
 	}
 	inputs := map[string]interface{}{
-		"simple_task_11": map[string]interface{}{
+		"simple_task_6": map[string]interface{}{
 			"key1": "value1",
 			"key2": 121,
 		},
-		"simple_task_12": map[string]interface{}{
+		"simple_task_7": map[string]interface{}{
 			"key1": "value2",
 			"key2": 122,
 		},
-		"simple_task_13": map[string]interface{}{
+		"simple_task_8": map[string]interface{}{
 			"key1": "value3",
 			"key2": 123,
 		},
