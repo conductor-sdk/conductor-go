@@ -15,7 +15,7 @@ import (
 
 type DynamicForkTask struct {
 	Task
-	preForkTask TaskInterface
+	preForkTask *TaskInterface
 	join        JoinTask
 }
 
@@ -34,7 +34,21 @@ func NewDynamicForkTask(taskRefName string, forkPrepareTask TaskInterface) *Dyna
 			optional:          false,
 			inputParameters:   map[string]interface{}{},
 		},
-		preForkTask: forkPrepareTask,
+		preForkTask: &forkPrepareTask,
+	}
+}
+
+func NewDynamicForkTaskWithoutPrepareTask(taskRefName string) *DynamicForkTask {
+	return &DynamicForkTask{
+		Task: Task{
+			name:              taskRefName,
+			taskReferenceName: taskRefName,
+			description:       "",
+			taskType:          FORK_JOIN_DYNAMIC,
+			optional:          false,
+			inputParameters:   map[string]interface{}{},
+		},
+		preForkTask: nil,
 	}
 }
 
@@ -48,7 +62,7 @@ func NewDynamicForkWithJoinTask(taskRefName string, forkPrepareTask TaskInterfac
 			optional:          false,
 			inputParameters:   map[string]interface{}{},
 		},
-		preForkTask: forkPrepareTask,
+		preForkTask: &forkPrepareTask,
 		join:        join,
 	}
 }
@@ -57,12 +71,17 @@ func (task *DynamicForkTask) toWorkflowTask() []model.WorkflowTask {
 	forkWorkflowTask := task.Task.toWorkflowTask()[0]
 	forkWorkflowTask.DynamicForkTasksParam = forkedTasks
 	forkWorkflowTask.DynamicForkTasksInputParamName = forkedTasksInputs
-	forkWorkflowTask.InputParameters[forkedTasks] = (task.preForkTask).OutputRef(forkedTasks)
-	forkWorkflowTask.InputParameters[forkedTasksInputs] = (task.preForkTask).OutputRef(forkedTasksInputs)
-	tasks := (task.preForkTask).toWorkflowTask()
-	tasks = append(tasks, forkWorkflowTask, task.getJoinTask())
-
-	return tasks
+	if task.preForkTask != nil {
+		forkWorkflowTask.InputParameters[forkedTasks] = (*task.preForkTask).OutputRef(forkedTasks)
+		forkWorkflowTask.InputParameters[forkedTasksInputs] = (*task.preForkTask).OutputRef(forkedTasksInputs)
+		tasks := (*task.preForkTask).toWorkflowTask()
+		tasks = append(tasks, forkWorkflowTask, task.getJoinTask())
+		return tasks
+	}
+	return []model.WorkflowTask{
+		forkWorkflowTask,
+		task.getJoinTask(),
+	}
 }
 
 func (task *DynamicForkTask) getJoinTask() model.WorkflowTask {
