@@ -218,3 +218,34 @@ func TestSwitchTask(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestDynamicForkWorkflow(t *testing.T) {
+	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("dynamic_workflow_array_sub_workflow").
+		Version(1).
+		Add(createDynamicForkTask())
+	err := wf.Register(true)
+	if err != nil {
+		t.Fatal()
+	}
+}
+
+func createDynamicForkTask() *workflow.DynamicForkTask {
+	return workflow.NewDynamicForkTaskWithoutPrepareTask(
+		"dynamic_workflow_array_sub_workflow",
+	).Input(
+		"forkTaskWorkflow", "extract_user",
+	).Input(
+		"forkTaskInputs", []map[string]interface{}{
+			{
+				"input": "value1",
+			},
+			{
+				"sub_workflow_2_inputs": map[string]interface{}{
+					"key":  "value",
+					"key2": 23,
+				},
+			},
+		},
+	)
+}
