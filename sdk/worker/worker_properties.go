@@ -22,17 +22,17 @@ type WorkerProperties struct {
 	TaskName        string
 	ExecuteFunction model.ExecuteTaskFunction
 
-	batchSize            int
-	paused               bool
-	pollInterval         time.Duration
-	runningWorkerCounter int
-	taskDomain           string
+	availableWorkerChannel chan int
 
-	batchSizeMutex            sync.RWMutex
-	pausedMutex               sync.RWMutex
-	pollIntervalMutex         sync.RWMutex
-	runningWorkerCounterMutex sync.RWMutex
-	taskDomainMutex           sync.RWMutex
+	batchSize    int
+	paused       bool
+	pollInterval time.Duration
+	taskDomain   string
+
+	batchSizeMutex    sync.RWMutex
+	pausedMutex       sync.RWMutex
+	pollIntervalMutex sync.RWMutex
+	taskDomainMutex   sync.RWMutex
 }
 
 func NewWorkerProperties(taskName string, executeFunction model.ExecuteTaskFunction) *WorkerProperties {
@@ -41,13 +41,13 @@ func NewWorkerProperties(taskName string, executeFunction model.ExecuteTaskFunct
 
 func NewWorkerPropertiesCustom(taskName string, executeFunction model.ExecuteTaskFunction, batchSize int, pollInterval time.Duration) *WorkerProperties {
 	return &WorkerProperties{
-		TaskName:             taskName,
-		ExecuteFunction:      executeFunction,
-		batchSize:            batchSize,
-		paused:               false,
-		pollInterval:         pollInterval,
-		runningWorkerCounter: 0,
-		taskDomain:           "",
+		TaskName:               taskName,
+		ExecuteFunction:        executeFunction,
+		availableWorkerChannel: make(chan int),
+		batchSize:              batchSize,
+		paused:                 false,
+		pollInterval:           pollInterval,
+		taskDomain:             "",
 	}
 }
 
@@ -132,36 +132,20 @@ func (w *WorkerProperties) SetTaskDomain(taskDomain string) {
 	)
 }
 
-func (w *WorkerProperties) GetAvailableWorkers() int {
-	return w.GetBatchSize() - w.getRunningWorkers()
-}
-
-func (w *WorkerProperties) IncrementRunningWorker(amount int) {
-	w.runningWorkerCounterMutex.Lock()
-	defer w.runningWorkerCounterMutex.Unlock()
-	previousValue := w.runningWorkerCounter
-	w.runningWorkerCounter += amount
-	log.Trace(
-		"Increased runningWorkerCounter for task: ", w.TaskName,
-		", from: ", previousValue,
-		", to: ", w.runningWorkerCounter,
-	)
-}
-
-func (w *WorkerProperties) DecreaseRunningWorker() {
-	w.runningWorkerCounterMutex.Lock()
-	defer w.runningWorkerCounterMutex.Unlock()
-	previousValue := w.runningWorkerCounter
-	w.runningWorkerCounter -= 1
-	log.Trace(
-		"Decreased runningWorkerCounter for task: ", w.TaskName,
-		", from: ", previousValue,
-		", to: ", w.runningWorkerCounter,
-	)
-}
-
-func (w *WorkerProperties) getRunningWorkers() int {
-	w.runningWorkerCounterMutex.RLock()
-	defer w.runningWorkerCounterMutex.RUnlock()
-	return w.runningWorkerCounter
+func (w *WorkerProperties) GetAvailableWorkers() (int, error) {
+	availableWorkers := 0
+	for {
+		select {
+		case value, ok := <-w.availableWorkerChannel:
+			if ok {
+				availableWorkers += value
+			} else {
+				return 0, fmt.Errorf("available worker channel closed")
+			}
+		default:
+			log.Trace("No more available workers to receive for taskName: ", w.TaskName)
+			break
+		}
+	}
+	return availableWorkers, nil
 }
