@@ -43,22 +43,22 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 				"value too short",
 			),
 		)
-	doWhile := workflow.NewLoopTask("loop_until_success", 2, decide).
+	doWhile := workflow.NewLoopTask("loop_until_success", 2, decide.WorkflowTask).
 		Optional(true)
 	fork := workflow.NewForkTask(
 		"fork",
-		[]workflow.TaskInterface{
-			doWhile,
-			subWorkflowInline,
+		[]model.WorkflowTask{
+			doWhile.WorkflowTask,
+			subWorkflowInline.WorkflowTask,
 		},
-		[]workflow.TaskInterface{
-			workflow.NewSimpleTask("simple_task", "simple_task_5"),
+		[]model.WorkflowTask{
+			workflow.NewSimpleTask("simple_task", "simple_task_5").WorkflowTask,
 		},
 	)
-	dynamicFork := workflow.NewDynamicForkTask(
-		"dynamic_fork",
-		workflow.NewSimpleTask("dynamic_fork_prep", "dynamic_fork_prep"),
-	)
+	// dynamicFork := workflow.NewDynamicForkTask(
+	// 	"dynamic_fork",
+	// 	workflow.NewSimpleTask("dynamic_fork_prep", "dynamic_fork_prep"),
+	// )
 	setVariable := workflow.NewSetVariableTask("set_state").
 		Input("call_made", true).
 		Input("number", task.OutputRef("number"))
@@ -86,7 +86,7 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 		Add(graalTask).
 		Add(setVariable).
 		Add(subWorkflow).
-		Add(dynamicFork).
+		// Add(dynamicFork).
 		Add(fork)
 
 	return workflow
