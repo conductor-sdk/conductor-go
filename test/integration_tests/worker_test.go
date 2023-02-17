@@ -94,3 +94,29 @@ func TestFaultyWorker(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestWorkerWithNonRetryableError(t *testing.T) {
+	logrus.SetLevel(logrus.TraceLevel)
+	taskName := "TEST_GO_NON_RETRYABLE_ERROR_TASK"
+	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("TEST_GO_NON_RETRYABLE_ERROR_WF").
+		Version(1).
+		Add(workflow.NewSimpleTask(taskName, taskName))
+	err := wf.Register(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = testdata.TaskRunner.StartWorker(
+		taskName,
+		testdata.FaultyWorker,
+		5,
+		testdata.WorkerPollInterval,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = testdata.ValidateWorkflow(wf, 5*time.Second, model.FailedWorkflow)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

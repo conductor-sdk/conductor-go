@@ -138,3 +138,7 @@ func FaultyWorker(task *model.Task) (interface{}, error) {
 	}
 	return taskResult, fmt.Errorf("random error")
 }
+
+func WorkerWithNonRetryableError(task *model.Task) (interface{}, error) {
+	return nil, model.NewNonRetryableError(fmt.Errorf("testing out some error stuff"))
+}
