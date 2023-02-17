@@ -100,7 +100,7 @@ func TestHttpTask(t *testing.T) {
 		OwnerEmail("test@orkes.io").
 		Version(1).
 		Add(httpTask)
-	err := testdata.ValidateWorkflow(httpTaskWorkflow, workflowValidationTimeout)
+	err := testdata.ValidateWorkflow(httpTaskWorkflow, workflowValidationTimeout, model.CompletedWorkflow)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -128,7 +128,7 @@ func TestSimpleTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = testdata.ValidateWorkflow(simpleTaskWorkflow, workflowValidationTimeout)
+	err = testdata.ValidateWorkflow(simpleTaskWorkflow, workflowValidationTimeout, model.CompletedWorkflow)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -150,7 +150,7 @@ func TestInlineTask(t *testing.T) {
 		Name("TEST_GO_WORKFLOW_INLINE_TASK").
 		Version(1).
 		Add(inlineTask)
-	err := testdata.ValidateWorkflow(inlineTaskWorkflow, workflowValidationTimeout)
+	err := testdata.ValidateWorkflow(inlineTaskWorkflow, workflowValidationTimeout, model.CompletedWorkflow)
 	if err != nil {
 		t.Fatal(err)
 	}

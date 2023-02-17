@@ -33,8 +33,13 @@ func NewTaskResultFromTask(task *Task) *TaskResult {
 
 func NewTaskResultFromTaskWithError(t *Task, err error) *TaskResult {
 	taskResult := NewTaskResultFromTask(t)
-	taskResult.Status = FailedTask
 	taskResult.ReasonForIncompletion = err.Error()
+	switch err.(type) {
+	case *NonRetryableError:
+		taskResult.Status = FailedWithTerminalErrorTask
+	default:
+		taskResult.Status = FailedTask
+	}
 	return taskResult
 }
 

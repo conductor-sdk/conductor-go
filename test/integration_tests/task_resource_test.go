@@ -11,10 +11,11 @@ package integration_tests
 
 import (
 	"context"
-	"github.com/conductor-sdk/conductor-go/internal/testdata"
-	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"testing"
 	"time"
+
+	"github.com/conductor-sdk/conductor-go/internal/testdata"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
 func TestUpdateTaskRefByName(t *testing.T) {
@@ -55,6 +56,7 @@ func TestUpdateTaskRefByName(t *testing.T) {
 		errorChannel,
 		workflowId,
 		outputData,
+		model.CompletedWorkflow,
 	)
 	err = <-errorChannel
 	if err != nil {

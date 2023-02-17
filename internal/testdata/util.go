@@ -62,7 +62,7 @@ func init() {
 	log.SetLevel(log.DebugLevel)
 }
 
-func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, workflowId string, expectedOutput map[string]interface{}) {
+func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, workflowId string, expectedOutput map[string]interface{}, expectedStatus model.WorkflowStatus) {
 	time.Sleep(waitTime)
 	workflow, _, err := WorkflowClient.GetExecutionStatus(
 		context.Background(),
@@ -73,7 +73,7 @@ func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, wo
 		outputChannel <- err
 		return
 	}
-	if !isWorkflowCompleted(&workflow) {
+	if !isWorkflowCompleted(&workflow, expectedStatus) {
 		outputChannel <- fmt.Errorf(
 			"workflow status different than expected, workflowId: %s, workflowStatus: %s",
 			workflow.WorkflowId, workflow.Status,
@@ -136,7 +136,7 @@ func StartWorkflows(workflowQty int, workflowName string) ([]string, error) {
 	return workflowIdList, nil
 }
 
-func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout time.Duration) error {
+func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout time.Duration, expectedStatus model.WorkflowStatus) error {
 	err := ValidateWorkflowRegistration(conductorWorkflow)
 	if err != nil {
 		return err
@@ -159,7 +159,7 @@ func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout tim
 		return err
 	}
 	log.Debug("Workflow completed, workflowId: ", workflowId)
-	if !isWorkflowCompleted(workflow) {
+	if !isWorkflowCompleted(workflow, expectedStatus) {
 		return fmt.Errorf("workflow finished with unexpected status: %s", workflow.Status)
 	}
 	return nil
@@ -189,7 +189,7 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 		if runningWorkflow.CompletedWorkflow == nil {
 			return fmt.Errorf("invalid completed workflows")
 		}
-		if !isWorkflowCompleted(runningWorkflow.CompletedWorkflow) {
+		if !isWorkflowCompleted(runningWorkflow.CompletedWorkflow, model.CompletedWorkflow) {
 			return fmt.Errorf("workflow finished with status: %s", runningWorkflow.CompletedWorkflow.Status)
 		}
 	}
@@ -224,6 +224,6 @@ func ValidateWorkflowRegistration(workflow *workflow.ConductorWorkflow) error {
 	return fmt.Errorf("exhausted retries")
 }
 
-func isWorkflowCompleted(workflow *model.Workflow) bool {
-	return workflow.Status == model.CompletedWorkflow
+func isWorkflowCompleted(workflow *model.Workflow, expectedStatus model.WorkflowStatus) bool {
+	return workflow.Status == expectedStatus
 }
