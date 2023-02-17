@@ -33,7 +33,7 @@ const batchPollNoAvailableWorkerRetryInterval = 1 * time.Millisecond
 
 var hostname, _ = os.Hostname()
 
-//TaskRunner Runner for the Task Workers.  Task Runners implements the polling and execution logic for the workers
+// TaskRunner Runner for the Task Workers.  Task Runners implements the polling and execution logic for the workers
 type TaskRunner struct {
 	conductorTaskResourceClient *client.TaskResourceApiService
 
@@ -75,20 +75,20 @@ func NewTaskRunnerWithApiClient(
 }
 
 // StartWorkerWithDomain
-//  - taskName Task name to poll and execute the work
-//  - executeFunction Task execution function
-//  - batchSize Amount of tasks to be polled. Each polled task will be executed and updated within its own unique goroutine.
-//  - pollInterval Time to wait for between polls if there are no tasks available. Reduces excessive polling on the server when there is no work
-//  - domain Task domain. Optional for polling
+//   - taskName Task name to poll and execute the work
+//   - executeFunction Task execution function
+//   - batchSize Amount of tasks to be polled. Each polled task will be executed and updated within its own unique goroutine.
+//   - pollInterval Time to wait for between polls if there are no tasks available. Reduces excessive polling on the server when there is no work
+//   - domain Task domain. Optional for polling
 func (c *TaskRunner) StartWorkerWithDomain(taskName string, executeFunction model.ExecuteTaskFunction, batchSize int, pollInterval time.Duration, domain string) error {
 	return c.startWorker(taskName, executeFunction, batchSize, pollInterval, domain)
 }
 
 // StartWorker
-//  - taskName Task name to poll and execute the work
-//  - executeFunction Task execution function
-//  - batchSize Amount of tasks to be polled. Each polled task will be executed and updated within its own unique goroutine.
-//  - pollInterval Time to wait for between polls if there are no tasks available. Reduces excessive polling on the server when there is no work
+//   - taskName Task name to poll and execute the work
+//   - executeFunction Task execution function
+//   - batchSize Amount of tasks to be polled. Each polled task will be executed and updated within its own unique goroutine.
+//   - pollInterval Time to wait for between polls if there are no tasks available. Reduces excessive polling on the server when there is no work
 func (c *TaskRunner) StartWorker(taskName string, executeFunction model.ExecuteTaskFunction, batchSize int, pollInterval time.Duration) error {
 	return c.startWorker(taskName, executeFunction, batchSize, pollInterval, "")
 }
@@ -331,11 +331,25 @@ func (c *TaskRunner) executeTask(t *model.Task, executeFunction model.ExecuteTas
 		t.TaskDefName, float64(spentTime.Milliseconds()),
 	)
 	if err != nil {
-		return model.NewTaskResultFromTaskWithError(t, err), nil
+		log.Debug(
+			"Failed to execute task",
+			", reason: ", err.Error(),
+			", task type: ", t.TaskDefName,
+			", taskId: ", t.TaskId,
+			", workflowId: ", t.WorkflowInstanceId,
+			", response: ", err,
+		)
 	}
-
 	taskResult, err := model.GetTaskResultFromTaskExecutionOutput(t, taskExecutionOutput)
 	if err != nil {
+		log.Debug(
+			"Failed to extract taskResult from generated object",
+			", reason: ", err.Error(),
+			", task type: ", t.TaskDefName,
+			", taskId: ", t.TaskId,
+			", workflowId: ", t.WorkflowInstanceId,
+			", response: ", err,
+		)
 		return model.NewTaskResultFromTaskWithError(t, err), nil
 	}
 	log.Trace(

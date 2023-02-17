@@ -14,7 +14,9 @@ import (
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
+	"github.com/sirupsen/logrus"
 )
 
 func TestWorkerBatchSize(t *testing.T) {
@@ -62,6 +64,32 @@ func TestWorkerBatchSize(t *testing.T) {
 		t.Fatal("unexpected batch size")
 	}
 	err = testdata.ValidateWorkflowBulk(simpleTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestFaultyWorker(t *testing.T) {
+	logrus.SetLevel(logrus.TraceLevel)
+	taskName := "TEST_GO_FAULTY_TASK"
+	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("TEST_GO_FAULTY_WORKFLOW").
+		Version(1).
+		Add(workflow.NewSimpleTask(taskName, taskName))
+	err := wf.Register(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = testdata.TaskRunner.StartWorker(
+		taskName,
+		testdata.FaultyWorker,
+		5,
+		testdata.WorkerPollInterval,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = testdata.ValidateWorkflow(wf, 5*time.Second, model.FailedWithTerminalErrorWorkflow)
 	if err != nil {
 		t.Fatal(err)
 	}

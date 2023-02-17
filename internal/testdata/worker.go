@@ -10,6 +10,7 @@
 package testdata
 
 import (
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -114,6 +115,7 @@ func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]
 			runningWorkflows[i],
 			workflowId,
 			expectedOutput,
+			model.CompletedWorkflow,
 		)
 	}
 	for _, runningWorkflowChannel := range runningWorkflows {
@@ -126,4 +128,13 @@ func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]
 		TaskName,
 		WorkerQty,
 	)
+}
+
+func FaultyWorker(task *model.Task) (interface{}, error) {
+	taskResult := model.NewTaskResultFromTask(task)
+	taskResult.Status = model.FailedWithTerminalErrorTask
+	taskResult.OutputData = map[string]interface{}{
+		"some_relevant_key": "relevant value",
+	}
+	return taskResult, fmt.Errorf("random error")
 }
