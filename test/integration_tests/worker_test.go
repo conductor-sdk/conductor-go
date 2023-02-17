@@ -89,7 +89,7 @@ func TestFaultyWorker(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = testdata.ValidateWorkflow(wf, 5*time.Second, model.FailedWithTerminalErrorWorkflow)
+	err = testdata.ValidateWorkflow(wf, 5*time.Second, model.FailedWorkflow)
 	if err != nil {
 		t.Fatal(err)
 	}
