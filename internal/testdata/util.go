@@ -175,7 +175,7 @@ func ValidateWorkflowBulk(conductorWorkflow *workflow.ConductorWorkflow, timeout
 	for i := 0; i < amount; i += 1 {
 		startWorkflowRequests[i] = model.NewStartWorkflowRequest(
 			conductorWorkflow.GetName(),
-			&version,
+			version,
 			"",
 			make(map[string]interface{}),
 		)
