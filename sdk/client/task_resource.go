@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/antihax/optional"
@@ -28,6 +29,8 @@ var (
 type TaskResourceApiService struct {
 	*APIClient
 }
+
+var hostname, _ = os.Hostname()
 
 /*
 TaskResourceApiService Get the details about each queue
@@ -1394,6 +1397,10 @@ func (a *TaskResourceApiService) UpdateTask(ctx context.Context, taskResult *mod
 	return localVarReturnValue, localVarHttpResponse, nil
 }
 
+type TaskResourceApiUpdateTaskOpts struct {
+	Workerid optional.String
+}
+
 /*
 TaskResourceApiService Update a task By Ref Name
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
@@ -1403,7 +1410,7 @@ TaskResourceApiService Update a task By Ref Name
  * @param status
 @return string
 */
-func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string) (string, *http.Response, error) {
+func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, localVarOptionals *TaskResourceApiUpdateTaskOpts) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -1421,6 +1428,13 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if localVarOptionals == nil || !localVarOptionals.Workerid.IsSet() {
+		localVarOptionals = &TaskResourceApiUpdateTaskOpts{
+			Workerid: optional.NewString(hostname),
+		}
+	}
+	localVarQueryParams.Add("workerid", parameterToString(localVarOptionals.Workerid.Value(), ""))
 
 	// to determine the Content-Type header
 	localVarHttpContentTypes := []string{"application/json"}
