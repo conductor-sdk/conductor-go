@@ -11,12 +11,10 @@ package model
 
 import (
 	"encoding/json"
-	"os"
 
+	"github.com/conductor-sdk/conductor-go/sdk/util"
 	log "github.com/sirupsen/logrus"
 )
-
-var hostname, _ = os.Hostname()
 
 type ExecuteTaskFunction func(t *Task) (interface{}, error)
 
@@ -26,7 +24,7 @@ func NewTaskResultFromTask(task *Task) *TaskResult {
 	return &TaskResult{
 		TaskId:             task.TaskId,
 		WorkflowInstanceId: task.WorkflowInstanceId,
-		WorkerId:           hostname,
+		WorkerId:           util.GetHostname(),
 	}
 
 }
@@ -47,7 +45,7 @@ func NewTaskResult(taskId string, workflowInstanceId string) *TaskResult {
 	return &TaskResult{
 		TaskId:             taskId,
 		WorkflowInstanceId: workflowInstanceId,
-		WorkerId:           hostname,
+		WorkerId:           util.GetHostname(),
 	}
 
 }

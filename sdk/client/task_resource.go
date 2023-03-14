@@ -14,11 +14,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/util"
 )
 
 // Linger please
@@ -29,8 +29,6 @@ var (
 type TaskResourceApiService struct {
 	*APIClient
 }
-
-var hostname, _ = os.Hostname()
 
 /*
 TaskResourceApiService Get the details about each queue
@@ -1431,7 +1429,7 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 
 	if localVarOptionals == nil || !localVarOptionals.Workerid.IsSet() {
 		localVarOptionals = &TaskResourceApiUpdateTaskOpts{
-			Workerid: optional.NewString(hostname),
+			Workerid: optional.NewString(util.GetHostname()),
 		}
 	}
 	localVarQueryParams.Add("workerid", parameterToString(localVarOptionals.Workerid.Value(), ""))
