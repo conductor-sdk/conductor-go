@@ -421,7 +421,7 @@ func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInsta
 	if err != nil {
 		return err
 	}
-	_, response, err := e.taskClient.UpdateTaskByRefName(context.Background(), outputData, workflowInstanceId, taskRefName, string(status), nil)
+	_, response, err := e.taskClient.UpdateTaskByRefName(context.Background(), outputData, workflowInstanceId, taskRefName, string(status))
 	if err != nil {
 		return err
 	}

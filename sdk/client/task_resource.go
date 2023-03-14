@@ -1408,7 +1408,21 @@ TaskResourceApiService Update a task By Ref Name
  * @param status
 @return string
 */
-func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, localVarOptionals *TaskResourceApiUpdateTaskOpts) (string, *http.Response, error) {
+func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string) (string, *http.Response, error) {
+	return a.UpdateTaskByRefNameWithWorkerId(ctx, body, workflowId, taskRefName, status, util.GetHostname())
+}
+
+/*
+TaskResourceApiService Update a task By Ref Name
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ * @param body
+ * @param workflowId
+ * @param taskRefName
+ * @param status
+ * @param workerId
+@return string
+*/
+func (a *TaskResourceApiService) UpdateTaskByRefNameWithWorkerId(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, workerId string) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -1427,12 +1441,7 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarOptionals == nil || !localVarOptionals.Workerid.IsSet() {
-		localVarOptionals = &TaskResourceApiUpdateTaskOpts{
-			Workerid: optional.NewString(util.GetHostname()),
-		}
-	}
-	localVarQueryParams.Add("workerid", parameterToString(localVarOptionals.Workerid.Value(), ""))
+	localVarQueryParams.Add("workerid", workerId)
 
 	// to determine the Content-Type header
 	localVarHttpContentTypes := []string{"application/json"}
