@@ -14,11 +14,16 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
+	"sync"
 
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
+
+var hostname string
+var once sync.Once
 
 // Linger please
 var (
@@ -1404,6 +1409,20 @@ TaskResourceApiService Update a task By Ref Name
 @return string
 */
 func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string) (string, *http.Response, error) {
+	return a.UpdateTaskByRefNameWithWorkerId(ctx, body, workflowId, taskRefName, status, getHostname())
+}
+
+/*
+TaskResourceApiService Update a task By Ref Name
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ * @param body
+ * @param workflowId
+ * @param taskRefName
+ * @param status
+ * @param workerId
+@return string
+*/
+func (a *TaskResourceApiService) UpdateTaskByRefNameWithWorkerId(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, workerId string) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -1421,6 +1440,8 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	localVarQueryParams.Add("workerid", workerId)
 
 	// to determine the Content-Type header
 	localVarHttpContentTypes := []string{"application/json"}
@@ -1484,4 +1505,13 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 	}
 
 	return localVarReturnValue, localVarHttpResponse, nil
+}
+
+func getHostname() string {
+	once.Do(updateHostname)
+	return hostname
+}
+
+func updateHostname() {
+	hostname, _ = os.Hostname()
 }
