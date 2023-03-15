@@ -1399,10 +1399,6 @@ func (a *TaskResourceApiService) UpdateTask(ctx context.Context, taskResult *mod
 	return localVarReturnValue, localVarHttpResponse, nil
 }
 
-type TaskResourceApiUpdateTaskOpts struct {
-	Workerid optional.String
-}
-
 /*
 TaskResourceApiService Update a task By Ref Name
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
