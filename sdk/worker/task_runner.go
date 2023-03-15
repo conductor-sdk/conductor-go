@@ -36,7 +36,15 @@ const (
 
 var hostname, _ = os.Hostname()
 
-// TaskRunner Runner for the Task Workers.  Task Runners implements the polling and execution logic for the workers
+// TaskRunner implements polling and execution logic for a Conductor worker. Every polling interval, each running
+// task attempts to retrieve a from Conductor. Multiple tasks can be started in parallel. All Goroutines started by this
+// worker cannot be stopped, only paused and resumed.
+//
+// Conductor tasks are tracked by name separately. Each TaskRunner tracks a separate poll interval and batch size for
+// each task, which is shared by all workers running that task. For instance, if task "foo" is running with a batch size
+// of n, and k workers, the average number of tasks retrieved during each polling interval is n*k.
+//
+// All methods on TaskRunner are thread-safe.
 type TaskRunner struct {
 	conductorTaskResourceClient *client.TaskResourceApiService
 
@@ -55,6 +63,7 @@ type TaskRunner struct {
 	pausedWorkers      map[string]bool
 }
 
+// NewTaskRunner returns a new TaskRunner which authenticates via HTTP using the provided settings.
 func NewTaskRunner(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings) *TaskRunner {
 	apiClient := client.NewAPIClient(
 		authenticationSettings,
@@ -63,6 +72,8 @@ func NewTaskRunner(authenticationSettings *settings.AuthenticationSettings, http
 	return NewTaskRunnerWithApiClient(apiClient)
 }
 
+// NewTaskRunnerWithApiClient creates a new TaskRunner which uses the provided client.APIClient to communicate with
+// Conductor.
 func NewTaskRunnerWithApiClient(
 	apiClient *client.APIClient,
 ) *TaskRunner {
@@ -77,25 +88,25 @@ func NewTaskRunnerWithApiClient(
 	}
 }
 
-// StartWorkerWithDomain
-//   - taskName Task name to poll and execute the work
-//   - executeFunction Task execution function
-//   - batchSize Amount of tasks to be polled. Each polled task will be executed and updated within its own unique goroutine.
-//   - pollInterval Time to wait for between polls if there are no tasks available. Reduces excessive polling on the server when there is no work
-//   - domain Task domain. Optional for polling
+// StartWorkerWithDomain starts a polling worker on a new goroutine, which only polls for tasks using the provided
+// domain. Equivalent to:
+//
+//	StartWorkerWithDomain(taskName, executeFunction, batchSize, pollInterval, "")
 func (c *TaskRunner) StartWorkerWithDomain(taskName string, executeFunction model.ExecuteTaskFunction, batchSize int, pollInterval time.Duration, domain string) error {
 	return c.startWorker(taskName, executeFunction, batchSize, pollInterval, domain)
 }
 
-// StartWorker
-//   - taskName Task name to poll and execute the work
-//   - executeFunction Task execution function
-//   - batchSize Amount of tasks to be polled. Each polled task will be executed and updated within its own unique goroutine.
-//   - pollInterval Time to wait for between polls if there are no tasks available. Reduces excessive polling on the server when there is no work
+// StartWorker starts a worker on a new goroutine, which polls conductor periodically for tasks matching the provided
+// taskName and, if any are available, uses executeFunction to run them on a separate goroutine. Each call to
+// StartWorker starts a new goroutine which performs batch polling to retrieve as many
+// tasks from Conductor as are available, up to the batchSize set for the task. This func additionally sets the
+// pollInterval and increases the batch size for the task, which applies to all tasks shared by this TaskRunner with the
+// same taskName.
 func (c *TaskRunner) StartWorker(taskName string, executeFunction model.ExecuteTaskFunction, batchSize int, pollInterval time.Duration) error {
 	return c.startWorker(taskName, executeFunction, batchSize, pollInterval, "")
 }
 
+// SetBatchSize can be used to set the batch size for all workers running the provided task.
 func (c *TaskRunner) SetBatchSize(taskName string, batchSize int) error {
 	if batchSize < 0 {
 		return fmt.Errorf("batchSize can not be negative")
@@ -120,6 +131,7 @@ func (c *TaskRunner) SetBatchSize(taskName string, batchSize int) error {
 	return nil
 }
 
+// IncreaseBatchSize increases the batch size used for all workers running the provided task.
 func (c *TaskRunner) IncreaseBatchSize(taskName string, batchSize int) error {
 	if batchSize < 1 {
 		return fmt.Errorf("batchSize value must be positive")
@@ -142,6 +154,7 @@ func (c *TaskRunner) IncreaseBatchSize(taskName string, batchSize int) error {
 	return nil
 }
 
+// DecreaseBatchSize decreases the batch size used for all workers running the provided task.
 func (c *TaskRunner) DecreaseBatchSize(taskName string, batchSize int) error {
 	if batchSize < 1 {
 		return fmt.Errorf("batchSize value must be positive")
@@ -165,14 +178,17 @@ func (c *TaskRunner) DecreaseBatchSize(taskName string, batchSize int) error {
 	return nil
 }
 
-// Pause a running worker.  When paused worker will not poll for new task.  Worker must be resumed using Resume
+// Pause pauses all workers running the provided task. When paused, workers will not poll for new tasks and no new
+// goroutines are started. However it does not stop any goroutines running. Workers must be resumed at a later time
+// using Resume. Failing to call `Resume()` on a TaskRunner running one or more workers can result in a goroutine leak.
 func (c *TaskRunner) Pause(taskName string) {
 	c.pausedWorkersMutex.Lock()
 	defer c.pausedWorkersMutex.Unlock()
 	c.pausedWorkers[taskName] = true
 }
 
-// Resume a running worker.  If the worker is not paused, calling this method has no impact
+// Resume all running workers for the provided taskName. If workers for the provided task are not paused, calling this
+// method has no impact.
 func (c *TaskRunner) Resume(taskName string) {
 	c.pausedWorkersMutex.Lock()
 	defer c.pausedWorkersMutex.Unlock()
@@ -184,6 +200,9 @@ func (c *TaskRunner) isPaused(taskName string) bool {
 	defer c.pausedWorkersMutex.RUnlock()
 	return c.pausedWorkers[taskName]
 }
+
+// WaitWorkers uses an internal waitgroup to block the calling thread until all workers started by this TaskRunner have
+// been stopped.
 func (c *TaskRunner) WaitWorkers() {
 	c.workerWaitGroup.Wait()
 }
@@ -465,6 +484,7 @@ func (c *TaskRunner) increaseMaxAllowedWorkers(taskName string, batchSize int) e
 	return nil
 }
 
+// SetPollIntervalForTask sets the pollInterval for all workers running the task with the provided taskName.
 func (c *TaskRunner) SetPollIntervalForTask(taskName string, pollInterval time.Duration) error {
 	c.pollIntervalByTaskNameMutex.Lock()
 	defer c.pollIntervalByTaskNameMutex.Unlock()
@@ -473,6 +493,8 @@ func (c *TaskRunner) SetPollIntervalForTask(taskName string, pollInterval time.D
 	return nil
 }
 
+// GetPollIntervalForTask retrieves the poll interval for all tasks running the provided taskName. An error is returned
+// if no pollInterval has been registered for the provided task.
 func (c *TaskRunner) GetPollIntervalForTask(taskName string) (pollInterval time.Duration, err error) {
 	c.pollIntervalByTaskNameMutex.RLock()
 	defer c.pollIntervalByTaskNameMutex.RUnlock()
@@ -483,6 +505,8 @@ func (c *TaskRunner) GetPollIntervalForTask(taskName string) (pollInterval time.
 	return pollInterval, nil
 }
 
+// GetBatchSizeForAll returns a map from taskName to batch size for all batch sizes currently registered with this
+// TaskRunner.
 func (c *TaskRunner) GetBatchSizeForAll() (batchSizeByTaskName map[string]int) {
 	c.batchSizeByTaskNameMutex.RLock()
 	defer c.batchSizeByTaskNameMutex.RUnlock()
@@ -493,6 +517,7 @@ func (c *TaskRunner) GetBatchSizeForAll() (batchSizeByTaskName map[string]int) {
 	return batchSizeByTaskName
 }
 
+// GetBatchSizeForTask retrieves the current batch size for the provided task.
 func (c *TaskRunner) GetBatchSizeForTask(taskName string) (batchSize int) {
 	c.batchSizeByTaskNameMutex.RLock()
 	defer c.batchSizeByTaskNameMutex.RUnlock()
