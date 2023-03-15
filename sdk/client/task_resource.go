@@ -14,12 +14,16 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
+	"sync"
 
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"github.com/conductor-sdk/conductor-go/sdk/util"
 )
+
+var hostname string
+var once sync.Once
 
 // Linger please
 var (
@@ -1409,7 +1413,7 @@ TaskResourceApiService Update a task By Ref Name
 @return string
 */
 func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string) (string, *http.Response, error) {
-	return a.UpdateTaskByRefNameWithWorkerId(ctx, body, workflowId, taskRefName, status, util.GetHostname())
+	return a.UpdateTaskByRefNameWithWorkerId(ctx, body, workflowId, taskRefName, status, getHostname())
 }
 
 /*
@@ -1505,4 +1509,13 @@ func (a *TaskResourceApiService) UpdateTaskByRefNameWithWorkerId(ctx context.Con
 	}
 
 	return localVarReturnValue, localVarHttpResponse, nil
+}
+
+func getHostname() string {
+	once.Do(updateHostname)
+	return hostname
+}
+
+func updateHostname() {
+	hostname, _ = os.Hostname()
 }

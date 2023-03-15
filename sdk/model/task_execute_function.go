@@ -11,10 +11,14 @@ package model
 
 import (
 	"encoding/json"
+	"os"
+	"sync"
 
-	"github.com/conductor-sdk/conductor-go/sdk/util"
 	log "github.com/sirupsen/logrus"
 )
+
+var hostname string
+var once sync.Once
 
 type ExecuteTaskFunction func(t *Task) (interface{}, error)
 
@@ -24,9 +28,8 @@ func NewTaskResultFromTask(task *Task) *TaskResult {
 	return &TaskResult{
 		TaskId:             task.TaskId,
 		WorkflowInstanceId: task.WorkflowInstanceId,
-		WorkerId:           util.GetHostname(),
+		WorkerId:           getHostname(),
 	}
-
 }
 
 func NewTaskResultFromTaskWithError(t *Task, err error) *TaskResult {
@@ -45,7 +48,7 @@ func NewTaskResult(taskId string, workflowInstanceId string) *TaskResult {
 	return &TaskResult{
 		TaskId:             taskId,
 		WorkflowInstanceId: workflowInstanceId,
-		WorkerId:           util.GetHostname(),
+		WorkerId:           getHostname(),
 	}
 
 }
@@ -79,4 +82,13 @@ func ConvertToMap(input interface{}) (map[string]interface{}, error) {
 	var parsedInput map[string]interface{}
 	json.Unmarshal(data, &parsedInput)
 	return parsedInput, nil
+}
+
+func getHostname() string {
+	once.Do(updateHostname)
+	return hostname
+}
+
+func updateHostname() {
+	hostname, _ = os.Hostname()
 }
