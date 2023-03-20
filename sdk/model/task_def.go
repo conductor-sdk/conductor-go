@@ -17,7 +17,7 @@ type TaskDef struct {
 	UpdatedBy                   string                 `json:"updatedBy,omitempty"`
 	Name                        string                 `json:"name"`
 	Description                 string                 `json:"description,omitempty"`
-	RetryCount                  int32                  `json:"retryCount,omitempty"`
+	RetryCount                  int32                  `json:"retryCount"`
 	TimeoutSeconds              int64                  `json:"timeoutSeconds"`
 	InputKeys                   []string               `json:"inputKeys,omitempty"`
 	OutputKeys                  []string               `json:"outputKeys,omitempty"`

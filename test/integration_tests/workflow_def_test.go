@@ -145,6 +145,43 @@ func TestSimpleTask(t *testing.T) {
 	}
 }
 
+func TestSimpleTaskWithoutRetryCount(t *testing.T) {
+	taskToRegister := simpleTask.ToTaskDef()
+	taskToRegister.RetryCount = 0
+	err := testdata.ValidateTaskRegistration(*taskToRegister)
+	if err != nil {
+		t.Fatal(err)
+	}
+	simpleTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("TEST_GO_WORKFLOW_SIMPLE").
+		Version(1).
+		Add(simpleTask)
+	err = testdata.TaskRunner.StartWorker(
+		simpleTask.ReferenceName(),
+		testdata.SimpleWorker,
+		testdata.WorkerQty,
+		testdata.WorkerPollInterval,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = testdata.ValidateWorkflow(simpleTaskWorkflow, workflowValidationTimeout, model.CompletedWorkflow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = testdata.ValidateWorkflowBulk(simpleTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = testdata.TaskRunner.DecreaseBatchSize(
+		simpleTask.ReferenceName(),
+		testdata.WorkerQty,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestInlineTask(t *testing.T) {
 	inlineTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_INLINE_TASK").
