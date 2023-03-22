@@ -1409,7 +1409,7 @@ TaskResourceApiService Update a task By Ref Name
 @return string
 */
 func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string) (string, *http.Response, error) {
-	return a.UpdateTaskByRefNameWithWorkerId(ctx, body, workflowId, taskRefName, status, getHostname())
+	return a.updateTaskByRefName(ctx, body, workflowId, taskRefName, status, optional.EmptyString())
 }
 
 /*
@@ -1422,7 +1422,14 @@ TaskResourceApiService Update a task By Ref Name
  * @param workerId
 @return string
 */
-func (a *TaskResourceApiService) UpdateTaskByRefNameWithWorkerId(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, workerId string) (string, *http.Response, error) {
+func (a *TaskResourceApiService) UpdateTaskByRefNameWithWorkerId(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, workerId optional.String) (string, *http.Response, error) {
+	if workerId.IsSet() {
+		return a.updateTaskByRefName(ctx, body, workflowId, taskRefName, status, workerId)
+	}
+	return a.updateTaskByRefName(ctx, body, workflowId, taskRefName, status, optional.NewString(getHostname()))
+}
+
+func (a *TaskResourceApiService) updateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, workerId optional.String) (string, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -1441,7 +1448,9 @@ func (a *TaskResourceApiService) UpdateTaskByRefNameWithWorkerId(ctx context.Con
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	localVarQueryParams.Add("workerid", workerId)
+	if workerId.IsSet() {
+		localVarQueryParams.Add("workerid", workerId.Value())
+	}
 
 	// to determine the Content-Type header
 	localVarHttpContentTypes := []string{"application/json"}
