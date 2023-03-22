@@ -11,7 +11,7 @@ package model
 
 type StartWorkflowRequest struct {
 	Name                            string            `json:"name"`
-	Version                         *int32            `json:"version,omitempty"`
+	Version                         int32             `json:"version,omitempty"`
 	CorrelationId                   string            `json:"correlationId,omitempty"`
 	Input                           interface{}       `json:"input,omitempty"`
 	TaskToDomain                    map[string]string `json:"taskToDomain,omitempty"`
@@ -20,7 +20,16 @@ type StartWorkflowRequest struct {
 	Priority                        int32             `json:"priority,omitempty"`
 }
 
-func NewStartWorkflowRequest(name string, version *int32, correlationId string, input interface{}) *StartWorkflowRequest {
+func NewStartWorkflowRequest(name string, version int32, correlationId string, input interface{}) *StartWorkflowRequest {
+	return &StartWorkflowRequest{
+		Name:          name,
+		Version:       version,
+		CorrelationId: correlationId,
+		Input:         input,
+	}
+}
+
+func NewStartWorkflowRequestLegacy(name string, version int32, correlationId string, input interface{}) *StartWorkflowRequest {
 	return &StartWorkflowRequest{
 		Name:          name,
 		Version:       version,
