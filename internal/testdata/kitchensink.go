@@ -63,7 +63,7 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 		Input("call_made", true).
 		Input("number", task.OutputRef("number"))
 
-	subWorkflow := workflow.NewSubWorkflowTask("sub_flow", "PopulationMinMax", 0)
+	subWorkflow := workflow.NewSubWorkflowTask("sub_flow", "PopulationMinMax", nil)
 
 	jqTask := workflow.NewJQTask("jq", "{ key3: (.key1.value1 + .key2.value2) }")
 	jqTask.Input("key1", map[string]interface{}{

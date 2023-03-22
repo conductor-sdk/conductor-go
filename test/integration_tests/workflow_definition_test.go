@@ -85,7 +85,7 @@ func TestExecuteWorkflow(t *testing.T) {
 	run, err := executeWorkflowWithRetriesWithStartWorkflowRequest(
 		&model.StartWorkflowRequest{
 			Name:    wf.GetName(),
-			Version: version,
+			Version: &version,
 		},
 	)
 	assert.NoError(t, err, "Failed to start workflow")

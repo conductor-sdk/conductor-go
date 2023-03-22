@@ -16,12 +16,12 @@ import (
 type SubWorkflowTask struct {
 	Task
 	workflowName    string
-	version         int32
+	version         *int32
 	taskToDomainMap map[string]string
 	workflow        *ConductorWorkflow
 }
 
-func NewSubWorkflowTask(taskRefName string, workflowName string, version int32) *SubWorkflowTask {
+func NewSubWorkflowTask(taskRefName string, workflowName string, version *int32) *SubWorkflowTask {
 	return &SubWorkflowTask{
 		Task: Task{
 			name:              taskRefName,
