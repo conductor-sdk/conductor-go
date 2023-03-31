@@ -61,14 +61,14 @@ func (task *SwitchTask) toWorkflowTask() []model.WorkflowTask {
 	for caseValue, tasks := range task.DecisionCases {
 		for _, task := range tasks {
 			for _, caseTask := range task.toWorkflowTask() {
-				DecisionCases[caseValue] = append([]model.WorkflowTask{}, caseTask)
+				DecisionCases[caseValue] = append(DecisionCases[caseValue], caseTask)
 			}
 		}
 	}
 	var defaultCase []model.WorkflowTask
 	for _, task := range task.defaultCase {
 		for _, defaultTask := range task.toWorkflowTask() {
-			defaultCase = append([]model.WorkflowTask{}, defaultTask)
+			defaultCase = append(defaultCase, defaultTask)
 		}
 	}
 	workflowTasks := task.Task.toWorkflowTask()
@@ -106,7 +106,7 @@ func (task *SwitchTask) Optional(optional bool) *SwitchTask {
 }
 
 // UseJavascript If set to to true, the caseExpression parameter is treated as a Javascript.
-//If set to false, the caseExpression follows the regular task input mapping format as described in https://conductor.netflix.com/how-tos/Tasks/task-inputs.html
+// If set to false, the caseExpression follows the regular task input mapping format as described in https://conductor.netflix.com/how-tos/Tasks/task-inputs.html
 func (task *SwitchTask) UseJavascript(use bool) *SwitchTask {
 	task.useJavascript = use
 	return task
