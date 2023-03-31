@@ -10,6 +10,8 @@
 package integration_tests
 
 import (
+	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -18,6 +20,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -285,4 +288,38 @@ func createDynamicForkTask() *workflow.DynamicForkTask {
 			},
 		},
 	)
+}
+
+func TestComplexSwitchWorkflow(t *testing.T) {
+	wf := testdata.GetWorkflowWithComplexSwitchTask()
+	err := testdata.ValidateWorkflowRegistration(wf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	receivedWf, _, err := testdata.MetadataClient.Get(context.Background(), wf.GetName(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	counter := countMultipleSwitchInnerTasks(receivedWf.Tasks...)
+	assert.Equal(t, 7, counter)
+}
+
+func countMultipleSwitchInnerTasks(tasks ...model.WorkflowTask) int {
+	counter := 0
+	for _, task := range tasks {
+		counter += countSwitchInnerTasks(task)
+	}
+	return counter
+}
+
+func countSwitchInnerTasks(task model.WorkflowTask) int {
+	fmt.Println(task.Type_)
+	counter := 1
+	if task.Type_ != "SWITCH" {
+		return counter
+	}
+	for _, value := range task.DecisionCases {
+		counter += countMultipleSwitchInnerTasks(value...)
+	}
+	return counter
 }

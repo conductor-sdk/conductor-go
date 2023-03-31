@@ -10,6 +10,9 @@
 package testdata
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
@@ -139,4 +142,26 @@ func DynamicForkWorker(t *model.Task) (output interface{}, err error) {
 	taskResult.Status = model.CompletedTask
 	err = nil
 	return taskResult, err
+}
+
+func GetWorkflowWithComplexSwitchTask() *workflow.ConductorWorkflow {
+	task := workflow.NewSwitchTask("complex_switch_task", "${workflow.input.value}")
+	for i := 0; i < 3; i += 1 {
+		var subtasks []workflow.TaskInterface
+		for j := 0; j <= i; j += 1 {
+			httpTask := workflow.NewHttpTask(
+				fmt.Sprintf("ComplexSwitchTaskGoSDK-%d-%d", i, j),
+				&workflow.HttpInput{
+					Uri: "https://orkes-api-tester.orkesconductor.com/get",
+				},
+			)
+			subtasks = append(subtasks, httpTask)
+		}
+		task.SwitchCase(strconv.Itoa(i), subtasks...)
+	}
+	return workflow.NewConductorWorkflow(WorkflowExecutor).
+		Name("ComplexSwitchWorkflowGoSDK").
+		OwnerEmail("test@orkes.io").
+		Version(1).
+		Add(task)
 }
