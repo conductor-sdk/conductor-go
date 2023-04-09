@@ -11,11 +11,11 @@ import (
 	"strings"
 )
 
-type SchedulerResourceClient struct {
+type SchedulerResourceApiService struct {
 	*APIClient
 }
 
-func (a *SchedulerResourceClient) DeleteSchedule(ctx context.Context, name string) (*http.Response, error) {
+func (a *SchedulerResourceApiService) DeleteSchedule(ctx context.Context, name string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -75,7 +75,7 @@ func (a *SchedulerResourceClient) DeleteSchedule(ctx context.Context, name strin
 	return localVarHttpResponse, nil
 }
 
-func (a *SchedulerResourceClient) DeleteTagForSchedule(ctx context.Context, tags []model.Tag, name string) (*http.Response, error) {
+func (a *SchedulerResourceApiService) DeleteTagForSchedule(ctx context.Context, tags []model.Tag, name string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -141,7 +141,7 @@ type GetAllSchedulesOpts struct {
 	WorkflowName optional.String
 }
 
-func (a *SchedulerResourceClient) GetAllSchedules(ctx context.Context, localVarOptionals *GetAllSchedulesOpts) ([]model.WorkflowSchedule, *http.Response, error) {
+func (a *SchedulerResourceApiService) GetAllSchedules(ctx context.Context, localVarOptionals *GetAllSchedulesOpts) ([]model.WorkflowSchedule, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -223,7 +223,7 @@ func (a *SchedulerResourceClient) GetAllSchedules(ctx context.Context, localVarO
 }
 
 /*
-SchedulerResourceClient Get list of the next x (default 3, max 5) execution times for a scheduler
+SchedulerResourceApiService Get list of the next x (default 3, max 5) execution times for a scheduler
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param cronExpression
  * @param optional nil or *NextFewSchedulesOpts - Optional Parameters:
@@ -239,7 +239,7 @@ type NextFewSchedulesOpts struct {
 	Limit             optional.Int32
 }
 
-func (a *SchedulerResourceClient) GetNextFewSchedules(ctx context.Context, cronExpression string, localVarOptionals *NextFewSchedulesOpts) ([]int64, *http.Response, error) {
+func (a *SchedulerResourceApiService) GetNextFewSchedules(ctx context.Context, cronExpression string, localVarOptionals *NextFewSchedulesOpts) ([]int64, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -328,13 +328,13 @@ func (a *SchedulerResourceClient) GetNextFewSchedules(ctx context.Context, cronE
 }
 
 /*
-SchedulerResourceClient Get an existing workflow schedule by name
+SchedulerResourceApiService Get an existing workflow schedule by name
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param name
 
 @return WorkflowSchedule
 */
-func (a *SchedulerResourceClient) GetSchedule(ctx context.Context, name string) (model.WorkflowSchedule, *http.Response, error) {
+func (a *SchedulerResourceApiService) GetSchedule(ctx context.Context, name string) (model.WorkflowSchedule, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -414,13 +414,13 @@ func (a *SchedulerResourceClient) GetSchedule(ctx context.Context, name string) 
 }
 
 /*
-SchedulerResourceClient Get tags by schedule
+SchedulerResourceApiService Get tags by schedule
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param name
 
 @return []TagObject
 */
-func (a *SchedulerResourceClient) GetTagsForSchedule(ctx context.Context, name string) ([]model.Tag, *http.Response, error) {
+func (a *SchedulerResourceApiService) GetTagsForSchedule(ctx context.Context, name string) ([]model.Tag, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -500,12 +500,12 @@ func (a *SchedulerResourceClient) GetTagsForSchedule(ctx context.Context, name s
 }
 
 /*
-SchedulerResourceClient Pause all scheduling in a single conductor server instance (for debugging only)
+SchedulerResourceApiService Pause all scheduling in a single conductor server instance (for debugging only)
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 
 @return map[string]interface{}
 */
-func (a *SchedulerResourceClient) PauseAllSchedules(ctx context.Context) (map[string]interface{}, *http.Response, error) {
+func (a *SchedulerResourceApiService) PauseAllSchedules(ctx context.Context) (map[string]interface{}, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -584,11 +584,11 @@ func (a *SchedulerResourceClient) PauseAllSchedules(ctx context.Context) (map[st
 }
 
 /*
-SchedulerResourceClient Pauses an existing schedule by name
+SchedulerResourceApiService Pauses an existing schedule by name
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param name
 */
-func (a *SchedulerResourceClient) PauseSchedule(ctx context.Context, name string) (*http.Response, error) {
+func (a *SchedulerResourceApiService) PauseSchedule(ctx context.Context, name string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -648,7 +648,7 @@ func (a *SchedulerResourceClient) PauseSchedule(ctx context.Context, name string
 	return localVarHttpResponse, nil
 }
 
-func (a *SchedulerResourceClient) AddTagForSchedule(ctx context.Context, body []model.Tag, name string) (*http.Response, error) {
+func (a *SchedulerResourceApiService) AddTagForSchedule(ctx context.Context, body []model.Tag, name string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -711,12 +711,12 @@ func (a *SchedulerResourceClient) AddTagForSchedule(ctx context.Context, body []
 }
 
 /*
-SchedulerResourceClient Resume all scheduling
+SchedulerResourceApiService Resume all scheduling
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 
 @return map[string]interface{}
 */
-func (a *SchedulerResourceClient) ResumeAllSchedules(ctx context.Context) (map[string]interface{}, *http.Response, error) {
+func (a *SchedulerResourceApiService) ResumeAllSchedules(ctx context.Context) (map[string]interface{}, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -795,11 +795,11 @@ func (a *SchedulerResourceClient) ResumeAllSchedules(ctx context.Context) (map[s
 }
 
 /*
-SchedulerResourceClient Resume a paused schedule by name
+SchedulerResourceApiService Resume a paused schedule by name
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param name
 */
-func (a *SchedulerResourceClient) ResumeSchedule(ctx context.Context, name string) (*http.Response, error) {
+func (a *SchedulerResourceApiService) ResumeSchedule(ctx context.Context, name string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -860,11 +860,11 @@ func (a *SchedulerResourceClient) ResumeSchedule(ctx context.Context, name strin
 }
 
 /*
-SchedulerResourceClient Create or update a schedule for a specified workflow with a corresponding start workflow request
+SchedulerResourceApiService Create or update a schedule for a specified workflow with a corresponding start workflow request
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
 */
-func (a *SchedulerResourceClient) SaveSchedule(ctx context.Context, body model.SaveScheduleRequest) (*http.Response, error) {
+func (a *SchedulerResourceApiService) SaveSchedule(ctx context.Context, body model.SaveScheduleRequest) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -926,7 +926,7 @@ func (a *SchedulerResourceClient) SaveSchedule(ctx context.Context, body model.S
 }
 
 /*
-SchedulerResourceClient Search for workflows based on payload and other parameters
+SchedulerResourceApiService Search for workflows based on payload and other parameters
 use sort options as sort&#x3D;&lt;field&gt;:ASC|DESC e.g. sort&#x3D;name&amp;sort&#x3D;workflowId:DESC. If order is not specified, defaults to ASC.
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param optional nil or *SchedulerSearchOpts - Optional Parameters:
@@ -946,7 +946,7 @@ type SchedulerSearchOpts struct {
 	Query    optional.String
 }
 
-func (a *SchedulerResourceClient) Search(ctx context.Context, localVarOptionals *SchedulerSearchOpts) (model.SearchResultWorkflowSchedule, *http.Response, error) {
+func (a *SchedulerResourceApiService) Search(ctx context.Context, localVarOptionals *SchedulerSearchOpts) (model.SearchResultWorkflowSchedule, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}

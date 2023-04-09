@@ -6,8 +6,8 @@ import (
 	"net/http"
 )
 
-// SchedulerResourceApiService manage workflow schedules
-type SchedulerResourceApiService interface {
+// SchedulerClient manage workflow schedules
+type SchedulerClient interface {
 	// DeleteSchedule Deletes the schedule given the name
 	DeleteSchedule(ctx context.Context, name string) (*http.Response, error)
 
@@ -48,6 +48,6 @@ type SchedulerResourceApiService interface {
 	Search(ctx context.Context, localVarOptionals *SchedulerSearchOpts) (model.SearchResultWorkflowSchedule, *http.Response, error)
 }
 
-func GetSchedulerService(client *APIClient) SchedulerResourceApiService {
-	return &SchedulerResourceClient{client}
+func GetSchedulerService(client *APIClient) SchedulerClient {
+	return &SchedulerResourceApiService{client}
 }
