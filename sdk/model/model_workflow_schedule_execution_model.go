@@ -1,6 +1,6 @@
 package model
 
-type WorkflowScheduleExecutionModel struct {
+type WorkflowScheduleExecution struct {
 	ExecutionId          string                `json:"executionId,omitempty"`
 	ExecutionTime        int64                 `json:"executionTime,omitempty"`
 	Reason               string                `json:"reason,omitempty"`
