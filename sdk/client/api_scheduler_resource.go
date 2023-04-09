@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -57,8 +56,8 @@ func (a *SchedulerResourceApiService) DeleteSchedule(ctx context.Context, name s
 	if err != nil || localVarHttpResponse == nil {
 		return localVarHttpResponse, err
 	}
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
 	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarHttpResponse, err
@@ -120,7 +119,7 @@ func (a *SchedulerResourceApiService) DeleteTagForSchedule(ctx context.Context, 
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarHttpResponse, err
@@ -187,7 +186,7 @@ func (a *SchedulerResourceApiService) GetAllSchedules(ctx context.Context, local
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
@@ -292,7 +291,7 @@ func (a *SchedulerResourceApiService) GetNextFewSchedules(ctx context.Context, c
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
@@ -378,7 +377,7 @@ func (a *SchedulerResourceApiService) GetSchedule(ctx context.Context, name stri
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
@@ -464,7 +463,7 @@ func (a *SchedulerResourceApiService) GetTagsForSchedule(ctx context.Context, na
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
@@ -548,7 +547,7 @@ func (a *SchedulerResourceApiService) PauseAllSchedules(ctx context.Context) (ma
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
@@ -631,7 +630,7 @@ func (a *SchedulerResourceApiService) PauseSchedule(ctx context.Context, name st
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarHttpResponse, err
@@ -693,7 +692,7 @@ func (a *SchedulerResourceApiService) AddTagForSchedule(ctx context.Context, bod
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarHttpResponse, err
@@ -759,7 +758,7 @@ func (a *SchedulerResourceApiService) ResumeAllSchedules(ctx context.Context) (m
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
@@ -842,7 +841,7 @@ func (a *SchedulerResourceApiService) ResumeSchedule(ctx context.Context, name s
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarHttpResponse, err
@@ -908,7 +907,7 @@ func (a *SchedulerResourceApiService) SaveSchedule(ctx context.Context, body mod
 		return localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarHttpResponse, err
@@ -1004,7 +1003,7 @@ func (a *SchedulerResourceApiService) Search(ctx context.Context, localVarOption
 		return localVarReturnValue, localVarHttpResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 	localVarHttpResponse.Body.Close()
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
