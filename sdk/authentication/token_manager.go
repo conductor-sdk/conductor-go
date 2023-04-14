@@ -67,7 +67,7 @@ func (t *CachedTokenManager) refreshToken(httpSettings *settings.HttpSettings, h
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 	log.Debug("Refreshing authentication token")
-	token, response, err := getToken(t.credentials, httpSettings, httpClient)
+	token, response, err := GetToken(t.credentials, httpSettings, httpClient)
 	if err != nil {
 		log.Warning(
 			"Failed to refresh authentication token",
