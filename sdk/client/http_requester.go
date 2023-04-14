@@ -27,16 +27,16 @@ import (
 type HttpRequester struct {
 	httpSettings *settings.HttpSettings
 	httpClient   *http.Client
-	tokenManager *authentication.TokenManager
+	tokenManager authentication.TokenManager
 }
 
-func NewHttpRequester(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings, httpClient *http.Client, tokenExpiration *authentication.TokenExpiration) *HttpRequester {
-	var tokenManager *authentication.TokenManager
-	tokenManager = nil
+func NewHttpRequester(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings, httpClient *http.Client, tokenExpiration *authentication.TokenExpiration, tokenManager authentication.TokenManager) *HttpRequester {
+
 	if authenticationSettings != nil && !authenticationSettings.IsEmpty() {
-		tokenManager = authentication.NewTokenManager(
-			*authenticationSettings, tokenExpiration,
-		)
+		if tokenManager == nil {
+			tokenManager = nil
+			tokenManager = authentication.NewTokenManager(*authenticationSettings, tokenExpiration)
+		}
 	}
 	return &HttpRequester{
 		httpSettings: httpSettings,

@@ -41,6 +41,7 @@ var (
 
 type APIClient struct {
 	httpRequester *HttpRequester
+	tokenManager  authentication.TokenManager
 }
 
 func NewAPIClient(
@@ -50,6 +51,7 @@ func NewAPIClient(
 	return newAPIClient(
 		authenticationSettings,
 		httpSettings,
+		nil,
 		nil,
 	)
 }
@@ -63,10 +65,25 @@ func NewAPIClientWithTokenExpiration(
 		authenticationSettings,
 		httpSettings,
 		tokenExpiration,
+		nil,
 	)
 }
 
-func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings, tokenExpiration *authentication.TokenExpiration) *APIClient {
+func NewAPIClientWithTokenManager(
+	authenticationSettings *settings.AuthenticationSettings,
+	httpSettings *settings.HttpSettings,
+	tokenExpiration *authentication.TokenExpiration,
+	tokenManager authentication.TokenManager,
+) *APIClient {
+	return newAPIClient(
+		authenticationSettings,
+		httpSettings,
+		tokenExpiration,
+		tokenManager,
+	)
+}
+
+func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings, tokenExpiration *authentication.TokenExpiration, tokenManager authentication.TokenManager) *APIClient {
 	if httpSettings == nil {
 		httpSettings = settings.NewHttpDefaultSettings()
 	}
@@ -88,7 +105,7 @@ func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpS
 	}
 	return &APIClient{
 		httpRequester: NewHttpRequester(
-			authenticationSettings, httpSettings, &client, tokenExpiration,
+			authenticationSettings, httpSettings, &client, tokenExpiration, tokenManager,
 		),
 	}
 }
