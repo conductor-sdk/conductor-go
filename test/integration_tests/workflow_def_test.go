@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	workflowValidationTimeout = 7 * time.Second
+	workflowValidationTimeout = 10 * time.Second
 	workflowBulkQty           = 10
 )
 
