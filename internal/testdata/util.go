@@ -137,32 +137,7 @@ func StartWorkflows(workflowQty int, workflowName string) ([]string, error) {
 }
 
 func ValidateWorkflow(conductorWorkflow *workflow.ConductorWorkflow, timeout time.Duration, expectedStatus model.WorkflowStatus) error {
-	err := ValidateWorkflowRegistration(conductorWorkflow)
-	if err != nil {
-		return err
-	}
-	workflowId, err := conductorWorkflow.StartWorkflowWithInput(make(map[string]interface{}))
-	if err != nil {
-		return err
-	}
-	log.Debug("Started workflowId: ", workflowId)
-	workflowExecutionChannel, err := WorkflowExecutor.MonitorExecution(workflowId)
-	if err != nil {
-		return err
-	}
-	log.Debug("Generated workflowExecutionChannel for workflowId: ", workflowId)
-	workflow, err := executor.WaitForWorkflowCompletionUntilTimeout(
-		workflowExecutionChannel,
-		timeout,
-	)
-	if err != nil {
-		return err
-	}
-	log.Debug("Workflow completed, workflowId: ", workflowId)
-	if !isWorkflowCompleted(workflow, expectedStatus) {
-		return fmt.Errorf("workflow finished with unexpected status: %s", workflow.Status)
-	}
-	return nil
+	return ValidateWorkflowWithInput(conductorWorkflow, make(map[string]interface{}), timeout, expectedStatus)
 }
 
 func ValidateWorkflowWithInput(conductorWorkflow *workflow.ConductorWorkflow, workflowInput map[string]interface{}, timeout time.Duration, expectedStatus model.WorkflowStatus) error {
