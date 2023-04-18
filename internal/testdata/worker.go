@@ -65,6 +65,17 @@ func SimpleWorker(t *model.Task) (interface{}, error) {
 	return taskResult, nil
 }
 
+func FibonacciWorker(t *model.Task) (interface{}, error) {
+	taskResult := model.NewTaskResultFromTask(t)
+	x := t.InputData["X"].(float64)
+	y := t.InputData["Y"].(float64)
+	taskResult.OutputData = map[string]interface{}{
+		"result": x + y,
+	}
+	taskResult.Status = model.CompletedTask
+	return taskResult, nil
+}
+
 func TestWorkers(t *testing.T) {
 	outputData := map[string]interface{}{
 		"key": "value",

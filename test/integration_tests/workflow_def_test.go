@@ -306,18 +306,19 @@ func TestComplexSwitchWorkflow(t *testing.T) {
 
 func TestWorkflowParameterIO(t *testing.T) {
 	amount := 10
-	taskName := "go_sdk_workflow_parameter_io_task"
+	taskName := "workflow_parameter_io_task_go_sdk"
 
 	tasks := make([]*workflow.SimpleTask, amount)
 	tasks[0] = workflow.NewSimpleTask(taskName, fmt.Sprintf("%s_%d", taskName, 0)).
 		Input("X", "${workflow.input.A}").
 		Input("Y", "${workflow.input.B}")
-	for idx := 1; idx < amount; idx += 1 {
-		taskName := fmt.Sprintf("%s_%d", taskName, idx)
-		previousTaskName := tasks[idx-1].ReferenceName()
-		tasks[idx] = workflow.NewSimpleTask(taskName, taskName).
-			Input("X", fmt.Sprintf("${%s.output.X}", previousTaskName)).
-			Input("Y", fmt.Sprintf("${%s.output.Y}", previousTaskName))
+	tasks[1] = workflow.NewSimpleTask(taskName, fmt.Sprintf("%s_%d", taskName, 1)).
+		Input("X", "${workflow.input.B}").
+		Input("Y", fmt.Sprintf("${%s.output.result}", tasks[0].ReferenceName()))
+	for idx := 2; idx < amount; idx += 1 {
+		tasks[idx] = workflow.NewSimpleTask(taskName, fmt.Sprintf("%s_%d", taskName, idx)).
+			Input("X", fmt.Sprintf("${%s.output.result}", tasks[idx-2].ReferenceName())).
+			Input("Y", fmt.Sprintf("${%s.output.result}", tasks[idx-1].ReferenceName()))
 	}
 
 	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
@@ -331,6 +332,21 @@ func TestWorkflowParameterIO(t *testing.T) {
 		wf.Add(task)
 	}
 	wf.Register(true)
+
+	testdata.TaskRunner.StartWorker(taskName, testdata.FibonacciWorker, 10, 100*time.Millisecond)
+
+	err := testdata.ValidateWorkflowWithInput(
+		wf,
+		map[string]interface{}{
+			"A": 0,
+			"B": 1,
+		},
+		10*time.Second,
+		model.CompletedWorkflow,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func countMultipleSwitchInnerTasks(tasks ...model.WorkflowTask) int {
