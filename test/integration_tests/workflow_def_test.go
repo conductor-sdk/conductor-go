@@ -304,6 +304,35 @@ func TestComplexSwitchWorkflow(t *testing.T) {
 	assert.Equal(t, 7, counter)
 }
 
+func TestWorkflowParameterIO(t *testing.T) {
+	amount := 10
+	taskName := "go_sdk_workflow_parameter_io_task"
+
+	tasks := make([]*workflow.SimpleTask, amount)
+	tasks[0] = workflow.NewSimpleTask(taskName, fmt.Sprintf("%s_%d", taskName, 0)).
+		Input("X", "${workflow.input.A}").
+		Input("Y", "${workflow.input.B}")
+	for idx := 1; idx < amount; idx += 1 {
+		taskName := fmt.Sprintf("%s_%d", taskName, idx)
+		previousTaskName := tasks[idx-1].ReferenceName()
+		tasks[idx] = workflow.NewSimpleTask(taskName, taskName).
+			Input("X", fmt.Sprintf("${%s.output.X}", previousTaskName)).
+			Input("Y", fmt.Sprintf("${%s.output.Y}", previousTaskName))
+	}
+
+	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("GoSdkWorkflowParameterIO").
+		OwnerEmail("test@orkes.io").
+		Version(1).
+		InputParameters("A", "B")
+
+	for _, task := range tasks {
+		testdata.ValidateTaskRegistration(*task.ToTaskDef())
+		wf.Add(task)
+	}
+	wf.Register(true)
+}
+
 func countMultipleSwitchInnerTasks(tasks ...model.WorkflowTask) int {
 	counter := 0
 	for _, task := range tasks {
