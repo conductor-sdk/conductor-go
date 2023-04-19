@@ -308,30 +308,28 @@ func TestWorkflowParameterIO(t *testing.T) {
 	amount := 10
 	taskName := "workflow_parameter_io_task_go_sdk"
 
-	wf := createWorkflowParameterIO(amount, taskName)
+	wf := createFibonacciWorkflow(amount, taskName)
 	wf.Register(true)
 
 	testdata.TaskRunner.StartWorker(taskName, testdata.FibonacciWorker, 10, 100*time.Millisecond)
-	err := testdata.ValidateWorkflowWithInput(
-		wf, map[string]interface{}{
-			"A": 0, "B": 1,
-		}, 10*time.Second, model.CompletedWorkflow,
-	)
+	err := testdata.ValidateWorkflow(wf, 10*time.Second, model.CompletedWorkflow)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func createWorkflowParameterIO(amount int, taskName string) *workflow.ConductorWorkflow {
+func createFibonacciWorkflow(amount int, taskName string) *workflow.ConductorWorkflow {
+	setVariablesTask := workflow.NewSetVariableTask("set_fibonacci_values").
+		Input("value0", 0).
+		Input("value1", 1)
+
 	tasks := make([]*workflow.SimpleTask, amount)
-
 	tasks[0] = workflow.NewSimpleTask(taskName, fmt.Sprintf("%s_%d", taskName, 0)).
-		Input("X", "${workflow.input.A}").
-		Input("Y", "${workflow.input.B}")
+		Input("X", "${workflow.variables.value0}").
+		Input("Y", "${workflow.variables.value1}")
 	tasks[1] = workflow.NewSimpleTask(taskName, fmt.Sprintf("%s_%d", taskName, 1)).
-		Input("X", "${workflow.input.B}").
+		Input("X", "${workflow.variables.value1}").
 		Input("Y", fmt.Sprintf("${%s.output.result}", tasks[0].ReferenceName()))
-
 	for idx := 2; idx < amount; idx += 1 {
 		tasks[idx] = workflow.NewSimpleTask(taskName, fmt.Sprintf("%s_%d", taskName, idx)).
 			Input("X", fmt.Sprintf("${%s.output.result}", tasks[idx-2].ReferenceName())).
@@ -341,9 +339,9 @@ func createWorkflowParameterIO(amount int, taskName string) *workflow.ConductorW
 	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("GoSdkWorkflowParameterIO").
 		OwnerEmail("test@orkes.io").
-		Version(1).
-		InputParameters("A", "B")
+		Version(1)
 
+	wf.Add(setVariablesTask)
 	for _, task := range tasks {
 		testdata.ValidateTaskRegistration(*task.ToTaskDef())
 		wf.Add(task)
