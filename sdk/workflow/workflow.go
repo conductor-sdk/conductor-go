@@ -11,6 +11,7 @@ package workflow
 
 import (
 	"encoding/json"
+
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	log "github.com/sirupsen/logrus"
@@ -122,6 +123,10 @@ func (workflow *ConductorWorkflow) OwnerEmail(ownerEmail string) *ConductorWorkf
 
 func (workflow *ConductorWorkflow) GetName() (name string) {
 	return workflow.name
+}
+
+func (workflow *ConductorWorkflow) GetOutputParameters() (outputParameters map[string]interface{}) {
+	return workflow.outputParameters
 }
 
 func (workflow *ConductorWorkflow) GetVersion() (version int32) {
