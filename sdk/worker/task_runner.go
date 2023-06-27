@@ -12,7 +12,6 @@ package worker
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"sync"
 	"time"
@@ -286,7 +285,7 @@ func (c *TaskRunner) executeAndUpdateTask(taskName string, task model.Task, exec
 	defer c.runningWorkerDone(taskName)
 	defer concurrency.HandlePanicError("execute_and_update_task " + string(task.TaskId) + ": " + string(task.Status))
 	taskResult := c.executeTask(&task, executeFunction)
-	c.updateTaskWithRetry(taskName, taskResult)
+	c.updateTask(taskName, taskResult)
 }
 
 func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]model.Task, error) {
@@ -377,13 +376,16 @@ func (c *TaskRunner) executeTask(t *model.Task, executeFunction model.ExecuteTas
 	return taskResult
 }
 
-func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.TaskResult) error {
+func (c *TaskRunner) updateTask(taskName string, taskResult *model.TaskResult) error {
 	log.Debug(
 		"Updating task of type: ", taskName,
 		", taskId: ", taskResult.TaskId,
 		", workflowId: ", taskResult.WorkflowInstanceId,
 	)
-	_, err := c.updateTask(taskName, taskResult)
+	startTime := time.Now()
+	_, _, err := c.conductorTaskResourceClient.UpdateTask(context.Background(), taskResult)
+	spentTime := time.Since(startTime).Milliseconds()
+	metrics.RecordTaskUpdateTime(taskName, float64(spentTime))
 	if err == nil {
 		log.Debug(
 			"Updated task of type: ", taskName,
@@ -402,14 +404,6 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 		", response: ", err,
 	)
 	return fmt.Errorf("failed to update task %s", taskName)
-}
-
-func (c *TaskRunner) updateTask(taskName string, taskResult *model.TaskResult) (*http.Response, error) {
-	startTime := time.Now()
-	_, response, err := c.conductorTaskResourceClient.UpdateTask(context.Background(), taskResult)
-	spentTime := time.Since(startTime).Milliseconds()
-	metrics.RecordTaskUpdateTime(taskName, float64(spentTime))
-	return response, err
 }
 
 func (c *TaskRunner) getAvailableWorkerAmount(taskName string) (int, error) {
