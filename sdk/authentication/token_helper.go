@@ -27,6 +27,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/conductor-sdk/conductor-go/internal/util"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	log "github.com/sirupsen/logrus"
@@ -64,7 +65,7 @@ func getToken(credentials settings.AuthenticationSettings, httpSettings *setting
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
-	localVarHttpResponse, err := httpClient.Do(r)
+	localVarHttpResponse, err := util.RetryFunction(httpClient.Do, r)
 	if err != nil || localVarHttpResponse == nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}

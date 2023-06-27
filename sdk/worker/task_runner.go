@@ -27,8 +27,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const taskUpdateRetryAttemptsLimit = 3
-
 const (
 	sleepForOnNoAvailableWorker = 1 * time.Millisecond
 	sleepForOnGenericError      = 100 * time.Millisecond
@@ -385,32 +383,25 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 		", taskId: ", taskResult.TaskId,
 		", workflowId: ", taskResult.WorkflowInstanceId,
 	)
-	for attempt := 0; attempt <= taskUpdateRetryAttemptsLimit; attempt += 1 {
-		if attempt > 0 {
-			// Wait for [10s, 20s, 30s] before next attempt
-			amount := attempt * 10
-			time.Sleep(time.Duration(amount) * time.Second)
-		}
-		_, err := c.updateTask(taskName, taskResult)
-		if err == nil {
-			log.Debug(
-				"Updated task of type: ", taskName,
-				", taskId: ", taskResult.TaskId,
-				", workflowId: ", taskResult.WorkflowInstanceId,
-			)
-			return nil
-		}
-		metrics.IncrementTaskUpdateError(taskName, err)
+	_, err := c.updateTask(taskName, taskResult)
+	if err == nil {
 		log.Debug(
-			"Failed to update task",
-			", reason: ", err.Error(),
-			", task type: ", taskName,
+			"Updated task of type: ", taskName,
 			", taskId: ", taskResult.TaskId,
 			", workflowId: ", taskResult.WorkflowInstanceId,
-			", response: ", err,
 		)
+		return nil
 	}
-	return fmt.Errorf("failed to update task %s after %d attempts", taskName, taskUpdateRetryAttemptsLimit)
+	metrics.IncrementTaskUpdateError(taskName, err)
+	log.Debug(
+		"Failed to update task",
+		", reason: ", err.Error(),
+		", task type: ", taskName,
+		", taskId: ", taskResult.TaskId,
+		", workflowId: ", taskResult.WorkflowInstanceId,
+		", response: ", err,
+	)
+	return fmt.Errorf("failed to update task %s", taskName)
 }
 
 func (c *TaskRunner) updateTask(taskName string, taskResult *model.TaskResult) (*http.Response, error) {

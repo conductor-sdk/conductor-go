@@ -29,6 +29,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/conductor-sdk/conductor-go/internal/util"
 	"github.com/conductor-sdk/conductor-go/sdk/authentication"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/sirupsen/logrus"
@@ -95,7 +96,7 @@ func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpS
 
 // callAPI do the request.
 func (c *APIClient) callAPI(request *http.Request) (*http.Response, error) {
-	return c.httpRequester.httpClient.Do(request)
+	return util.RetryFunction(c.httpRequester.httpClient.Do, request)
 }
 
 func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err error) {
