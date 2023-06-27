@@ -96,7 +96,7 @@ func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpS
 
 // callAPI do the request.
 func (c *APIClient) callAPI(request *http.Request) (*http.Response, error) {
-	return util.RetryFunction(c.httpRequester.httpClient.Do, request)
+	return util.ExecuteWithRetry(c.httpRequester.httpClient.Do, request)
 }
 
 func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err error) {

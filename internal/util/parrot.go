@@ -11,7 +11,7 @@ const (
 	maxRetryAttempts int = 3
 )
 
-func RetryFunction(doFunc func(*http.Request) (*http.Response, error), request *http.Request) (*http.Response, error) {
+func ExecuteWithRetry(doFunc func(*http.Request) (*http.Response, error), request *http.Request) (*http.Response, error) {
 	var err error
 	var response *http.Response
 	for attempt := 0; attempt < maxRetryAttempts; attempt++ {

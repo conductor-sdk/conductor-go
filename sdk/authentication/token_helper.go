@@ -65,7 +65,7 @@ func getToken(credentials settings.AuthenticationSettings, httpSettings *setting
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
-	localVarHttpResponse, err := util.RetryFunction(httpClient.Do, r)
+	localVarHttpResponse, err := util.ExecuteWithRetry(httpClient.Do, r)
 	if err != nil || localVarHttpResponse == nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
