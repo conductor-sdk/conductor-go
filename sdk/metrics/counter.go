@@ -89,6 +89,9 @@ var counterTemplates = map[MetricName]*MetricDetails{
 }
 
 func init() {
+	if !collectionEnabled {
+		return
+	}
 	for metricName, metricDetails := range counterTemplates {
 		counterByName[metricName] = newCounter(metricDetails)
 		prometheus.MustRegister(counterByName[metricName])
@@ -184,7 +187,7 @@ func IncrementWorkflowStartError(workflowType string, err error) {
 
 func incrementCounter(metricName MetricName, labelValues []string) {
 	// We skip incrementing if metrics collection is not yet enabled
-	if !MetricsCollectionEnabled {
+	if !collectionEnabled {
 		return
 	}
 

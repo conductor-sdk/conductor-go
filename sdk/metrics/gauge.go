@@ -55,6 +55,9 @@ var gaugeTemplates = map[MetricName]*MetricDetails{
 }
 
 func init() {
+	if !collectionEnabled {
+		return
+	}
 	for metricName, metricDetails := range gaugeTemplates {
 		gaugeByName[metricName] = newGauge(metricDetails)
 		prometheus.MustRegister(gaugeByName[metricName])
@@ -124,7 +127,7 @@ func newGauge(metricDetails *MetricDetails) *prometheus.GaugeVec {
 
 func setGauge(metricName MetricName, labelValues []string, value float64) {
 	// We skip setting gauge if Metrics collection is not enabled
-	if !MetricsCollectionEnabled {
+	if !collectionEnabled {
 		return
 	}
 

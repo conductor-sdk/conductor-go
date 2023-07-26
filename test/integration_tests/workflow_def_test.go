@@ -26,7 +26,7 @@ import (
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.InfoLevel)
+	log.SetLevel(log.ErrorLevel)
 }
 
 func TestHttpTask(t *testing.T) {

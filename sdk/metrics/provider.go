@@ -20,7 +20,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-var MetricsCollectionEnabled bool = false
+var collectionEnabled bool = false
 
 // ProvideMetrics start collecting metrics for the workers
 // We use prometheus to collect metrics from the workers.  When called this function starts the metrics server and publishes the worker metrics
@@ -30,7 +30,7 @@ func ProvideMetrics(metricsSettings *settings.MetricsSettings) {
 		metricsSettings = settings.NewDefaultMetricsSettings()
 	}
 
-	MetricsCollectionEnabled = true
+	collectionEnabled = true
 
 	http.Handle(
 		metricsSettings.ApiEndpoint,
