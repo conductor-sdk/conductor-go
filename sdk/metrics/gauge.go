@@ -13,8 +13,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var recordGaugeMetrics = false
-
 var gaugeByName = map[MetricName]*prometheus.GaugeVec{}
 
 var gaugeTemplates = map[MetricName]*MetricDetails{
@@ -125,7 +123,8 @@ func newGauge(metricDetails *MetricDetails) *prometheus.GaugeVec {
 }
 
 func setGauge(metricName MetricName, labelValues []string, value float64) {
-	if !recordGaugeMetrics {
+	// We skip setting gauge if Metrics collection is not enabled
+	if !MetricsCollectionEnabled {
 		return
 	}
 
@@ -144,8 +143,4 @@ func getGauge(metricName MetricName, labelValues []string) *prometheus.Gauge {
 		labelValues...,
 	)
 	return &gauge
-}
-
-func EnableRecordingGaugeMetrics() {
-	recordGaugeMetrics = true
 }

@@ -13,8 +13,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var recordCounterMetrics = false
-
 var counterByName = map[MetricName]*prometheus.CounterVec{}
 
 var counterTemplates = map[MetricName]*MetricDetails{
@@ -186,7 +184,7 @@ func IncrementWorkflowStartError(workflowType string, err error) {
 
 func incrementCounter(metricName MetricName, labelValues []string) {
 	// We skip incrementing if metrics collection is not yet enabled
-	if !recordCounterMetrics {
+	if !MetricsCollectionEnabled {
 		return
 	}
 
@@ -215,8 +213,4 @@ func getCounter(metricName MetricName, labelValues []string) *prometheus.Counter
 		labelValues...,
 	)
 	return &counter
-}
-
-func EnableRecordingCounterMetrics() {
-	recordCounterMetrics = true
 }
