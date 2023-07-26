@@ -33,16 +33,13 @@ var counterTemplates = map[MetricName]*MetricDetails{
 	THREAD_UNCAUGHT_EXCEPTION: NewMetricDetails(
 		THREAD_UNCAUGHT_EXCEPTION,
 		THREAD_UNCAUGHT_EXCEPTION_DOC,
-		[]MetricLabel{
-			EXCEPTION,
-		},
+		[]MetricLabel{},
 	),
 	TASK_POLL_ERROR: NewMetricDetails(
 		TASK_POLL_ERROR,
 		TASK_POLL_ERROR_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
-			EXCEPTION,
 		},
 	),
 	TASK_PAUSED: NewMetricDetails(
@@ -57,7 +54,6 @@ var counterTemplates = map[MetricName]*MetricDetails{
 		TASK_EXECUTE_ERROR_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
-			EXCEPTION,
 		},
 	),
 
@@ -66,7 +62,6 @@ var counterTemplates = map[MetricName]*MetricDetails{
 		TASK_UPDATE_ERROR_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
-			EXCEPTION,
 		},
 	),
 	EXTERNAL_PAYLOAD_USED: NewMetricDetails(
@@ -83,7 +78,6 @@ var counterTemplates = map[MetricName]*MetricDetails{
 		WORKFLOW_START_ERROR_DOC,
 		[]MetricLabel{
 			WORKFLOW_TYPE,
-			EXCEPTION,
 		},
 	),
 }
