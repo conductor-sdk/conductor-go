@@ -29,9 +29,9 @@ import (
 
 const taskUpdateRetryAttemptsLimit = 3
 
-const (
-	sleepForOnNoAvailableWorker = 1 * time.Millisecond
-	sleepForOnGenericError      = 100 * time.Millisecond
+var (
+	sleepForOnNoAvailableWorker = 10 * time.Millisecond
+	sleepForOnGenericError      = 200 * time.Millisecond
 )
 
 var hostname, _ = os.Hostname()
@@ -86,6 +86,13 @@ func NewTaskRunnerWithApiClient(
 		pollIntervalByTaskName:   make(map[string]time.Duration),
 		pausedWorkers:            make(map[string]bool),
 	}
+}
+
+// SetSleepOnGenericError Sets the time for which to wait before continuing to poll/execute when there is an error
+// Default is 200 millis, and this function can be used to increase/decrease the duration of the wait time
+// Useful to avoid excessive logs in the worker when there are intermittent issues
+func (c *TaskRunner) SetSleepOnGenericError(duration time.Duration) {
+	sleepForOnGenericError = duration
 }
 
 // StartWorkerWithDomain starts a polling worker on a new goroutine, which only polls for tasks using the provided
@@ -269,6 +276,7 @@ func (c *TaskRunner) workOnce(taskName string, executeFunction model.ExecuteTask
 	if len(tasks) < 1 {
 		pollInterval, err := c.GetPollIntervalForTask(taskName)
 		if err != nil {
+			log.Error(err)
 			pauseOnGenericError(
 				taskName, domain,
 				fmt.Errorf("failed to get poll interval, reason: %s", err.Error()),
@@ -288,7 +296,10 @@ func (c *TaskRunner) executeAndUpdateTask(taskName string, task model.Task, exec
 	defer c.runningWorkerDone(taskName)
 	defer concurrency.HandlePanicError("execute_and_update_task " + string(task.TaskId) + ": " + string(task.Status))
 	taskResult := c.executeTask(&task, executeFunction)
-	c.updateTaskWithRetry(taskName, taskResult)
+	err := c.updateTaskWithRetry(taskName, taskResult)
+	if err != nil {
+		log.Error(err)
+	}
 }
 
 func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]model.Task, error) {
@@ -322,6 +333,11 @@ func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]mod
 		spentTime.Seconds(),
 	)
 	if err != nil {
+		if response.StatusCode == 401 {
+			log.Error("Bad credentials. ", err)
+		} else {
+			log.Error("Error polling for task. StatusCode=", response.StatusCode, "Error=", err)
+		}
 		metrics.IncrementTaskPollError(
 			taskName, err,
 		)
@@ -489,7 +505,7 @@ func (c *TaskRunner) SetPollIntervalForTask(taskName string, pollInterval time.D
 	c.pollIntervalByTaskNameMutex.Lock()
 	defer c.pollIntervalByTaskNameMutex.Unlock()
 	c.pollIntervalByTaskName[taskName] = pollInterval
-	log.Debug("Updated poll interval for task: ", taskName, ", to: ", pollInterval.Milliseconds(), "ms")
+	log.Info("Updated poll interval for task: ", taskName, ", to: ", pollInterval.Milliseconds(), "ms")
 	return nil
 }
 
