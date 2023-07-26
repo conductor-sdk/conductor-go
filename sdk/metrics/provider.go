@@ -10,24 +10,26 @@
 package metrics
 
 import (
-	"github.com/conductor-sdk/conductor-go/sdk/settings"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
+
+	"github.com/conductor-sdk/conductor-go/sdk/settings"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-//ProvideMetrics start collecting metrics for the workers
-//We use prometheus to collect metrics from the workers.  When called this function starts the metrics server and publishes the worker metrics
+// ProvideMetrics start collecting metrics for the workers
+// We use prometheus to collect metrics from the workers.  When called this function starts the metrics server and publishes the worker metrics
 func ProvideMetrics(metricsSettings *settings.MetricsSettings) {
 	defer handlePanicError("provide_metrics")
 	if metricsSettings == nil {
 		metricsSettings = settings.NewDefaultMetricsSettings()
 	}
 
-	EnableMetricsCollection()
+	EnableRecordingCounterMetrics()
+	EnableRecordingGaugeMetrics()
 
 	http.Handle(
 		metricsSettings.ApiEndpoint,
