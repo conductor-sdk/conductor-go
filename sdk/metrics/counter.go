@@ -120,7 +120,6 @@ func IncrementTaskPollError(taskType string, err error) {
 		TASK_POLL_ERROR,
 		[]string{
 			taskType,
-			err.Error(),
 		},
 	)
 }
@@ -139,7 +138,6 @@ func IncrementTaskExecuteError(taskType string, err error) {
 		TASK_EXECUTE_ERROR,
 		[]string{
 			taskType,
-			err.Error(),
 		},
 	)
 }
@@ -149,7 +147,6 @@ func IncrementTaskUpdateError(taskType string, err error) {
 		TASK_UPDATE_ERROR,
 		[]string{
 			taskType,
-			err.Error(),
 		},
 	)
 }
@@ -170,7 +167,6 @@ func IncrementWorkflowStartError(workflowType string, err error) {
 		WORKFLOW_START_ERROR,
 		[]string{
 			workflowType,
-			err.Error(),
 		},
 	)
 }
