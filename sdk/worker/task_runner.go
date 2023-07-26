@@ -333,11 +333,6 @@ func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]mod
 		spentTime.Seconds(),
 	)
 	if err != nil {
-		if response.StatusCode == 401 {
-			log.Error("Bad credentials. ", err)
-		} else {
-			log.Error("Error polling for task. StatusCode=", response.StatusCode, "Error=", err)
-		}
 		metrics.IncrementTaskPollError(
 			taskName, err,
 		)
@@ -553,12 +548,6 @@ func pauseOnNoAvailableWorkerError(taskName string, domain string) {
 }
 
 func sleep(taskName string, domain string, err error, sleepFor time.Duration) {
-	log.Trace(
-		"pausing worker",
-		", taskName: ", taskName,
-		", domain: ", domain,
-		", for: ", sleepFor.Milliseconds(), "ms",
-		", reason: ", err.Error(),
-	)
+	log.Error(err)
 	time.Sleep(sleepFor)
 }
