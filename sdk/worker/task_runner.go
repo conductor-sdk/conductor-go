@@ -298,7 +298,7 @@ func (c *TaskRunner) executeAndUpdateTask(taskName string, task model.Task, exec
 	taskResult := c.executeTask(&task, executeFunction)
 	err := c.updateTaskWithRetry(taskName, taskResult)
 	if err != nil {
-		log.Error(err)
+		log.Error("failed to update task ", taskName, "taskId = ", task.TaskId, "workflowId = ", task.WorkflowInstanceId, err)
 	}
 }
 
@@ -396,6 +396,7 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 		", taskId: ", taskResult.TaskId,
 		", workflowId: ", taskResult.WorkflowInstanceId,
 	)
+	var lastError error
 	for attempt := 0; attempt <= taskUpdateRetryAttemptsLimit; attempt += 1 {
 		if attempt > 0 {
 			// Wait for [10s, 20s, 30s] before next attempt
@@ -412,16 +413,9 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 			return nil
 		}
 		metrics.IncrementTaskUpdateError(taskName, err)
-		log.Debug(
-			"Failed to update task",
-			", reason: ", err.Error(),
-			", task type: ", taskName,
-			", taskId: ", taskResult.TaskId,
-			", workflowId: ", taskResult.WorkflowInstanceId,
-			", response: ", err,
-		)
+		lastError = err
 	}
-	return fmt.Errorf("failed to update task %s after %d attempts", taskName, taskUpdateRetryAttemptsLimit)
+	return fmt.Errorf("failed to update task %s after %d attempts. error = %s", taskName, taskUpdateRetryAttemptsLimit, lastError)
 }
 
 func (c *TaskRunner) updateTask(taskName string, taskResult *model.TaskResult) (*http.Response, error) {
