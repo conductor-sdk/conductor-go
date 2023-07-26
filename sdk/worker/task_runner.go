@@ -540,14 +540,11 @@ func (c *TaskRunner) GetBatchSizeForTask(taskName string) (batchSize int) {
 }
 
 func pauseOnGenericError(taskName string, domain string, err error) {
-	sleep(taskName, domain, err, sleepForOnGenericError)
+	log.Error("[%s][%s] %s", taskName, domain, err)
+	time.Sleep(sleepForOnGenericError)
 }
 
 func pauseOnNoAvailableWorkerError(taskName string, domain string) {
-	sleep(taskName, domain, fmt.Errorf("no worker available at the moment"), sleepForOnNoAvailableWorker)
-}
-
-func sleep(taskName string, domain string, err error, sleepFor time.Duration) {
-	log.Error(err)
-	time.Sleep(sleepFor)
+	log.Trace(fmt.Errorf("no worker available for the task %s", taskName))
+	time.Sleep(sleepForOnNoAvailableWorker)
 }
