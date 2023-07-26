@@ -31,6 +31,15 @@ func ProvideMetrics(metricsSettings *settings.MetricsSettings) {
 	}
 
 	collectionEnabled = true
+	for metricName, metricDetails := range counterTemplates {
+		counterByName[metricName] = newCounter(metricDetails)
+		prometheus.MustRegister(counterByName[metricName])
+	}
+
+	for metricName, metricDetails := range gaugeTemplates {
+		gaugeByName[metricName] = newGauge(metricDetails)
+		prometheus.MustRegister(gaugeByName[metricName])
+	}
 
 	http.Handle(
 		metricsSettings.ApiEndpoint,

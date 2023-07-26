@@ -88,16 +88,6 @@ var counterTemplates = map[MetricName]*MetricDetails{
 	),
 }
 
-func init() {
-	if !collectionEnabled {
-		return
-	}
-	for metricName, metricDetails := range counterTemplates {
-		counterByName[metricName] = newCounter(metricDetails)
-		prometheus.MustRegister(counterByName[metricName])
-	}
-}
-
 func IncrementTaskPoll(taskType string) {
 	incrementCounter(
 		TASK_POLL,
