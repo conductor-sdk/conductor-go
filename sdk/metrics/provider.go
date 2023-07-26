@@ -27,6 +27,8 @@ func ProvideMetrics(metricsSettings *settings.MetricsSettings) {
 		metricsSettings = settings.NewDefaultMetricsSettings()
 	}
 
+	EnableMetricsCollection()
+
 	http.Handle(
 		metricsSettings.ApiEndpoint,
 		promhttp.HandlerFor(
