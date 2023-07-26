@@ -33,16 +33,13 @@ var counterTemplates = map[MetricName]*MetricDetails{
 	THREAD_UNCAUGHT_EXCEPTION: NewMetricDetails(
 		THREAD_UNCAUGHT_EXCEPTION,
 		THREAD_UNCAUGHT_EXCEPTION_DOC,
-		[]MetricLabel{
-			EXCEPTION,
-		},
+		[]MetricLabel{},
 	),
 	TASK_POLL_ERROR: NewMetricDetails(
 		TASK_POLL_ERROR,
 		TASK_POLL_ERROR_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
-			EXCEPTION,
 		},
 	),
 	TASK_PAUSED: NewMetricDetails(
@@ -57,16 +54,14 @@ var counterTemplates = map[MetricName]*MetricDetails{
 		TASK_EXECUTE_ERROR_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
-			EXCEPTION,
 		},
 	),
-	
+
 	TASK_UPDATE_ERROR: NewMetricDetails(
 		TASK_UPDATE_ERROR,
 		TASK_UPDATE_ERROR_DOC,
 		[]MetricLabel{
 			TASK_TYPE,
-			EXCEPTION,
 		},
 	),
 	EXTERNAL_PAYLOAD_USED: NewMetricDetails(
@@ -83,16 +78,8 @@ var counterTemplates = map[MetricName]*MetricDetails{
 		WORKFLOW_START_ERROR_DOC,
 		[]MetricLabel{
 			WORKFLOW_TYPE,
-			EXCEPTION,
 		},
 	),
-}
-
-func init() {
-	for metricName, metricDetails := range counterTemplates {
-		counterByName[metricName] = newCounter(metricDetails)
-		prometheus.MustRegister(counterByName[metricName])
-	}
 }
 
 func IncrementTaskPoll(taskType string) {
@@ -127,7 +114,6 @@ func IncrementTaskPollError(taskType string, err error) {
 		TASK_POLL_ERROR,
 		[]string{
 			taskType,
-			err.Error(),
 		},
 	)
 }
@@ -146,7 +132,6 @@ func IncrementTaskExecuteError(taskType string, err error) {
 		TASK_EXECUTE_ERROR,
 		[]string{
 			taskType,
-			err.Error(),
 		},
 	)
 }
@@ -156,7 +141,6 @@ func IncrementTaskUpdateError(taskType string, err error) {
 		TASK_UPDATE_ERROR,
 		[]string{
 			taskType,
-			err.Error(),
 		},
 	)
 }
@@ -177,14 +161,18 @@ func IncrementWorkflowStartError(workflowType string, err error) {
 		WORKFLOW_START_ERROR,
 		[]string{
 			workflowType,
-			err.Error(),
 		},
 	)
 }
 
 func incrementCounter(metricName MetricName, labelValues []string) {
+	// We skip incrementing if metrics collection is not yet enabled
+	if !collectionEnabled {
+		return
+	}
+
 	counter := getCounter(metricName, labelValues)
-	if counter != nil {
+	if *counter != nil {
 		(*counter).Inc()
 	}
 }
