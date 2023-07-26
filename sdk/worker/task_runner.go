@@ -298,7 +298,7 @@ func (c *TaskRunner) executeAndUpdateTask(taskName string, task model.Task, exec
 	taskResult := c.executeTask(&task, executeFunction)
 	err := c.updateTaskWithRetry(taskName, taskResult)
 	if err != nil {
-		log.Error("failed to update task ", taskName, ",taskId = ", task.TaskId, ",workflowId = ", task.WorkflowInstanceId, err)
+		log.Error("failed to update task ", taskName, ",taskId = ", task.TaskId, ",workflowId = ", task.WorkflowInstanceId, ",", err)
 	}
 }
 
