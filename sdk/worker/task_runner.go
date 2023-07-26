@@ -283,7 +283,7 @@ func (c *TaskRunner) workOnce(taskName string, executeFunction model.ExecuteTask
 			)
 			return
 		}
-		sleep(taskName, domain, fmt.Errorf("no task found"), pollInterval)
+		time.Sleep(pollInterval)
 		return
 	}
 	for _, task := range tasks {
