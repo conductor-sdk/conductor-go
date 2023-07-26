@@ -298,7 +298,7 @@ func (c *TaskRunner) executeAndUpdateTask(taskName string, task model.Task, exec
 	taskResult := c.executeTask(&task, executeFunction)
 	err := c.updateTaskWithRetry(taskName, taskResult)
 	if err != nil {
-		log.Error("failed to update task ", taskName, "taskId = ", task.TaskId, "workflowId = ", task.WorkflowInstanceId, err)
+		log.Error("failed to update task ", taskName, ",taskId = ", task.TaskId, ",workflowId = ", task.WorkflowInstanceId, err)
 	}
 }
 
@@ -415,7 +415,7 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 		metrics.IncrementTaskUpdateError(taskName, err)
 		lastError = err
 	}
-	return fmt.Errorf("failed to update task %s after %d attempts. error = %s", taskName, taskUpdateRetryAttemptsLimit, lastError)
+	return fmt.Errorf("failed to update task %s after %d attempts. %s", taskName, taskUpdateRetryAttemptsLimit, lastError)
 }
 
 func (c *TaskRunner) updateTask(taskName string, taskResult *model.TaskResult) (*http.Response, error) {
