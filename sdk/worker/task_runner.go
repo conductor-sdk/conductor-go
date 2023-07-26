@@ -540,7 +540,7 @@ func (c *TaskRunner) GetBatchSizeForTask(taskName string) (batchSize int) {
 }
 
 func pauseOnGenericError(taskName string, domain string, err error) {
-	log.Error("[%s][%s] %s", taskName, domain, err)
+	log.Error(fmt.Errorf("[%s][%s] %s", taskName, domain, err))
 	time.Sleep(sleepForOnGenericError)
 }
 
