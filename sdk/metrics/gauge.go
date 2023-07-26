@@ -122,7 +122,7 @@ func setGauge(metricName MetricName, labelValues []string, value float64) {
 	}
 
 	gauge := getGauge(metricName, labelValues)
-	if gauge != nil {
+	if *gauge != nil {
 		(*gauge).Set(value)
 	}
 }
