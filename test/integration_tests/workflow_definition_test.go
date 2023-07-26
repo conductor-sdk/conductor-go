@@ -12,6 +12,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
+	"github.com/conductor-sdk/conductor-go/test/common"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -107,16 +108,17 @@ func TestExecuteWorkflowWithCorrelationIds(t *testing.T) {
 	executor := testdata.WorkflowExecutor
 	correlationId1 := "correlationId1-" + uuid.New().String()
 	correlationId2 := "correlationId2-" + uuid.New().String()
+
 	httpTaskWorkflow1 := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_HTTP" + correlationId1).
 		OwnerEmail("test@orkes.io").
 		Version(1).
-		Add(httpTask)
+		Add(common.TestHttpTask)
 	httpTaskWorkflow2 := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_HTTP" + correlationId2).
 		OwnerEmail("test@orkes.io").
 		Version(1).
-		Add(httpTask)
+		Add(common.TestHttpTask)
 	_, err := httpTaskWorkflow1.StartWorkflow(&model.StartWorkflowRequest{CorrelationId: correlationId1})
 	if err != nil {
 		t.Fatal(err)
