@@ -539,6 +539,6 @@ func pauseOnGenericError(taskName string, domain string, err error) {
 }
 
 func pauseOnNoAvailableWorkerError(taskName string, domain string) {
-	log.Trace(fmt.Errorf("no worker available for the task %s", taskName))
+	log.Trace(fmt.Errorf("no worker available for the task %s, domain %s", taskName, domain))
 	time.Sleep(sleepForOnNoAvailableWorker)
 }
