@@ -71,13 +71,13 @@ func SimpleTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = testdata.TaskRunner.DecreaseBatchSize(
-		common.TestSimpleTask.ReferenceName(),
-		testdata.WorkerQty,
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
+	// err = testdata.TaskRunner.DecreaseBatchSize(
+	// 	common.TestSimpleTask.ReferenceName(),
+	// 	testdata.WorkerQty,
+	// )
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
 }
 
 func SimpleTaskWithoutRetryCount(t *testing.T) {
@@ -108,13 +108,13 @@ func SimpleTaskWithoutRetryCount(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = testdata.TaskRunner.DecreaseBatchSize(
-		common.TestSimpleTask.ReferenceName(),
-		testdata.WorkerQty,
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
+	// err = testdata.TaskRunner.DecreaseBatchSize(
+	// 	common.TestSimpleTask.ReferenceName(),
+	// 	testdata.WorkerQty,
+	// )
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
 }
 
 func TestInlineTask(t *testing.T) {

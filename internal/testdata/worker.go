@@ -12,7 +12,6 @@ package testdata
 import (
 	"fmt"
 	"os"
-	"testing"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/sdk/model"
@@ -63,71 +62,6 @@ func SimpleWorker(t *model.Task) (interface{}, error) {
 	}
 	taskResult.Status = model.CompletedTask
 	return taskResult, nil
-}
-
-func TestWorkers(t *testing.T) {
-	outputData := map[string]interface{}{
-		"key": "value",
-	}
-	workerWithTaskResultOutput := func(t *model.Task) (interface{}, error) {
-		taskResult := model.NewTaskResultFromTask(t)
-		taskResult.OutputData = outputData
-		taskResult.Status = model.CompletedTask
-		return taskResult, nil
-	}
-	workerWithGenericOutput := func(t *model.Task) (interface{}, error) {
-		return outputData, nil
-	}
-	workers := []model.ExecuteTaskFunction{
-		workerWithTaskResultOutput,
-		workerWithGenericOutput,
-	}
-	for _, worker := range workers {
-		err := validateWorker(worker, outputData)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-}
-
-func validateWorker(worker model.ExecuteTaskFunction, expectedOutput map[string]interface{}) error {
-	workflowIdList, err := StartWorkflows(
-		WorkflowExecutionQty,
-		WorkflowName,
-	)
-	if err != nil {
-		return err
-	}
-	err = TaskRunner.StartWorker(
-		TaskName,
-		worker,
-		WorkerQty,
-		WorkerPollInterval,
-	)
-	if err != nil {
-		return err
-	}
-	runningWorkflows := make([]chan error, len(workflowIdList))
-	for i, workflowId := range workflowIdList {
-		runningWorkflows[i] = make(chan error)
-		go ValidateWorkflowDaemon(
-			WorkflowCompletionTimeout,
-			runningWorkflows[i],
-			workflowId,
-			expectedOutput,
-			model.CompletedWorkflow,
-		)
-	}
-	for _, runningWorkflowChannel := range runningWorkflows {
-		err := <-runningWorkflowChannel
-		if err != nil {
-			return err
-		}
-	}
-	return TaskRunner.DecreaseBatchSize(
-		TaskName,
-		WorkerQty,
-	)
 }
 
 func FaultyWorker(task *model.Task) (interface{}, error) {
