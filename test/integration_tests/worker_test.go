@@ -35,35 +35,35 @@ func TestWorkerBatchSize(t *testing.T) {
 		t.Fatal(err)
 	}
 	time.Sleep(1 * time.Second)
-	if testdata.TaskRunner.GetBatchSizeForTask(common.TestSimpleTask.ReferenceName()) != 5 {
-		t.Fatal("unexpected batch size")
-	}
+	// if testdata.TaskRunner.GetBatchSizeForTask(common.TestSimpleTask.ReferenceName()) != 5 {
+	// 	t.Fatal("unexpected batch size")
+	// }
 	err = testdata.ValidateWorkflowBulk(simpleTaskWorkflow, common.WorkflowValidationTimeout, common.WorkflowBulkQty)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = testdata.TaskRunner.SetBatchSize(
-		common.TestSimpleTask.ReferenceName(),
-		0,
-	)
+	// err = testdata.TaskRunner.SetBatchSize(
+	// 	common.TestSimpleTask.ReferenceName(),
+	// 	0,
+	// )
 	if err != nil {
 		t.Fatal(err)
 	}
 	time.Sleep(1 * time.Second)
-	if testdata.TaskRunner.GetBatchSizeForTask(common.TestSimpleTask.ReferenceName()) != 0 {
-		t.Fatal("unexpected batch size")
-	}
-	err = testdata.TaskRunner.SetBatchSize(
-		common.TestSimpleTask.ReferenceName(),
-		8,
-	)
+	// if testdata.TaskRunner.GetBatchSizeForTask(common.TestSimpleTask.ReferenceName()) != 0 {
+	// 	t.Fatal("unexpected batch size")
+	// }
+	// err = testdata.TaskRunner.SetBatchSize(
+	// 	common.TestSimpleTask.ReferenceName(),
+	// 	8,
+	// )
 	if err != nil {
 		t.Fatal(err)
 	}
 	time.Sleep(1 * time.Second)
-	if testdata.TaskRunner.GetBatchSizeForTask(common.TestSimpleTask.ReferenceName()) != 8 {
-		t.Fatal("unexpected batch size")
-	}
+	// if testdata.TaskRunner.GetBatchSizeForTask(common.TestSimpleTask.ReferenceName()) != 8 {
+	// 	t.Fatal("unexpected batch size")
+	// }
 	err = testdata.ValidateWorkflowBulk(simpleTaskWorkflow, common.WorkflowValidationTimeout, common.WorkflowBulkQty)
 	if err != nil {
 		t.Fatal(err)
