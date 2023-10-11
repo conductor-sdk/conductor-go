@@ -311,7 +311,7 @@ func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]mod
 	if domain != "" {
 		domainOptional = optional.NewString(domain)
 	}
-	log.Debug(
+	log.Trace(
 		"Polling for task: ", taskName,
 		", in batches of size: ", count,
 	)
@@ -341,7 +341,13 @@ func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]mod
 	if response.StatusCode == 204 {
 		return nil, nil
 	}
-	log.Debug(fmt.Sprintf("Polled %d tasks for taskName: %s", len(tasks), taskName))
+
+	if len(tasks) > 0 {
+		log.Debug(fmt.Sprintf("Polled %d tasks for taskName: %s", len(tasks), taskName))
+	} else {
+		log.Trace(fmt.Sprintf("Polled %d tasks for taskName: %s", len(tasks), taskName))
+	}
+
 	return tasks, nil
 }
 
@@ -359,7 +365,7 @@ func (c *TaskRunner) executeTask(t *model.Task, executeFunction model.ExecuteTas
 	)
 	if err != nil {
 		metrics.IncrementTaskExecuteError(t.TaskDefName, err)
-		log.Debug(
+		log.Error(
 			"failed to execute task",
 			", reason: ", err.Error(),
 			", taskName: ", t.TaskDefName,
@@ -372,7 +378,7 @@ func (c *TaskRunner) executeTask(t *model.Task, executeFunction model.ExecuteTas
 	}
 	taskResult, err := model.GetTaskResultFromTaskExecutionOutput(t, taskExecutionOutput)
 	if err != nil {
-		log.Debug(
+		log.Error(
 			"Failed to extract taskResult from generated object",
 			", reason: ", err.Error(),
 			", task type: ", t.TaskDefName,
@@ -391,7 +397,7 @@ func (c *TaskRunner) executeTask(t *model.Task, executeFunction model.ExecuteTas
 }
 
 func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.TaskResult) error {
-	log.Debug(
+	log.Trace(
 		"Updating task of type: ", taskName,
 		", taskId: ", taskResult.TaskId,
 		", workflowId: ", taskResult.WorkflowInstanceId,
@@ -405,7 +411,7 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 		}
 		_, err := c.updateTask(taskName, taskResult)
 		if err == nil {
-			log.Debug(
+			log.Trace(
 				"Updated task of type: ", taskName,
 				", taskId: ", taskResult.TaskId,
 				", workflowId: ", taskResult.WorkflowInstanceId,
