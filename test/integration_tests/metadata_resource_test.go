@@ -122,6 +122,7 @@ func TestUpdateWorkflowDefWithTags(t *testing.T) {
 
 	tagObjects = append(tagObjects, tag3)
 
+	workflowDefWithTags.Tags = tagObjects
 	workflowDefWithTags.OverwriteTags = false
 	workflowDefs = []model.ExtendedWorkflowDef{workflowDefWithTags}
 
