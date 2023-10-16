@@ -31,10 +31,10 @@ func TestKafkaQueueConfiguration(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	//_, response, err := testdata.WorkflowExecutor.GetQueueConfiguration(*kafkaQueueConfiguration)
-	//if response.StatusCode != 404 {
-	//	t.Fatal("no queue configuration could be found", response.StatusCode, err)
-	//}
+	_, response, err := testdata.WorkflowExecutor.GetQueueConfiguration(*kafkaQueueConfiguration)
+	if response.StatusCode != 404 {
+		t.Fatal("no queue configuration could be found", response.StatusCode, err)
+	}
 	_, err = testdata.WorkflowExecutor.PutQueueConfiguration(*kafkaQueueConfiguration)
 	if err != nil {
 		t.Fatal(err)

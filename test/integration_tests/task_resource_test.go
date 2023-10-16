@@ -16,13 +16,28 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/workflow"
+	"github.com/conductor-sdk/conductor-go/test/common"
 )
 
 func TestUpdateTaskRefByName(t *testing.T) {
+	simpleTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("TEST_GO_WORKFLOW_UPDATE_TASK").
+		Version(1).
+		Add(common.TestSimpleTask)
+
+	err := testdata.ValidateWorkflowRegistration(simpleTaskWorkflow)
+
+	if err != nil {
+		t.Fatal(
+			"Failed to register workflow. Reason: ", err.Error(),
+		)
+	}
+
 	workflowId, response, err := testdata.WorkflowClient.StartWorkflow(
 		context.Background(),
 		make(map[string]interface{}),
-		testdata.WorkflowName,
+		simpleTaskWorkflow.GetName(),
 		nil,
 	)
 	if err != nil {
@@ -64,5 +79,12 @@ func TestUpdateTaskRefByName(t *testing.T) {
 			"Failed to validate workflow. Reason: ", err.Error(),
 			", workflowId: ", workflowId,
 		)
+	} else {
+		err := testdata.ValidateWorkflowDeletion(simpleTaskWorkflow)
+		if err != nil {
+			t.Fatal(
+				"Failed to delete workflow. Reason: ", err.Error(),
+			)
+		}
 	}
 }
