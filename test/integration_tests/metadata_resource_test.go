@@ -113,6 +113,35 @@ func TestUpdateWorkflowDefWithTags(t *testing.T) {
 		t.Fatal(err2)
 	}
 
+	var value3 interface{} = "wf_value_3"
+
+	tag3 := model.TagObject{
+		Key:   "key_3",
+		Value: &value3,
+	}
+
+	tagObjects = append(tagObjects, tag3)
+
+	workflowDefWithTags.OverwriteTags = false
+	workflowDefs = []model.ExtendedWorkflowDef{workflowDefWithTags}
+
+	testdata.MetadataClient.UpdateWorkflowDefWithTags(context.Background(), workflowDefs)
+
+	tags, _, err2 = testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
+
+	if err2 == nil {
+		assert.Equal(t, len(tags), 3)
+		assert.Equal(t, tags[0].Key, tag1.Key)
+		assert.Equal(t, *tags[0].Value, *tag1.Value)
+		assert.Equal(t, tags[1].Key, tag2.Key)
+		assert.Equal(t, *tags[1].Value, *tag2.Value)
+		assert.Equal(t, tags[2].Key, tag3.Key)
+		assert.Equal(t, *tags[2].Value, *tag3.Value)
+
+	} else {
+		t.Fatal(err2)
+	}
+
 	_, err3 := testdata.MetadataClient.UnregisterWorkflowDef(context.Background(), WorkflowName, 1)
 
 	if err3 != nil {
