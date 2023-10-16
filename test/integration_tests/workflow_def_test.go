@@ -43,6 +43,13 @@ func TestHttpTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	err = testdata.ValidateWorkflowDeletion(httpTaskWorkflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
+	}
 }
 
 func SimpleTask(t *testing.T) {
@@ -77,6 +84,13 @@ func SimpleTask(t *testing.T) {
 	)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	err = testdata.ValidateWorkflowDeletion(simpleTaskWorkflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
 	}
 }
 
@@ -115,6 +129,13 @@ func SimpleTaskWithoutRetryCount(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	err = testdata.ValidateWorkflowDeletion(simpleTaskWorkflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
+	}
 }
 
 func TestInlineTask(t *testing.T) {
@@ -130,6 +151,13 @@ func TestInlineTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	err = testdata.ValidateWorkflowDeletion(inlineTaskWorkflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
+	}
 }
 
 func TestSqsEventTask(t *testing.T) {
@@ -140,6 +168,13 @@ func TestSqsEventTask(t *testing.T) {
 	err := testdata.ValidateWorkflowRegistration(workflow)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	err = testdata.ValidateWorkflowDeletion(workflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
 	}
 }
 
@@ -152,6 +187,13 @@ func TestConductorEventTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	err = testdata.ValidateWorkflowDeletion(workflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
+	}
 }
 
 func TestKafkaPublishTask(t *testing.T) {
@@ -162,6 +204,13 @@ func TestKafkaPublishTask(t *testing.T) {
 	err := testdata.ValidateWorkflowRegistration(workflow)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	err = testdata.ValidateWorkflowDeletion(workflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
 	}
 }
 
@@ -178,6 +227,13 @@ func TestTerminateTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	err = testdata.ValidateWorkflowDeletion(workflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
+	}
 }
 
 func TestSwitchTask(t *testing.T) {
@@ -189,6 +245,13 @@ func TestSwitchTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	err = testdata.ValidateWorkflowDeletion(workflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
+	}
 }
 
 func TestDynamicForkWorkflow(t *testing.T) {
@@ -199,6 +262,13 @@ func TestDynamicForkWorkflow(t *testing.T) {
 	err := wf.Register(true)
 	if err != nil {
 		t.Fatal()
+	}
+
+	err = testdata.ValidateWorkflowDeletion(wf)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
 	}
 }
 
@@ -234,6 +304,13 @@ func TestComplexSwitchWorkflow(t *testing.T) {
 	}
 	counter := countMultipleSwitchInnerTasks(receivedWf.Tasks...)
 	assert.Equal(t, 7, counter)
+
+	err = testdata.ValidateWorkflowDeletion(wf)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
+	}
 }
 
 func countMultipleSwitchInnerTasks(tasks ...model.WorkflowTask) int {
