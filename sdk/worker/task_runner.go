@@ -287,12 +287,12 @@ func (c *TaskRunner) workOnce(taskName string, executeFunction model.ExecuteTask
 		return
 	}
 	for _, task := range tasks {
+		c.increaseRunningWorkers(taskName)
 		go c.executeAndUpdateTask(taskName, task, executeFunction)
 	}
 }
 
 func (c *TaskRunner) executeAndUpdateTask(taskName string, task model.Task, executeFunction model.ExecuteTaskFunction) {
-	c.increaseRunningWorkers(taskName)
 	defer c.runningWorkerDone(taskName)
 	defer concurrency.HandlePanicError("execute_and_update_task " + string(task.TaskId) + ": " + string(task.Status))
 	taskResult := c.executeTask(&task, executeFunction)
