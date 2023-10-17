@@ -19,6 +19,7 @@ import (
 )
 
 const WorkflowName = "TestGoSDKWorkflowWithTags"
+const TaskName = "TEST_GO_SIMPLE_TASK"
 
 func TestRegisterWorkflowDefWithTags(t *testing.T) {
 	task := model.WorkflowTask{
@@ -143,6 +144,120 @@ func TestUpdateWorkflowDefWithTags(t *testing.T) {
 		if err != nil {
 			t.Fatal(
 				"Failed to delete workflow. Reason: ", err.Error(),
+			)
+		}
+	})
+}
+
+func TestRegisterTaskDefWithTags(t *testing.T) {
+	taskDef := model.TaskDef{
+		Name:        "TEST_GO_SIMPLE_TASK",
+		Description: "Test task definition created from Go SDK",
+	}
+
+	tag0 := model.MetadataTag{
+		Key:   "key_0",
+		Value: "value_0",
+	}
+
+	tags := []model.MetadataTag{tag0}
+
+	testdata.MetadataClient.RegisterTaskDefWithTags(context.Background(), taskDef, tags)
+
+	fetchedTags, _, err := testdata.TagsClient.GetTaskTags(context.Background(), "TEST_GO_SIMPLE_TASK")
+
+	if err == nil {
+		assert.Equal(t, len(tags), 1)
+		assert.Equal(t, tag0.Key, fetchedTags[0].Key)
+		assert.Equal(t, tag0.Value, *fetchedTags[0].Value)
+
+	} else {
+		t.Fatal(err)
+	}
+}
+
+func TestUpdateTaskDefWithTags(t *testing.T) {
+	taskDef := model.TaskDef{
+		Name:        TaskName,
+		Description: "Test task definition created from Go SDK",
+	}
+
+	tag0 := model.MetadataTag{
+		Key:   "key_0",
+		Value: "value_0",
+	}
+
+	tags := []model.MetadataTag{tag0}
+
+	testdata.MetadataClient.RegisterTaskDefWithTags(context.Background(), taskDef, tags)
+
+	fetchedTags, _, err := testdata.TagsClient.GetTaskTags(context.Background(), TaskName)
+
+	if err == nil {
+		assert.Equal(t, len(tags), 1)
+		assert.Equal(t, tag0.Key, fetchedTags[0].Key)
+		assert.Equal(t, tag0.Value, *fetchedTags[0].Value)
+
+	} else {
+		t.Fatal(err)
+	}
+
+	tag1 := model.MetadataTag{
+		Key:   "key_2",
+		Value: "value_1",
+	}
+
+	tag2 := model.MetadataTag{
+		Key:   "key_3",
+		Value: "value_2",
+	}
+
+	tags = []model.MetadataTag{tag1, tag2}
+
+	testdata.MetadataClient.UpdateTaskDefWithTags(context.Background(), taskDef, tags, true)
+
+	fetchedTags, _, err = testdata.TagsClient.GetTaskTags(context.Background(), TaskName)
+
+	expectedTags := []model.TagObject{
+		model.NewTagObject(tag1),
+		model.NewTagObject(tag2),
+	}
+
+	if err == nil {
+		assert.Equal(t, 2, len(fetchedTags))
+		assert.ElementsMatch(t, expectedTags, fetchedTags)
+
+	} else {
+		t.Fatal(err)
+	}
+
+	tag3 := model.MetadataTag{
+		Key:   "key_3",
+		Value: "wf_value_3",
+	}
+
+	tags = []model.MetadataTag{tag3}
+
+	testdata.MetadataClient.UpdateTaskDefWithTags(context.Background(), taskDef, tags, false)
+
+	fetchedTags, _, err = testdata.TagsClient.GetTaskTags(context.Background(), TaskName)
+
+	if err == nil {
+		expectedTags = append(expectedTags, model.NewTagObject(tag3))
+
+		assert.Equal(t, 3, len(fetchedTags))
+		assert.ElementsMatch(t, expectedTags, fetchedTags)
+
+	} else {
+		t.Fatal(err)
+	}
+
+	t.Cleanup(func() {
+		_, err := testdata.MetadataClient.UnregisterTaskDef(context.Background(), TaskName)
+
+		if err != nil {
+			t.Fatal(
+				"Failed to delete task definition. Reason: ", err.Error(),
 			)
 		}
 	})
