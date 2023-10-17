@@ -101,14 +101,16 @@ func TestUpdateWorkflowDefWithTags(t *testing.T) {
 
 	testdata.MetadataClient.UpdateWorkflowDefWithTags(context.Background(), workflowDef, metadataTags, true)
 
-	tags, _, err = testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
+	fetchedTags, _, err := testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
+
+	expectedTags := []model.TagObject{
+		model.NewTagObject(tag1),
+		model.NewTagObject(tag2),
+	}
 
 	if err == nil {
-		assert.Equal(t, 2, len(tags))
-		assert.Equal(t, tag1.Key, tags[1].Key)
-		assert.Equal(t, tag1.Value, *tags[1].Value)
-		assert.Equal(t, tag2.Key, tags[0].Key)
-		assert.Equal(t, tag2.Value, *tags[0].Value)
+		assert.Equal(t, 2, len(fetchedTags))
+		assert.ElementsMatch(t, expectedTags, fetchedTags)
 
 	} else {
 		t.Fatal(err)
@@ -123,16 +125,13 @@ func TestUpdateWorkflowDefWithTags(t *testing.T) {
 
 	testdata.MetadataClient.UpdateWorkflowDefWithTags(context.Background(), workflowDef, metadataTags, false)
 
-	tags, _, err = testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
+	fetchedTags, _, err = testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
 
 	if err == nil {
-		assert.Equal(t, 3, len(tags))
-		assert.Equal(t, tag1.Key, tags[2].Key)
-		assert.Equal(t, tag1.Value, *tags[2].Value)
-		assert.Equal(t, tag2.Key, tags[0].Key)
-		assert.Equal(t, tag2.Value, *tags[0].Value)
-		assert.Equal(t, tag3.Key, tags[1].Key)
-		assert.Equal(t, tag3.Value, *tags[1].Value)
+		expectedTags = append(expectedTags, model.NewTagObject(tag3))
+
+		assert.Equal(t, 3, len(fetchedTags))
+		assert.ElementsMatch(t, expectedTags, fetchedTags)
 
 	} else {
 		t.Fatal(err)

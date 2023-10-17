@@ -19,6 +19,7 @@ func NewTagObject(metadataTag MetadataTag) TagObject {
 
 	return TagObject{
 		Key:   metadataTag.Key,
+		Type_: "METADATA",
 		Value: &value,
 	}
 }
