@@ -21,16 +21,6 @@ import (
 const WorkflowName = "TestGoSDKWorkflowWithTags"
 
 func TestRegisterWorkflowDefWithTags(t *testing.T) {
-	var value0 interface{} = "value_0"
-	tagObjects := []model.TagObject{}
-
-	tag0 := model.TagObject{
-		Key:   "key_0",
-		Value: &value0,
-	}
-
-	tagObjects = append(tagObjects, tag0)
-
 	task := model.WorkflowTask{
 		Name:              "simple_task",
 		TaskReferenceName: "simple_task_ref",
@@ -40,21 +30,27 @@ func TestRegisterWorkflowDefWithTags(t *testing.T) {
 	workflowTasks := []model.WorkflowTask{}
 	workflowTasks = append(workflowTasks, task)
 
-	workflowDefWithTags := model.ExtendedWorkflowDef{
+	workflowDef := model.WorkflowDef{
 		Name:        WorkflowName,
 		Description: "Test Workflow created by GO SDK",
 		Tasks:       workflowTasks,
-		Tags:        tagObjects,
 	}
 
-	testdata.MetadataClient.RegisterWorkflowDefWithTags(context.Background(), true, workflowDefWithTags)
+	tag0 := model.MetadataTag{
+		Key:   "key_0",
+		Value: "value_0",
+	}
+
+	metadataTags := []model.MetadataTag{tag0}
+
+	testdata.MetadataClient.RegisterWorkflowDefWithTags(context.Background(), true, workflowDef, metadataTags)
 
 	tags, _, err2 := testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
 
 	if err2 == nil {
 		assert.Equal(t, len(tags), 1)
 		assert.Equal(t, tags[0].Key, tag0.Key)
-		assert.Equal(t, *tags[0].Value, *tag0.Value)
+		assert.Equal(t, *tags[0].Value, tag0.Value)
 
 	} else {
 		t.Fatal(err2)
@@ -68,86 +64,87 @@ func TestUpdateWorkflowDefWithTags(t *testing.T) {
 		Description:       "Test Simple Task",
 	}
 
-	workflowTasks := []model.WorkflowTask{}
-	workflowTasks = append(workflowTasks, task)
+	workflowTasks := []model.WorkflowTask{task}
 
-	var value1 interface{} = "wf_value_1"
-	var value2 interface{} = "wf_value_2"
-
-	tagObjects := []model.TagObject{}
-
-	tag1 := model.TagObject{
-		Key:   "key_1",
-		Value: &value1,
-	}
-
-	tag2 := model.TagObject{
-		Key:   "key_2",
-		Value: &value2,
-	}
-
-	tagObjects = append(tagObjects, tag1)
-	tagObjects = append(tagObjects, tag2)
-
-	workflowDefWithTags := model.ExtendedWorkflowDef{
+	workflowDef := model.WorkflowDef{
 		Name:        WorkflowName,
-		Description: "Test Workflow created by GO SDK",
+		Description: "Test Workflow updated by GO SDK",
 		Tasks:       workflowTasks,
-		Tags:        tagObjects,
 	}
 
-	workflowDefs := []model.ExtendedWorkflowDef{workflowDefWithTags}
+	workflowDefs := []model.WorkflowDef{workflowDef}
 
-	testdata.MetadataClient.UpdateWorkflowDefWithTags(context.Background(), workflowDefs)
+	testdata.MetadataClient.Update(context.Background(), workflowDefs)
 
-	tags, _, err2 := testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
+	tags, _, err := testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
 
-	if err2 == nil {
-		assert.Equal(t, len(tags), 2)
-		assert.Equal(t, tags[0].Key, tag1.Key)
-		assert.Equal(t, *tags[0].Value, *tag1.Value)
-		assert.Equal(t, tags[1].Key, tag2.Key)
-		assert.Equal(t, *tags[1].Value, *tag2.Value)
+	if err == nil {
+		assert.Equal(t, 1, len(tags))
+		assert.Equal(t, "key_0", tags[0].Key)
+		assert.Equal(t, "value_0", *tags[0].Value)
 
 	} else {
-		t.Fatal(err2)
+		t.Fatal(err)
 	}
 
-	var value3 interface{} = "wf_value_3"
+	tag1 := model.MetadataTag{
+		Key:   "key_1",
+		Value: "wf_value_1",
+	}
 
-	tag3 := model.TagObject{
+	tag2 := model.MetadataTag{
+		Key:   "key_2",
+		Value: "wf_value_2",
+	}
+
+	metadataTags := []model.MetadataTag{tag1, tag2}
+
+	testdata.MetadataClient.UpdateWorkflowDefWithTags(context.Background(), workflowDef, metadataTags, true)
+
+	tags, _, err = testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
+
+	if err == nil {
+		assert.Equal(t, 2, len(tags))
+		assert.Equal(t, tag1.Key, tags[1].Key)
+		assert.Equal(t, tag1.Value, *tags[1].Value)
+		assert.Equal(t, tag2.Key, tags[0].Key)
+		assert.Equal(t, tag2.Value, *tags[0].Value)
+
+	} else {
+		t.Fatal(err)
+	}
+
+	tag3 := model.MetadataTag{
 		Key:   "key_3",
-		Value: &value3,
+		Value: "wf_value_3",
 	}
 
-	tagObjects = append(tagObjects, tag3)
+	metadataTags = []model.MetadataTag{tag3}
 
-	workflowDefWithTags.Tags = tagObjects
-	workflowDefWithTags.OverwriteTags = false
-	workflowDefs = []model.ExtendedWorkflowDef{workflowDefWithTags}
+	testdata.MetadataClient.UpdateWorkflowDefWithTags(context.Background(), workflowDef, metadataTags, false)
 
-	testdata.MetadataClient.UpdateWorkflowDefWithTags(context.Background(), workflowDefs)
+	tags, _, err = testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
 
-	tags, _, err2 = testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
-
-	if err2 == nil {
-		assert.Equal(t, len(tags), 3)
-		assert.Equal(t, tags[0].Key, tag1.Key)
-		assert.Equal(t, *tags[0].Value, *tag1.Value)
-		assert.Equal(t, tags[1].Key, tag2.Key)
-		assert.Equal(t, *tags[1].Value, *tag2.Value)
-		assert.Equal(t, tags[2].Key, tag3.Key)
-		assert.Equal(t, *tags[2].Value, *tag3.Value)
+	if err == nil {
+		assert.Equal(t, 3, len(tags))
+		assert.Equal(t, tag1.Key, tags[2].Key)
+		assert.Equal(t, tag1.Value, *tags[2].Value)
+		assert.Equal(t, tag2.Key, tags[0].Key)
+		assert.Equal(t, tag2.Value, *tags[0].Value)
+		assert.Equal(t, tag3.Key, tags[1].Key)
+		assert.Equal(t, tag3.Value, *tags[1].Value)
 
 	} else {
-		t.Fatal(err2)
+		t.Fatal(err)
 	}
 
-	_, err3 := testdata.MetadataClient.UnregisterWorkflowDef(context.Background(), WorkflowName, 1)
+	t.Cleanup(func() {
+		_, err := testdata.MetadataClient.UnregisterWorkflowDef(context.Background(), WorkflowName, 1)
 
-	if err3 != nil {
-		t.Fatal(
-			"Failed to delete workflow. Reason: ", err3.Error(),
-		)
-	}
+		if err != nil {
+			t.Fatal(
+				"Failed to delete workflow. Reason: ", err.Error(),
+			)
+		}
+	})
 }

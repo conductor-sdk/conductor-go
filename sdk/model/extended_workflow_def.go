@@ -19,7 +19,7 @@ type ExtendedWorkflowDef struct {
 	Name                          string                            `json:"name"`
 	OnStateChange                 map[string][]StateChangeEvent     `json:"onStateChange,omitempty"`
 	OutputParameters              map[string]interface{}            `json:"outputParameters,omitempty"`
-	OverwriteTags                 bool                              `json:"overwriteTags,omitempty"`
+	OverwriteTags                 bool                              `json:"overwriteTags"`
 	OwnerApp                      string                            `json:"ownerApp,omitempty"`
 	OwnerEmail                    string                            `json:"ownerEmail,omitempty"`
 	Restartable                   bool                              `json:"restartable,omitempty"`
@@ -34,4 +34,30 @@ type ExtendedWorkflowDef struct {
 	Version                       int32                             `json:"version,omitempty"`
 	WorkflowStatusListenerEnabled bool                              `json:"workflowStatusListenerEnabled,omitempty"`
 	WorkflowStatusListenerSink    string                            `json:"workflowStatusListenerSink,omitempty"`
+}
+
+func NewExtendedWorkflowDef(workflowDef WorkflowDef, tags []TagObject, overwriteTags bool) ExtendedWorkflowDef {
+	return ExtendedWorkflowDef{
+		Name:             workflowDef.Name,
+		Description:      workflowDef.Description,
+		Tasks:            workflowDef.Tasks,
+		InputParameters:  workflowDef.InputParameters,
+		InputTemplate:    workflowDef.InputTemplate,
+		OutputParameters: workflowDef.OutputParameters,
+		FailureWorkflow:  workflowDef.FailureWorkflow,
+		Variables:        workflowDef.Variables,
+		OwnerApp:         workflowDef.OwnerApp,
+		OwnerEmail:       workflowDef.OwnerEmail,
+		CreateTime:       workflowDef.CreateTime,
+		CreatedBy:        workflowDef.CreatedBy,
+		UpdateTime:       workflowDef.UpdateTime,
+		UpdatedBy:        workflowDef.UpdatedBy,
+		Restartable:      workflowDef.Restartable,
+		SchemaVersion:    workflowDef.SchemaVersion,
+		Version:          workflowDef.Version,
+		TimeoutPolicy:    workflowDef.TimeoutPolicy,
+		TimeoutSeconds:   workflowDef.TimeoutSeconds,
+		Tags:             tags,
+		OverwriteTags:    overwriteTags,
+	}
 }

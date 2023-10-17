@@ -13,3 +13,12 @@ type TagObject struct {
 	Type_ string       `json:"type,omitempty"`
 	Value *interface{} `json:"value,omitempty"`
 }
+
+func NewTagObject(metadataTag MetadataTag) TagObject {
+	var value interface{} = metadataTag.Value
+
+	return TagObject{
+		Key:   metadataTag.Key,
+		Value: &value,
+	}
+}

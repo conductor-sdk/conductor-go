@@ -10,7 +10,6 @@ package model
 
 type ExtendedTaskDef struct {
 	BackoffScaleFactor          int32                  `json:"backoffScaleFactor,omitempty"`
-	BaseType                    string                 `json:"baseType,omitempty"`
 	ConcurrentExecLimit         int32                  `json:"concurrentExecLimit,omitempty"`
 	CreateTime                  int64                  `json:"createTime,omitempty"`
 	CreatedBy                   string                 `json:"createdBy,omitempty"`
@@ -21,7 +20,6 @@ type ExtendedTaskDef struct {
 	IsolationGroupId            string                 `json:"isolationGroupId,omitempty"`
 	Name                        string                 `json:"name"`
 	OutputKeys                  []string               `json:"outputKeys,omitempty"`
-	OverwriteTags               bool                   `json:"overwriteTags,omitempty"`
 	OwnerApp                    string                 `json:"ownerApp,omitempty"`
 	OwnerEmail                  string                 `json:"ownerEmail,omitempty"`
 	PollTimeoutSeconds          int32                  `json:"pollTimeoutSeconds,omitempty"`
@@ -31,9 +29,41 @@ type ExtendedTaskDef struct {
 	RetryCount                  int32                  `json:"retryCount,omitempty"`
 	RetryDelaySeconds           int32                  `json:"retryDelaySeconds,omitempty"`
 	RetryLogic                  string                 `json:"retryLogic,omitempty"`
-	Tags                        []TagObject            `json:"tags,omitempty"`
 	TimeoutPolicy               string                 `json:"timeoutPolicy,omitempty"`
 	TimeoutSeconds              int64                  `json:"timeoutSeconds"`
 	UpdateTime                  int64                  `json:"updateTime,omitempty"`
 	UpdatedBy                   string                 `json:"updatedBy,omitempty"`
+	BaseType                    string                 `json:"baseType,omitempty"`
+	Tags                        []TagObject            `json:"tags,omitempty"`
+	OverwriteTags               bool                   `json:"overwriteTags"`
+}
+
+func NewExtendedTaskDef(taskDef TaskDef, tags []TagObject, overwriteTags bool) ExtendedTaskDef {
+	return ExtendedTaskDef{
+		Name:                        taskDef.Name,
+		Description:                 taskDef.Description,
+		InputKeys:                   taskDef.InputKeys,
+		InputTemplate:               taskDef.InputTemplate,
+		OutputKeys:                  taskDef.OutputKeys,
+		OwnerApp:                    taskDef.OwnerApp,
+		OwnerEmail:                  taskDef.OwnerEmail,
+		CreateTime:                  taskDef.CreateTime,
+		CreatedBy:                   taskDef.CreatedBy,
+		UpdateTime:                  taskDef.UpdateTime,
+		UpdatedBy:                   taskDef.UpdatedBy,
+		BackoffScaleFactor:          taskDef.BackoffScaleFactor,
+		ConcurrentExecLimit:         taskDef.ConcurrentExecLimit,
+		ExecutionNameSpace:          taskDef.ExecutionNameSpace,
+		TimeoutPolicy:               taskDef.TimeoutPolicy,
+		TimeoutSeconds:              taskDef.TimeoutSeconds,
+		PollTimeoutSeconds:          taskDef.PollTimeoutSeconds,
+		RateLimitFrequencyInSeconds: taskDef.RateLimitFrequencyInSeconds,
+		RateLimitPerFrequency:       taskDef.RateLimitPerFrequency,
+		RetryCount:                  taskDef.RetryCount,
+		RetryLogic:                  taskDef.RetryLogic,
+		RetryDelaySeconds:           taskDef.RetryDelaySeconds,
+		ResponseTimeoutSeconds:      taskDef.ResponseTimeoutSeconds,
+		Tags:                        tags,
+		OverwriteTags:               overwriteTags,
+	}
 }
