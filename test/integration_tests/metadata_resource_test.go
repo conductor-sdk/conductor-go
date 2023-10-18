@@ -58,6 +58,18 @@ func TestRegisterWorkflowDefWithTags(t *testing.T) {
 	}
 }
 
+func TestTagsForWorkflowDef(t *testing.T) {
+	tags, err := testdata.MetadataClient.GetTagsForWorkflowDef(context.Background(), WorkflowName)
+
+	if err == nil {
+		assert.Equal(t, len(tags), 1)
+		assert.Equal(t, tags[0].Key, "key_0")
+		assert.Equal(t, tags[0].Value, "value_0")
+	} else {
+		t.Fatal(err)
+	}
+}
+
 func TestUpdateWorkflowDefWithTags(t *testing.T) {
 	task := model.WorkflowTask{
 		Name:              "simple_task",
@@ -65,27 +77,15 @@ func TestUpdateWorkflowDefWithTags(t *testing.T) {
 		Description:       "Test Simple Task",
 	}
 
-	workflowTasks := []model.WorkflowTask{task}
-
 	workflowDef := model.WorkflowDef{
 		Name:        WorkflowName,
 		Description: "Test Workflow updated by GO SDK",
-		Tasks:       workflowTasks,
+		Tasks:       []model.WorkflowTask{task},
 	}
 
-	workflowDefs := []model.WorkflowDef{workflowDef}
-
-	testdata.MetadataClient.Update(context.Background(), workflowDefs)
-
-	tags, _, err := testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
-
-	if err == nil {
-		assert.Equal(t, 1, len(tags))
-		assert.Equal(t, "key_0", tags[0].Key)
-		assert.Equal(t, "value_0", *tags[0].Value)
-
-	} else {
-		t.Fatal(err)
+	tag0 := model.MetadataTag{
+		Key:   "key_0",
+		Value: "value_0",
 	}
 
 	tag1 := model.MetadataTag{
@@ -98,44 +98,33 @@ func TestUpdateWorkflowDefWithTags(t *testing.T) {
 		Value: "wf_value_2",
 	}
 
-	metadataTags := []model.MetadataTag{tag1, tag2}
-
-	testdata.MetadataClient.UpdateWorkflowDefWithTags(context.Background(), workflowDef, metadataTags, true)
-
-	fetchedTags, _, err := testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
-
-	expectedTags := []model.TagObject{
-		model.NewTagObject(tag1),
-		model.NewTagObject(tag2),
-	}
-
-	if err == nil {
-		assert.Equal(t, 2, len(fetchedTags))
-		assert.ElementsMatch(t, expectedTags, fetchedTags)
-
-	} else {
-		t.Fatal(err)
-	}
-
 	tag3 := model.MetadataTag{
 		Key:   "key_3",
 		Value: "wf_value_3",
 	}
 
-	metadataTags = []model.MetadataTag{tag3}
+	testCases := []struct {
+		tags         []model.MetadataTag
+		overwrite    bool
+		expectedTags []model.MetadataTag
+	}{
+		{[]model.MetadataTag{}, false, []model.MetadataTag{tag0}},
+		{[]model.MetadataTag{tag1, tag2}, true, []model.MetadataTag{tag1, tag2}},
+		{[]model.MetadataTag{tag3}, false, []model.MetadataTag{tag1, tag2, tag3}},
+	}
 
-	testdata.MetadataClient.UpdateWorkflowDefWithTags(context.Background(), workflowDef, metadataTags, false)
+	for _, tc := range testCases {
+		testdata.MetadataClient.UpdateWorkflowDefWithTags(context.Background(), workflowDef, tc.tags, tc.overwrite)
 
-	fetchedTags, _, err = testdata.TagsClient.GetWorkflowTags(context.Background(), WorkflowName)
+		fetchedTags, err := testdata.MetadataClient.GetTagsForWorkflowDef(context.Background(), WorkflowName)
 
-	if err == nil {
-		expectedTags = append(expectedTags, model.NewTagObject(tag3))
+		if err == nil {
+			assert.Equal(t, len(fetchedTags), len(tc.expectedTags))
+			assert.ElementsMatch(t, fetchedTags, tc.expectedTags)
 
-		assert.Equal(t, 3, len(fetchedTags))
-		assert.ElementsMatch(t, expectedTags, fetchedTags)
-
-	} else {
-		t.Fatal(err)
+		} else {
+			t.Fatal(err)
+		}
 	}
 
 	t.Cleanup(func() {
@@ -150,33 +139,6 @@ func TestUpdateWorkflowDefWithTags(t *testing.T) {
 }
 
 func TestRegisterTaskDefWithTags(t *testing.T) {
-	taskDef := model.TaskDef{
-		Name:        "TEST_GO_SIMPLE_TASK",
-		Description: "Test task definition created from Go SDK",
-	}
-
-	tag0 := model.MetadataTag{
-		Key:   "key_0",
-		Value: "value_0",
-	}
-
-	tags := []model.MetadataTag{tag0}
-
-	testdata.MetadataClient.RegisterTaskDefWithTags(context.Background(), taskDef, tags)
-
-	fetchedTags, _, err := testdata.TagsClient.GetTaskTags(context.Background(), "TEST_GO_SIMPLE_TASK")
-
-	if err == nil {
-		assert.Equal(t, len(tags), 1)
-		assert.Equal(t, tag0.Key, fetchedTags[0].Key)
-		assert.Equal(t, tag0.Value, *fetchedTags[0].Value)
-
-	} else {
-		t.Fatal(err)
-	}
-}
-
-func TestUpdateTaskDefWithTags(t *testing.T) {
 	taskDef := model.TaskDef{
 		Name:        TaskName,
 		Description: "Test task definition created from Go SDK",
@@ -195,61 +157,68 @@ func TestUpdateTaskDefWithTags(t *testing.T) {
 
 	if err == nil {
 		assert.Equal(t, len(tags), 1)
-		assert.Equal(t, tag0.Key, fetchedTags[0].Key)
-		assert.Equal(t, tag0.Value, *fetchedTags[0].Value)
+		assert.Equal(t, fetchedTags[0].Key, tag0.Key)
+		assert.Equal(t, *fetchedTags[0].Value, tag0.Value)
 
 	} else {
 		t.Fatal(err)
 	}
+}
+
+func TestGetTagsForTaskDef(t *testing.T) {
+	tags, err := testdata.MetadataClient.GetTagsForTaskDef(context.Background(), TaskName)
+
+	if err == nil {
+		assert.Equal(t, len(tags), 1)
+		assert.Equal(t, tags[0].Key, "key_0")
+		assert.Equal(t, tags[0].Value, "value_0")
+	} else {
+		t.Fatal(err)
+	}
+}
+
+func TestUpdateTaskDefWithTags(t *testing.T) {
+	taskDef := model.TaskDef{
+		Name:        TaskName,
+		Description: "Test task definition updated from Go SDK",
+	}
 
 	tag1 := model.MetadataTag{
-		Key:   "key_2",
+		Key:   "key_1",
 		Value: "value_1",
 	}
 
 	tag2 := model.MetadataTag{
-		Key:   "key_3",
+		Key:   "key_2",
 		Value: "value_2",
-	}
-
-	tags = []model.MetadataTag{tag1, tag2}
-
-	testdata.MetadataClient.UpdateTaskDefWithTags(context.Background(), taskDef, tags, true)
-
-	fetchedTags, _, err = testdata.TagsClient.GetTaskTags(context.Background(), TaskName)
-
-	expectedTags := []model.TagObject{
-		model.NewTagObject(tag1),
-		model.NewTagObject(tag2),
-	}
-
-	if err == nil {
-		assert.Equal(t, 2, len(fetchedTags))
-		assert.ElementsMatch(t, expectedTags, fetchedTags)
-
-	} else {
-		t.Fatal(err)
 	}
 
 	tag3 := model.MetadataTag{
 		Key:   "key_3",
-		Value: "wf_value_3",
+		Value: "value_3",
 	}
 
-	tags = []model.MetadataTag{tag3}
+	testCases := []struct {
+		tags         []model.MetadataTag
+		overwrite    bool
+		expectedTags []model.MetadataTag
+	}{
+		{[]model.MetadataTag{tag1, tag2}, true, []model.MetadataTag{tag1, tag2}},
+		{[]model.MetadataTag{tag3}, false, []model.MetadataTag{tag1, tag2, tag3}},
+	}
 
-	testdata.MetadataClient.UpdateTaskDefWithTags(context.Background(), taskDef, tags, false)
+	for _, tc := range testCases {
+		testdata.MetadataClient.UpdateTaskDefWithTags(context.Background(), taskDef, tc.tags, tc.overwrite)
 
-	fetchedTags, _, err = testdata.TagsClient.GetTaskTags(context.Background(), TaskName)
+		fetchedTags, err := testdata.MetadataClient.GetTagsForTaskDef(context.Background(), TaskName)
 
-	if err == nil {
-		expectedTags = append(expectedTags, model.NewTagObject(tag3))
+		if err == nil {
+			assert.Equal(t, len(fetchedTags), len(tc.expectedTags))
+			assert.ElementsMatch(t, fetchedTags, tc.expectedTags)
 
-		assert.Equal(t, 3, len(fetchedTags))
-		assert.ElementsMatch(t, expectedTags, fetchedTags)
-
-	} else {
-		t.Fatal(err)
+		} else {
+			t.Fatal(err)
+		}
 	}
 
 	t.Cleanup(func() {

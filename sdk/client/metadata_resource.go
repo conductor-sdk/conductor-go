@@ -1072,3 +1072,158 @@ func (a *MetadataResourceApiService) UpdateWorkflowDefWithTags(ctx context.Conte
 
 	return localVarHttpResponse, nil
 }
+
+func (a *MetadataResourceApiService) GetTagsForWorkflowDef(ctx context.Context, name string) ([]model.MetadataTag, error) {
+	var (
+		localVarHttpMethod  = strings.ToUpper("Get")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue []model.MetadataTag
+	)
+
+	// create path and map variables
+	localVarPath := "/metadata/workflow/{name}?metadata=true"
+	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{"*/*"}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return localVarReturnValue, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarReturnValue, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
+	if err != nil {
+		return localVarReturnValue, err
+	}
+
+	if localVarHttpResponse.StatusCode < 300 {
+		extendedWorkflowDef := model.ExtendedWorkflowDef{}
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&extendedWorkflowDef, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			for i := 0; i < len(extendedWorkflowDef.Tags); i++ {
+				value := fmt.Sprintf("%v", *extendedWorkflowDef.Tags[i].Value)
+				tag := model.MetadataTag{
+					Key:   extendedWorkflowDef.Tags[i].Key,
+					Value: value,
+				}
+				localVarReturnValue = append(localVarReturnValue, tag)
+			}
+			return localVarReturnValue, err
+		}
+	}
+
+	if localVarHttpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  localVarBody,
+			error: string(localVarBody),
+		}
+		return localVarReturnValue, newErr
+	}
+
+	return localVarReturnValue, nil
+}
+
+func (a *MetadataResourceApiService) GetTagsForTaskDef(ctx context.Context, tasktype string) ([]model.MetadataTag, error) {
+	var (
+		localVarHttpMethod  = strings.ToUpper("Get")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue []model.MetadataTag
+	)
+
+	// create path and map variables
+	localVarPath := "/metadata/taskdefs/{tasktype}?metadata=true"
+	localVarPath = strings.Replace(localVarPath, "{"+"tasktype"+"}", fmt.Sprintf("%v", tasktype), -1)
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{"*/*"}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return localVarReturnValue, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarReturnValue, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	if err != nil {
+		return localVarReturnValue, err
+	}
+
+	if localVarHttpResponse.StatusCode < 300 {
+		extendedTaskDef := model.ExtendedTaskDef{}
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&extendedTaskDef, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+
+		if err == nil {
+			for i := 0; i < len(extendedTaskDef.Tags); i++ {
+				value := fmt.Sprintf("%v", *extendedTaskDef.Tags[i].Value)
+				tag := model.MetadataTag{
+					Key:   extendedTaskDef.Tags[i].Key,
+					Value: value,
+				}
+				localVarReturnValue = append(localVarReturnValue, tag)
+			}
+			return localVarReturnValue, err
+		}
+	}
+
+	if localVarHttpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  localVarBody,
+			error: string(localVarBody),
+		}
+		return localVarReturnValue, newErr
+	}
+
+	return localVarReturnValue, nil
+}
