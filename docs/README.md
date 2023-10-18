@@ -3,3 +3,4 @@
 ### [Task Worker](worker.md)
 ### [Workflow Authoring](workflow.md)
 ### [Settings](settings.md)
+### [Conductor Client](client.md)
