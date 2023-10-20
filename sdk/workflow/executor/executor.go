@@ -97,6 +97,20 @@ func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.Work
 	return nil
 }
 
+// UnRegisterWorkflow Un-registers the workflow on the server.
+func (e *WorkflowExecutor) UnRegisterWorkflow(name string, version int32) error {
+	_, err := e.metadataClient.UnregisterWorkflowDef(
+		context.Background(),
+		name,
+		version,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ExecuteWorkflow start a workflow and wait until the workflow completes or the waitUntilTask completes
 // Returns the output of the workflow
 func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string) (run *model.WorkflowRun, err error) {
