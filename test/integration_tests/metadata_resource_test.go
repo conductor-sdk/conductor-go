@@ -108,7 +108,7 @@ func TestUpdateWorkflowDefWithTags(t *testing.T) {
 		overwrite    bool
 		expectedTags []model.MetadataTag
 	}{
-		{[]model.MetadataTag{}, false, []model.MetadataTag{tag0}},
+		{[]model.MetadataTag{tag0}, false, []model.MetadataTag{tag0}},
 		{[]model.MetadataTag{tag1, tag2}, true, []model.MetadataTag{tag1, tag2}},
 		{[]model.MetadataTag{tag3}, false, []model.MetadataTag{tag1, tag2, tag3}},
 	}

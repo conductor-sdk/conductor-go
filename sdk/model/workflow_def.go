@@ -30,4 +30,6 @@ type WorkflowDef struct {
 	TimeoutSeconds                int64                  `json:"timeoutSeconds"`
 	Variables                     map[string]interface{} `json:"variables,omitempty"`
 	InputTemplate                 map[string]interface{} `json:"inputTemplate,omitempty"`
+	Tags                          []TagObject            `json:"tags,omitempty"`
+	OverwriteTags                 bool                   `json:"overwriteTags"`
 }

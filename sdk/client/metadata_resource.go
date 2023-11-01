@@ -143,7 +143,9 @@ func (a *MetadataResourceApiService) RegisterWorkflowDefWithTags(ctx context.Con
 		tagObjects = append(tagObjects, model.NewTagObject(tags[i]))
 	}
 
-	workflowDefWithTags := model.NewExtendedWorkflowDef(body, tagObjects, true)
+	workflowDefWithTags := body
+	workflowDefWithTags.Tags = tagObjects
+	workflowDefWithTags.OverwriteTags = true
 	localVarPostBody = &workflowDefWithTags
 
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
@@ -631,7 +633,9 @@ func (a *MetadataResourceApiService) UpdateTaskDefWithTags(ctx context.Context, 
 		tagObjects = append(tagObjects, model.NewTagObject(tags[i]))
 	}
 
-	taskDefWithTags := model.NewExtendedTaskDef(body, tagObjects, overwriteTags)
+	taskDefWithTags := body
+	taskDefWithTags.Tags = tagObjects
+	taskDefWithTags.OverwriteTags = overwriteTags
 	localVarPutBody = &taskDefWithTags
 
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPutBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
@@ -771,8 +775,10 @@ func (a *MetadataResourceApiService) RegisterTaskDefWithTags(ctx context.Context
 		tagObjects = append(tagObjects, model.NewTagObject(tags[i]))
 	}
 
-	taskDefWithTags := model.NewExtendedTaskDef(body, tagObjects, true)
-	taskDefs := []model.ExtendedTaskDef{model.ExtendedTaskDef(taskDefWithTags)}
+	taskDefWithTags := body
+	taskDefWithTags.Tags = tagObjects
+	taskDefWithTags.OverwriteTags = true
+	taskDefs := []model.TaskDef{taskDefWithTags}
 	localVarPostBody = &taskDefs
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
@@ -1042,8 +1048,10 @@ func (a *MetadataResourceApiService) UpdateWorkflowDefWithTags(ctx context.Conte
 		tagObjects = append(tagObjects, model.NewTagObject(tags[i]))
 	}
 
-	workflowDefWithTags := model.NewExtendedWorkflowDef(body, tagObjects, overwriteTags)
-	workflowDefs := []model.ExtendedWorkflowDef{workflowDefWithTags}
+	workflowDefWithTags := body
+	workflowDefWithTags.Tags = tagObjects
+	workflowDefWithTags.OverwriteTags = overwriteTags
+	workflowDefs := []model.WorkflowDef{workflowDefWithTags}
 	localVarPostBody = &workflowDefs
 
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
@@ -1124,7 +1132,7 @@ func (a *MetadataResourceApiService) GetTagsForWorkflowDef(ctx context.Context, 
 	}
 
 	if localVarHttpResponse.StatusCode < 300 {
-		extendedWorkflowDef := model.ExtendedWorkflowDef{}
+		extendedWorkflowDef := model.WorkflowDef{}
 		// If we succeed, return the data, otherwise pass on to decode error.
 		err = a.decode(&extendedWorkflowDef, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 		if err == nil {
@@ -1200,7 +1208,7 @@ func (a *MetadataResourceApiService) GetTagsForTaskDef(ctx context.Context, task
 	}
 
 	if localVarHttpResponse.StatusCode < 300 {
-		extendedTaskDef := model.ExtendedTaskDef{}
+		extendedTaskDef := model.WorkflowDef{}
 		// If we succeed, return the data, otherwise pass on to decode error.
 		err = a.decode(&extendedTaskDef, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 
