@@ -90,8 +90,7 @@ func (workflow *ConductorWorkflow) Restartable(restartable bool) *ConductorWorkf
 	return workflow
 }
 
-// WorkflowStatusListenerEnabled if the workflow can be restarted after it has reached terminal state.
-// Set this to false if restarting workflow can have side effects
+// WorkflowStatusListenerEnabled if the workflow status listener need to be enabled.
 func (workflow *ConductorWorkflow) WorkflowStatusListenerEnabled(workflowStatusListenerEnabled bool) *ConductorWorkflow {
 	workflow.workflowStatusListenerEnabled = workflowStatusListenerEnabled
 	return workflow
