@@ -34,6 +34,7 @@ func TestHttpTask(t *testing.T) {
 		Name("TEST_GO_WORKFLOW_HTTP").
 		OwnerEmail("test@orkes.io").
 		Version(1).
+		WorkflowStatusListenerEnabled(true).
 		Add(common.TestHttpTask)
 	err := testdata.ValidateWorkflow(httpTaskWorkflow, common.WorkflowValidationTimeout, model.CompletedWorkflow)
 	if err != nil {

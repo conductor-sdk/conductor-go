@@ -25,20 +25,21 @@ const (
 )
 
 type ConductorWorkflow struct {
-	executor         *executor.WorkflowExecutor
-	name             string
-	version          int32
-	description      string
-	ownerEmail       string
-	tasks            []TaskInterface
-	timeoutPolicy    TimeoutPolicy
-	timeoutSeconds   int64
-	failureWorkflow  string
-	inputParameters  []string
-	outputParameters map[string]interface{}
-	inputTemplate    map[string]interface{}
-	variables        map[string]interface{}
-	restartable      bool
+	executor                      *executor.WorkflowExecutor
+	name                          string
+	version                       int32
+	description                   string
+	ownerEmail                    string
+	tasks                         []TaskInterface
+	timeoutPolicy                 TimeoutPolicy
+	timeoutSeconds                int64
+	failureWorkflow               string
+	inputParameters               []string
+	outputParameters              map[string]interface{}
+	inputTemplate                 map[string]interface{}
+	variables                     map[string]interface{}
+	restartable                   bool
+	workflowStatusListenerEnabled bool
 }
 
 func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflow {
@@ -86,6 +87,13 @@ func (workflow *ConductorWorkflow) FailureWorkflow(failureWorkflow string) *Cond
 // Set this to false if restarting workflow can have side effects
 func (workflow *ConductorWorkflow) Restartable(restartable bool) *ConductorWorkflow {
 	workflow.restartable = restartable
+	return workflow
+}
+
+// WorkflowStatusListenerEnabled if the workflow can be restarted after it has reached terminal state.
+// Set this to false if restarting workflow can have side effects
+func (workflow *ConductorWorkflow) WorkflowStatusListenerEnabled(workflowStatusListenerEnabled bool) *ConductorWorkflow {
+	workflow.workflowStatusListenerEnabled = workflowStatusListenerEnabled
 	return workflow
 }
 
@@ -223,19 +231,21 @@ func getInputAsMap(input interface{}) map[string]interface{} {
 // ToWorkflowDef converts the workflow to the JSON serializable format
 func (workflow *ConductorWorkflow) ToWorkflowDef() *model.WorkflowDef {
 	return &model.WorkflowDef{
-		Name:             workflow.name,
-		Description:      workflow.description,
-		Version:          workflow.version,
-		Tasks:            getWorkflowTasksFromConductorWorkflow(workflow),
-		InputParameters:  workflow.inputParameters,
-		OutputParameters: workflow.outputParameters,
-		FailureWorkflow:  workflow.failureWorkflow,
-		SchemaVersion:    2,
-		OwnerEmail:       workflow.ownerEmail,
-		TimeoutPolicy:    string(workflow.timeoutPolicy),
-		TimeoutSeconds:   workflow.timeoutSeconds,
-		Variables:        workflow.variables,
-		InputTemplate:    workflow.inputTemplate,
+		Name:                          workflow.name,
+		Description:                   workflow.description,
+		Version:                       workflow.version,
+		Tasks:                         getWorkflowTasksFromConductorWorkflow(workflow),
+		InputParameters:               workflow.inputParameters,
+		OutputParameters:              workflow.outputParameters,
+		FailureWorkflow:               workflow.failureWorkflow,
+		SchemaVersion:                 2,
+		OwnerEmail:                    workflow.ownerEmail,
+		TimeoutPolicy:                 string(workflow.timeoutPolicy),
+		TimeoutSeconds:                workflow.timeoutSeconds,
+		Variables:                     workflow.variables,
+		InputTemplate:                 workflow.inputTemplate,
+		Restartable:                   workflow.restartable,
+		WorkflowStatusListenerEnabled: workflow.workflowStatusListenerEnabled,
 	}
 }
 
