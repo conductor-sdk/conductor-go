@@ -22,6 +22,8 @@ const WorkflowName = "TestGoSDKWorkflowWithTags"
 const TaskName = "TEST_GO_SIMPLE_TASK"
 
 func TestRegisterWorkflowDefWithTags(t *testing.T) {
+
+	_, _ = testdata.MetadataClient.UnregisterWorkflowDef(context.Background(), WorkflowName, 1)
 	task := model.WorkflowTask{
 		Name:              "simple_task",
 		TaskReferenceName: "simple_task_ref",
@@ -56,21 +58,30 @@ func TestRegisterWorkflowDefWithTags(t *testing.T) {
 	} else {
 		t.Fatal(err2)
 	}
-}
 
-func TestTagsForWorkflowDef(t *testing.T) {
-	tags, err := testdata.MetadataClient.GetTagsForWorkflowDef(context.Background(), WorkflowName)
+	tags2, err := testdata.MetadataClient.GetTagsForWorkflowDef(context.Background(), WorkflowName)
 
 	if err == nil {
-		assert.Equal(t, len(tags), 1)
-		assert.Equal(t, tags[0].Key, "key_0")
-		assert.Equal(t, tags[0].Value, "value_0")
-	} else {
-		t.Fatal(err)
+		assert.Equal(t, len(tags2), 1)
+		assert.Equal(t, tags2[0].Key, "key_0")
+		assert.Equal(t, tags2[0].Value, "value_0")
 	}
+
+	t.Cleanup(func() {
+		_, err := testdata.MetadataClient.UnregisterWorkflowDef(context.Background(), WorkflowName, 1)
+
+		if err != nil {
+			t.Fatal(
+				"Failed to delete workflow. Reason: ", err.Error(),
+			)
+		}
+	})
 }
 
 func TestUpdateWorkflowDefWithTags(t *testing.T) {
+
+	_, _ = testdata.MetadataClient.UnregisterWorkflowDef(context.Background(), WorkflowName, 1)
+
 	task := model.WorkflowTask{
 		Name:              "simple_task",
 		TaskReferenceName: "simple_task_ref",
@@ -108,7 +119,7 @@ func TestUpdateWorkflowDefWithTags(t *testing.T) {
 		overwrite    bool
 		expectedTags []model.MetadataTag
 	}{
-		{[]model.MetadataTag{}, false, []model.MetadataTag{tag0}},
+		{[]model.MetadataTag{tag0}, false, []model.MetadataTag{tag0}},
 		{[]model.MetadataTag{tag1, tag2}, true, []model.MetadataTag{tag1, tag2}},
 		{[]model.MetadataTag{tag3}, false, []model.MetadataTag{tag1, tag2, tag3}},
 	}

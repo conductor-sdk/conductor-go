@@ -34,4 +34,6 @@ type TaskDef struct {
 	OwnerEmail                  string                 `json:"ownerEmail,omitempty"`
 	PollTimeoutSeconds          int32                  `json:"pollTimeoutSeconds,omitempty"`
 	BackoffScaleFactor          int32                  `json:"backoffScaleFactor,omitempty"`
+	Tags                        []TagObject            `json:"tags,omitempty"`
+	OverwriteTags               bool                   `json:"overwriteTags"`
 }
