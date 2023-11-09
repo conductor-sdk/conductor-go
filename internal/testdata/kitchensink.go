@@ -59,6 +59,9 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 		},
 	)
 	join := workflow.NewJoinTask("new_join_ref", "simple_task_fork_ref2", "simple_task_fork_ref4")
+	join.InputMap(map[string]interface{}{
+		"param1": "value",
+	})
 	forkWithJoin := workflow.NewForkTaskWithJoin("fork_with_join_fork_ref", join,
 		[]workflow.TaskInterface{
 			workflow.NewSimpleTask("simple_task", "simple_task_fork_ref1"),
