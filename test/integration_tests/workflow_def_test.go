@@ -14,116 +14,56 @@ import (
 	"fmt"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
+	"github.com/conductor-sdk/conductor-go/test/common"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-)
-
-const (
-	workflowValidationTimeout = 7 * time.Second
-	workflowBulkQty           = 10
 )
 
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.InfoLevel)
+	log.SetLevel(log.ErrorLevel)
 }
-
-var (
-	httpTask = workflow.NewHttpTask(
-		"TEST_GO_TASK_HTTP",
-		&workflow.HttpInput{
-			Uri: "https://orkes-api-tester.orkesconductor.com/get",
-		},
-	)
-
-	simpleTask = workflow.NewSimpleTask(
-		"TEST_GO_TASK_SIMPLE", "TEST_GO_TASK_SIMPLE",
-	)
-
-	terminateTask = workflow.NewTerminateTask(
-		"TEST_GO_TASK_TERMINATE",
-		model.FailedWorkflow,
-		"Task used to mark workflow as failed",
-	)
-
-	switchTask = workflow.NewSwitchTask(
-		"TEST_GO_TASK_SWITCH",
-		"switchCaseValue",
-	).
-		Input("switchCaseValue", "${workflow.input.service}").
-		UseJavascript(true).
-		SwitchCase(
-			"REQUEST",
-			httpTask,
-		).
-		SwitchCase(
-			"STOP",
-			terminateTask,
-		)
-
-	inlineTask = workflow.NewInlineTask(
-		"TEST_GO_TASK_INLINE",
-		"function e() { if ($.value == 1){return {\"result\": true}} else { return {\"result\": false}}} e();",
-	)
-
-	kafkaPublishTask = workflow.NewKafkaPublishTask(
-		"TEST_GO_TASK_KAFKA_PUBLISH",
-		&workflow.KafkaPublishTaskInput{
-			Topic:            "userTopic",
-			Value:            "Message to publish",
-			BootStrapServers: "localhost:9092",
-			Headers: map[string]interface{}{
-				"x-Auth": "Auth-key",
-			},
-			Key:           "123",
-			KeySerializer: "org.apache.kafka.common.serialization.IntegerSerializer",
-		},
-	)
-
-	sqsEventTask = workflow.NewSqsEventTask(
-		"TEST_GO_TASK_EVENT_SQS",
-		"QUEUE",
-	)
-
-	conductorEventTask = workflow.NewConductorEventTask(
-		"TEST_GO_TASK_EVENT_CONDUCTOR",
-		"EVENT_NAME",
-	)
-)
 
 func TestHttpTask(t *testing.T) {
 	httpTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_HTTP").
 		OwnerEmail("test@orkes.io").
 		Version(1).
-		Add(httpTask)
-	err := testdata.ValidateWorkflow(httpTaskWorkflow, workflowValidationTimeout, model.CompletedWorkflow)
+		WorkflowStatusListenerEnabled(true).
+		Add(common.TestHttpTask)
+	err := testdata.ValidateWorkflow(httpTaskWorkflow, common.WorkflowValidationTimeout, model.CompletedWorkflow)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = testdata.ValidateWorkflowBulk(httpTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
+	err = testdata.ValidateWorkflowBulk(httpTaskWorkflow, common.WorkflowValidationTimeout, common.WorkflowBulkQty)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	err = testdata.ValidateWorkflowDeletion(httpTaskWorkflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
 	}
 }
 
-func TestSimpleTask(t *testing.T) {
-	err := testdata.ValidateTaskRegistration(*simpleTask.ToTaskDef())
+func SimpleTask(t *testing.T) {
+	err := testdata.ValidateTaskRegistration(*common.TestSimpleTask.ToTaskDef())
 	if err != nil {
 		t.Fatal(err)
 	}
 	simpleTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_SIMPLE").
 		Version(1).
-		Add(simpleTask)
+		Add(common.TestSimpleTask)
 	err = testdata.TaskRunner.StartWorker(
-		simpleTask.ReferenceName(),
+		common.TestSimpleTask.ReferenceName(),
 		testdata.SimpleWorker,
 		testdata.WorkerQty,
 		testdata.WorkerPollInterval,
@@ -131,25 +71,32 @@ func TestSimpleTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = testdata.ValidateWorkflow(simpleTaskWorkflow, workflowValidationTimeout, model.CompletedWorkflow)
+	err = testdata.ValidateWorkflow(simpleTaskWorkflow, common.WorkflowValidationTimeout, model.CompletedWorkflow)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = testdata.ValidateWorkflowBulk(simpleTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
+	err = testdata.ValidateWorkflowBulk(simpleTaskWorkflow, common.WorkflowValidationTimeout, common.WorkflowBulkQty)
 	if err != nil {
 		t.Fatal(err)
 	}
 	err = testdata.TaskRunner.DecreaseBatchSize(
-		simpleTask.ReferenceName(),
+		common.TestSimpleTask.ReferenceName(),
 		testdata.WorkerQty,
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	err = testdata.ValidateWorkflowDeletion(simpleTaskWorkflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
+	}
 }
 
-func TestSimpleTaskWithoutRetryCount(t *testing.T) {
-	taskToRegister := simpleTask.ToTaskDef()
+func SimpleTaskWithoutRetryCount(t *testing.T) {
+	taskToRegister := common.TestSimpleTask.ToTaskDef()
 	taskToRegister.RetryCount = 0
 	err := testdata.ValidateTaskRegistration(*taskToRegister)
 	if err != nil {
@@ -158,9 +105,9 @@ func TestSimpleTaskWithoutRetryCount(t *testing.T) {
 	simpleTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_SIMPLE").
 		Version(1).
-		Add(simpleTask)
+		Add(common.TestSimpleTask)
 	err = testdata.TaskRunner.StartWorker(
-		simpleTask.ReferenceName(),
+		common.TestSimpleTask.ReferenceName(),
 		testdata.SimpleWorker,
 		testdata.WorkerQty,
 		testdata.WorkerPollInterval,
@@ -168,20 +115,27 @@ func TestSimpleTaskWithoutRetryCount(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = testdata.ValidateWorkflow(simpleTaskWorkflow, workflowValidationTimeout, model.CompletedWorkflow)
+	err = testdata.ValidateWorkflow(simpleTaskWorkflow, common.WorkflowValidationTimeout, model.CompletedWorkflow)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = testdata.ValidateWorkflowBulk(simpleTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
+	err = testdata.ValidateWorkflowBulk(simpleTaskWorkflow, common.WorkflowValidationTimeout, common.WorkflowBulkQty)
 	if err != nil {
 		t.Fatal(err)
 	}
 	err = testdata.TaskRunner.DecreaseBatchSize(
-		simpleTask.ReferenceName(),
+		common.TestSimpleTask.ReferenceName(),
 		testdata.WorkerQty,
 	)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	err = testdata.ValidateWorkflowDeletion(simpleTaskWorkflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
 	}
 }
 
@@ -189,14 +143,21 @@ func TestInlineTask(t *testing.T) {
 	inlineTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_INLINE_TASK").
 		Version(1).
-		Add(inlineTask)
-	err := testdata.ValidateWorkflow(inlineTaskWorkflow, workflowValidationTimeout, model.CompletedWorkflow)
+		Add(common.TestInlineTask)
+	err := testdata.ValidateWorkflow(inlineTaskWorkflow, common.WorkflowValidationTimeout, model.CompletedWorkflow)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = testdata.ValidateWorkflowBulk(inlineTaskWorkflow, workflowValidationTimeout, workflowBulkQty)
+	err = testdata.ValidateWorkflowBulk(inlineTaskWorkflow, common.WorkflowValidationTimeout, common.WorkflowBulkQty)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	err = testdata.ValidateWorkflowDeletion(inlineTaskWorkflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
 	}
 }
 
@@ -204,10 +165,17 @@ func TestSqsEventTask(t *testing.T) {
 	workflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_EVENT_SQS").
 		Version(1).
-		Add(sqsEventTask)
+		Add(common.TestSqsEventTask)
 	err := testdata.ValidateWorkflowRegistration(workflow)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	err = testdata.ValidateWorkflowDeletion(workflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
 	}
 }
 
@@ -215,10 +183,17 @@ func TestConductorEventTask(t *testing.T) {
 	workflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_EVENT_CONDUCTOR").
 		Version(1).
-		Add(conductorEventTask)
+		Add(common.TestConductorEventTask)
 	err := testdata.ValidateWorkflowRegistration(workflow)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	err = testdata.ValidateWorkflowDeletion(workflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
 	}
 }
 
@@ -226,10 +201,17 @@ func TestKafkaPublishTask(t *testing.T) {
 	workflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_KAFKA_PUBLISH").
 		Version(1).
-		Add(kafkaPublishTask)
+		Add(common.TestKafkaPublishTask)
 	err := testdata.ValidateWorkflowRegistration(workflow)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	err = testdata.ValidateWorkflowDeletion(workflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
 	}
 }
 
@@ -241,10 +223,17 @@ func TestTerminateTask(t *testing.T) {
 	workflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_TERMINATE").
 		Version(1).
-		Add(terminateTask)
+		Add(common.TestTerminateTask)
 	err := testdata.ValidateWorkflowRegistration(workflow)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	err = testdata.ValidateWorkflowDeletion(workflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
 	}
 }
 
@@ -252,10 +241,17 @@ func TestSwitchTask(t *testing.T) {
 	workflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_SWITCH").
 		Version(1).
-		Add(switchTask)
+		Add(common.TestSwitchTask)
 	err := testdata.ValidateWorkflowRegistration(workflow)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	err = testdata.ValidateWorkflowDeletion(workflow)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
 	}
 }
 
@@ -267,6 +263,13 @@ func TestDynamicForkWorkflow(t *testing.T) {
 	err := wf.Register(true)
 	if err != nil {
 		t.Fatal()
+	}
+
+	err = testdata.ValidateWorkflowDeletion(wf)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
 	}
 }
 
@@ -302,6 +305,13 @@ func TestComplexSwitchWorkflow(t *testing.T) {
 	}
 	counter := countMultipleSwitchInnerTasks(receivedWf.Tasks...)
 	assert.Equal(t, 7, counter)
+
+	err = testdata.ValidateWorkflowDeletion(wf)
+	if err != nil {
+		t.Fatal(
+			"Failed to delete workflow. Reason: ", err.Error(),
+		)
+	}
 }
 
 func countMultipleSwitchInnerTasks(tasks ...model.WorkflowTask) int {

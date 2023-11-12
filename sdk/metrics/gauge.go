@@ -54,13 +54,6 @@ var gaugeTemplates = map[MetricName]*MetricDetails{
 	),
 }
 
-func init() {
-	for metricName, metricDetails := range gaugeTemplates {
-		gaugeByName[metricName] = newGauge(metricDetails)
-		prometheus.MustRegister(gaugeByName[metricName])
-	}
-}
-
 func RecordWorkflowInputPayloadSize(workflowType string, version string, payloadSize float64) {
 	setGauge(
 		WORKFLOW_INPUT_SIZE,
@@ -123,8 +116,13 @@ func newGauge(metricDetails *MetricDetails) *prometheus.GaugeVec {
 }
 
 func setGauge(metricName MetricName, labelValues []string, value float64) {
+	// We skip setting gauge if Metrics collection is not enabled
+	if !collectionEnabled {
+		return
+	}
+
 	gauge := getGauge(metricName, labelValues)
-	if gauge != nil {
+	if *gauge != nil {
 		(*gauge).Set(value)
 	}
 }

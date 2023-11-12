@@ -50,6 +50,9 @@ var (
 	EventClient = client.EventResourceApiService{
 		APIClient: apiClient,
 	}
+	TagsClient = client.TagsApiService{
+		APIClient: apiClient,
+	}
 )
 
 var TaskRunner = worker.NewTaskRunnerWithApiClient(apiClient)
@@ -59,7 +62,7 @@ var WorkflowExecutor = executor.NewWorkflowExecutor(apiClient)
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.ErrorLevel)
 }
 
 func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, workflowId string, expectedOutput map[string]interface{}, expectedStatus model.WorkflowStatus) {
@@ -217,6 +220,19 @@ func ValidateWorkflowRegistration(workflow *workflow.ConductorWorkflow) error {
 		if err != nil {
 			time.Sleep(time.Duration(attempt+2) * time.Second)
 			fmt.Println("Failed to validate workflow registration, reason: " + err.Error())
+			continue
+		}
+		return nil
+	}
+	return fmt.Errorf("exhausted retries")
+}
+
+func ValidateWorkflowDeletion(workflow *workflow.ConductorWorkflow) error {
+	for attempt := 0; attempt < 5; attempt += 1 {
+		err := workflow.UnRegister()
+		if err != nil {
+			time.Sleep(time.Duration(attempt+2) * time.Second)
+			fmt.Println("Failed to validate workflow deletion, reason: " + err.Error())
 			continue
 		}
 		return nil

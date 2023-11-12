@@ -58,6 +58,18 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 			workflow.NewSimpleTask("simple_task", "simple_task_5"),
 		},
 	)
+	join := workflow.NewJoinTask("new_join_ref", "simple_task_fork_ref2", "simple_task_fork_ref4")
+	join.InputMap(map[string]interface{}{
+		"param1": "value",
+	})
+	forkWithJoin := workflow.NewForkTaskWithJoin("fork_with_join_fork_ref", join,
+		[]workflow.TaskInterface{
+			workflow.NewSimpleTask("simple_task", "simple_task_fork_ref1"),
+			workflow.NewSimpleTask("simple_task", "simple_task_fork_ref2"),
+		}, []workflow.TaskInterface{
+			workflow.NewSimpleTask("simple_task", "simple_task_fork_ref3"),
+			workflow.NewSimpleTask("simple_task", "simple_task_fork_ref4"),
+		})
 	dynamicFork := workflow.NewDynamicForkTask(
 		"dynamic_fork",
 		workflow.NewSimpleTask("dynamic_fork_prep", "dynamic_fork_prep"),
@@ -90,7 +102,8 @@ func NewKitchenSinkWorkflow(executor *executor.WorkflowExecutor) *workflow.Condu
 		Add(setVariable).
 		Add(subWorkflow).
 		Add(dynamicFork).
-		Add(fork)
+		Add(fork).
+		Add(forkWithJoin)
 
 	return workflow
 }

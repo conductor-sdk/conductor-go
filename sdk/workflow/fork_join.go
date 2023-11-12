@@ -16,6 +16,7 @@ import (
 type ForkTask struct {
 	Task
 	forkedTasks [][]TaskInterface
+	join        *JoinTask
 }
 
 //NewForkTask creates a new fork task that executes the given tasks in parallel
@@ -57,6 +58,21 @@ func NewForkTask(taskRefName string, forkedTask ...[]TaskInterface) *ForkTask {
 	}
 }
 
+func NewForkTaskWithJoin(taskRefName string, join *JoinTask, forkedTask ...[]TaskInterface) *ForkTask {
+	return &ForkTask{
+		Task: Task{
+			name:              taskRefName,
+			taskReferenceName: taskRefName,
+			description:       "",
+			taskType:          FORK_JOIN,
+			optional:          false,
+			inputParameters:   map[string]interface{}{},
+		},
+		forkedTasks: forkedTask,
+		join:        join,
+	}
+}
+
 func (task *ForkTask) toWorkflowTask() []model.WorkflowTask {
 	forkWorkflowTask := task.Task.toWorkflowTask()[0]
 	forkWorkflowTask.ForkTasks = make([][]model.WorkflowTask, len(task.forkedTasks))
@@ -73,7 +89,10 @@ func (task *ForkTask) toWorkflowTask() []model.WorkflowTask {
 }
 
 func (task *ForkTask) getJoinTask() model.WorkflowTask {
-	join := NewJoinTask(task.taskReferenceName + "_join")
+	join := task.join
+	if join == nil {
+		join = NewJoinTask(task.taskReferenceName + "_join")
+	}
 	return (join.toWorkflowTask())[0]
 }
 

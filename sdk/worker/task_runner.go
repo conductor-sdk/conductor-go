@@ -29,9 +29,9 @@ import (
 
 const taskUpdateRetryAttemptsLimit = 3
 
-const (
-	sleepForOnNoAvailableWorker = 1 * time.Millisecond
-	sleepForOnGenericError      = 100 * time.Millisecond
+var (
+	sleepForOnNoAvailableWorker = 10 * time.Millisecond
+	sleepForOnGenericError      = 200 * time.Millisecond
 )
 
 var hostname, _ = os.Hostname()
@@ -86,6 +86,13 @@ func NewTaskRunnerWithApiClient(
 		pollIntervalByTaskName:   make(map[string]time.Duration),
 		pausedWorkers:            make(map[string]bool),
 	}
+}
+
+// SetSleepOnGenericError Sets the time for which to wait before continuing to poll/execute when there is an error
+// Default is 200 millis, and this function can be used to increase/decrease the duration of the wait time
+// Useful to avoid excessive logs in the worker when there are intermittent issues
+func (c *TaskRunner) SetSleepOnGenericError(duration time.Duration) {
+	sleepForOnGenericError = duration
 }
 
 // StartWorkerWithDomain starts a polling worker on a new goroutine, which only polls for tasks using the provided
@@ -269,26 +276,30 @@ func (c *TaskRunner) workOnce(taskName string, executeFunction model.ExecuteTask
 	if len(tasks) < 1 {
 		pollInterval, err := c.GetPollIntervalForTask(taskName)
 		if err != nil {
+			log.Error(err)
 			pauseOnGenericError(
 				taskName, domain,
 				fmt.Errorf("failed to get poll interval, reason: %s", err.Error()),
 			)
 			return
 		}
-		sleep(taskName, domain, fmt.Errorf("no task found"), pollInterval)
+		time.Sleep(pollInterval)
 		return
 	}
 	for _, task := range tasks {
+		c.increaseRunningWorkers(taskName)
 		go c.executeAndUpdateTask(taskName, task, executeFunction)
 	}
 }
 
 func (c *TaskRunner) executeAndUpdateTask(taskName string, task model.Task, executeFunction model.ExecuteTaskFunction) {
-	c.increaseRunningWorkers(taskName)
 	defer c.runningWorkerDone(taskName)
 	defer concurrency.HandlePanicError("execute_and_update_task " + string(task.TaskId) + ": " + string(task.Status))
 	taskResult := c.executeTask(&task, executeFunction)
-	c.updateTaskWithRetry(taskName, taskResult)
+	err := c.updateTaskWithRetry(taskName, taskResult)
+	if err != nil {
+		log.Error("failed to update task ", taskName, ",taskId = ", task.TaskId, ",workflowId = ", task.WorkflowInstanceId, ",", err)
+	}
 }
 
 func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]model.Task, error) {
@@ -385,6 +396,7 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 		", taskId: ", taskResult.TaskId,
 		", workflowId: ", taskResult.WorkflowInstanceId,
 	)
+	var lastError error
 	for attempt := 0; attempt <= taskUpdateRetryAttemptsLimit; attempt += 1 {
 		if attempt > 0 {
 			// Wait for [10s, 20s, 30s] before next attempt
@@ -401,16 +413,9 @@ func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.Task
 			return nil
 		}
 		metrics.IncrementTaskUpdateError(taskName, err)
-		log.Debug(
-			"Failed to update task",
-			", reason: ", err.Error(),
-			", task type: ", taskName,
-			", taskId: ", taskResult.TaskId,
-			", workflowId: ", taskResult.WorkflowInstanceId,
-			", response: ", err,
-		)
+		lastError = err
 	}
-	return fmt.Errorf("failed to update task %s after %d attempts", taskName, taskUpdateRetryAttemptsLimit)
+	return fmt.Errorf("failed to update task %s after %d attempts. %s", taskName, taskUpdateRetryAttemptsLimit, lastError)
 }
 
 func (c *TaskRunner) updateTask(taskName string, taskResult *model.TaskResult) (*http.Response, error) {
@@ -489,7 +494,7 @@ func (c *TaskRunner) SetPollIntervalForTask(taskName string, pollInterval time.D
 	c.pollIntervalByTaskNameMutex.Lock()
 	defer c.pollIntervalByTaskNameMutex.Unlock()
 	c.pollIntervalByTaskName[taskName] = pollInterval
-	log.Debug("Updated poll interval for task: ", taskName, ", to: ", pollInterval.Milliseconds(), "ms")
+	log.Info("Updated poll interval for task: ", taskName, ", to: ", pollInterval.Milliseconds(), "ms")
 	return nil
 }
 
@@ -529,20 +534,11 @@ func (c *TaskRunner) GetBatchSizeForTask(taskName string) (batchSize int) {
 }
 
 func pauseOnGenericError(taskName string, domain string, err error) {
-	sleep(taskName, domain, err, sleepForOnGenericError)
+	log.Error(fmt.Errorf("[%s][%s] %s", taskName, domain, err))
+	time.Sleep(sleepForOnGenericError)
 }
 
 func pauseOnNoAvailableWorkerError(taskName string, domain string) {
-	sleep(taskName, domain, fmt.Errorf("no worker available at the moment"), sleepForOnNoAvailableWorker)
-}
-
-func sleep(taskName string, domain string, err error, sleepFor time.Duration) {
-	log.Trace(
-		"pausing worker",
-		", taskName: ", taskName,
-		", domain: ", domain,
-		", for: ", sleepFor.Milliseconds(), "ms",
-		", reason: ", err.Error(),
-	)
-	time.Sleep(sleepFor)
+	log.Trace(fmt.Errorf("no worker available for the task %s, domain %s", taskName, domain))
+	time.Sleep(sleepForOnNoAvailableWorker)
 }
