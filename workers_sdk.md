@@ -49,7 +49,7 @@ func SimpleWorker(t *model.Task) (interface{}, error) {
 For the long-running tasks you might want to spawn another process/routine and update the status of the task at a later point and complete the
 execution function without actually marking the task as `COMPLETED`.  Use `TaskResult` struct that allows you to specify more fined grained control.
 
-Here is an example of a task execution function that returns with `IN_PROGERSS` status asking server to push the task again in 60 seconds.
+Here is an example of a task execution function that returns with `IN_PROGRESS` status asking server to push the task again in 60 seconds.
 ```go
 func LongRunningTaskWorker(t *model.Task) (interface{}, error) {
 	taskResult := model.NewTaskResult(t)
