@@ -21,12 +21,11 @@ func TestIdempotencyCombinations(t *testing.T) {
 
 	assert.NoError(t, err, "Failed to register workflow")
 
-	id, olderr := executor.StartWorkflow(&model.StartWorkflowRequest{Name: wf.GetName(), IdempotencyKey: "test", IdempotencyStrategy: "FAIL"})
+	id, olderr := executor.StartWorkflow(&model.StartWorkflowRequest{Name: wf.GetName(), IdempotencyKey: "test", IdempotencyStrategy: model.FailOnConflict})
 	assert.NoError(t, olderr, "Failed to start workflow")
 
-	oldid, err := executor.StartWorkflow(&model.StartWorkflowRequest{Name: wf.GetName(), IdempotencyKey: "test", IdempotencyStrategy: "FAIL"})
+	_, err = executor.StartWorkflow(&model.StartWorkflowRequest{Name: wf.GetName(), IdempotencyKey: "test", IdempotencyStrategy: model.ReturnExisting})
 	assert.Error(t, err, "Failed to start workflow")
-	assert.Error(t, err, oldid)
 
 	execution, err := executor.GetWorkflow(id, true)
 	assert.NoError(t, err, "Failed to get workflow execution")
