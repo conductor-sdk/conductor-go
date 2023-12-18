@@ -9,7 +9,7 @@ type WorkflowRun struct {
 	Priority      int32                  `json:"priority,omitempty"`
 	RequestId     string                 `json:"requestId,omitempty"`
 	Status        string                 `json:"status,omitempty"`
-	Tasks         []Task                 `json:"tasks,omitempty"`
+	Tasks         []*Task                `json:"tasks,omitempty"`
 	UpdateTime    int64                  `json:"updateTime,omitempty"`
 	Variables     map[string]interface{} `json:"variables,omitempty"`
 	WorkflowId    string                 `json:"workflowId,omitempty"`
