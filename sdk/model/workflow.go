@@ -20,7 +20,7 @@ type Workflow struct {
 	WorkflowId                       string                 `json:"workflowId,omitempty"`
 	ParentWorkflowId                 string                 `json:"parentWorkflowId,omitempty"`
 	ParentWorkflowTaskId             string                 `json:"parentWorkflowTaskId,omitempty"`
-	Tasks                            []*Task                `json:"tasks,omitempty"`
+	Tasks                            []Task                 `json:"tasks,omitempty"`
 	Input                            map[string]interface{} `json:"input,omitempty"`
 	Output                           map[string]interface{} `json:"output,omitempty"`
 	CorrelationId                    string                 `json:"correlationId,omitempty"`
