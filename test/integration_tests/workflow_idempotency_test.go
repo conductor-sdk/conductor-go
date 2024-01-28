@@ -24,7 +24,11 @@ func TestIdempotencyCombinations(t *testing.T) {
 	id, olderr := executor.StartWorkflow(&model.StartWorkflowRequest{Name: wf.GetName(), IdempotencyKey: "test", IdempotencyStrategy: model.FailOnConflict})
 	assert.NoError(t, olderr, "Failed to start workflow")
 
-	_, err = executor.StartWorkflow(&model.StartWorkflowRequest{Name: wf.GetName(), IdempotencyKey: "test", IdempotencyStrategy: model.ReturnExisting})
+	id2, err := executor.StartWorkflow(&model.StartWorkflowRequest{Name: wf.GetName(), IdempotencyKey: "test", IdempotencyStrategy: model.ReturnExisting})
+	assert.NoError(t, err, "Failed to start workflow")
+	assert.Equal(t, id, id2) //should return an existing workflow
+
+	_, err = executor.StartWorkflow(&model.StartWorkflowRequest{Name: wf.GetName(), IdempotencyKey: "test", IdempotencyStrategy: model.FailOnConflict})
 	assert.Error(t, err, "Failed to start workflow")
 
 	execution, err := executor.GetWorkflow(id, true)

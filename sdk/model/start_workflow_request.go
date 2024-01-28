@@ -31,6 +31,18 @@ func NewStartWorkflowRequest(name string, version int32, correlationId string, i
 	}
 }
 
+func NewIdempotentStartWorkflowRequest(name string, version int32, correlationId string,
+	idempotencyKey string, idempotencyStrategy IdempotencyStrategy, input interface{}) *StartWorkflowRequest {
+	return &StartWorkflowRequest{
+		Name:                name,
+		Version:             version,
+		CorrelationId:       correlationId,
+		Input:               input,
+		IdempotencyKey:      idempotencyKey,
+		IdempotencyStrategy: idempotencyStrategy,
+	}
+}
+
 func NewStartWorkflowRequestLegacy(name string, version int32, correlationId string, input interface{}) *StartWorkflowRequest {
 	return &StartWorkflowRequest{
 		Name:          name,
