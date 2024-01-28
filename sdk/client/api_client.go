@@ -109,7 +109,7 @@ func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err err
 			return err
 		}
 		return nil
-	} else if strings.Contains(contentType, "text/plain;charset=UTF-8") {
+	} else if strings.Contains(contentType, "text/plain") {
 		rv := reflect.ValueOf(v)
 		if rv.IsNil() {
 			return errors.New("undefined response type")
