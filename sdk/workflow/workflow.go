@@ -40,6 +40,7 @@ type ConductorWorkflow struct {
 	variables                     map[string]interface{}
 	restartable                   bool
 	workflowStatusListenerEnabled bool
+	idempotencyKey                string
 }
 
 func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflow {
@@ -52,6 +53,11 @@ func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflo
 
 func (workflow *ConductorWorkflow) Name(name string) *ConductorWorkflow {
 	workflow.name = name
+	return workflow
+}
+
+func (workflow *ConductorWorkflow) IdempotencyKey(idempotencyKey string) *ConductorWorkflow {
+	workflow.idempotencyKey = idempotencyKey
 	return workflow
 }
 
