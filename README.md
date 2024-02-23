@@ -1,4 +1,4 @@
-# Netflix Conductor Go SDK
+# Conductor OSS Go SDK
 
 The `conductor-go` repository provides the client SDKs to build task workers in Go.
 
