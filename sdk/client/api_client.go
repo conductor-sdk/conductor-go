@@ -75,6 +75,7 @@ func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpS
 		KeepAlive: 30 * time.Second,
 	}
 	netTransport := &http.Transport{
+		Proxy:               http.ProxyFromEnvironment,
 		DialContext:         baseDialer.DialContext,
 		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: 100,
