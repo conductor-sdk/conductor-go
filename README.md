@@ -71,7 +71,7 @@ import (
 )
 
 // Name struct that represents the input to the workflow
-type NameAndCity struct {
+type NameInput struct {
 	Name string
 }
 
@@ -213,7 +213,7 @@ func main() {
 		return
 	}
 	/* Till Here after registering the workflow*/
-	id, err := wf.StartWorkflowWithInput(&workflow.NameAndCity{
+	id, err := wf.StartWorkflowWithInput(&workflow.NameInput{
 		Name: "Orkes",
 	})
 	if err != nil {
