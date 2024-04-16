@@ -1,30 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [Conductor OSS Go SDK](#conductor-oss-go-sdk)
-  - [⭐ Conductor OSS](#-conductor-oss)
-  - [Content](#content)
-  - [Install Conductor Go SDK](#install-conductor-go-sdk)
-    - [Get Conductor Go SDK](#get-conductor-go-sdk)
-  - [Hello World Application Using Conductor](#hello-world-application-using-conductor)
-    - [Step 1: Create Workflow](#step-1-create-workflow)
-      - [Creating Workflows by Code](#creating-workflows-by-code)
-      - [(Alternatively) Creating Workflows in JSON](#alternatively-creating-workflows-in-json)
-    - [Step 2: Write Task Worker](#step-2-write-task-worker)
-    - [Step 3: Write _Hello World_ Application](#step-3-write-_hello-world_-application)
-  - [Running Workflows on Conductor Standalone (Installed Locally)](#running-workflows-on-conductor-standalone-installed-locally)
-    - [Setup Environment Variable](#setup-environment-variable)
-    - [Start Conductor Server](#start-conductor-server)
-    - [Execute Hello World Application](#execute-hello-world-application)
-  - [Running Workflows on Orkes Conductor](#running-workflows-on-orkes-conductor)
-  - [Learn More about Conductor Go SDK](#learn-more-about-conductor-go-sdk)
-    - [Create and Run Conductor Workers](#create-and-run-conductor-workers)
-    - [Create Conductor Workflows](#create-conductor-workflows)
-    - [Using Conductor in your Application](#using-conductor-in-your-application)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Conductor OSS Go SDK
 
 Go SDK for working with https://github.com/conductor-oss/conductor.
@@ -40,6 +13,30 @@ Show support for the Conductor OSS.  Please help spread the awareness by starrin
 [![GitHub stars](https://img.shields.io/github/stars/conductor-oss/conductor.svg?style=social&label=Star&maxAge=)](https://GitHub.com/conductor-oss/conductor/)
 
 ## Content
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Install Conductor Go SDK](#install-conductor-go-sdk)
+  - [Get Conductor Go SDK](#get-conductor-go-sdk)
+- [Hello World Application Using Conductor](#hello-world-application-using-conductor)
+  - [Step 1: Create Workflow](#step-1-create-workflow)
+    - [Creating Workflows by Code](#creating-workflows-by-code)
+    - [(Alternatively) Creating Workflows in JSON](#alternatively-creating-workflows-in-json)
+  - [Step 2: Write Task Worker](#step-2-write-task-worker)
+  - [Step 3: Write _Hello World_ Application](#step-3-write-_hello-world_-application)
+- [Running Workflows on Conductor Standalone (Installed Locally)](#running-workflows-on-conductor-standalone-installed-locally)
+  - [Setup Environment Variable](#setup-environment-variable)
+  - [Start Conductor Server](#start-conductor-server)
+  - [Execute Hello World Application](#execute-hello-world-application)
+- [Running Workflows on Orkes Conductor](#running-workflows-on-orkes-conductor)
+- [Learn More about Conductor Go SDK](#learn-more-about-conductor-go-sdk)
+  - [Create and Run Conductor Workers](#create-and-run-conductor-workers)
+  - [Create Conductor Workflows](#create-conductor-workflows)
+  - [Using Conductor in your Application](#using-conductor-in-your-application)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+
 
 ## Install Conductor Go SDK
 
