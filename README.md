@@ -86,7 +86,7 @@ func GetTaskDefinitions() []model.TaskDef {
 func CreateWorkflow(executor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
 
 	wf := workflow.NewConductorWorkflow(executor).
-		Name("hello5").
+		Name("greetings").
 		Version(1).
 		Description("Greetings workflow - Greets a user by their name").
 		TimeoutPolicy(workflow.TimeOutWorkflow, 600)
