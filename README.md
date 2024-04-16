@@ -30,9 +30,6 @@ Show support for the Conductor OSS.  Please help spread the awareness by starrin
   - [Execute Hello World Application](#execute-hello-world-application)
 - [Running Workflows on Orkes Conductor](#running-workflows-on-orkes-conductor)
 - [Learn More about Conductor Go SDK](#learn-more-about-conductor-go-sdk)
-  - [Create and Run Conductor Workers](#create-and-run-conductor-workers)
-  - [Create Conductor Workflows](#create-conductor-workflows)
-  - [Using Conductor in your Application](#using-conductor-in-your-application)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -208,7 +205,7 @@ func main() {
 
 	//Start the workers
 	StartWorkers()
-    /* This is used to register the Workflow, it's a one-time process. Comment from here */
+    	/* This is used to register the Workflow, it's a one-time process. Comment from here */
 	wf := workflow.CreateWorkflow(workflowExecutor)
 	err := wf.Register(false)
 	if err != nil {
@@ -225,7 +222,8 @@ func main() {
 	}
     fmt.Println("Started workflow with Id: ", id)
 
-	/*Get a channel to monitor the workflow execution - Note: This is useful in case of short duration workflows that completes in few seconds.*/
+	/*Get a channel to monitor the workflow execution -
+	  Note: This is useful in case of short duration workflows that completes in few seconds.*/
 	channel, _ := workflowExecutor.MonitorExecution(id)
 	run := <-channel
 	fmt.Println("Output of the workflow, ", run.Status)
@@ -298,6 +296,3 @@ There are three main ways you can use Conductor when building durable, resilient
 2. Create Conductor workflows that implement application state - A typical workflow implements the saga pattern.
 3. Use Conductor SDK and APIs to manage workflows from your application.
 
-### [Create and Run Conductor Workers](workers.md)
-### [Create Conductor Workflows](workflows.md)
-### [Using Conductor in your Application](conductor_apps.md)
