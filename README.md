@@ -240,6 +240,9 @@ Set the following environment variable to point the SDK to the Conductor Server 
 ```shell
 export CONDUCTOR_SERVER_URL=http://localhost:8080/api
 ```
+> [!NOTE]
+> To setup the required dependencies use `go mod tidy` 
+
 ### Start Conductor Server
 
 To start the Conductor server in a standalone mode from a Docker image, type the command below:
@@ -260,6 +263,8 @@ Now, the workflow is executed, and its execution status can be viewed from Condu
 
 Navigate to the **Executions** tab to view the workflow execution.
 
+<img width="1437" alt="Screenshot 2024-04-16 at 10 21 43 PM" src="https://github.com/Srividhya-S-Subramanian/conductor-go/assets/163816773/7312c908-3195-4cad-b9de-8db762b1203b">
+
 ## Running Workflows on Orkes Conductor
 
 For running the workflow in Orkes Conductor,
@@ -269,7 +274,6 @@ For running the workflow in Orkes Conductor,
 ```shell
 export CONDUCTOR_SERVER_URL=https://[cluster-name].orkesconductor.io/api
 ```
-
 - If you want to run the workflow on the Orkes Conductor Playground, set the Conductor Server variable as follows:
 
 ```shell
