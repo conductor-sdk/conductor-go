@@ -38,7 +38,7 @@ func (a *SchedulerResourceApiService) DeleteSchedule(ctx context.Context, name s
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/schedules/{name}"
+	path := "/scheduler/schedules/{name}"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -122,7 +122,7 @@ func (a *SchedulerResourceApiService) DeleteTagForSchedule(ctx context.Context, 
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/schedules/{name}/tags"
+	path := "/scheduler/schedules/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -197,7 +197,7 @@ func (a *SchedulerResourceApiService) GetAllSchedules(ctx context.Context, optio
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/schedules"
+	path := "/scheduler/schedules"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -295,7 +295,7 @@ func (a *SchedulerResourceApiService) GetNextFewSchedules(ctx context.Context, c
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/nextFewSchedules"
+	path := "/scheduler/nextFewSchedules"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -389,7 +389,7 @@ func (a *SchedulerResourceApiService) GetSchedule(ctx context.Context, name stri
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/schedules/{name}"
+	path := "/scheduler/schedules/{name}"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -474,7 +474,7 @@ func (a *SchedulerResourceApiService) GetTagsForSchedule(ctx context.Context, na
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/schedules/{name}/tags"
+	path := "/scheduler/schedules/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -558,7 +558,7 @@ func (a *SchedulerResourceApiService) PauseAllSchedules(ctx context.Context) (ma
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/admin/pause"
+	path := "/scheduler/admin/pause"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -642,7 +642,7 @@ func (a *SchedulerResourceApiService) PauseSchedule(ctx context.Context, name st
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/schedules/{name}/pause"
+	path := "/scheduler/schedules/{name}/pause"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -726,7 +726,7 @@ func (a *SchedulerResourceApiService) PutTagForSchedule(ctx context.Context, bod
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/schedules/{name}/tags"
+	path := "/scheduler/schedules/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -794,7 +794,7 @@ func (a *SchedulerResourceApiService) RequeueAllExecutionRecords(ctx context.Con
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/admin/requeue"
+	path := "/scheduler/admin/requeue"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -877,7 +877,7 @@ func (a *SchedulerResourceApiService) ResumeAllSchedules(ctx context.Context) (m
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/admin/resume"
+	path := "/scheduler/admin/resume"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -961,7 +961,7 @@ func (a *SchedulerResourceApiService) ResumeSchedule(ctx context.Context, name s
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/schedules/{name}/resume"
+	path := "/scheduler/schedules/{name}/resume"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -1046,7 +1046,7 @@ func (a *SchedulerResourceApiService) SaveSchedule(ctx context.Context, body mod
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/schedules"
+	path := "/scheduler/schedules"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -1147,7 +1147,7 @@ func (a *SchedulerResourceApiService) SearchV2(ctx context.Context, optionals *S
 	)
 
 	// create path and map variables
-	path := "/api/scheduler/search/executions"
+	path := "/scheduler/search/executions"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}

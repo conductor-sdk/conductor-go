@@ -37,7 +37,7 @@ func (a *EnvironmentResourceApiService) CreateOrUpdateEnvVariable(ctx context.Co
 	)
 
 	// create path and map variables
-	path := "/api/environment/{key}"
+	path := "/environment/{key}"
 	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
 
 	headerParams := make(map[string]string)
@@ -106,7 +106,7 @@ func (a *EnvironmentResourceApiService) DeleteEnvVariable(ctx context.Context, k
 	)
 
 	// create path and map variables
-	path := "/api/environment/{key}"
+	path := "/environment/{key}"
 	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
 
 	headerParams := make(map[string]string)
@@ -190,7 +190,7 @@ func (a *EnvironmentResourceApiService) DeleteTagForEnvVar(ctx context.Context, 
 	)
 
 	// create path and map variables
-	path := "/api/environment/{name}/tags"
+	path := "/environment/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -259,7 +259,7 @@ func (a *EnvironmentResourceApiService) Get(ctx context.Context, key string) (st
 	)
 
 	// create path and map variables
-	path := "/api/environment/{key}"
+	path := "/environment/{key}"
 	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
 
 	headerParams := make(map[string]string)
@@ -343,7 +343,7 @@ func (a *EnvironmentResourceApiService) GetAll(ctx context.Context) ([]model.Env
 	)
 
 	// create path and map variables
-	path := "/api/environment"
+	path := "/environment"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -427,7 +427,7 @@ func (a *EnvironmentResourceApiService) GetTagsForEnvVar(ctx context.Context, na
 	)
 
 	// create path and map variables
-	path := "/api/environment/{name}/tags"
+	path := "/environment/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -511,7 +511,7 @@ func (a *EnvironmentResourceApiService) PutTagForEnvVar(ctx context.Context, bod
 	)
 
 	// create path and map variables
-	path := "/api/environment/{name}/tags"
+	path := "/environment/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)

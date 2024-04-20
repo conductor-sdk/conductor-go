@@ -38,7 +38,7 @@ func (a *WebhooksConfigResourceApiService) CreateWebhook(ctx context.Context, bo
 	)
 
 	// create path and map variables
-	path := "/api/metadata/webhook"
+	path := "/metadata/webhook"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -122,7 +122,7 @@ func (a *WebhooksConfigResourceApiService) DeleteTagForWebhook(ctx context.Conte
 	)
 
 	// create path and map variables
-	path := "/api/metadata/webhook/{id}/tags"
+	path := "/metadata/webhook/{id}/tags"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -188,7 +188,7 @@ func (a *WebhooksConfigResourceApiService) DeleteWebhook(ctx context.Context, id
 	)
 
 	// create path and map variables
-	path := "/api/metadata/webhook/{id}"
+	path := "/metadata/webhook/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -254,7 +254,7 @@ func (a *WebhooksConfigResourceApiService) GetAllWebhook(ctx context.Context) ([
 	)
 
 	// create path and map variables
-	path := "/api/metadata/webhook"
+	path := "/metadata/webhook"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -338,7 +338,7 @@ func (a *WebhooksConfigResourceApiService) GetTagsForWebhook(ctx context.Context
 	)
 
 	// create path and map variables
-	path := "/api/metadata/webhook/{id}/tags"
+	path := "/metadata/webhook/{id}/tags"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -423,7 +423,7 @@ func (a *WebhooksConfigResourceApiService) GetWebhook(ctx context.Context, id st
 	)
 
 	// create path and map variables
-	path := "/api/metadata/webhook/{id}"
+	path := "/metadata/webhook/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -507,7 +507,7 @@ func (a *WebhooksConfigResourceApiService) PutTagForWebhook(ctx context.Context,
 	)
 
 	// create path and map variables
-	path := "/api/metadata/webhook/{id}/tags"
+	path := "/metadata/webhook/{id}/tags"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -577,7 +577,7 @@ func (a *WebhooksConfigResourceApiService) UpdateWebhook(ctx context.Context, bo
 	)
 
 	// create path and map variables
-	path := "/api/metadata/webhook/{id}"
+	path := "/metadata/webhook/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
