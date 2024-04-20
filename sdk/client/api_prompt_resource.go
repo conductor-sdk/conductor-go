@@ -37,7 +37,7 @@ func (a *PromptResourceApiService) DeleteMessageTemplate(ctx context.Context, na
 	)
 
 	// create path and map variables
-	path := "/api/prompts/{name}"
+	path := "/prompts/{name}"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -103,7 +103,7 @@ func (a *PromptResourceApiService) DeleteTagForPromptTemplate(ctx context.Contex
 	)
 
 	// create path and map variables
-	path := "/api/prompts/{name}/tags"
+	path := "/prompts/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -172,7 +172,7 @@ func (a *PromptResourceApiService) GetMessageTemplate(ctx context.Context, name 
 	)
 
 	// create path and map variables
-	path := "/api/prompts/{name}"
+	path := "/prompts/{name}"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -256,7 +256,7 @@ func (a *PromptResourceApiService) GetMessageTemplates(ctx context.Context) ([]i
 	)
 
 	// create path and map variables
-	path := "/api/prompts"
+	path := "/prompts"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -340,7 +340,7 @@ func (a *PromptResourceApiService) GetTagsForPromptTemplate(ctx context.Context,
 	)
 
 	// create path and map variables
-	path := "/api/prompts/{name}/tags"
+	path := "/prompts/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -424,7 +424,7 @@ func (a *PromptResourceApiService) PutTagForPromptTemplate(ctx context.Context, 
 	)
 
 	// create path and map variables
-	path := "/api/prompts/{name}/tags"
+	path := "/prompts/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -501,7 +501,7 @@ func (a *PromptResourceApiService) SaveMessageTemplate(ctx context.Context, body
 	)
 
 	// create path and map variables
-	path := "/api/prompts/{name}"
+	path := "/prompts/{name}"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -574,7 +574,7 @@ func (a *PromptResourceApiService) TestMessageTemplate(ctx context.Context, body
 	)
 
 	// create path and map variables
-	path := "/api/prompts/test"
+	path := "/prompts/test"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
