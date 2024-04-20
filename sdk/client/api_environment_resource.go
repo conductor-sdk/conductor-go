@@ -249,7 +249,7 @@ EnvironmentResourceApiService Get the environment value by key
   - @param key
     @return string
 */
-func (a *EnvironmentResourceApiService) Get1(ctx context.Context, key string) (string, *http.Response, error) {
+func (a *EnvironmentResourceApiService) Get(ctx context.Context, key string) (string, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Get")
 		postBody    interface{}
