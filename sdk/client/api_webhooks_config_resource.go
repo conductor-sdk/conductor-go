@@ -11,7 +11,8 @@ package client
 import (
 	"context"
 	"fmt"
-	"github.com/conductor-sdk/conductor-go/tmp/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
+
 	"net/http"
 	"net/url"
 	"strings"

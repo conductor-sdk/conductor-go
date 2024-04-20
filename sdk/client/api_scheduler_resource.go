@@ -12,7 +12,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/antihax/optional"
-	"github.com/conductor-sdk/conductor-go/tmp/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"net/http"
 	"net/url"
 	"strings"
@@ -1120,16 +1120,16 @@ func (a *SchedulerResourceApiService) SaveSchedule(ctx context.Context, body mod
    SchedulerResourceApiService Search for workflows based on payload and other parameters
        use sort options as sort&#x3D;&lt;field&gt;:ASC|DESC e.g. sort&#x3D;name&amp;sort&#x3D;workflowId:DESC. If order is not specified, defaults to ASC.
    * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-    * @param optional nil or *SchedulerResourceApiSearchV2Opts - Optional Parameters:
+    * @param optional nil or *SchedulerSearchOpts - Optional Parameters:
         * @param "Start" (optional.Int32) -
     * @param "Size" (optional.Int32) -
     * @param "Sort" (optional.String) -
     * @param "FreeText" (optional.String) -
     * @param "Query" (optional.String) -
-   @return SearchResultWorkflowScheduleExecutionModel
+   @return SearchResultWorkflowSchedule
 */
 
-type SchedulerResourceApiSearchV2Opts struct {
+type SchedulerSearchOpts struct {
 	Start    optional.Int32
 	Size     optional.Int32
 	Sort     optional.String
@@ -1137,13 +1137,13 @@ type SchedulerResourceApiSearchV2Opts struct {
 	Query    optional.String
 }
 
-func (a *SchedulerResourceApiService) SearchV2(ctx context.Context, optionals *SchedulerResourceApiSearchV2Opts) (model.SearchResultWorkflowScheduleExecutionModel, *http.Response, error) {
+func (a *SchedulerResourceApiService) SearchV2(ctx context.Context, optionals *SchedulerSearchOpts) (model.SearchResultWorkflowSchedule, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Get")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue model.SearchResultWorkflowScheduleExecutionModel
+		returnValue model.SearchResultWorkflowSchedule
 	)
 
 	// create path and map variables
@@ -1215,7 +1215,7 @@ func (a *SchedulerResourceApiService) SearchV2(ctx context.Context, optionals *S
 			error: httpResponse.Status,
 		}
 		if httpResponse.StatusCode == 200 {
-			var v model.SearchResultWorkflowScheduleExecutionModel
+			var v model.SearchResultWorkflowSchedule
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
