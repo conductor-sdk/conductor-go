@@ -13,3 +13,7 @@ type WorkflowBulkClient interface {
 	Retry1(ctx context.Context, workflowIds []string) (model.BulkResponse, *http.Response, error)
 	Terminate(ctx context.Context, workflowIds []string, opts *WorkflowBulkResourceApiTerminateOpts) (model.BulkResponse, *http.Response, error)
 }
+
+func NewWorkflowBulkClient(client *APIClient) WorkflowBulkClient {
+	return &WorkflowBulkResourceApiService{client}
+}

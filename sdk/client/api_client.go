@@ -34,6 +34,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	CONDUCTOR_AUTH_KEY    = "CONDUCTOR_AUTH_KEY"
+	CONDUCTOR_AUTH_SECRET = "CONDUCTOR_AUTH_SECRET"
+	CONDUCTOR_SERVER_URL  = "CONDUCTOR_SERVER_URL"
+)
+
 var (
 	jsonCheck = regexp.MustCompile("(?i:[application|text]/json)")
 	xmlCheck  = regexp.MustCompile("(?i:[application|text]/xml)")
@@ -54,6 +60,9 @@ func NewAPIClient(
 		nil,
 		nil,
 	)
+}
+func NewAPIClientFromEnv() *APIClient {
+	return nil
 }
 
 func NewAPIClientWithTokenExpiration(

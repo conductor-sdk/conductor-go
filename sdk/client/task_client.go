@@ -27,3 +27,7 @@ type TaskClient interface {
 	UpdateTaskByRefNameWithWorkerId(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, workerId optional.String) (string, *http.Response, error)
 	updateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, workerId optional.String) (string, *http.Response, error)
 }
+
+func NewTaskClient(apiClient *APIClient) TaskClient {
+	return &TaskResourceApiService{apiClient}
+}

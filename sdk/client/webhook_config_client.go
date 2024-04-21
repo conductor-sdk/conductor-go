@@ -23,6 +23,6 @@ type WebhooksConfigClient interface {
 	UpdateWebhook(ctx context.Context, body model.WebhookConfig, id string) (model.WebhookConfig, *http.Response, error)
 }
 
-func GetWebhooksConfigService(client *APIClient) WebhooksConfigClient {
+func NewWebhooksConfigClient(client *APIClient) WebhooksConfigClient {
 	return &WebhooksConfigResourceApiService{client}
 }

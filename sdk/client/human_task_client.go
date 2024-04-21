@@ -28,3 +28,7 @@ type HumanTaskClient interface {
 	UpdateTaskOutput(ctx context.Context, body map[string]interface{}, taskId string, optionals *HumanTaskApiUpdateTaskOutputOpts) (*http.Response, error)
 	UpdateTaskOutputByRef(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, optionals *HumanTaskApiUpdateTaskOutputByRefOpts) (*http.Response, error)
 }
+
+func NewHumanTaskClient(client *APIClient) HumanTaskClient {
+	return &HumanTaskApiService{client}
+}

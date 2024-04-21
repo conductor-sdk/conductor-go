@@ -13,3 +13,7 @@ type EventHandlerClient interface {
 	RemoveEventHandler(ctx context.Context, name string) (*http.Response, error)
 	UpdateEventHandler(ctx context.Context, body model.EventHandler) (*http.Response, error)
 }
+
+func NewEventHandlerClient(client *APIClient) EventHandlerClient {
+	return &EventResourceApiService{client}
+}

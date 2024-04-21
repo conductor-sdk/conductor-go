@@ -18,3 +18,7 @@ type GroupClient interface {
 	RemoveUsersFromGroup(ctx context.Context, body []string, groupId string) (*http.Response, error)
 	UpsertGroup(ctx context.Context, body rbac.UpsertGroupRequest, id string) (interface{}, *http.Response, error)
 }
+
+func NewGroupClient(client *APIClient) GroupClient {
+	return &GroupResourceApiService{client}
+}

@@ -38,7 +38,7 @@ func (a *GroupResourceApiService) AddUserToGroup(ctx context.Context, groupId st
 	)
 
 	// create path and map variables
-	path := "/api/groups/{groupId}/users/{userId}"
+	path := "/groups/{groupId}/users/{userId}"
 	path = strings.Replace(path, "{"+"groupId"+"}", fmt.Sprintf("%v", groupId), -1)
 	path = strings.Replace(path, "{"+"userId"+"}", fmt.Sprintf("%v", userId), -1)
 
@@ -123,7 +123,7 @@ func (a *GroupResourceApiService) AddUsersToGroup(ctx context.Context, body []st
 	)
 
 	// create path and map variables
-	path := "/api/groups/{groupId}/users"
+	path := "/groups/{groupId}/users"
 	path = strings.Replace(path, "{"+"groupId"+"}", fmt.Sprintf("%v", groupId), -1)
 
 	headerParams := make(map[string]string)
@@ -191,7 +191,7 @@ func (a *GroupResourceApiService) DeleteGroup(ctx context.Context, id string) (*
 	)
 
 	// create path and map variables
-	path := "/api/groups/{id}"
+	path := "/groups/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -262,7 +262,7 @@ func (a *GroupResourceApiService) GetGrantedPermissions1(ctx context.Context, gr
 	)
 
 	// create path and map variables
-	path := "/api/groups/{groupId}/permissions"
+	path := "/groups/{groupId}/permissions"
 	path = strings.Replace(path, "{"+"groupId"+"}", fmt.Sprintf("%v", groupId), -1)
 
 	headerParams := make(map[string]string)
@@ -347,7 +347,7 @@ func (a *GroupResourceApiService) GetGroup(ctx context.Context, id string) (inte
 	)
 
 	// create path and map variables
-	path := "/api/groups/{id}"
+	path := "/groups/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -432,7 +432,7 @@ func (a *GroupResourceApiService) GetUsersInGroup(ctx context.Context, id string
 	)
 
 	// create path and map variables
-	path := "/api/groups/{id}/users"
+	path := "/groups/{id}/users"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -516,7 +516,7 @@ func (a *GroupResourceApiService) ListGroups(ctx context.Context) ([]rbac.Group,
 	)
 
 	// create path and map variables
-	path := "/api/groups"
+	path := "/groups"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -601,7 +601,7 @@ func (a *GroupResourceApiService) RemoveUserFromGroup(ctx context.Context, group
 	)
 
 	// create path and map variables
-	path := "/api/groups/{groupId}/users/{userId}"
+	path := "/groups/{groupId}/users/{userId}"
 	path = strings.Replace(path, "{"+"groupId"+"}", fmt.Sprintf("%v", groupId), -1)
 	path = strings.Replace(path, "{"+"userId"+"}", fmt.Sprintf("%v", userId), -1)
 
@@ -686,7 +686,7 @@ func (a *GroupResourceApiService) RemoveUsersFromGroup(ctx context.Context, body
 	)
 
 	// create path and map variables
-	path := "/api/groups/{groupId}/users"
+	path := "/groups/{groupId}/users"
 	path = strings.Replace(path, "{"+"groupId"+"}", fmt.Sprintf("%v", groupId), -1)
 
 	headerParams := make(map[string]string)
@@ -756,7 +756,7 @@ func (a *GroupResourceApiService) UpsertGroup(ctx context.Context, body rbac.Ups
 	)
 
 	// create path and map variables
-	path := "/api/groups/{id}"
+	path := "/groups/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)

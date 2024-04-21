@@ -20,3 +20,7 @@ type SecretsClient interface {
 	PutTagForSecret(ctx context.Context, body []model.Tag, key string) (*http.Response, error)
 	SecretExists(ctx context.Context, key string) (interface{}, *http.Response, error)
 }
+
+func NewSecretsClient(client *APIClient) SecretsClient {
+	return &SecretResourceApiService{client}
+}

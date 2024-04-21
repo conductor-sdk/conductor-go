@@ -22,3 +22,7 @@ type SchedulerClient interface {
 	SaveSchedule(ctx context.Context, body model.SaveScheduleRequest) (interface{}, *http.Response, error)
 	SearchV2(ctx context.Context, optionals *SchedulerSearchOpts) (model.SearchResultWorkflowSchedule, *http.Response, error)
 }
+
+func NewSchedulerClient(apiClient *APIClient) SchedulerClient {
+	return &SchedulerResourceApiService{apiClient}
+}

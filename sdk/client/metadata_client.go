@@ -24,3 +24,7 @@ type MetadataClient interface {
 	GetTagsForWorkflowDef(ctx context.Context, name string) ([]model.MetadataTag, error)
 	GetTagsForTaskDef(ctx context.Context, tasktype string) ([]model.MetadataTag, error)
 }
+
+func NewMetadataClient(apiClient *APIClient) MetadataClient {
+	return &MetadataResourceApiService{apiClient}
+}

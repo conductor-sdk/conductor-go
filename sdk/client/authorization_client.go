@@ -11,3 +11,7 @@ type AuthorizationClient interface {
 	GrantPermissions(ctx context.Context, body rbac.AuthorizationRequest) (*http.Response, error)
 	RemovePermissions(ctx context.Context, body rbac.AuthorizationRequest) (*http.Response, error)
 }
+
+func NewAuthorizationClient(client *APIClient) AuthorizationClient {
+	return &AuthorizationResourceApiService{client}
+}

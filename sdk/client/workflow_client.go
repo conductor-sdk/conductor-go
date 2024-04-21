@@ -13,9 +13,9 @@ type WorkflowClient interface {
 	GetWorkflowState(ctx context.Context, workflowId string, includeOutput bool, includeVariables bool) (model.WorkflowState, *http.Response, error)
 	GetExternalStorageLocation(ctx context.Context, path string, operation string, payloadType string) (model.ExternalStorageLocation, *http.Response, error)
 	GetRunningWorkflow(ctx context.Context, name string, localVarOptionals *WorkflowResourceApiGetRunningWorkflowOpts) ([]string, *http.Response, error)
-	GetWorkflows(ctx context.Context, body []string, name string, localVarOptionals *UserResourceApiListUsersOpts) (map[string][]model.Workflow, *http.Response, error)
-	GetWorkflowsBatch(ctx context.Context, body map[string][]string, localVarOptionals *UserResourceApiListUsersOpts) (map[string][]model.Workflow, *http.Response, error)
-	GetWorkflowsByCorrelationId(ctx context.Context, name string, correlationId string, localVarOptionals *UserResourceApiListUsersOpts) ([]model.Workflow, *http.Response, error)
+	GetWorkflows(ctx context.Context, body []string, name string, localVarOptionals *WorkflowResourceApiGetWorkflowsOpts) (map[string][]model.Workflow, *http.Response, error)
+	GetWorkflowsBatch(ctx context.Context, body map[string][]string, localVarOptionals *WorkflowResourceApiGetWorkflowsOpts) (map[string][]model.Workflow, *http.Response, error)
+	GetWorkflowsByCorrelationId(ctx context.Context, name string, correlationId string, localVarOptionals *WorkflowResourceApiGetWorkflowsOpts) ([]model.Workflow, *http.Response, error)
 	PauseWorkflow(ctx context.Context, workflowId string) (*http.Response, error)
 	Rerun(ctx context.Context, body model.RerunWorkflowRequest, workflowId string) (string, *http.Response, error)
 	ResetWorkflow(ctx context.Context, workflowId string) (*http.Response, error)
@@ -30,4 +30,8 @@ type WorkflowClient interface {
 	ExecuteWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask string) (model.WorkflowRun, *http.Response, error)
 	StartWorkflowWithRequest(ctx context.Context, body model.StartWorkflowRequest) (string, *http.Response, error)
 	Terminate(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiTerminateOpts) (*http.Response, error)
+}
+
+func NewWorkflowClient(apiClient *APIClient) WorkflowClient {
+	return &WorkflowResourceApiService{apiClient}
 }
