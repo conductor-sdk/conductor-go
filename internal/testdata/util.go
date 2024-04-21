@@ -58,6 +58,7 @@ var (
 	IntegrationClient = client.NewIntegrationClient(apiClient)
 	PromptClient      = client.NewPromptClient(apiClient)
 	UserClient        = client.NewUserClient(apiClient)
+
 )
 
 var TaskRunner = worker.NewTaskRunnerWithApiClient(apiClient)

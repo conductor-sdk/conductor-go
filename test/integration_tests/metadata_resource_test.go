@@ -53,7 +53,7 @@ func TestRegisterWorkflowDefWithTags(t *testing.T) {
 	if err2 == nil {
 		assert.Equal(t, len(tags), 1)
 		assert.Equal(t, tags[0].Key, tag0.Key)
-		assert.Equal(t, tags[0].Value, tag0.Value)
+		assert.Equal(t, *tags[0].Value, tag0.Value)
 
 	} else {
 		t.Fatal(err2)
@@ -169,7 +169,7 @@ func TestRegisterTaskDefWithTags(t *testing.T) {
 	if err == nil {
 		assert.Equal(t, len(tags), 1)
 		assert.Equal(t, fetchedTags[0].Key, tag0.Key)
-		assert.Equal(t, fetchedTags[0].Value, tag0.Value)
+		assert.Equal(t, *fetchedTags[0].Value, tag0.Value)
 
 	} else {
 		t.Fatal(err)

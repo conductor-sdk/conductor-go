@@ -92,6 +92,7 @@ func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpS
 		KeepAlive: 30 * time.Second,
 	}
 	netTransport := &http.Transport{
+		Proxy:               http.ProxyFromEnvironment,
 		DialContext:         baseDialer.DialContext,
 		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: 100,
@@ -126,7 +127,7 @@ func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err err
 			return err
 		}
 		return nil
-	} else if strings.Contains(contentType, "text/plain;charset=UTF-8") {
+	} else if strings.Contains(contentType, "text/plain") {
 		rv := reflect.ValueOf(v)
 		if rv.IsNil() {
 			return errors.New("undefined response type")
