@@ -62,7 +62,9 @@ func NewAPIClient(
 	)
 }
 func NewAPIClientFromEnv() *APIClient {
-	return nil
+	authenticationSettings := settings.NewAuthenticationSettings(os.Getenv(CONDUCTOR_AUTH_KEY), os.Getenv(CONDUCTOR_AUTH_SECRET))
+	httpSettings := settings.NewHttpSettings(os.Getenv(CONDUCTOR_SERVER_URL))
+	return NewAPIClient(authenticationSettings, httpSettings)
 }
 
 func NewAPIClientWithTokenExpiration(
