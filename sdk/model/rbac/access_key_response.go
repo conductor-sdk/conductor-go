@@ -8,8 +8,8 @@
 // specific language governing permissions and limitations under the License.
 package rbac
 
-type CreateOrUpdateApplicationRequest struct {
-	// Application's name e.g.: Payment Processors
-	Name        string `json:"name"`
-	Description string `json"description"`
+type AccessKeyResponse struct {
+	CreatedAt int64  `json:"createdAt,omitempty"`
+	Id        string `json:"id,omitempty"`
+	Status    string `json:"status,omitempty"`
 }

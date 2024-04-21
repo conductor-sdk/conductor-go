@@ -39,7 +39,7 @@ func (a *ApplicationResourceApiService) AddRoleToApplicationUser(ctx context.Con
 	)
 
 	// create path and map variables
-	path := "/api/applications/{applicationId}/roles/{role}"
+	path := "/applications/{applicationId}/roles/{role}"
 	path = strings.Replace(path, "{"+"applicationId"+"}", fmt.Sprintf("%v", applicationId), -1)
 	path = strings.Replace(path, "{"+"role"+"}", fmt.Sprintf("%v", role), -1)
 
@@ -115,17 +115,17 @@ ApplicationResourceApiService Create an access key for an application
   - @param id
     @return interface{}
 */
-func (a *ApplicationResourceApiService) CreateAccessKey(ctx context.Context, id string) (interface{}, *http.Response, error) {
+func (a *ApplicationResourceApiService) CreateAccessKey(ctx context.Context, id string) (*rbac.ConductorApplication, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Post")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue interface{}
+		returnValue rbac.ConductorApplication
 	)
 
 	// create path and map variables
-	path := "/api/applications/{id}/accessKeys"
+	path := "/applications/{id}/accessKeys"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -151,25 +151,25 @@ func (a *ApplicationResourceApiService) CreateAccessKey(ctx context.Context, id 
 	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
 
 	httpResponse, err := a.callAPI(r)
 	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	responseBody, err := getDecompressedBody(httpResponse)
 	httpResponse.Body.Close()
 	if err != nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	if httpResponse.StatusCode < 300 {
 		// If we succeed, return the data, otherwise pass on to decode error.
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
 		if err == nil {
-			return returnValue, httpResponse, err
+			return &returnValue, httpResponse, err
 		}
 	}
 
@@ -178,20 +178,10 @@ func (a *ApplicationResourceApiService) CreateAccessKey(ctx context.Context, id 
 			body:  responseBody,
 			error: httpResponse.Status,
 		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
+		return nil, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return nil, httpResponse, nil
 }
 
 /*
@@ -200,17 +190,17 @@ ApplicationResourceApiService Create an application
   - @param body
     @return interface{}
 */
-func (a *ApplicationResourceApiService) CreateApplication(ctx context.Context, body rbac.CreateOrUpdateApplicationRequest) (interface{}, *http.Response, error) {
+func (a *ApplicationResourceApiService) CreateApplication(ctx context.Context, body rbac.CreateOrUpdateApplicationRequest) (*rbac.ConductorApplication, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Post")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue interface{}
+		returnValue rbac.ConductorApplication
 	)
 
 	// create path and map variables
-	path := "/api/applications"
+	path := "/applications"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -237,25 +227,25 @@ func (a *ApplicationResourceApiService) CreateApplication(ctx context.Context, b
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
 
 	httpResponse, err := a.callAPI(r)
 	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	responseBody, err := getDecompressedBody(httpResponse)
 	httpResponse.Body.Close()
 	if err != nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	if httpResponse.StatusCode < 300 {
 		// If we succeed, return the data, otherwise pass on to decode error.
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
 		if err == nil {
-			return returnValue, httpResponse, err
+			return &returnValue, httpResponse, err
 		}
 	}
 
@@ -264,20 +254,10 @@ func (a *ApplicationResourceApiService) CreateApplication(ctx context.Context, b
 			body:  responseBody,
 			error: httpResponse.Status,
 		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
+		return nil, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return nil, httpResponse, nil
 }
 
 /*
@@ -287,7 +267,7 @@ ApplicationResourceApiService Delete an access key
   - @param keyId
     @return interface{}
 */
-func (a *ApplicationResourceApiService) DeleteAccessKey(ctx context.Context, applicationId string, keyId string) (interface{}, *http.Response, error) {
+func (a *ApplicationResourceApiService) DeleteAccessKey(ctx context.Context, applicationId string, keyId string) (*http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Delete")
 		postBody    interface{}
@@ -297,7 +277,7 @@ func (a *ApplicationResourceApiService) DeleteAccessKey(ctx context.Context, app
 	)
 
 	// create path and map variables
-	path := "/api/applications/{applicationId}/accessKeys/{keyId}"
+	path := "/applications/{applicationId}/accessKeys/{keyId}"
 	path = strings.Replace(path, "{"+"applicationId"+"}", fmt.Sprintf("%v", applicationId), -1)
 	path = strings.Replace(path, "{"+"keyId"+"}", fmt.Sprintf("%v", keyId), -1)
 
@@ -324,25 +304,25 @@ func (a *ApplicationResourceApiService) DeleteAccessKey(ctx context.Context, app
 	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, err
 	}
 
 	httpResponse, err := a.callAPI(r)
 	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
+		return httpResponse, err
 	}
 
 	responseBody, err := getDecompressedBody(httpResponse)
 	httpResponse.Body.Close()
 	if err != nil {
-		return returnValue, httpResponse, err
+		return httpResponse, err
 	}
 
 	if httpResponse.StatusCode < 300 {
 		// If we succeed, return the data, otherwise pass on to decode error.
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
 		if err == nil {
-			return returnValue, httpResponse, err
+			return httpResponse, err
 		}
 	}
 
@@ -351,20 +331,10 @@ func (a *ApplicationResourceApiService) DeleteAccessKey(ctx context.Context, app
 			body:  responseBody,
 			error: httpResponse.Status,
 		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
+		return httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return httpResponse, nil
 }
 
 /*
@@ -383,7 +353,7 @@ func (a *ApplicationResourceApiService) DeleteApplication(ctx context.Context, i
 	)
 
 	// create path and map variables
-	path := "/api/applications/{id}"
+	path := "/applications/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -467,7 +437,7 @@ func (a *ApplicationResourceApiService) DeleteTagForApplication(ctx context.Cont
 	)
 
 	// create path and map variables
-	path := "/api/applications/{id}/tags"
+	path := "/applications/{id}/tags"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -526,17 +496,17 @@ ApplicationResourceApiService Get application&#x27;s access keys
   - @param id
     @return interface{}
 */
-func (a *ApplicationResourceApiService) GetAccessKeys(ctx context.Context, id string) (interface{}, *http.Response, error) {
+func (a *ApplicationResourceApiService) GetAccessKeys(ctx context.Context, id string) ([]rbac.AccessKeyResponse, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Get")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue interface{}
+		returnValue []rbac.AccessKeyResponse
 	)
 
 	// create path and map variables
-	path := "/api/applications/{id}/accessKeys"
+	path := "/applications/{id}/accessKeys"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -589,16 +559,6 @@ func (a *ApplicationResourceApiService) GetAccessKeys(ctx context.Context, id st
 			body:  responseBody,
 			error: httpResponse.Status,
 		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
 		return returnValue, httpResponse, newErr
 	}
 
@@ -621,7 +581,7 @@ func (a *ApplicationResourceApiService) GetAppByAccessKeyId(ctx context.Context,
 	)
 
 	// create path and map variables
-	path := "/api/applications/key/{accessKeyId}"
+	path := "/applications/key/{accessKeyId}"
 	path = strings.Replace(path, "{"+"accessKeyId"+"}", fmt.Sprintf("%v", accessKeyId), -1)
 
 	headerParams := make(map[string]string)
@@ -696,17 +656,17 @@ ApplicationResourceApiService Get an application by id
   - @param id
     @return interface{}
 */
-func (a *ApplicationResourceApiService) GetApplication(ctx context.Context, id string) (interface{}, *http.Response, error) {
+func (a *ApplicationResourceApiService) GetApplication(ctx context.Context, id string) (*rbac.ConductorApplication, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Get")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue interface{}
+		returnValue rbac.ConductorApplication
 	)
 
 	// create path and map variables
-	path := "/api/applications/{id}"
+	path := "/applications/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -732,25 +692,25 @@ func (a *ApplicationResourceApiService) GetApplication(ctx context.Context, id s
 	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
 
 	httpResponse, err := a.callAPI(r)
 	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	responseBody, err := getDecompressedBody(httpResponse)
 	httpResponse.Body.Close()
 	if err != nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	if httpResponse.StatusCode < 300 {
 		// If we succeed, return the data, otherwise pass on to decode error.
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
 		if err == nil {
-			return returnValue, httpResponse, err
+			return &returnValue, httpResponse, err
 		}
 	}
 
@@ -759,20 +719,10 @@ func (a *ApplicationResourceApiService) GetApplication(ctx context.Context, id s
 			body:  responseBody,
 			error: httpResponse.Status,
 		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
+		return nil, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return nil, httpResponse, nil
 }
 
 /*
@@ -791,7 +741,7 @@ func (a *ApplicationResourceApiService) GetTagsForApplication(ctx context.Contex
 	)
 
 	// create path and map variables
-	path := "/api/applications/{id}/tags"
+	path := "/applications/{id}/tags"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -875,7 +825,7 @@ func (a *ApplicationResourceApiService) ListApplications(ctx context.Context) ([
 	)
 
 	// create path and map variables
-	path := "/api/applications"
+	path := "/applications"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -958,7 +908,7 @@ func (a *ApplicationResourceApiService) PutTagForApplication(ctx context.Context
 	)
 
 	// create path and map variables
-	path := "/api/applications/{id}/tags"
+	path := "/applications/{id}/tags"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -1028,7 +978,7 @@ func (a *ApplicationResourceApiService) RemoveRoleFromApplicationUser(ctx contex
 	)
 
 	// create path and map variables
-	path := "/api/applications/{applicationId}/roles/{role}"
+	path := "/applications/{applicationId}/roles/{role}"
 	path = strings.Replace(path, "{"+"applicationId"+"}", fmt.Sprintf("%v", applicationId), -1)
 	path = strings.Replace(path, "{"+"role"+"}", fmt.Sprintf("%v", role), -1)
 
@@ -1115,7 +1065,7 @@ func (a *ApplicationResourceApiService) ToggleAccessKeyStatus(ctx context.Contex
 	)
 
 	// create path and map variables
-	path := "/api/applications/{applicationId}/accessKeys/{keyId}/status"
+	path := "/applications/{applicationId}/accessKeys/{keyId}/status"
 	path = strings.Replace(path, "{"+"applicationId"+"}", fmt.Sprintf("%v", applicationId), -1)
 	path = strings.Replace(path, "{"+"keyId"+"}", fmt.Sprintf("%v", keyId), -1)
 
@@ -1192,17 +1142,17 @@ ApplicationResourceApiService Update an application
   - @param id
     @return interface{}
 */
-func (a *ApplicationResourceApiService) UpdateApplication(ctx context.Context, body rbac.CreateOrUpdateApplicationRequest, id string) (interface{}, *http.Response, error) {
+func (a *ApplicationResourceApiService) UpdateApplication(ctx context.Context, body rbac.CreateOrUpdateApplicationRequest, id string) (*rbac.ConductorApplication, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Put")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue interface{}
+		returnValue rbac.ConductorApplication
 	)
 
 	// create path and map variables
-	path := "/api/applications/{id}"
+	path := "/applications/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -1230,25 +1180,25 @@ func (a *ApplicationResourceApiService) UpdateApplication(ctx context.Context, b
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
 
 	httpResponse, err := a.callAPI(r)
 	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	responseBody, err := getDecompressedBody(httpResponse)
 	httpResponse.Body.Close()
 	if err != nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	if httpResponse.StatusCode < 300 {
 		// If we succeed, return the data, otherwise pass on to decode error.
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
 		if err == nil {
-			return returnValue, httpResponse, err
+			return &returnValue, httpResponse, err
 		}
 	}
 
@@ -1257,18 +1207,8 @@ func (a *ApplicationResourceApiService) UpdateApplication(ctx context.Context, b
 			body:  responseBody,
 			error: httpResponse.Status,
 		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
+		return nil, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return nil, httpResponse, nil
 }
