@@ -8,13 +8,12 @@
 // specific language governing permissions and limitations under the License.
 package model
 
-    
-    type PromptTemplateTestRequest struct {
-            LlmProvider string `json:"llmProvider,omitempty"`
-            Model string `json:"model,omitempty"`
-            Prompt string `json:"prompt,omitempty"`
-            PromptVariables map[string]interface{} `json:"promptVariables,omitempty"`
-            StopWords []string `json:"stopWords,omitempty"`
-            Temperature float64 `json:"temperature,omitempty"`
-            TopP float64 `json:"topP,omitempty"`
-    }
+type PromptTemplateTestRequest struct {
+	LlmProvider     string                 `json:"llmProvider,omitempty"`
+	Model           string                 `json:"model,omitempty"`
+	Prompt          string                 `json:"prompt,omitempty"`
+	PromptVariables map[string]interface{} `json:"promptVariables,omitempty"`
+	StopWords       []string               `json:"stopWords,omitempty"`
+	Temperature     float64                `json:"temperature,omitempty"`
+	TopP            float64                `json:"topP,omitempty"`
+}

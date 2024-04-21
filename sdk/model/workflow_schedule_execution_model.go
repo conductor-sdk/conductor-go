@@ -8,17 +8,16 @@
 // specific language governing permissions and limitations under the License.
 package model
 
-    
-    type WorkflowScheduleExecutionModel struct {
-            ExecutionId string `json:"executionId,omitempty"`
-            ExecutionTime int64 `json:"executionTime,omitempty"`
-            Reason string `json:"reason,omitempty"`
-            ScheduleName string `json:"scheduleName,omitempty"`
-            ScheduledTime int64 `json:"scheduledTime,omitempty"`
-            StackTrace string `json:"stackTrace,omitempty"`
-            StartWorkflowRequest *StartWorkflowRequest `json:"startWorkflowRequest,omitempty"`
-            State string `json:"state,omitempty"`
-            WorkflowId string `json:"workflowId,omitempty"`
-            WorkflowName string `json:"workflowName,omitempty"`
-            ZoneId string `json:"zoneId,omitempty"`
-    }
+type WorkflowScheduleExecutionModel struct {
+	ExecutionId          string                `json:"executionId,omitempty"`
+	ExecutionTime        int64                 `json:"executionTime,omitempty"`
+	Reason               string                `json:"reason,omitempty"`
+	ScheduleName         string                `json:"scheduleName,omitempty"`
+	ScheduledTime        int64                 `json:"scheduledTime,omitempty"`
+	StackTrace           string                `json:"stackTrace,omitempty"`
+	StartWorkflowRequest *StartWorkflowRequest `json:"startWorkflowRequest,omitempty"`
+	State                string                `json:"state,omitempty"`
+	WorkflowId           string                `json:"workflowId,omitempty"`
+	WorkflowName         string                `json:"workflowName,omitempty"`
+	ZoneId               string                `json:"zoneId,omitempty"`
+}

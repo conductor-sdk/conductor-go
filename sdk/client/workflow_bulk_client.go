@@ -7,9 +7,9 @@ import (
 )
 
 type WorkflowBulkClient interface {
-	PauseWorkflow1(ctx context.Context, body []string) (model.BulkResponse, *http.Response, error)
-	Restart1(ctx context.Context, body []string, localVarOptionals *WorkflowBulkResourceApiRestart1Opts) (model.BulkResponse, *http.Response, error)
-	ResumeWorkflow1(ctx context.Context, body []string) (model.BulkResponse, *http.Response, error)
-	Retry1(ctx context.Context, body []string) (model.BulkResponse, *http.Response, error)
-	Terminate(ctx context.Context, body []string, localVarOptionals *WorkflowBulkResourceApiTerminateOpts) (model.BulkResponse, *http.Response, error)
+	PauseWorkflow1(ctx context.Context, workflowIds []string) (model.BulkResponse, *http.Response, error)
+	Restart(ctx context.Context, workflowIds []string, opts *WorkflowBulkResourceApiRestart1Opts) (model.BulkResponse, *http.Response, error)
+	ResumeWorkflow(ctx context.Context, workflowIds []string) (model.BulkResponse, *http.Response, error)
+	Retry1(ctx context.Context, workflowIds []string) (model.BulkResponse, *http.Response, error)
+	Terminate(ctx context.Context, workflowIds []string, opts *WorkflowBulkResourceApiTerminateOpts) (model.BulkResponse, *http.Response, error)
 }

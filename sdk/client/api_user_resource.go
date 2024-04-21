@@ -22,6 +22,10 @@ type UserResourceApiService struct {
 	*APIClient
 }
 
+type UserResourceApiListUsersOpts struct {
+	Apps optional.Bool
+}
+
 /*
 UserResourceApiService Get the permissions this user has over workflows and tasks
 * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
@@ -30,17 +34,17 @@ UserResourceApiService Get the permissions this user has over workflows and task
   - @param id
     @return interface{}
 */
-func (a *UserResourceApiService) CheckPermissions(ctx context.Context, userId string, type_ string, id string) (interface{}, *http.Response, error) {
+func (a *UserResourceApiService) CheckPermissions(ctx context.Context, userId string, type_ string, id string) (map[string]interface{}, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Get")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue interface{}
+		returnValue map[string]interface{}
 	)
 
 	// create path and map variables
-	path := "/api/users/{userId}/checkPermissions"
+	path := "/users/{userId}/checkPermissions"
 	path = strings.Replace(path, "{"+"userId"+"}", fmt.Sprintf("%v", userId), -1)
 
 	headerParams := make(map[string]string)
@@ -126,7 +130,7 @@ func (a *UserResourceApiService) DeleteUser(ctx context.Context, id string) (*ht
 	)
 
 	// create path and map variables
-	path := "/api/users/{id}"
+	path := "/users/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -188,17 +192,17 @@ UserResourceApiService Get the permissions this user has over workflows and task
   - @param userId
     @return interface{}
 */
-func (a *UserResourceApiService) GetGrantedPermissions(ctx context.Context, userId string) (interface{}, *http.Response, error) {
+func (a *UserResourceApiService) GetGrantedPermissions(ctx context.Context, userId string) ([]rbac.GrantedAccess, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Get")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue interface{}
+		returnValue []rbac.GrantedAccess
 	)
 
 	// create path and map variables
-	path := "/api/users/{userId}/permissions"
+	path := "/users/{userId}/permissions"
 	path = strings.Replace(path, "{"+"userId"+"}", fmt.Sprintf("%v", userId), -1)
 
 	headerParams := make(map[string]string)
@@ -273,17 +277,17 @@ UserResourceApiService Get a user by id
   - @param id
     @return interface{}
 */
-func (a *UserResourceApiService) GetUser(ctx context.Context, id string) (interface{}, *http.Response, error) {
+func (a *UserResourceApiService) GetUser(ctx context.Context, id string) (*rbac.ConductorUser, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Get")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue interface{}
+		returnValue rbac.ConductorUser
 	)
 
 	// create path and map variables
-	path := "/api/users/{id}"
+	path := "/users/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -309,25 +313,25 @@ func (a *UserResourceApiService) GetUser(ctx context.Context, id string) (interf
 	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
 
 	httpResponse, err := a.callAPI(r)
 	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	responseBody, err := getDecompressedBody(httpResponse)
 	httpResponse.Body.Close()
 	if err != nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	if httpResponse.StatusCode < 300 {
 		// If we succeed, return the data, otherwise pass on to decode error.
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
 		if err == nil {
-			return returnValue, httpResponse, err
+			return &returnValue, httpResponse, err
 		}
 	}
 
@@ -336,20 +340,10 @@ func (a *UserResourceApiService) GetUser(ctx context.Context, id string) (interf
 			body:  responseBody,
 			error: httpResponse.Status,
 		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
+		return nil, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return nil, httpResponse, nil
 }
 
 /*
@@ -359,10 +353,6 @@ func (a *UserResourceApiService) GetUser(ctx context.Context, id string) (interf
         * @param "Apps" (optional.Bool) -
    @return []ConductorUser
 */
-
-type UserResourceApiListUsersOpts struct {
-	Apps optional.Bool
-}
 
 func (a *UserResourceApiService) ListUsers(ctx context.Context, optionals *UserResourceApiListUsersOpts) ([]rbac.ConductorUser, *http.Response, error) {
 	var (
@@ -374,7 +364,7 @@ func (a *UserResourceApiService) ListUsers(ctx context.Context, optionals *UserR
 	)
 
 	// create path and map variables
-	path := "/api/users"
+	path := "/users"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -452,17 +442,17 @@ UserResourceApiService Create or update a user
   - @param id
     @return interface{}
 */
-func (a *UserResourceApiService) UpsertUser(ctx context.Context, body rbac.UpsertUserRequest, id string) (interface{}, *http.Response, error) {
+func (a *UserResourceApiService) UpsertUser(ctx context.Context, body rbac.UpsertUserRequest, id string) (*rbac.ConductorUser, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Put")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue interface{}
+		returnValue rbac.ConductorUser
 	)
 
 	// create path and map variables
-	path := "/api/users/{id}"
+	path := "/users/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
@@ -490,25 +480,25 @@ func (a *UserResourceApiService) UpsertUser(ctx context.Context, body rbac.Upser
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
 
 	httpResponse, err := a.callAPI(r)
 	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	responseBody, err := getDecompressedBody(httpResponse)
 	httpResponse.Body.Close()
 	if err != nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	if httpResponse.StatusCode < 300 {
 		// If we succeed, return the data, otherwise pass on to decode error.
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
 		if err == nil {
-			return returnValue, httpResponse, err
+			return &returnValue, httpResponse, err
 		}
 	}
 
@@ -517,18 +507,8 @@ func (a *UserResourceApiService) UpsertUser(ctx context.Context, body rbac.Upser
 			body:  responseBody,
 			error: httpResponse.Status,
 		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
+		return nil, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return nil, httpResponse, nil
 }

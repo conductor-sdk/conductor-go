@@ -36,7 +36,8 @@ type TaskResourceApiService struct {
 
 /*
 TaskResourceApiService Get the details about each queue
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+
 @return map[string]int64
 */
 func (a *TaskResourceApiService) All(ctx context.Context) (map[string]int64, *http.Response, error) {
@@ -119,7 +120,8 @@ func (a *TaskResourceApiService) All(ctx context.Context) (map[string]int64, *ht
 
 /*
 TaskResourceApiService Get the details about each queue
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+
 @return map[string]map[string]map[string]int64
 */
 func (a *TaskResourceApiService) AllVerbose(ctx context.Context) (map[string]map[string]map[string]int64, *http.Response, error) {
@@ -312,7 +314,8 @@ func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string,
 
 /*
 TaskResourceApiService Get the last poll data for all task types
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+
 @return []PollData
 */
 func (a *TaskResourceApiService) GetAllPollData(ctx context.Context) ([]model.PollData, *http.Response, error) {
@@ -395,10 +398,11 @@ func (a *TaskResourceApiService) GetAllPollData(ctx context.Context) ([]model.Po
 
 /*
 TaskResourceApiService Get the external uri where the task payload is to be stored
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param path
- * @param operation
- * @param payloadType
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param path
+  - @param operation
+  - @param payloadType
+
 @return ExternalStorageLocation
 */
 func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context, path string, operation string, payloadType string) (model.ExternalStorageLocation, *http.Response, error) {
@@ -484,8 +488,9 @@ func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context
 
 /*
 TaskResourceApiService Get the last poll data for a given task type
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param taskType
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param taskType
+
 @return []PollData
 */
 func (a *TaskResourceApiService) GetPollData(ctx context.Context, taskType string) ([]model.PollData, *http.Response, error) {
@@ -569,8 +574,9 @@ func (a *TaskResourceApiService) GetPollData(ctx context.Context, taskType strin
 
 /*
 TaskResourceApiService Get task by Id
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param taskId
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param taskId
+
 @return Task
 */
 func (a *TaskResourceApiService) GetTask(ctx context.Context, taskId string) (model.Task, *http.Response, error) {
@@ -654,8 +660,9 @@ func (a *TaskResourceApiService) GetTask(ctx context.Context, taskId string) (mo
 
 /*
 TaskResourceApiService Get Task Execution Logs
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param taskId
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param taskId
+
 @return []TaskExecLog
 */
 func (a *TaskResourceApiService) GetTaskLogs(ctx context.Context, taskId string) ([]model.TaskExecLog, *http.Response, error) {
@@ -739,10 +746,9 @@ func (a *TaskResourceApiService) GetTaskLogs(ctx context.Context, taskId string)
 
 /*
 TaskResourceApiService Log Task Execution Details
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param body
- * @param taskId
-
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param body
+  - @param taskId
 */
 func (a *TaskResourceApiService) Log(ctx context.Context, body string, taskId string) (*http.Response, error) {
 	var (
@@ -908,8 +914,9 @@ func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, loca
 
 /*
 TaskResourceApiService Requeue pending tasks
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param taskType
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param taskType
+
 @return string
 */
 func (a *TaskResourceApiService) RequeuePendingTask(ctx context.Context, taskType string) (string, *http.Response, error) {
@@ -1012,7 +1019,7 @@ type TaskResourceApiSearch1Opts struct {
 	Query    optional.String
 }
 
-func (a *TaskResourceApiService) Search1(ctx context.Context, localVarOptionals *TaskResourceApiSearch1Opts) (model.SearchResultTaskSummary, *http.Response, error) {
+func (a *TaskResourceApiService) Search(ctx context.Context, localVarOptionals *TaskResourceApiSearch1Opts) (model.SearchResultTaskSummary, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -1126,7 +1133,7 @@ type TaskResourceApiSearchV21Opts struct {
 	Query    optional.String
 }
 
-func (a *TaskResourceApiService) SearchV21(ctx context.Context, localVarOptionals *TaskResourceApiSearchV21Opts) (model.SearchResultTask, *http.Response, error) {
+func (a *TaskResourceApiService) SearchV2(ctx context.Context, localVarOptionals *TaskResourceApiSearchV21Opts) (model.SearchResultTask, *http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Get")
 		localVarPostBody    interface{}
@@ -1314,8 +1321,9 @@ func (a *TaskResourceApiService) Size(ctx context.Context, localVarOptionals *Ta
 
 /*
 TaskResourceApiService Update a task
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param body
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param body
+
 @return string
 */
 func (a *TaskResourceApiService) UpdateTask(ctx context.Context, taskResult *model.TaskResult) (string, *http.Response, error) {
@@ -1401,11 +1409,12 @@ func (a *TaskResourceApiService) UpdateTask(ctx context.Context, taskResult *mod
 
 /*
 TaskResourceApiService Update a task By Ref Name
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param body
- * @param workflowId
- * @param taskRefName
- * @param status
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param body
+  - @param workflowId
+  - @param taskRefName
+  - @param status
+
 @return string
 */
 func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string) (string, *http.Response, error) {
@@ -1414,12 +1423,13 @@ func (a *TaskResourceApiService) UpdateTaskByRefName(ctx context.Context, body m
 
 /*
 TaskResourceApiService Update a task By Ref Name
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param body
- * @param workflowId
- * @param taskRefName
- * @param status
- * @param workerId
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param body
+  - @param workflowId
+  - @param taskRefName
+  - @param status
+  - @param workerId
+
 @return string
 */
 func (a *TaskResourceApiService) UpdateTaskByRefNameWithWorkerId(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, workerId optional.String) (string, *http.Response, error) {

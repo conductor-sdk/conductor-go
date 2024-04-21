@@ -8,9 +8,8 @@
 // specific language governing permissions and limitations under the License.
 package model
 
-    
-    type EnvironmentVariable struct {
-            Name string `json:"name,omitempty"`
-            Tags []Tag `json:"tags,omitempty"`
-            Value string `json:"value,omitempty"`
-    }
+type EnvironmentVariable struct {
+	Name  string `json:"name,omitempty"`
+	Tags  []Tag  `json:"tags,omitempty"`
+	Value string `json:"value,omitempty"`
+}
