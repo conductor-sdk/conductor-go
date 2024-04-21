@@ -2,19 +2,16 @@ package integration_tests
 
 import (
 	"context"
-	"github.com/conductor-sdk/conductor-go/sdk/authentication"
-	"github.com/conductor-sdk/conductor-go/sdk/client"
+	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/model/rbac"
-	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func TestApplicationLifecycle(t *testing.T) {
 
-	appClient := NewApplicationClient()
+	appClient := testdata.ApplicationClient
 
 	// Create an application
 	ctx := context.Background()
@@ -42,7 +39,7 @@ func TestApplicationLifecycle(t *testing.T) {
 
 func TestRoleManagementForApplicationUser(t *testing.T) {
 
-	appClient := NewApplicationClient()
+	appClient := testdata.ApplicationClient
 
 	// Create an application to use in the test
 	ctx := context.Background()
@@ -64,7 +61,7 @@ func TestRoleManagementForApplicationUser(t *testing.T) {
 }
 
 func TestAccessKeyLifecycle(t *testing.T) {
-	appClient := NewApplicationClient()
+	appClient := testdata.ApplicationClient
 
 	// Create an application to use in the test
 	ctx := context.Background()
@@ -87,7 +84,7 @@ func TestAccessKeyLifecycle(t *testing.T) {
 
 func TestGetTagsForApplication(t *testing.T) {
 
-	appClient := NewApplicationClient()
+	appClient := testdata.ApplicationClient
 
 	// Create an application to use in the test
 	ctx := context.Background()
@@ -109,7 +106,7 @@ func TestGetTagsForApplication(t *testing.T) {
 
 func TestApplicationClientIntegration(t *testing.T) {
 	// Initialize ApplicationClient
-	appClient := NewApplicationClient()
+	appClient := testdata.ApplicationClient
 
 	// Context used in all requests
 	ctx := context.Background()
@@ -168,7 +165,7 @@ func TestApplicationClientIntegration(t *testing.T) {
 
 func TestApplicationClientErrorHandling(t *testing.T) {
 	// Initialize ApplicationClient
-	appClient := NewApplicationClient()
+	appClient := testdata.ApplicationClient
 
 	// Context used in all requests
 	ctx := context.Background()
@@ -220,7 +217,7 @@ func TestApplicationClientErrorHandling(t *testing.T) {
 
 func TestGetAccessKeys(t *testing.T) {
 	// Initialize ApplicationClient
-	appClient := NewApplicationClient()
+	appClient := testdata.ApplicationClient
 
 	// Context used in all requests
 	ctx := context.Background()
@@ -263,17 +260,6 @@ func TestGetAccessKeys(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, 404, resp.StatusCode)
 	assert.Nil(t, retrievedApp)
-}
-func NewApplicationClient() client.ApplicationClient {
-	apiClient := client.NewAPIClientWithTokenExpiration(
-		settings.NewAuthenticationSettings("api_key_user_03", "api_key_user_03"),
-		settings.NewHttpSettings("http://localhost:8080/api"),
-		authentication.NewTokenExpiration(
-			3*time.Second,
-			30*time.Second,
-		),
-	)
-	return client.NewApplicationClient(apiClient)
 }
 
 // Implement other tests if there are more methods in ApplicationClient

@@ -2,14 +2,12 @@ package integration_tests
 
 import (
 	"context"
-	"github.com/conductor-sdk/conductor-go/sdk/authentication"
+	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
-	"time"
 )
 
 func TestCreateOrUpdateEnvVariable(t *testing.T) {
@@ -97,17 +95,6 @@ func TestPutTagForEnvVar(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 }
-
 func NewEnvironmentClient() client.EnvironmentClient {
-	// Your code to initialize and return a client that implements UserClient
-	// This is typically setup for integration testing with real API or a mock server
-	apiClient := client.NewAPIClientWithTokenExpiration(
-		settings.NewAuthenticationSettings("api_key_user_03", "api_key_user_03"),
-		settings.NewHttpSettings("http://localhost:8080/api"),
-		authentication.NewTokenExpiration(
-			3*time.Second,
-			30*time.Second,
-		),
-	)
-	return client.NewEnvironmentClient(apiClient)
+	return testdata.EnvironmentClient
 }

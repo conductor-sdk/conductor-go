@@ -11,7 +11,6 @@ package client
 import (
 	"context"
 	"fmt"
-	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/model/integration"
 	"net/http"
@@ -162,7 +161,7 @@ PromptResourceApiService Get Template
   - @param name
     @return MessageTemplate
 */
-func (a *PromptResourceApiService) GetMessageTemplate(ctx context.Context, name string) (integration.PromptTemplate, *http.Response, error) {
+func (a *PromptResourceApiService) GetMessageTemplate(ctx context.Context, name string) (*integration.PromptTemplate, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Get")
 		postBody    interface{}
@@ -198,25 +197,25 @@ func (a *PromptResourceApiService) GetMessageTemplate(ctx context.Context, name 
 	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
 
 	httpResponse, err := a.callAPI(r)
 	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	responseBody, err := getDecompressedBody(httpResponse)
 	httpResponse.Body.Close()
 	if err != nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	if httpResponse.StatusCode < 300 {
 		// If we succeed, return the data, otherwise pass on to decode error.
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
 		if err == nil {
-			return returnValue, httpResponse, err
+			return &returnValue, httpResponse, err
 		}
 	}
 
@@ -225,20 +224,11 @@ func (a *PromptResourceApiService) GetMessageTemplate(ctx context.Context, name 
 			body:  responseBody,
 			error: httpResponse.Status,
 		}
-		if httpResponse.StatusCode == 200 {
-			var v integration.PromptTemplate
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
+
+		return nil, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return nil, httpResponse, nil
 }
 
 /*
@@ -489,7 +479,7 @@ func (a *PromptResourceApiService) PutTagForPromptTemplate(ctx context.Context, 
 */
 
 type PromptResourceApiSaveMessageTemplateOpts struct {
-	Models optional.Interface
+	Models []string
 }
 
 func (a *PromptResourceApiService) SaveMessageTemplate(ctx context.Context, body string, description string, name string, optionals *PromptResourceApiSaveMessageTemplateOpts) (*http.Response, error) {
@@ -509,8 +499,8 @@ func (a *PromptResourceApiService) SaveMessageTemplate(ctx context.Context, body
 	formParams := url.Values{}
 
 	queryParams.Add("description", parameterToString(description, ""))
-	if optionals != nil && optionals.Models.IsSet() {
-		queryParams.Add("models", parameterToString(optionals.Models.Value(), "multi"))
+	if optionals != nil {
+		queryParams.Add("models", parameterToString(optionals.Models, "multi"))
 	}
 	// to determine the Content-Type header
 	contentTypes := []string{"application/json"}

@@ -38,7 +38,6 @@ type IntegrationClient interface {
 
 	GetIntegrationApis(ctx context.Context, name string, activeOnly optional.Bool) ([]integration.IntegrationApi, *http.Response, error)
 	GetIntegrationApi(ctx context.Context, name string, model string) (integration.IntegrationApi, *http.Response, error)
-	GetIntegrationAvailableApis(ctx context.Context, name string) ([]string, *http.Response, error)
 	SaveIntegrationApi(ctx context.Context, update integration.IntegrationApiUpdate, name string, model string) (*http.Response, error)
 	DeleteIntegrationApi(ctx context.Context, name string, model string) (*http.Response, error)
 

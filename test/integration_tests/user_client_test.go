@@ -3,14 +3,12 @@ package integration_tests
 import (
 	"context"
 	"github.com/antihax/optional"
-	"github.com/conductor-sdk/conductor-go/sdk/authentication"
+	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model/rbac"
-	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
-	"time"
 )
 
 // TestCheckPermissions checks if permissions for a user can be retrieved correctly.
@@ -144,15 +142,5 @@ func TestUpsertUser(t *testing.T) {
 }
 
 func NewUserClient() client.UserClient {
-	// Your code to initialize and return a client that implements UserClient
-	// This is typically setup for integration testing with real API or a mock server
-	apiClient := client.NewAPIClientWithTokenExpiration(
-		settings.NewAuthenticationSettings("api_key_user_03", "api_key_user_03"),
-		settings.NewHttpSettings("http://localhost:8080/api"),
-		authentication.NewTokenExpiration(
-			3*time.Second,
-			30*time.Second,
-		),
-	)
-	return client.NewUserClient(apiClient)
+	return testdata.UserClient
 }
