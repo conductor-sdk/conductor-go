@@ -38,7 +38,7 @@ func (a *AuthorizationResourceApiService) GetPermissions(ctx context.Context, ty
 	)
 
 	// create path and map variables
-	path := "/api/auth/authorization/{type}/{id}"
+	path := "/auth/authorization/{type}/{id}"
 	path = strings.Replace(path, "{"+"type"+"}", fmt.Sprintf("%v", type_), -1)
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
@@ -123,7 +123,7 @@ func (a *AuthorizationResourceApiService) GrantPermissions(ctx context.Context, 
 	)
 
 	// create path and map variables
-	path := "/api/auth/authorization"
+	path := "/auth/authorization"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -195,7 +195,7 @@ func (a *AuthorizationResourceApiService) RemovePermissions(ctx context.Context,
 	)
 
 	// create path and map variables
-	path := "/api/auth/authorization"
+	path := "/auth/authorization"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}

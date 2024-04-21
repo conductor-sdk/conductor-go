@@ -36,7 +36,7 @@ func (a *SecretResourceApiService) ClearLocalCache(ctx context.Context) (map[str
 	)
 
 	// create path and map variables
-	path := "/api/secrets/clearLocalCache"
+	path := "/secrets/clearLocalCache"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -119,7 +119,7 @@ func (a *SecretResourceApiService) ClearRedisCache(ctx context.Context) (map[str
 	)
 
 	// create path and map variables
-	path := "/api/secrets/clearRedisCache"
+	path := "/secrets/clearRedisCache"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -203,7 +203,7 @@ func (a *SecretResourceApiService) DeleteSecret(ctx context.Context, key string)
 	)
 
 	// create path and map variables
-	path := "/api/secrets/{key}"
+	path := "/secrets/{key}"
 	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
 
 	headerParams := make(map[string]string)
@@ -287,7 +287,7 @@ func (a *SecretResourceApiService) DeleteTagForSecret(ctx context.Context, body 
 	)
 
 	// create path and map variables
-	path := "/api/secrets/{key}/tags"
+	path := "/secrets/{key}/tags"
 	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
 
 	headerParams := make(map[string]string)
@@ -356,7 +356,7 @@ func (a *SecretResourceApiService) GetSecret(ctx context.Context, key string) (s
 	)
 
 	// create path and map variables
-	path := "/api/secrets/{key}"
+	path := "/secrets/{key}"
 	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
 
 	headerParams := make(map[string]string)
@@ -441,7 +441,7 @@ func (a *SecretResourceApiService) GetTags(ctx context.Context, key string) ([]m
 	)
 
 	// create path and map variables
-	path := "/api/secrets/{key}/tags"
+	path := "/secrets/{key}/tags"
 	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
 
 	headerParams := make(map[string]string)
@@ -525,7 +525,7 @@ func (a *SecretResourceApiService) ListAllSecretNames(ctx context.Context) ([]st
 	)
 
 	// create path and map variables
-	path := "/api/secrets"
+	path := "/secrets"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -608,7 +608,7 @@ func (a *SecretResourceApiService) ListSecretsThatUserCanGrantAccessTo(ctx conte
 	)
 
 	// create path and map variables
-	path := "/api/secrets"
+	path := "/secrets"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -691,7 +691,7 @@ func (a *SecretResourceApiService) ListSecretsWithTagsThatUserCanGrantAccessTo(c
 	)
 
 	// create path and map variables
-	path := "/api/secrets-v2"
+	path := "/secrets-v2"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -776,7 +776,7 @@ func (a *SecretResourceApiService) PutSecret(ctx context.Context, body string, k
 	)
 
 	// create path and map variables
-	path := "/api/secrets/{key}"
+	path := "/secrets/{key}"
 	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
 
 	headerParams := make(map[string]string)
@@ -862,7 +862,7 @@ func (a *SecretResourceApiService) PutTagForSecret(ctx context.Context, body []m
 	)
 
 	// create path and map variables
-	path := "/api/secrets/{key}/tags"
+	path := "/secrets/{key}/tags"
 	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
 
 	headerParams := make(map[string]string)
@@ -931,7 +931,7 @@ func (a *SecretResourceApiService) SecretExists(ctx context.Context, key string)
 	)
 
 	// create path and map variables
-	path := "/api/secrets/{key}/exists"
+	path := "/secrets/{key}/exists"
 	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
 
 	headerParams := make(map[string]string)

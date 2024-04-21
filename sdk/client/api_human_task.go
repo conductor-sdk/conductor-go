@@ -48,7 +48,7 @@ func (a *HumanTaskApiService) AssignAndClaim(ctx context.Context, taskId string,
 	)
 
 	// create path and map variables
-	path := "/api/human/tasks/{taskId}/externalUser/{userId}"
+	path := "/human/tasks/{taskId}/externalUser/{userId}"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 	path = strings.Replace(path, "{"+"userId"+"}", fmt.Sprintf("%v", userId), -1)
 
@@ -140,7 +140,7 @@ func (a *HumanTaskApiService) BackPopulateFullTextIndex(ctx context.Context, var
 	)
 
 	// create path and map variables
-	path := "/api/human/tasks/backPopulateFullTextIndex"
+	path := "/human/tasks/backPopulateFullTextIndex"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -234,7 +234,7 @@ func (a *HumanTaskApiService) ClaimTask(ctx context.Context, taskId string, opti
 	)
 
 	// create path and map variables
-	path := "/api/human/tasks/{taskId}/claim"
+	path := "/human/tasks/{taskId}/claim"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	headerParams := make(map[string]string)
@@ -323,7 +323,7 @@ func (a *HumanTaskApiService) DeleteTaskFromHumanTaskRecords(ctx context.Context
 	)
 
 	// create path and map variables
-	path := "/api/human/tasks/delete"
+	path := "/human/tasks/delete"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -389,7 +389,7 @@ func (a *HumanTaskApiService) DeleteTaskFromHumanTaskRecords1(ctx context.Contex
 	)
 
 	// create path and map variables
-	path := "/api/human/tasks/delete/{taskId}"
+	path := "/human/tasks/delete/{taskId}"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	headerParams := make(map[string]string)
@@ -454,7 +454,7 @@ func (a *HumanTaskApiService) DeleteTemplateByName(ctx context.Context, name str
 	)
 
 	// create path and map variables
-	path := "/api/human/template/{name}"
+	path := "/human/template/{name}"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
@@ -520,7 +520,7 @@ func (a *HumanTaskApiService) DeleteTemplatesByNameAndVersion(ctx context.Contex
 	)
 
 	// create path and map variables
-	path := "/api/human/template/{name}/{version}"
+	path := "/human/template/{name}/{version}"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 	path = strings.Replace(path, "{"+"version"+"}", fmt.Sprintf("%v", version), -1)
 
@@ -596,7 +596,7 @@ func (a *HumanTaskApiService) GetAllTemplates(ctx context.Context, optionals *Hu
 	)
 
 	// create path and map variables
-	path := "/api/human/template"
+	path := "/human/template"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -693,7 +693,7 @@ func (a *HumanTaskApiService) GetTask1(ctx context.Context, taskId string, optio
 	)
 
 	// create path and map variables
-	path := "/api/human/tasks/{taskId}"
+	path := "/human/tasks/{taskId}"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	headerParams := make(map[string]string)
@@ -781,7 +781,7 @@ func (a *HumanTaskApiService) GetTaskDisplayNames(ctx context.Context, searchTyp
 	)
 
 	// create path and map variables
-	path := "/api/human/tasks/getTaskDisplayNames"
+	path := "/human/tasks/getTaskDisplayNames"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -867,7 +867,7 @@ func (a *HumanTaskApiService) GetTemplateByNameAndVersion(ctx context.Context, n
 	)
 
 	// create path and map variables
-	path := "/api/human/template/{name}/{version}"
+	path := "/human/template/{name}/{version}"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 	path = strings.Replace(path, "{"+"version"+"}", fmt.Sprintf("%v", version), -1)
 
@@ -953,7 +953,7 @@ func (a *HumanTaskApiService) GetTemplateByTaskId(ctx context.Context, humanTask
 	)
 
 	// create path and map variables
-	path := "/api/human/template/{humanTaskId}"
+	path := "/human/template/{humanTaskId}"
 	path = strings.Replace(path, "{"+"humanTaskId"+"}", fmt.Sprintf("%v", humanTaskId), -1)
 
 	headerParams := make(map[string]string)
@@ -1037,7 +1037,7 @@ func (a *HumanTaskApiService) ReassignTask(ctx context.Context, body []human.Hum
 	)
 
 	// create path and map variables
-	path := "/api/human/tasks/{taskId}/reassign"
+	path := "/human/tasks/{taskId}/reassign"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	headerParams := make(map[string]string)
@@ -1104,7 +1104,7 @@ func (a *HumanTaskApiService) ReleaseTask(ctx context.Context, taskId string) (*
 	)
 
 	// create path and map variables
-	path := "/api/human/tasks/{taskId}/release"
+	path := "/human/tasks/{taskId}/release"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	headerParams := make(map[string]string)
@@ -1178,7 +1178,7 @@ func (a *HumanTaskApiService) SaveTemplate(ctx context.Context, body human.Human
 	)
 
 	// create path and map variables
-	path := "/api/human/template"
+	path := "/human/template"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -1274,7 +1274,7 @@ func (a *HumanTaskApiService) SaveTemplates(ctx context.Context, body []human.Hu
 	)
 
 	// create path and map variables
-	path := "/api/human/template/bulk"
+	path := "/human/template/bulk"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -1363,7 +1363,7 @@ func (a *HumanTaskApiService) Search(ctx context.Context, body human.HumanTaskSe
 	)
 
 	// create path and map variables
-	path := "/api/human/tasks/search"
+	path := "/human/tasks/search"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -1455,7 +1455,7 @@ func (a *HumanTaskApiService) SkipTask(ctx context.Context, taskId string, optio
 	)
 
 	// create path and map variables
-	path := "/api/human/tasks/{taskId}/skip"
+	path := "/human/tasks/{taskId}/skip"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	headerParams := make(map[string]string)
@@ -1532,7 +1532,7 @@ func (a *HumanTaskApiService) UpdateTaskOutput(ctx context.Context, body map[str
 	)
 
 	// create path and map variables
-	path := "/api/human/tasks/{taskId}/update"
+	path := "/human/tasks/{taskId}/update"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	headerParams := make(map[string]string)
@@ -1614,7 +1614,7 @@ func (a *HumanTaskApiService) UpdateTaskOutputByRef(ctx context.Context, body ma
 	)
 
 	// create path and map variables
-	path := "/api/human/tasks/update/taskRef"
+	path := "/human/tasks/update/taskRef"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
