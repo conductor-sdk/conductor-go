@@ -74,3 +74,43 @@ func (task *SimpleTask) RetryPolicy(retryCount int32, policy RetryLogic, retryDe
 	task.workflowTask.TaskDefinition.BackoffScaleFactor = backoffScaleFactor
 	return task
 }
+
+// RateLimitFrequency based on the frequency window for the task
+func (task *SimpleTask) RateLimitFrequency(rateLimitFrequencyInSeconds int32, rateLimitPerFrequency int32) *SimpleTask {
+	task.workflowTask.TaskDefinition.RateLimitPerFrequency = rateLimitPerFrequency
+	task.workflowTask.TaskDefinition.RateLimitFrequencyInSeconds = rateLimitFrequencyInSeconds
+	return task
+}
+
+// ConcurrentExecutionLimit limits the max no. of concurrent execution of the tasks in the cluster
+func (task *SimpleTask) ConcurrentExecutionLimit(limit int32) *SimpleTask {
+	task.workflowTask.TaskDefinition.ConcurrentExecLimit = limit
+	return task
+}
+
+// ExecutionTimeout time in seconds by when the task MUST complete
+// See #TimeoutPolicy
+func (task *SimpleTask) ExecutionTimeout(timoutInSecond int64) *SimpleTask {
+	task.workflowTask.TaskDefinition.TimeoutSeconds = timoutInSecond
+	return task
+}
+
+// PollTimeout time in seconds by when the task MUST be polled after getting scheduled
+// See #TimeoutPolicy
+func (task *SimpleTask) PollTimeout(timoutInSecond int32) *SimpleTask {
+	task.workflowTask.TaskDefinition.PollTimeoutSeconds = timoutInSecond
+	return task
+}
+
+// ResponseTimeout time in seconds by which long-running task MUST send back the updates.
+// See #TimeoutPolicy
+func (task *SimpleTask) ResponseTimeout(timoutInSecond int64) *SimpleTask {
+	task.workflowTask.TaskDefinition.ResponseTimeoutSeconds = timoutInSecond
+	return task
+}
+
+// TimeoutPolicy how to handle any of the timeout cases.
+func (task *SimpleTask) TimeoutPolicy(timeoutPolicy TaskTimeoutPolicy) *SimpleTask {
+	task.workflowTask.TaskDefinition.TimeoutPolicy = string(timeoutPolicy)
+	return task
+}

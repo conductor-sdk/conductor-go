@@ -23,6 +23,14 @@ const (
 	LinearBackoffRetry     RetryLogic = "LINEAR_BACKOFF"
 	ExponenialBackOffRetry RetryLogic = "EXPONENTIAL_BACKOFF"
 )
+
+type TaskTimeoutPolicy string
+
+const (
+	TimeOutTaskWorkflow TaskTimeoutPolicy = "TIME_OUT_WF"
+	RetryTask           TaskTimeoutPolicy = "ALERTRETRY_ONLY"
+)
+
 const (
 	SIMPLE            TaskType = "SIMPLE"
 	DYNAMIC           TaskType = "DYNAMIC"
