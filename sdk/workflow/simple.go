@@ -9,17 +9,26 @@
 
 package workflow
 
+import "github.com/conductor-sdk/conductor-go/sdk/model"
+
 type SimpleTask struct {
 	Task
+	workflowTask model.WorkflowTask
 }
 
 func NewSimpleTask(taskType string, taskRefName string) *SimpleTask {
 	return &SimpleTask{
-		Task{
+		Task: Task{
 			name:              taskType,
 			taskReferenceName: taskRefName,
 			taskType:          SIMPLE,
 			inputParameters:   map[string]interface{}{},
+		},
+		workflowTask: model.WorkflowTask{
+			Name:              taskType,
+			TaskReferenceName: taskRefName,
+			Type_:             string(SIMPLE),
+			TaskDefinition:    &model.TaskDef{Name: taskType},
 		},
 	}
 }
@@ -47,5 +56,21 @@ func (task *SimpleTask) Optional(optional bool) *SimpleTask {
 // Description of the task
 func (task *SimpleTask) Description(description string) *SimpleTask {
 	task.Task.Description(description)
+	return task
+}
+
+func (task *SimpleTask) toWorkflowTask() []model.WorkflowTask {
+	task.workflowTask.InputParameters = task.inputParameters
+	task.workflowTask.Optional = task.optional
+	task.workflowTask.Description = task.description
+	return []model.WorkflowTask{task.workflowTask}
+}
+
+// RetryPolicy for the task
+func (task *SimpleTask) RetryPolicy(retryCount int32, policy RetryLogic, retryDelay int32, backoffScaleFactor int32) *SimpleTask {
+	task.workflowTask.TaskDefinition.RetryCount = retryCount
+	task.workflowTask.TaskDefinition.RetryLogic = string(policy)
+	task.workflowTask.TaskDefinition.RetryDelaySeconds = retryDelay
+	task.workflowTask.TaskDefinition.BackoffScaleFactor = backoffScaleFactor
 	return task
 }

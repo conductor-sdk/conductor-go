@@ -16,6 +16,13 @@ import (
 
 type TaskType string
 
+type RetryLogic string
+
+const (
+	FixedRetry             RetryLogic = "FIXED"
+	LinearBackoffRetry     RetryLogic = "LINEAR_BACKOFF"
+	ExponenialBackOffRetry RetryLogic = "EXPONENTIAL_BACKOFF"
+)
 const (
 	SIMPLE            TaskType = "SIMPLE"
 	DYNAMIC           TaskType = "DYNAMIC"
