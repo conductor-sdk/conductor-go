@@ -16,6 +16,21 @@ import (
 
 type TaskType string
 
+type RetryLogic string
+
+const (
+	FixedRetry             RetryLogic = "FIXED"
+	LinearBackoffRetry     RetryLogic = "LINEAR_BACKOFF"
+	ExponenialBackOffRetry RetryLogic = "EXPONENTIAL_BACKOFF"
+)
+
+type TaskTimeoutPolicy string
+
+const (
+	TimeOutTaskWorkflow TaskTimeoutPolicy = "TIME_OUT_WF"
+	RetryTask           TaskTimeoutPolicy = "ALERTRETRY_ONLY"
+)
+
 const (
 	SIMPLE            TaskType = "SIMPLE"
 	DYNAMIC           TaskType = "DYNAMIC"
@@ -50,9 +65,11 @@ type Task struct {
 	taskType          TaskType
 	optional          bool
 	inputParameters   map[string]interface{}
+	cacheConfig       *model.CacheConfig
 }
 
 func (task *Task) toWorkflowTask() []model.WorkflowTask {
+
 	return []model.WorkflowTask{
 		{
 			Name:              task.name,

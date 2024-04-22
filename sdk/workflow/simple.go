@@ -9,17 +9,26 @@
 
 package workflow
 
+import "github.com/conductor-sdk/conductor-go/sdk/model"
+
 type SimpleTask struct {
 	Task
+	workflowTask model.WorkflowTask
 }
 
 func NewSimpleTask(taskType string, taskRefName string) *SimpleTask {
 	return &SimpleTask{
-		Task{
+		Task: Task{
 			name:              taskType,
 			taskReferenceName: taskRefName,
 			taskType:          SIMPLE,
 			inputParameters:   map[string]interface{}{},
+		},
+		workflowTask: model.WorkflowTask{
+			Name:              taskType,
+			TaskReferenceName: taskRefName,
+			Type_:             string(SIMPLE),
+			TaskDefinition:    &model.TaskDef{Name: taskType},
 		},
 	}
 }
@@ -47,5 +56,72 @@ func (task *SimpleTask) Optional(optional bool) *SimpleTask {
 // Description of the task
 func (task *SimpleTask) Description(description string) *SimpleTask {
 	task.Task.Description(description)
+	return task
+}
+
+func (task *SimpleTask) toWorkflowTask() []model.WorkflowTask {
+	task.workflowTask.InputParameters = task.inputParameters
+	task.workflowTask.Optional = task.optional
+	task.workflowTask.Description = task.description
+	task.workflowTask.CacheConfig = task.cacheConfig
+	return []model.WorkflowTask{task.workflowTask}
+}
+
+// RetryPolicy for the task
+func (task *SimpleTask) RetryPolicy(retryCount int32, policy RetryLogic, retryDelay int32, backoffScaleFactor int32) *SimpleTask {
+	task.workflowTask.TaskDefinition.RetryCount = retryCount
+	task.workflowTask.TaskDefinition.RetryLogic = string(policy)
+	task.workflowTask.TaskDefinition.RetryDelaySeconds = retryDelay
+	task.workflowTask.TaskDefinition.BackoffScaleFactor = backoffScaleFactor
+	return task
+}
+
+// RateLimitFrequency based on the frequency window for the task
+func (task *SimpleTask) RateLimitFrequency(rateLimitFrequencyInSeconds int32, rateLimitPerFrequency int32) *SimpleTask {
+	task.workflowTask.TaskDefinition.RateLimitPerFrequency = rateLimitPerFrequency
+	task.workflowTask.TaskDefinition.RateLimitFrequencyInSeconds = rateLimitFrequencyInSeconds
+	return task
+}
+
+// ConcurrentExecutionLimit limits the max no. of concurrent execution of the tasks in the cluster
+func (task *SimpleTask) ConcurrentExecutionLimit(limit int32) *SimpleTask {
+	task.workflowTask.TaskDefinition.ConcurrentExecLimit = limit
+	return task
+}
+
+// ExecutionTimeout time in seconds by when the task MUST complete
+// See #TimeoutPolicy
+func (task *SimpleTask) ExecutionTimeout(timoutInSecond int64) *SimpleTask {
+	task.workflowTask.TaskDefinition.TimeoutSeconds = timoutInSecond
+	return task
+}
+
+// PollTimeout time in seconds by when the task MUST be polled after getting scheduled
+// See #TimeoutPolicy
+func (task *SimpleTask) PollTimeout(timoutInSecond int32) *SimpleTask {
+	task.workflowTask.TaskDefinition.PollTimeoutSeconds = timoutInSecond
+	return task
+}
+
+// ResponseTimeout time in seconds by which long-running task MUST send back the updates.
+// See #TimeoutPolicy
+func (task *SimpleTask) ResponseTimeout(timoutInSecond int64) *SimpleTask {
+	task.workflowTask.TaskDefinition.ResponseTimeoutSeconds = timoutInSecond
+	return task
+}
+
+// TimeoutPolicy how to handle any of the timeout cases.
+func (task *SimpleTask) TimeoutPolicy(timeoutPolicy TaskTimeoutPolicy) *SimpleTask {
+	task.workflowTask.TaskDefinition.TimeoutPolicy = string(timeoutPolicy)
+	return task
+}
+
+// CacheConfig When set, the task's execution output is cached with the key and ttl as specified
+// CacheKey can be parameterized.  e.g. if
+func (task *Task) CacheConfig(cacheKey string, ttlInSeconds int) *Task {
+	task.cacheConfig = &model.CacheConfig{
+		Key:          cacheKey,
+		TtlInSeconds: ttlInSeconds,
+	}
 	return task
 }

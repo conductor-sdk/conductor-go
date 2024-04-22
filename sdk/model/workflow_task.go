@@ -40,4 +40,10 @@ type WorkflowTask struct {
 	EvaluatorType                  string                    `json:"evaluatorType,omitempty"`
 	Expression                     string                    `json:"expression,omitempty"`
 	WorkflowTaskType               string                    `json:"workflowTaskType,omitempty"`
+	CacheConfig                    *CacheConfig              `json:"cacheConfig,omitempty"`
+}
+
+type CacheConfig struct {
+	Key          string `json:"key,omitempty"`
+	TtlInSeconds int    `json:"ttlInSecond,omitempty"`
 }
