@@ -11,10 +11,9 @@ package model
 
 import (
 	"encoding/json"
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 	"os"
 	"sync"
-
-	log "github.com/sirupsen/logrus"
 )
 
 var hostname string

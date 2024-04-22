@@ -17,7 +17,6 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/test/common"
-	"github.com/sirupsen/logrus"
 )
 
 func TestWorkerBatchSize(t *testing.T) {
@@ -71,7 +70,7 @@ func TestWorkerBatchSize(t *testing.T) {
 }
 
 func TestFaultyWorker(t *testing.T) {
-	logrus.SetLevel(logrus.ErrorLevel)
+	
 	taskName := "TEST_GO_FAULTY_TASK"
 	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_FAULTY_WORKFLOW").
@@ -97,7 +96,7 @@ func TestFaultyWorker(t *testing.T) {
 }
 
 func TestWorkerWithNonRetryableError(t *testing.T) {
-	logrus.SetLevel(logrus.ErrorLevel)
+
 	taskName := "TEST_GO_NON_RETRYABLE_ERROR_TASK"
 	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_NON_RETRYABLE_ERROR_WF").

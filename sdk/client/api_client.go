@@ -17,6 +17,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 	"io"
 	"mime/multipart"
 	"net"
@@ -31,7 +32,6 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/sdk/authentication"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -293,7 +293,7 @@ func getDecompressedBody(response *http.Response) ([]byte, error) {
 	case "gzip":
 		reader, err = gzip.NewReader(response.Body)
 		if err != nil {
-			logrus.Error("Unable to decompress the response ", err.Error())
+			log.Error("Unable to decompress the response ", err.Error())
 			if err == io.EOF {
 				return nil, nil
 			}

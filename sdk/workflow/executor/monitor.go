@@ -13,14 +13,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/antihax/optional"
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 	"sync"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type WorkflowMonitor struct {

@@ -10,12 +10,12 @@
 package authentication
 
 import (
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 	"net/http"
 	"sync"
 
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/patrickmn/go-cache"
-	log "github.com/sirupsen/logrus"
 )
 
 const (

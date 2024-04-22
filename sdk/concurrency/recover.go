@@ -10,8 +10,8 @@
 package concurrency
 
 import (
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 	"github.com/conductor-sdk/conductor-go/sdk/metrics"
-	log "github.com/sirupsen/logrus"
 	"runtime/debug"
 )
 
