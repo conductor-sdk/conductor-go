@@ -9,8 +9,10 @@
 
 package workflow
 
+import "github.com/conductor-sdk/conductor-go/sdk/model"
+
 type HttpTask struct {
-	Task
+	SimpleTask
 }
 
 type HttpMethod string
@@ -29,18 +31,26 @@ func NewHttpTask(taskRefName string, input *HttpInput) *HttpTask {
 	if len(input.Method) == 0 {
 		input.Method = GET
 	}
-	return &HttpTask{
-		Task{
-			name:              taskRefName,
-			taskReferenceName: taskRefName,
-			description:       "",
-			taskType:          HTTP,
-			optional:          false,
-			inputParameters: map[string]interface{}{
-				"http_request": input,
+	http := &HttpTask{
+		SimpleTask{
+			Task: Task{
+				name:              string(HTTP),
+				taskReferenceName: taskRefName,
+				taskType:          HTTP,
+				inputParameters:   map[string]interface{}{},
+			},
+			workflowTask: model.WorkflowTask{
+				Name:              string(HTTP),
+				TaskReferenceName: taskRefName,
+				Type_:             string(HTTP),
+				TaskDefinition:    &model.TaskDef{Name: string(HTTP)},
 			},
 		},
 	}
+	http.inputParameters = map[string]interface{}{
+		"http_request": input,
+	}
+	return http
 }
 
 // HttpInput Input to the HTTP task

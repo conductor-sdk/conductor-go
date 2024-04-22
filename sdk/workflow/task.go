@@ -65,6 +65,7 @@ type Task struct {
 	taskType          TaskType
 	optional          bool
 	inputParameters   map[string]interface{}
+	cacheConfig       model.CacheConfig
 }
 
 func (task *Task) toWorkflowTask() []model.WorkflowTask {
