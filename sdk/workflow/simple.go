@@ -119,7 +119,7 @@ func (task *SimpleTask) TimeoutPolicy(timeoutPolicy TaskTimeoutPolicy) *SimpleTa
 // CacheConfig When set, the task's execution output is cached with the key and ttl as specified
 // CacheKey can be parameterized.  e.g. if
 func (task *Task) CacheConfig(cacheKey string, ttlInSeconds int) *Task {
-	task.cacheConfig = model.CacheConfig{
+	task.cacheConfig = &model.CacheConfig{
 		Key:          cacheKey,
 		TtlInSeconds: ttlInSeconds,
 	}
