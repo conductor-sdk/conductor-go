@@ -11,12 +11,10 @@ package testdata
 
 import (
 	"fmt"
-	"os"
 	"testing"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -29,12 +27,6 @@ const (
 	WorkerQty          = 7
 	WorkerPollInterval = 250 * time.Millisecond
 )
-
-func init() {
-	log.SetFormatter(&log.JSONFormatter{})
-	log.SetOutput(os.Stdout)
-	log.SetLevel(log.ErrorLevel)
-}
 
 func ExampleWorker(t *model.Task) (interface{}, error) {
 	taskResult := model.NewTaskResultFromTask(t)

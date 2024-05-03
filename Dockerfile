@@ -1,4 +1,4 @@
-FROM golang:1.17 as build
+FROM golang:1.20 as build
 RUN mkdir /package
 COPY /internal /package/internal
 COPY /sdk /package/sdk

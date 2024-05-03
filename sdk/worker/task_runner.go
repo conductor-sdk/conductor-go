@@ -24,7 +24,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 
 	"github.com/antihax/optional"
-	log "github.com/sirupsen/logrus"
+	log "github.com/conductor-sdk/conductor-go/sdk/log"
 )
 
 const taskUpdateRetryAttemptsLimit = 3

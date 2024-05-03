@@ -17,6 +17,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -29,7 +30,6 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
-	log "github.com/sirupsen/logrus"
 )
 
 var (

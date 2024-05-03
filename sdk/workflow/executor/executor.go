@@ -13,6 +13,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 	"net/http"
 	"os"
 	"strconv"
@@ -25,8 +26,6 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
 	"github.com/conductor-sdk/conductor-go/sdk/event/queue"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type WorkflowExecutor struct {
