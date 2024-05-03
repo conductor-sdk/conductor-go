@@ -575,7 +575,7 @@ EventResourceApiService Remove an event handler
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param name
 */
-func (a *EventResourceApiService) RemoveEventHandlerStatus(ctx context.Context, name string) (*http.Response, error) {
+func (a *EventResourceApiService) RemoveEventHandler(ctx context.Context, name string) (*http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}

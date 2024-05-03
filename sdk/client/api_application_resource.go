@@ -11,26 +11,27 @@ package client
 import (
 	"context"
 	"fmt"
-	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/model/rbac"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
-type SchedulerResourceApiService struct {
+type ApplicationResourceApiService struct {
 	*APIClient
 }
 
 /*
-SchedulerResourceApiService Deletes an existing workflow schedule by name
+ApplicationResourceApiService
 * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param name
+  - @param applicationId
+  - @param role
     @return interface{}
 */
-func (a *SchedulerResourceApiService) DeleteSchedule(ctx context.Context, name string) (interface{}, *http.Response, error) {
+func (a *ApplicationResourceApiService) AddRoleToApplicationUser(ctx context.Context, applicationId string, role string) (interface{}, *http.Response, error) {
 	var (
-		httpMethod  = strings.ToUpper("Delete")
+		httpMethod  = strings.ToUpper("Post")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
@@ -38,8 +39,9 @@ func (a *SchedulerResourceApiService) DeleteSchedule(ctx context.Context, name s
 	)
 
 	// create path and map variables
-	path := "/scheduler/schedules/{name}"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
+	path := "/applications/{applicationId}/roles/{role}"
+	path = strings.Replace(path, "{"+"applicationId"+"}", fmt.Sprintf("%v", applicationId), -1)
+	path = strings.Replace(path, "{"+"role"+"}", fmt.Sprintf("%v", role), -1)
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -108,12 +110,325 @@ func (a *SchedulerResourceApiService) DeleteSchedule(ctx context.Context, name s
 }
 
 /*
-SchedulerResourceApiService Delete a tag for schedule
+ApplicationResourceApiService Create an access key for an application
+* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param id
+    @return interface{}
+*/
+func (a *ApplicationResourceApiService) CreateAccessKey(ctx context.Context, id string) (*rbac.ConductorApplication, *http.Response, error) {
+	var (
+		httpMethod  = strings.ToUpper("Post")
+		postBody    interface{}
+		fileName    string
+		fileBytes   []byte
+		returnValue rbac.ConductorApplication
+	)
+
+	// create path and map variables
+	path := "/applications/{id}/accessKeys"
+	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
+
+	headerParams := make(map[string]string)
+	queryParams := url.Values{}
+	formParams := url.Values{}
+
+	// to determine the Content-Type header
+	contentTypes := []string{}
+
+	// set Content-Type header
+	contentType := selectHeaderContentType(contentTypes)
+	if contentType != "" {
+		headerParams["Content-Type"] = contentType
+	}
+
+	// to determine the Accept header
+	headerAccepts := []string{"application/json"}
+
+	// set Accept header
+	headerAccept := selectHeaderAccept(headerAccepts)
+	if headerAccept != "" {
+		headerParams["Accept"] = headerAccept
+	}
+	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	httpResponse, err := a.callAPI(r)
+	if err != nil || httpResponse == nil {
+		return nil, httpResponse, err
+	}
+
+	responseBody, err := getDecompressedBody(httpResponse)
+	httpResponse.Body.Close()
+	if err != nil {
+		return nil, httpResponse, err
+	}
+
+	if httpResponse.StatusCode < 300 {
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return &returnValue, httpResponse, err
+		}
+	}
+
+	if httpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  responseBody,
+			error: httpResponse.Status,
+		}
+		return nil, httpResponse, newErr
+	}
+
+	return nil, httpResponse, nil
+}
+
+/*
+ApplicationResourceApiService Create an application
 * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
-  - @param name
+    @return interface{}
 */
-func (a *SchedulerResourceApiService) DeleteTagForSchedule(ctx context.Context, body []model.Tag, name string) (*http.Response, error) {
+func (a *ApplicationResourceApiService) CreateApplication(ctx context.Context, body rbac.CreateOrUpdateApplicationRequest) (*rbac.ConductorApplication, *http.Response, error) {
+	var (
+		httpMethod  = strings.ToUpper("Post")
+		postBody    interface{}
+		fileName    string
+		fileBytes   []byte
+		returnValue rbac.ConductorApplication
+	)
+
+	// create path and map variables
+	path := "/applications"
+
+	headerParams := make(map[string]string)
+	queryParams := url.Values{}
+	formParams := url.Values{}
+
+	// to determine the Content-Type header
+	contentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	contentType := selectHeaderContentType(contentTypes)
+	if contentType != "" {
+		headerParams["Content-Type"] = contentType
+	}
+
+	// to determine the Accept header
+	headerAccepts := []string{"application/json"}
+
+	// set Accept header
+	headerAccept := selectHeaderAccept(headerAccepts)
+	if headerAccept != "" {
+		headerParams["Accept"] = headerAccept
+	}
+	// body params
+	postBody = &body
+	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	httpResponse, err := a.callAPI(r)
+	if err != nil || httpResponse == nil {
+		return nil, httpResponse, err
+	}
+
+	responseBody, err := getDecompressedBody(httpResponse)
+	httpResponse.Body.Close()
+	if err != nil {
+		return nil, httpResponse, err
+	}
+
+	if httpResponse.StatusCode < 300 {
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return &returnValue, httpResponse, err
+		}
+	}
+
+	if httpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  responseBody,
+			error: httpResponse.Status,
+		}
+		return nil, httpResponse, newErr
+	}
+
+	return nil, httpResponse, nil
+}
+
+/*
+ApplicationResourceApiService Delete an access key
+* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param applicationId
+  - @param keyId
+    @return interface{}
+*/
+func (a *ApplicationResourceApiService) DeleteAccessKey(ctx context.Context, applicationId string, keyId string) (*http.Response, error) {
+	var (
+		httpMethod  = strings.ToUpper("Delete")
+		postBody    interface{}
+		fileName    string
+		fileBytes   []byte
+		returnValue interface{}
+	)
+
+	// create path and map variables
+	path := "/applications/{applicationId}/accessKeys/{keyId}"
+	path = strings.Replace(path, "{"+"applicationId"+"}", fmt.Sprintf("%v", applicationId), -1)
+	path = strings.Replace(path, "{"+"keyId"+"}", fmt.Sprintf("%v", keyId), -1)
+
+	headerParams := make(map[string]string)
+	queryParams := url.Values{}
+	formParams := url.Values{}
+
+	// to determine the Content-Type header
+	contentTypes := []string{}
+
+	// set Content-Type header
+	contentType := selectHeaderContentType(contentTypes)
+	if contentType != "" {
+		headerParams["Content-Type"] = contentType
+	}
+
+	// to determine the Accept header
+	headerAccepts := []string{"application/json"}
+
+	// set Accept header
+	headerAccept := selectHeaderAccept(headerAccepts)
+	if headerAccept != "" {
+		headerParams["Accept"] = headerAccept
+	}
+	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	httpResponse, err := a.callAPI(r)
+	if err != nil || httpResponse == nil {
+		return httpResponse, err
+	}
+
+	responseBody, err := getDecompressedBody(httpResponse)
+	httpResponse.Body.Close()
+	if err != nil {
+		return httpResponse, err
+	}
+
+	if httpResponse.StatusCode < 300 {
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return httpResponse, err
+		}
+	}
+
+	if httpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  responseBody,
+			error: httpResponse.Status,
+		}
+		return httpResponse, newErr
+	}
+
+	return httpResponse, nil
+}
+
+/*
+ApplicationResourceApiService Delete an application
+* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param id
+    @return interface{}
+*/
+func (a *ApplicationResourceApiService) DeleteApplication(ctx context.Context, id string) (interface{}, *http.Response, error) {
+	var (
+		httpMethod  = strings.ToUpper("Delete")
+		postBody    interface{}
+		fileName    string
+		fileBytes   []byte
+		returnValue interface{}
+	)
+
+	// create path and map variables
+	path := "/applications/{id}"
+	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
+
+	headerParams := make(map[string]string)
+	queryParams := url.Values{}
+	formParams := url.Values{}
+
+	// to determine the Content-Type header
+	contentTypes := []string{}
+
+	// set Content-Type header
+	contentType := selectHeaderContentType(contentTypes)
+	if contentType != "" {
+		headerParams["Content-Type"] = contentType
+	}
+
+	// to determine the Accept header
+	headerAccepts := []string{"application/json"}
+
+	// set Accept header
+	headerAccept := selectHeaderAccept(headerAccepts)
+	if headerAccept != "" {
+		headerParams["Accept"] = headerAccept
+	}
+	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	if err != nil {
+		return returnValue, nil, err
+	}
+
+	httpResponse, err := a.callAPI(r)
+	if err != nil || httpResponse == nil {
+		return returnValue, httpResponse, err
+	}
+
+	responseBody, err := getDecompressedBody(httpResponse)
+	httpResponse.Body.Close()
+	if err != nil {
+		return returnValue, httpResponse, err
+	}
+
+	if httpResponse.StatusCode < 300 {
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return returnValue, httpResponse, err
+		}
+	}
+
+	if httpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  responseBody,
+			error: httpResponse.Status,
+		}
+		if httpResponse.StatusCode == 200 {
+			var v interface{}
+			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return returnValue, httpResponse, newErr
+			}
+			newErr.model = v
+			return returnValue, httpResponse, newErr
+		}
+		return returnValue, httpResponse, newErr
+	}
+
+	return returnValue, httpResponse, nil
+}
+
+/*
+ApplicationResourceApiService Delete a tag for application
+* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param body
+  - @param id
+*/
+func (a *ApplicationResourceApiService) DeleteTagForApplication(ctx context.Context, body []model.Tag, id string) (*http.Response, error) {
 	var (
 		httpMethod = strings.ToUpper("Delete")
 		postBody   interface{}
@@ -122,8 +437,8 @@ func (a *SchedulerResourceApiService) DeleteTagForSchedule(ctx context.Context, 
 	)
 
 	// create path and map variables
-	path := "/scheduler/schedules/{name}/tags"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
+	path := "/applications/{id}/tags"
+	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -176,221 +491,98 @@ func (a *SchedulerResourceApiService) DeleteTagForSchedule(ctx context.Context, 
 }
 
 /*
-   SchedulerResourceApiService Get all existing workflow schedules and optionally filter by workflow name
-   * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-    * @param optional nil or *SchedulerResourceApiGetAllSchedulesOpts - Optional Parameters:
-        * @param "WorkflowName" (optional.String) -
-   @return []WorkflowScheduleModel
-*/
-
-type SchedulerResourceApiGetAllSchedulesOpts struct {
-	WorkflowName optional.String
-}
-
-func (a *SchedulerResourceApiService) GetAllSchedules(ctx context.Context, optionals *SchedulerResourceApiGetAllSchedulesOpts) ([]model.WorkflowScheduleModel, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []model.WorkflowScheduleModel
-	)
-
-	// create path and map variables
-	path := "/scheduler/schedules"
-
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	if optionals != nil && optionals.WorkflowName.IsSet() {
-		queryParams.Add("workflowName", parameterToString(optionals.WorkflowName.Value(), ""))
-	}
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v []model.WorkflowScheduleModel
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, nil
-}
-
-/*
-   SchedulerResourceApiService Get list of the next x (default 3, max 5) execution times for a scheduler
-   * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-    * @param cronExpression
-    * @param optional nil or *SchedulerResourceApiGetNextFewSchedulesOpts - Optional Parameters:
-        * @param "ScheduleStartTime" (optional.Int64) -
-    * @param "ScheduleEndTime" (optional.Int64) -
-    * @param "Limit" (optional.Int32) -
-   @return []int64
-*/
-
-type SchedulerResourceApiGetNextFewSchedulesOpts struct {
-	ScheduleStartTime optional.Int64
-	ScheduleEndTime   optional.Int64
-	Limit             optional.Int32
-}
-
-func (a *SchedulerResourceApiService) GetNextFewSchedules(ctx context.Context, cronExpression string, optionals *SchedulerResourceApiGetNextFewSchedulesOpts) ([]int64, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []int64
-	)
-
-	// create path and map variables
-	path := "/scheduler/nextFewSchedules"
-
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	queryParams.Add("cronExpression", parameterToString(cronExpression, ""))
-	if optionals != nil && optionals.ScheduleStartTime.IsSet() {
-		queryParams.Add("scheduleStartTime", parameterToString(optionals.ScheduleStartTime.Value(), ""))
-	}
-	if optionals != nil && optionals.ScheduleEndTime.IsSet() {
-		queryParams.Add("scheduleEndTime", parameterToString(optionals.ScheduleEndTime.Value(), ""))
-	}
-	if optionals != nil && optionals.Limit.IsSet() {
-		queryParams.Add("limit", parameterToString(optionals.Limit.Value(), ""))
-	}
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v []int64
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, nil
-}
-
-/*
-SchedulerResourceApiService Get an existing workflow schedule by name
+ApplicationResourceApiService Get application&#x27;s access keys
 * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param name
-    @return WorkflowSchedule
+  - @param id
+    @return interface{}
 */
-func (a *SchedulerResourceApiService) GetSchedule(ctx context.Context, name string) (model.WorkflowSchedule, *http.Response, error) {
+func (a *ApplicationResourceApiService) GetAccessKeys(ctx context.Context, id string) ([]rbac.AccessKeyResponse, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Get")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue model.WorkflowSchedule
+		returnValue []rbac.AccessKeyResponse
 	)
 
 	// create path and map variables
-	path := "/scheduler/schedules/{name}"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
+	path := "/applications/{id}/accessKeys"
+	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
+
+	headerParams := make(map[string]string)
+	queryParams := url.Values{}
+	formParams := url.Values{}
+
+	// to determine the Content-Type header
+	contentTypes := []string{}
+
+	// set Content-Type header
+	contentType := selectHeaderContentType(contentTypes)
+	if contentType != "" {
+		headerParams["Content-Type"] = contentType
+	}
+
+	// to determine the Accept header
+	headerAccepts := []string{"application/json"}
+
+	// set Accept header
+	headerAccept := selectHeaderAccept(headerAccepts)
+	if headerAccept != "" {
+		headerParams["Accept"] = headerAccept
+	}
+	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	if err != nil {
+		return returnValue, nil, err
+	}
+
+	httpResponse, err := a.callAPI(r)
+	if err != nil || httpResponse == nil {
+		return returnValue, httpResponse, err
+	}
+
+	responseBody, err := getDecompressedBody(httpResponse)
+	httpResponse.Body.Close()
+	if err != nil {
+		return returnValue, httpResponse, err
+	}
+
+	if httpResponse.StatusCode < 300 {
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return returnValue, httpResponse, err
+		}
+	}
+
+	if httpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  responseBody,
+			error: httpResponse.Status,
+		}
+		return returnValue, httpResponse, newErr
+	}
+
+	return returnValue, httpResponse, nil
+}
+
+/*
+ApplicationResourceApiService Get application id by access key id
+* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param accessKeyId
+    @return interface{}
+*/
+func (a *ApplicationResourceApiService) GetAppByAccessKeyId(ctx context.Context, accessKeyId string) (interface{}, *http.Response, error) {
+	var (
+		httpMethod  = strings.ToUpper("Get")
+		postBody    interface{}
+		fileName    string
+		fileBytes   []byte
+		returnValue interface{}
+	)
+
+	// create path and map variables
+	path := "/applications/key/{accessKeyId}"
+	path = strings.Replace(path, "{"+"accessKeyId"+"}", fmt.Sprintf("%v", accessKeyId), -1)
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -443,7 +635,7 @@ func (a *SchedulerResourceApiService) GetSchedule(ctx context.Context, name stri
 			error: httpResponse.Status,
 		}
 		if httpResponse.StatusCode == 200 {
-			var v model.WorkflowSchedule
+			var v interface{}
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -459,12 +651,87 @@ func (a *SchedulerResourceApiService) GetSchedule(ctx context.Context, name stri
 }
 
 /*
-SchedulerResourceApiService Get tags by schedule
+ApplicationResourceApiService Get an application by id
 * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param name
-    @return []Tag
+  - @param id
+    @return interface{}
 */
-func (a *SchedulerResourceApiService) GetTagsForSchedule(ctx context.Context, name string) ([]model.Tag, *http.Response, error) {
+func (a *ApplicationResourceApiService) GetApplication(ctx context.Context, id string) (*rbac.ConductorApplication, *http.Response, error) {
+	var (
+		httpMethod  = strings.ToUpper("Get")
+		postBody    interface{}
+		fileName    string
+		fileBytes   []byte
+		returnValue rbac.ConductorApplication
+	)
+
+	// create path and map variables
+	path := "/applications/{id}"
+	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
+
+	headerParams := make(map[string]string)
+	queryParams := url.Values{}
+	formParams := url.Values{}
+
+	// to determine the Content-Type header
+	contentTypes := []string{}
+
+	// set Content-Type header
+	contentType := selectHeaderContentType(contentTypes)
+	if contentType != "" {
+		headerParams["Content-Type"] = contentType
+	}
+
+	// to determine the Accept header
+	headerAccepts := []string{"application/json"}
+
+	// set Accept header
+	headerAccept := selectHeaderAccept(headerAccepts)
+	if headerAccept != "" {
+		headerParams["Accept"] = headerAccept
+	}
+	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	httpResponse, err := a.callAPI(r)
+	if err != nil || httpResponse == nil {
+		return nil, httpResponse, err
+	}
+
+	responseBody, err := getDecompressedBody(httpResponse)
+	httpResponse.Body.Close()
+	if err != nil {
+		return nil, httpResponse, err
+	}
+
+	if httpResponse.StatusCode < 300 {
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return &returnValue, httpResponse, err
+		}
+	}
+
+	if httpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  responseBody,
+			error: httpResponse.Status,
+		}
+		return nil, httpResponse, newErr
+	}
+
+	return nil, httpResponse, nil
+}
+
+/*
+ApplicationResourceApiService Get tags by application
+* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param id
+    @return []model.Tag
+*/
+func (a *ApplicationResourceApiService) GetTagsForApplication(ctx context.Context, id string) ([]model.Tag, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Get")
 		postBody    interface{}
@@ -474,8 +741,8 @@ func (a *SchedulerResourceApiService) GetTagsForSchedule(ctx context.Context, na
 	)
 
 	// create path and map variables
-	path := "/scheduler/schedules/{name}/tags"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
+	path := "/applications/{id}/tags"
+	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -544,21 +811,21 @@ func (a *SchedulerResourceApiService) GetTagsForSchedule(ctx context.Context, na
 }
 
 /*
-SchedulerResourceApiService Pause all scheduling in a single conductor server instance (for debugging only)
+ApplicationResourceApiService Get all applications
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-    @return map[string]interface{}
+    @return []rbac.ConductorApplication
 */
-func (a *SchedulerResourceApiService) PauseAllSchedules(ctx context.Context) (map[string]interface{}, *http.Response, error) {
+func (a *ApplicationResourceApiService) ListApplications(ctx context.Context) ([]rbac.ConductorApplication, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Get")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue map[string]interface{}
+		returnValue []rbac.ConductorApplication
 	)
 
 	// create path and map variables
-	path := "/scheduler/admin/pause"
+	path := "/applications"
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -611,7 +878,7 @@ func (a *SchedulerResourceApiService) PauseAllSchedules(ctx context.Context) (ma
 			error: httpResponse.Status,
 		}
 		if httpResponse.StatusCode == 200 {
-			var v map[string]interface{}
+			var v []rbac.ConductorApplication
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -627,97 +894,12 @@ func (a *SchedulerResourceApiService) PauseAllSchedules(ctx context.Context) (ma
 }
 
 /*
-SchedulerResourceApiService Pauses an existing schedule by name
-* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param name
-    @return interface{}
-*/
-func (a *SchedulerResourceApiService) PauseSchedule(ctx context.Context, name string) (interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue interface{}
-	)
-
-	// create path and map variables
-	path := "/scheduler/schedules/{name}/pause"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, nil
-}
-
-/*
-SchedulerResourceApiService Put a tag to schedule
+ApplicationResourceApiService Put a tag to application
 * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
-  - @param name
+  - @param id
 */
-func (a *SchedulerResourceApiService) PutTagForSchedule(ctx context.Context, body []model.Tag, name string) (*http.Response, error) {
+func (a *ApplicationResourceApiService) PutTagForApplication(ctx context.Context, body []model.Tag, id string) (*http.Response, error) {
 	var (
 		httpMethod = strings.ToUpper("Put")
 		postBody   interface{}
@@ -726,8 +908,8 @@ func (a *SchedulerResourceApiService) PutTagForSchedule(ctx context.Context, bod
 	)
 
 	// create path and map variables
-	path := "/scheduler/schedules/{name}/tags"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
+	path := "/applications/{id}/tags"
+	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -780,180 +962,15 @@ func (a *SchedulerResourceApiService) PutTagForSchedule(ctx context.Context, bod
 }
 
 /*
-SchedulerResourceApiService Requeue all execution records
-  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-    @return map[string]interface{}
-*/
-func (a *SchedulerResourceApiService) RequeueAllExecutionRecords(ctx context.Context) (map[string]interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue map[string]interface{}
-	)
-
-	// create path and map variables
-	path := "/scheduler/admin/requeue"
-
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v map[string]interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, nil
-}
-
-/*
-SchedulerResourceApiService Resume all scheduling
-  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-    @return map[string]interface{}
-*/
-func (a *SchedulerResourceApiService) ResumeAllSchedules(ctx context.Context) (map[string]interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue map[string]interface{}
-	)
-
-	// create path and map variables
-	path := "/scheduler/admin/resume"
-
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v map[string]interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, nil
-}
-
-/*
-SchedulerResourceApiService Resume a paused schedule by name
+ApplicationResourceApiService
 * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param name
+  - @param applicationId
+  - @param role
     @return interface{}
 */
-func (a *SchedulerResourceApiService) ResumeSchedule(ctx context.Context, name string) (interface{}, *http.Response, error) {
+func (a *ApplicationResourceApiService) RemoveRoleFromApplicationUser(ctx context.Context, applicationId string, role string) (interface{}, *http.Response, error) {
 	var (
-		httpMethod  = strings.ToUpper("Get")
+		httpMethod  = strings.ToUpper("Delete")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
@@ -961,8 +978,9 @@ func (a *SchedulerResourceApiService) ResumeSchedule(ctx context.Context, name s
 	)
 
 	// create path and map variables
-	path := "/scheduler/schedules/{name}/resume"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
+	path := "/applications/{applicationId}/roles/{role}"
+	path = strings.Replace(path, "{"+"applicationId"+"}", fmt.Sprintf("%v", applicationId), -1)
+	path = strings.Replace(path, "{"+"role"+"}", fmt.Sprintf("%v", role), -1)
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -1031,12 +1049,13 @@ func (a *SchedulerResourceApiService) ResumeSchedule(ctx context.Context, name s
 }
 
 /*
-SchedulerResourceApiService Create or update a schedule for a specified workflow with a corresponding start workflow request
+ApplicationResourceApiService Toggle the status of an access key
 * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param body
+  - @param applicationId
+  - @param keyId
     @return interface{}
 */
-func (a *SchedulerResourceApiService) SaveSchedule(ctx context.Context, body model.SaveScheduleRequest) (interface{}, *http.Response, error) {
+func (a *ApplicationResourceApiService) ToggleAccessKeyStatus(ctx context.Context, applicationId string, keyId string) (interface{}, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Post")
 		postBody    interface{}
@@ -1046,7 +1065,95 @@ func (a *SchedulerResourceApiService) SaveSchedule(ctx context.Context, body mod
 	)
 
 	// create path and map variables
-	path := "/scheduler/schedules"
+	path := "/applications/{applicationId}/accessKeys/{keyId}/status"
+	path = strings.Replace(path, "{"+"applicationId"+"}", fmt.Sprintf("%v", applicationId), -1)
+	path = strings.Replace(path, "{"+"keyId"+"}", fmt.Sprintf("%v", keyId), -1)
+
+	headerParams := make(map[string]string)
+	queryParams := url.Values{}
+	formParams := url.Values{}
+
+	// to determine the Content-Type header
+	contentTypes := []string{}
+
+	// set Content-Type header
+	contentType := selectHeaderContentType(contentTypes)
+	if contentType != "" {
+		headerParams["Content-Type"] = contentType
+	}
+
+	// to determine the Accept header
+	headerAccepts := []string{"application/json"}
+
+	// set Accept header
+	headerAccept := selectHeaderAccept(headerAccepts)
+	if headerAccept != "" {
+		headerParams["Accept"] = headerAccept
+	}
+	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	if err != nil {
+		return returnValue, nil, err
+	}
+
+	httpResponse, err := a.callAPI(r)
+	if err != nil || httpResponse == nil {
+		return returnValue, httpResponse, err
+	}
+
+	responseBody, err := getDecompressedBody(httpResponse)
+	httpResponse.Body.Close()
+	if err != nil {
+		return returnValue, httpResponse, err
+	}
+
+	if httpResponse.StatusCode < 300 {
+		// If we succeed, return the data, otherwise pass on to decode error.
+		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return returnValue, httpResponse, err
+		}
+	}
+
+	if httpResponse.StatusCode >= 300 {
+		newErr := GenericSwaggerError{
+			body:  responseBody,
+			error: httpResponse.Status,
+		}
+		if httpResponse.StatusCode == 200 {
+			var v interface{}
+			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return returnValue, httpResponse, newErr
+			}
+			newErr.model = v
+			return returnValue, httpResponse, newErr
+		}
+		return returnValue, httpResponse, newErr
+	}
+
+	return returnValue, httpResponse, nil
+}
+
+/*
+ApplicationResourceApiService Update an application
+* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param body
+  - @param id
+    @return interface{}
+*/
+func (a *ApplicationResourceApiService) UpdateApplication(ctx context.Context, body rbac.CreateOrUpdateApplicationRequest, id string) (*rbac.ConductorApplication, *http.Response, error) {
+	var (
+		httpMethod  = strings.ToUpper("Put")
+		postBody    interface{}
+		fileName    string
+		fileBytes   []byte
+		returnValue rbac.ConductorApplication
+	)
+
+	// create path and map variables
+	path := "/applications/{id}"
+	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
 	queryParams := url.Values{}
@@ -1073,25 +1180,25 @@ func (a *SchedulerResourceApiService) SaveSchedule(ctx context.Context, body mod
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
 
 	httpResponse, err := a.callAPI(r)
 	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	responseBody, err := getDecompressedBody(httpResponse)
 	httpResponse.Body.Close()
 	if err != nil {
-		return returnValue, httpResponse, err
+		return nil, httpResponse, err
 	}
 
 	if httpResponse.StatusCode < 300 {
 		// If we succeed, return the data, otherwise pass on to decode error.
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
 		if err == nil {
-			return returnValue, httpResponse, err
+			return &returnValue, httpResponse, err
 		}
 	}
 
@@ -1100,132 +1207,8 @@ func (a *SchedulerResourceApiService) SaveSchedule(ctx context.Context, body mod
 			body:  responseBody,
 			error: httpResponse.Status,
 		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
+		return nil, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
-}
-
-/*
-   SchedulerResourceApiService Search for workflows based on payload and other parameters
-       use sort options as sort&#x3D;&lt;field&gt;:ASC|DESC e.g. sort&#x3D;name&amp;sort&#x3D;workflowId:DESC. If order is not specified, defaults to ASC.
-   * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-    * @param optional nil or *SchedulerSearchOpts - Optional Parameters:
-        * @param "Start" (optional.Int32) -
-    * @param "Size" (optional.Int32) -
-    * @param "Sort" (optional.String) -
-    * @param "FreeText" (optional.String) -
-    * @param "Query" (optional.String) -
-   @return SearchResultWorkflowSchedule
-*/
-
-type SchedulerSearchOpts struct {
-	Start    optional.Int32
-	Size     optional.Int32
-	Sort     optional.String
-	FreeText optional.String
-	Query    optional.String
-}
-
-func (a *SchedulerResourceApiService) SearchV2(ctx context.Context, optionals *SchedulerSearchOpts) (model.SearchResultWorkflowSchedule, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue model.SearchResultWorkflowSchedule
-	)
-
-	// create path and map variables
-	path := "/scheduler/search/executions"
-
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	if optionals != nil && optionals.Start.IsSet() {
-		queryParams.Add("start", parameterToString(optionals.Start.Value(), ""))
-	}
-	if optionals != nil && optionals.Size.IsSet() {
-		queryParams.Add("size", parameterToString(optionals.Size.Value(), ""))
-	}
-	if optionals != nil && optionals.Sort.IsSet() {
-		queryParams.Add("sort", parameterToString(optionals.Sort.Value(), ""))
-	}
-	if optionals != nil && optionals.FreeText.IsSet() {
-		queryParams.Add("freeText", parameterToString(optionals.FreeText.Value(), ""))
-	}
-	if optionals != nil && optionals.Query.IsSet() {
-		queryParams.Add("query", parameterToString(optionals.Query.Value(), ""))
-	}
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v model.SearchResultWorkflowSchedule
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, nil
+	return nil, httpResponse, nil
 }

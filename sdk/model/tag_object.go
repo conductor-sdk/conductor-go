@@ -9,17 +9,17 @@
 package model
 
 type TagObject struct {
-	Key   string       `json:"key,omitempty"`
-	Type_ string       `json:"type,omitempty"`
-	Value *interface{} `json:"value,omitempty"`
+	Key   string `json:"key,omitempty"`
+	Type_ string `json:"type,omitempty"`
+	Value string `json:"value,omitempty"`
 }
 
 func NewTagObject(metadataTag MetadataTag) TagObject {
-	var value interface{} = metadataTag.Value
+	var value string = metadataTag.Value
 
 	return TagObject{
 		Key:   metadataTag.Key,
 		Type_: "METADATA",
-		Value: &value,
+		Value: value,
 	}
 }

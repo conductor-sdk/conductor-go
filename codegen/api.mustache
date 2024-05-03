@@ -1,0 +1,240 @@
+{{>partial_header}}
+
+package client
+
+{{#operations}}
+    import (
+    "context"
+    "net/http"
+    "net/url"
+    "strings"
+    "github.com/conductor-sdk/conductor-go/sdk/model"
+    {{#imports}}	"{{import}}"
+    {{/imports}}
+    )
+
+    type {{classname}}Service struct {
+        *APIClient
+    }
+
+{{#operation}}
+{{#contents}}
+{{#@first}}
+    /*
+    {{{classname}}}Service{{#summary}} {{.}}{{/summary}}{{#notes}}
+        {{notes}}{{/notes}}
+    * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+    {{#parameters}}{{#required}} * @param {{paramName}}{{#description}} {{.}}{{/description}}
+    {{/required}}{{/parameters}}{{#hasOptionalParams}} * @param optional nil or *{{{classname}}}{{{nickname}}}Opts - Optional Parameters:
+    {{#parameters}}{{^required}}     * @param "{{vendorExtensions.x-exportParamName}}" ({{#isPrimitiveType}}optional.{{vendorExtensions.x-optionalDataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}optional.Interface of {{dataType}}{{/isPrimitiveType}}) - {{#description}} {{.}}{{/description}}
+    {{/required}}{{/parameters}}{{/hasOptionalParams}}
+    {{#returnType}}@return {{{returnType}}}{{/returnType}}
+    */
+    {{#hasOptionalParams}}
+
+        type {{{classname}}}{{{nickname}}}Opts struct {
+        {{#parameters}}
+            {{^required}}
+                {{#isPrimitiveType}}
+                    {{#isFile}}
+                        {{vendorExtensions.x-exportParamName}} optional.Interface
+                    {{/isFile}}
+                    {{^isFile}}
+                        {{vendorExtensions.x-exportParamName}} optional.{{vendorExtensions.x-optionalDataType}}
+                    {{/isFile}}
+                {{/isPrimitiveType}}
+                {{^isPrimitiveType}}
+                    {{vendorExtensions.x-exportParamName}} optional.Interface
+                {{/isPrimitiveType}}
+            {{/required}}
+        {{/parameters}}
+        }
+
+    {{/hasOptionalParams}}
+    func (a *{{{classname}}}Service) {{{nickname}}}(ctx context.Context{{#hasParams}}, {{/hasParams}}{{#parameters}}{{#required}}{{paramName}} {{{dataType}}}{{#hasMore}}, {{/hasMore}}{{/required}}{{/parameters}}{{#hasOptionalParams}}optionals *{{{classname}}}{{{nickname}}}Opts{{/hasOptionalParams}}) ({{#returnType}}{{{returnType}}}, {{/returnType}}*http.Response, error) {
+    var (
+    httpMethod = strings.ToUpper("{{httpMethod}}")
+    postBody   interface{}
+    fileName   string
+    fileBytes  []byte
+    {{#returnType}}returnValue {{{returnType}}}{{/returnType}}
+    )
+
+    // create path and map variables
+    path := "{{{path}}}"{{#pathParams}}
+        path = strings.Replace(path, "{"+"{{baseName}}"+"}", fmt.Sprintf("%v", {{paramName}}), -1){{/pathParams}}
+
+    headerParams := make(map[string]string)
+    queryParams := url.Values{}
+    formParams := url.Values{}
+    {{#parameters}}
+        {{#required}}
+            {{#minItems}}
+                if len({{paramName}}) < {{minItems}} {
+                return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} must have at least {{minItems}} elements")
+                }
+            {{/minItems}}
+            {{#maxItems}}
+                if len({{paramName}}) > {{maxItems}} {
+                return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} must have less than {{maxItems}} elements")
+                }
+            {{/maxItems}}
+            {{#minLength}}
+                if strlen({{paramName}}) < {{minLength}} {
+                return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} must have at least {{minLength}} elements")
+                }
+            {{/minLength}}
+            {{#maxLength}}
+                if strlen({{paramName}}) > {{maxLength}} {
+                return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} must have less than {{maxLength}} elements")
+                }
+            {{/maxLength}}
+            {{#minimum}}
+                {{#isString}}
+                    {{paramName}}Txt, err := atoi({{paramName}})
+                    if {{paramName}}Txt < {{minimum}} {
+                {{/isString}}
+                {{^isString}}
+                    if {{paramName}} < {{minimum}} {
+                {{/isString}}
+                return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} must be greater than {{minimum}}")
+                }
+            {{/minimum}}
+            {{#maximum}}
+                {{#isString}}
+                    {{paramName}}Txt, err := atoi({{paramName}})
+                    if {{paramName}}Txt > {{maximum}} {
+                {{/isString}}
+                {{^isString}}
+                    if {{paramName}} > {{maximum}} {
+                {{/isString}}
+                return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} must be less than {{maximum}}")
+                }
+            {{/maximum}}
+        {{/required}}
+    {{/parameters}}
+
+    {{#hasQueryParams}}
+        {{#queryParams}}
+            {{#required}}
+                queryParams.Add("{{baseName}}", parameterToString({{paramName}}, "{{#collectionFormat}}{{collectionFormat}}{{/collectionFormat}}"))
+            {{/required}}
+            {{^required}}
+                if optionals != nil && optionals.{{vendorExtensions.x-exportParamName}}.IsSet() {
+                queryParams.Add("{{baseName}}", parameterToString(optionals.{{vendorExtensions.x-exportParamName}}.Value(), "{{#collectionFormat}}{{collectionFormat}}{{/collectionFormat}}"))
+                }
+            {{/required}}
+        {{/queryParams}}
+    {{/hasQueryParams}}
+    // to determine the Content-Type header
+    {{=<% %>=}}
+    contentTypes := []string{<%#consumes%>"<%&mediaType%>"<%^@last%>, <%/@last%><%/consumes%>}
+    <%={{ }}=%>
+
+    // set Content-Type header
+    contentType := selectHeaderContentType(contentTypes)
+    if contentType != "" {
+    headerParams["Content-Type"] = contentType
+    }
+
+    // to determine the Accept header
+    {{=<% %>=}}
+    headerAccepts := []string{<%#produces%>"<%&mediaType%>"<%^@last%>, <%/@last%><%/produces%>}
+    <%={{ }}=%>
+
+    // set Accept header
+    headerAccept := selectHeaderAccept(headerAccepts)
+    if headerAccept != "" {
+    headerParams["Accept"] = headerAccept
+    }
+    {{#hasHeaderParams}}
+        {{#headerParams}}
+            {{#required}}
+                headerParams["{{baseName}}"] = parameterToString({{paramName}}, "{{#collectionFormat}}{{collectionFormat}}{{/collectionFormat}}")
+            {{/required}}
+            {{^required}}
+                if optionals != nil && optionals.{{vendorExtensions.x-exportParamName}}.IsSet() {
+                headerParams["{{baseName}}"] = parameterToString(optionals.{{vendorExtensions.x-exportParamName}}.Value(), "{{#collectionFormat}}{{collectionFormat}}{{/collectionFormat}}")
+                }
+            {{/required}}
+        {{/headerParams}}
+    {{/hasHeaderParams}}
+    {{#hasFormParams}}
+        {{#formParams}}
+            {{^isFile}}
+                {{#required}}
+                    formParams.Add("{{baseName}}", parameterToString({{paramName}}, "{{#collectionFormat}}{{collectionFormat}}{{/collectionFormat}}"))
+                {{/required}}
+                {{^required}}
+                    if optionals != nil && optionals.{{vendorExtensions.x-exportParamName}}.IsSet() {
+                    formParams.Add("{{baseName}}", parameterToString(optionals.{{vendorExtensions.x-exportParamName}}.Value(), "{{#collectionFormat}}{{collectionFormat}}{{/collectionFormat}}"))
+                    }
+                {{/required}}
+            {{/isFile}}
+        {{/formParams}}
+    {{/hasFormParams}}
+    {{#hasBodyParam}}
+        {{#bodyParams}}	// body params
+        {{#required}}
+            postBody = &{{paramName}}
+        {{/required}}
+        {{^required}}
+            if optionals != nil && optionals.{{vendorExtensions.x-exportParamName}}.IsSet() {
+            {{#isPrimitiveType}}postBody = &optionals.{{vendorExtensions.x-exportParamName}}.Value(){{/isPrimitiveType}}
+            {{^isPrimitiveType}}localVarOptional{{vendorExtensions.x-exportParamName}}:= optionals.{{vendorExtensions.x-exportParamName}}.Value()
+            postBody = &localVarOptional{{vendorExtensions.x-exportParamName}}{{/isPrimitiveType}}
+            }
+        {{/required}}
+        {{/bodyParams}}
+    {{/hasBodyParam}}
+    {{#authMethods}}
+    {{/authMethods}}
+    r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+    if err != nil {
+    return {{#returnType}}returnValue, {{/returnType}}nil, err
+    }
+
+    httpResponse, err := a.callAPI(r)
+    if err != nil || httpResponse == nil {
+    return {{#returnType}}returnValue, {{/returnType}}httpResponse, err
+    }
+
+    responseBody, err := getDecompressedBody(httpResponse)
+    httpResponse.Body.Close()
+    if err != nil {
+    return {{#returnType}}returnValue, {{/returnType}}httpResponse, err
+    }
+
+    {{#returnType}}
+        if httpResponse.StatusCode < 300 {
+        // If we succeed, return the data, otherwise pass on to decode error.
+        err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"));
+        if err == nil {
+        return {{#returnType}}returnValue, {{/returnType}}httpResponse, err
+        }
+        }
+    {{/returnType}}
+
+    if httpResponse.StatusCode >= 300 {
+    newErr := GenericSwaggerError{
+    body: responseBody,
+    error: httpResponse.Status,
+    }
+    {{#responses}}{{#dataType}}
+        if httpResponse.StatusCode == {{{code}}} {
+        var v {{{dataType}}}
+        err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"));
+        if err != nil {
+        newErr.error = err.Error()
+        return {{#returnType}}returnValue, {{/returnType}}httpResponse, newErr
+        }
+        newErr.model = v
+        return {{#returnType}}returnValue, {{/returnType}}httpResponse, newErr
+        }
+    {{/dataType}}{{/responses}}
+    return {{#returnType}}returnValue, {{/returnType}}httpResponse, newErr
+    }
+
+    return {{#returnType}}returnValue, {{/returnType}}httpResponse, nil
+    }
+{{/@first}}{{/contents}}{{/operation}}{{/operations}}

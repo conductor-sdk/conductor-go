@@ -34,6 +34,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	CONDUCTOR_AUTH_KEY    = "CONDUCTOR_AUTH_KEY"
+	CONDUCTOR_AUTH_SECRET = "CONDUCTOR_AUTH_SECRET"
+	CONDUCTOR_SERVER_URL  = "CONDUCTOR_SERVER_URL"
+)
+
 var (
 	jsonCheck = regexp.MustCompile("(?i:[application|text]/json)")
 	xmlCheck  = regexp.MustCompile("(?i:[application|text]/xml)")
@@ -41,6 +47,7 @@ var (
 
 type APIClient struct {
 	httpRequester *HttpRequester
+	tokenManager  authentication.TokenManager
 }
 
 func NewAPIClient(
@@ -51,7 +58,13 @@ func NewAPIClient(
 		authenticationSettings,
 		httpSettings,
 		nil,
+		nil,
 	)
+}
+func NewAPIClientFromEnv() *APIClient {
+	authenticationSettings := settings.NewAuthenticationSettings(os.Getenv(CONDUCTOR_AUTH_KEY), os.Getenv(CONDUCTOR_AUTH_SECRET))
+	httpSettings := settings.NewHttpSettings(os.Getenv(CONDUCTOR_SERVER_URL))
+	return NewAPIClient(authenticationSettings, httpSettings)
 }
 
 func NewAPIClientWithTokenExpiration(
@@ -63,10 +76,25 @@ func NewAPIClientWithTokenExpiration(
 		authenticationSettings,
 		httpSettings,
 		tokenExpiration,
+		nil,
 	)
 }
 
-func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings, tokenExpiration *authentication.TokenExpiration) *APIClient {
+func NewAPIClientWithTokenManager(
+	authenticationSettings *settings.AuthenticationSettings,
+	httpSettings *settings.HttpSettings,
+	tokenExpiration *authentication.TokenExpiration,
+	tokenManager authentication.TokenManager,
+) *APIClient {
+	return newAPIClient(
+		authenticationSettings,
+		httpSettings,
+		tokenExpiration,
+		tokenManager,
+	)
+}
+
+func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings, tokenExpiration *authentication.TokenExpiration, tokenManager authentication.TokenManager) *APIClient {
 	if httpSettings == nil {
 		httpSettings = settings.NewHttpDefaultSettings()
 	}
@@ -89,7 +117,7 @@ func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpS
 	}
 	return &APIClient{
 		httpRequester: NewHttpRequester(
-			authenticationSettings, httpSettings, &client, tokenExpiration,
+			authenticationSettings, httpSettings, &client, tokenExpiration, tokenManager,
 		),
 	}
 }

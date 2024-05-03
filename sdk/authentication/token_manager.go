@@ -22,17 +22,21 @@ const (
 	tokenKey = "TOKEN_KEY"
 )
 
-type TokenManager struct {
+type TokenManager interface {
+	RefreshToken(httpSettings *settings.HttpSettings, httpClient *http.Client) (string, error)
+}
+
+type CachedTokenManager struct {
 	mutex       sync.RWMutex
 	credentials settings.AuthenticationSettings
 	database    cache.Cache
 }
 
-func NewTokenManager(credentials settings.AuthenticationSettings, tokenExpiration *TokenExpiration) *TokenManager {
+func NewTokenManager(credentials settings.AuthenticationSettings, tokenExpiration *TokenExpiration) TokenManager {
 	if tokenExpiration == nil {
 		tokenExpiration = NewDefaultTokenExpiration()
 	}
-	return &TokenManager{
+	return &CachedTokenManager{
 		credentials: credentials,
 		database: *cache.New(
 			tokenExpiration.DefaultExpiration,
@@ -41,7 +45,7 @@ func NewTokenManager(credentials settings.AuthenticationSettings, tokenExpiratio
 	}
 }
 
-func (t *TokenManager) RefreshToken(httpSettings *settings.HttpSettings, httpClient *http.Client) (string, error) {
+func (t *CachedTokenManager) RefreshToken(httpSettings *settings.HttpSettings, httpClient *http.Client) (string, error) {
 	token := t.getTokenIfCached()
 	if token != "" {
 		return token, nil
@@ -49,7 +53,7 @@ func (t *TokenManager) RefreshToken(httpSettings *settings.HttpSettings, httpCli
 	return t.refreshToken(httpSettings, httpClient)
 }
 
-func (t *TokenManager) getTokenIfCached() string {
+func (t *CachedTokenManager) getTokenIfCached() string {
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()
 	token, found := t.database.Get(tokenKey)
@@ -59,11 +63,11 @@ func (t *TokenManager) getTokenIfCached() string {
 	return ""
 }
 
-func (t *TokenManager) refreshToken(httpSettings *settings.HttpSettings, httpClient *http.Client) (string, error) {
+func (t *CachedTokenManager) refreshToken(httpSettings *settings.HttpSettings, httpClient *http.Client) (string, error) {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 	log.Debug("Refreshing authentication token")
-	token, response, err := getToken(t.credentials, httpSettings, httpClient)
+	token, response, err := GetToken(t.credentials, httpSettings, httpClient)
 	if err != nil {
 		log.Warning(
 			"Failed to refresh authentication token",

@@ -1137,7 +1137,7 @@ func (a *MetadataResourceApiService) GetTagsForWorkflowDef(ctx context.Context, 
 		err = a.decode(&extendedWorkflowDef, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 		if err == nil {
 			for i := 0; i < len(extendedWorkflowDef.Tags); i++ {
-				value := fmt.Sprintf("%v", *extendedWorkflowDef.Tags[i].Value)
+				value := fmt.Sprintf("%v", extendedWorkflowDef.Tags[i].Value)
 				tag := model.MetadataTag{
 					Key:   extendedWorkflowDef.Tags[i].Key,
 					Value: value,
@@ -1214,7 +1214,7 @@ func (a *MetadataResourceApiService) GetTagsForTaskDef(ctx context.Context, task
 
 		if err == nil {
 			for i := 0; i < len(extendedTaskDef.Tags); i++ {
-				value := fmt.Sprintf("%v", *extendedTaskDef.Tags[i].Value)
+				value := fmt.Sprintf("%v", extendedTaskDef.Tags[i].Value)
 				tag := model.MetadataTag{
 					Key:   extendedTaskDef.Tags[i].Key,
 					Value: value,
