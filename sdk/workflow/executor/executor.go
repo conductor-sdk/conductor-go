@@ -211,15 +211,6 @@ func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTask
 			IncludeTasks: optional.NewBool(includeTasks)},
 	)
 	if err != nil {
-		return nil, err
-	}
-	if response.StatusCode == 404 {
-		return nil, fmt.Errorf("no such workflow by Id %s", workflowId)
-	}
-	if response.StatusCode > 399 && response.StatusCode < 500 && response.StatusCode != 429 {
-		return nil, err
-	}
-	if err != nil {
 		if retry < 0 {
 			return nil, err
 		} else {
@@ -228,6 +219,12 @@ func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTask
 			return e.getWorkflow(retry, workflowId, includeTasks)
 		}
 
+	}
+	if response.StatusCode == 404 {
+		return nil, fmt.Errorf("no such workflow by Id %s", workflowId)
+	}
+	if response.StatusCode > 399 && response.StatusCode < 500 && response.StatusCode != 429 {
+		return nil, err
 	}
 
 	return &workflow, err
