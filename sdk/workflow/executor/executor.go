@@ -210,6 +210,9 @@ func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTask
 		&client.WorkflowResourceApiGetExecutionStatusOpts{
 			IncludeTasks: optional.NewBool(includeTasks)},
 	)
+	if err != nil {
+		return nil, err
+	}
 	if response.StatusCode == 404 {
 		return nil, fmt.Errorf("no such workflow by Id %s", workflowId)
 	}
