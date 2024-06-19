@@ -101,7 +101,7 @@ Keys:    []string{"Key1", "Key2"},
 Message: "Hello World",
 Value:   rand.ExpFloat64(),
 }
-executor.UpdateTask(taskId, workflowInstanceId, task_result_status.COMPLETED, ouptut)
+executor.UpdateTask(taskId, workflowInstanceId, task_result_status.COMPLETED, output)
 ```
 
 #### Update task by Reference Name
@@ -111,7 +111,7 @@ Keys:    []string{"Key1", "Key2"},
 Message: "Hello World",
 Value:   rand.ExpFloat64(),
 }
-executor.UpdateTaskByRefName("task_ref_name", workflowInstanceId, task_result_status.COMPLETED, ouptut)
+executor.UpdateTaskByRefName("task_ref_name", workflowInstanceId, task_result_status.COMPLETED, output)
 ```
 
 ### Worker Metrics
