@@ -13,6 +13,11 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
+const (
+	EvaluatorTypeValueParam = "value-param"
+	EvaluatorTypeJavaScript = "javascript"
+)
+
 type SwitchTask struct {
 	Task
 	DecisionCases map[string][]TaskInterface
@@ -36,7 +41,7 @@ func NewSwitchTask(taskRefName string, caseExpression string) *SwitchTask {
 		defaultCase:   make([]TaskInterface, 0),
 		expression:    caseExpression,
 		useJavascript: false,
-		evaluatorType: "value-param",
+		evaluatorType: EvaluatorTypeValueParam,
 	}
 }
 
@@ -50,32 +55,27 @@ func (task *SwitchTask) DefaultCase(tasks ...TaskInterface) *SwitchTask {
 }
 
 func (task *SwitchTask) toWorkflowTask() []model.WorkflowTask {
-	if task.useJavascript {
-		task.evaluatorType = "javascript"
-	} else {
-		task.evaluatorType = "value-param"
-		task.Task.inputParameters["switchCaseValue"] = task.expression
-		task.expression = "switchCaseValue"
-	}
 	var DecisionCases = map[string][]model.WorkflowTask{}
 	for caseValue, tasks := range task.DecisionCases {
 		for _, task := range tasks {
-			for _, caseTask := range task.toWorkflowTask() {
-				DecisionCases[caseValue] = append(DecisionCases[caseValue], caseTask)
-			}
+			DecisionCases[caseValue] = append(DecisionCases[caseValue], task.toWorkflowTask()...)
 		}
 	}
 	var defaultCase []model.WorkflowTask
 	for _, task := range task.defaultCase {
-		for _, defaultTask := range task.toWorkflowTask() {
-			defaultCase = append(defaultCase, defaultTask)
-		}
+		defaultCase = append(defaultCase, task.toWorkflowTask()...)
 	}
 	workflowTasks := task.Task.toWorkflowTask()
 	workflowTasks[0].DecisionCases = DecisionCases
 	workflowTasks[0].DefaultCase = defaultCase
 	workflowTasks[0].EvaluatorType = task.evaluatorType
-	workflowTasks[0].Expression = task.expression
+	if task.useJavascript {
+		workflowTasks[0].Expression = task.expression
+	} else {
+		workflowTasks[0].Expression = "switchCaseValue"
+		workflowTasks[0].InputParameters["switchCaseValue"] = task.expression
+	}
+
 	return workflowTasks
 }
 
@@ -109,5 +109,6 @@ func (task *SwitchTask) Optional(optional bool) *SwitchTask {
 // If set to false, the caseExpression follows the regular task input mapping format as described in https://conductor.netflix.com/how-tos/Tasks/task-inputs.html
 func (task *SwitchTask) UseJavascript(use bool) *SwitchTask {
 	task.useJavascript = use
+	task.evaluatorType = EvaluatorTypeJavaScript
 	return task
 }
