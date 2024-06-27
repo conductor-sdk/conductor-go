@@ -49,7 +49,7 @@ func TestIntegrationClient(t *testing.T) {
 	providers, resp, err := integrationClient.GetIntegrationProviders(ctx, nil)
 	require.NoError(t, err, "error fetching integration providers")
 	require.NotNil(t, resp, "response should not be nil for GetIntegrationProviders")
-	require.Greater(t, len(providers), len(integrationEntries), "the number of providers fetched should match the entries inserted")
+	require.GreaterOrEqual(t, len(providers), len(integrationEntries), "the number of providers fetched should match the entries inserted")
 
 	// Testing GetIntegrationProvider for each inserted entry
 	for i, entry := range integrationEntries {

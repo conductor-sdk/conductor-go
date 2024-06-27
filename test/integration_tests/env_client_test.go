@@ -2,12 +2,13 @@ package integration_tests
 
 import (
 	"context"
+	"net/http"
+	"testing"
+
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"testing"
 )
 
 func TestCreateOrUpdateEnvVariable(t *testing.T) {
@@ -71,7 +72,8 @@ func TestGetAllEnvVariables(t *testing.T) {
 	assert.Greater(t, len(variables), 0) // Expecting at least one variable
 }
 
-func TestGetTagsForEnvVar(t *testing.T) {
+// TODO Enable back once proper permissions are set in the integration testing env
+func DisabledTestGetTagsForEnvVar(t *testing.T) {
 	TestUpsertUser(t)
 	ctx := context.Background()
 	envClient := NewEnvironmentClient()

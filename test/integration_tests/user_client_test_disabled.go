@@ -2,14 +2,17 @@ package integration_tests
 
 import (
 	"context"
+	"net/http"
+	"testing"
+
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model/rbac"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"testing"
 )
+
+// TODO Enable back once proper permissions are set in the integration testing env
 
 // TestCheckPermissions checks if permissions for a user can be retrieved correctly.
 func TestCheckPermissions(t *testing.T) {
