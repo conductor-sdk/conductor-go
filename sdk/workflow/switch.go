@@ -109,6 +109,11 @@ func (task *SwitchTask) Optional(optional bool) *SwitchTask {
 // If set to false, the caseExpression follows the regular task input mapping format as described in https://conductor.netflix.com/how-tos/Tasks/task-inputs.html
 func (task *SwitchTask) UseJavascript(use bool) *SwitchTask {
 	task.useJavascript = use
-	task.evaluatorType = EvaluatorTypeJavaScript
+	if use {
+		task.evaluatorType = EvaluatorTypeJavaScript
+	} else {
+		task.evaluatorType = EvaluatorTypeValueParam
+	}
+
 	return task
 }

@@ -64,6 +64,21 @@ func TestToWorkflowTaskJSEvaluator(t *testing.T) {
 	assert.NotNil(t, wfTask.DecisionCases["SMS"])
 }
 
+func TestUseJavascript(t *testing.T) {
+	task := NewSwitchTask("switch", "caseExpr")
+
+	assert.False(t, task.useJavascript)
+	assert.Equal(t, "value-param", task.evaluatorType)
+
+	task.UseJavascript(true)
+	assert.True(t, task.useJavascript)
+	assert.Equal(t, "javascript", task.evaluatorType)
+
+	task.UseJavascript(false)
+	assert.False(t, task.useJavascript)
+	assert.Equal(t, "value-param", task.evaluatorType)
+}
+
 func createSendEmailTask() TaskInterface {
 	return NewSimpleTask("send_email", "send_email").
 		Input("email", "${get_user_info.output.email}")
