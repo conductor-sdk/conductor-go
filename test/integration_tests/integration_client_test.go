@@ -2,12 +2,13 @@ package integration_tests
 
 import (
 	"context"
+	"testing"
+
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model/integration"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestIntegrationClient(t *testing.T) {
@@ -49,14 +50,12 @@ func TestIntegrationClient(t *testing.T) {
 	require.NoError(t, err, "error fetching integration providers")
 	require.NotNil(t, resp, "response should not be nil for GetIntegrationProviders")
 	require.Greater(t, len(providers), len(integrationEntries), "the number of providers fetched should match the entries inserted")
-	t.Logf("Fetched all providers: %+v", providers)
 
 	// Testing GetIntegrationProvider for each inserted entry
 	for i, entry := range integrationEntries {
 		provider, resp, err := integrationClient.GetIntegrationProvider(ctx, names[i])
 		require.NoError(t, err, "error fetching a specific integration provider")
 		require.NotNil(t, resp, "response should not be nil for GetIntegrationProvider")
-		t.Logf("Fetched provider (%s): %+v", entry.Type_, provider)
 		require.Equal(t, entry.Category, provider.Category, "category should match the inserted provider")
 	}
 
