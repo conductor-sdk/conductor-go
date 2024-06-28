@@ -199,6 +199,7 @@ var (
 
 func StartWorkers() {
 	taskRunner.StartWorker("greet", greet.Greet, 1, time.Millisecond*100)
+	taskRunner.WaitWorkers()
 }
 
 func main() {
