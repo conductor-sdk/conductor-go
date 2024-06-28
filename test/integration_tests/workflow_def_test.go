@@ -11,7 +11,6 @@ package integration_tests
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 
@@ -323,7 +322,6 @@ func countMultipleSwitchInnerTasks(tasks ...model.WorkflowTask) int {
 }
 
 func countSwitchInnerTasks(task model.WorkflowTask) int {
-	fmt.Println(task.Type_)
 	counter := 1
 	if task.Type_ != "SWITCH" {
 		return counter

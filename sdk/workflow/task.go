@@ -11,6 +11,7 @@ package workflow
 
 import (
 	"fmt"
+
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
@@ -69,13 +70,18 @@ type Task struct {
 }
 
 func (task *Task) toWorkflowTask() []model.WorkflowTask {
+	// copy input params so that Task's params are not modified
+	inputParams := make(map[string]interface{})
+	for key, value := range task.inputParameters {
+		inputParams[key] = value
+	}
 
 	return []model.WorkflowTask{
 		{
 			Name:              task.name,
 			TaskReferenceName: task.taskReferenceName,
 			Description:       task.description,
-			InputParameters:   task.inputParameters,
+			InputParameters:   inputParams,
 			Optional:          task.optional,
 			Type_:             string(task.taskType),
 		},
