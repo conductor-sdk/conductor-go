@@ -2,11 +2,13 @@ package integration_tests
 
 import (
 	"context"
-	"github.com/conductor-sdk/conductor-go/internal/testdata"
+
+	"testing"
+
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/model/rbac"
+	"github.com/conductor-sdk/conductor-go/test/testdata"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestApplicationLifecycle(t *testing.T) {

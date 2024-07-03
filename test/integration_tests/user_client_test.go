@@ -2,13 +2,14 @@ package integration_tests
 
 import (
 	"context"
-	"github.com/antihax/optional"
-	"github.com/conductor-sdk/conductor-go/internal/testdata"
-	"github.com/conductor-sdk/conductor-go/sdk/client"
-	"github.com/conductor-sdk/conductor-go/sdk/model/rbac"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+
+	"github.com/antihax/optional"
+	"github.com/conductor-sdk/conductor-go/sdk/client"
+	"github.com/conductor-sdk/conductor-go/sdk/model/rbac"
+	"github.com/conductor-sdk/conductor-go/test/testdata"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestCheckPermissions checks if permissions for a user can be retrieved correctly.

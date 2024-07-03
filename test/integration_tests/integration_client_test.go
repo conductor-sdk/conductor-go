@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/antihax/optional"
-	"github.com/conductor-sdk/conductor-go/internal/testdata"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model/integration"
+	"github.com/conductor-sdk/conductor-go/test/testdata"
 	"github.com/stretchr/testify/require"
 )
 
