@@ -16,7 +16,6 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
-	"github.com/conductor-sdk/conductor-go/test/common"
 	"github.com/conductor-sdk/conductor-go/test/testdata"
 )
 
@@ -24,7 +23,7 @@ func TestUpdateTaskRefByName(t *testing.T) {
 	simpleTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_UPDATE_TASK").
 		Version(1).
-		Add(common.TestSimpleTask)
+		Add(testdata.TestSimpleTask)
 
 	err := testdata.ValidateWorkflowRegistration(simpleTaskWorkflow)
 
