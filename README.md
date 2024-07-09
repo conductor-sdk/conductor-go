@@ -1,13 +1,13 @@
 # Conductor OSS Go SDK
 
-SDK for developing Go applications that create, manage, and execute workflows and run workers.
+SDK for developing Go applications that create, manage and execute workflows, and run workers.
 
 
-## Conductor OSS
+## Conductor
 
-[Conductor OSS](https://www.conductor-oss.org/) is the leading open-source orchestration platform allowing developers to build highly scalable distributed applications.
+[Conductor](https://www.conductor-oss.org/) is the leading open-source orchestration platform allowing developers to build highly scalable distributed applications.
 
-Check out the [official documentation for Conductor](https://orkes.io/content) and give it a ⭐ to make it famous!
+To learn more about Conductor checout our [developer's guide](https://docs.conductor-oss.org/devguide/concepts/index.html) and give it a ⭐ to make it famous!
 
 [![GitHub stars](https://img.shields.io/github/stars/conductor-oss/conductor.svg?style=social&label=Star&maxAge=)](https://GitHub.com/conductor-oss/conductor/)
 
@@ -15,7 +15,7 @@ Check out the [official documentation for Conductor](https://orkes.io/content) a
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Install the SDK](#install-the-sdk)
+- [Installation](#installation)
 - [Hello World!](#hello-world)
   - [Step 1: Creating the workflow by code](#step-1-creating-the-workflow-by-code)
   - [Step 2: Creating the worker](#step-2-write-task-worker)
@@ -24,7 +24,7 @@ Check out the [official documentation for Conductor](https://orkes.io/content) a
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Install the SDK
+## Installation
 
 1. Initialize your module. e.g.:
 
@@ -42,13 +42,15 @@ go get github.com/conductor-sdk/conductor-go
 
 ## Hello World
 
-In this repo you will find basic "Hello World" application as an example along with others. We'll analyze the app in 3 steps.
+In this repo you will find basic "Hello World" under [examples/hello_world](examples/hello_world/). 
+
+We'll analyze the app in 3 steps.
 
 
 > [!note]
 > You will need an up & running Conductor Server. 
 >
-> For details on how to run Conductor OSS take a look at [our guide](https://conductor-oss.github.io/conductor/devguide/running/docker.html).
+> For details on how to run Conductor take a look at [our guide](https://conductor-oss.github.io/conductor/devguide/running/docker.html).
 >
 > The examples expect the server to be listening on http://localhost:8080.
 
@@ -247,7 +249,8 @@ The `workflowExecutor` gives us an abstraction on top of the APIClient to manage
 #### Running the example with a local Conductor OSS server:
 ```shell
 export CONDUCTOR_SERVER_URL="http://localhost:8080/api"
-go run examples/hello_world/main.go
+cd examples
+go run hello_world/main.go
 ```
 
 #### Running the example in Orkes playground.
@@ -255,7 +258,8 @@ go run examples/hello_world/main.go
 export CONDUCTOR_SERVER_URL="https://play.orkes.io/api"
 export KEY="..."
 export SECRET="..."
-go run examples/hello_world/main.go
+cd examples
+go run hello_world/main.go
 ```
 
 > [!note]
