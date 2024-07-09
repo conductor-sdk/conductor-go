@@ -2,16 +2,13 @@
 
 SDK for developing Go applications that create, manage and execute workflows, and run workers.
 
-
-## Conductor
-
 [Conductor](https://www.conductor-oss.org/) is the leading open-source orchestration platform allowing developers to build highly scalable distributed applications.
 
-To learn more about Conductor checout our [developer's guide](https://docs.conductor-oss.org/devguide/concepts/index.html) and give it a ⭐ to make it famous!
+To learn more about Conductor checkout our [developer's guide](https://docs.conductor-oss.org/devguide/concepts/index.html) and give it a ⭐ to make it famous!
 
 [![GitHub stars](https://img.shields.io/github/stars/conductor-oss/conductor.svg?style=social&label=Star&maxAge=)](https://GitHub.com/conductor-oss/conductor/)
 
-## Content
+# Content
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -284,3 +281,4 @@ INFO[0000] Output of the workflow:map[Greetings:Hello, Gopher]
 # API Documentation
 
 You can find the SDK API documentation [here](https://pkg.go.dev/github.com/conductor-sdk/conductor-go).
+
