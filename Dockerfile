@@ -1,6 +1,5 @@
 FROM golang:1.17 as build
 RUN mkdir /package
-COPY /internal /package/internal
 COPY /sdk /package/sdk
 COPY /go.mod /package/go.mod
 COPY /go.sum /package/go.sum

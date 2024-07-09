@@ -1,118 +1,120 @@
 # Conductor OSS Go SDK
 
-Go SDK for working with https://github.com/conductor-oss/conductor.
+SDK for developing Go applications that create, manage and execute workflows, and run workers.
 
 [Conductor](https://www.conductor-oss.org/) is the leading open-source orchestration platform allowing developers to build highly scalable distributed applications.
 
-Check out the [official documentation for Conductor](https://orkes.io/content).
-
-## ⭐ Conductor OSS
-
-Show support for the Conductor OSS.  Please help spread the awareness by starring Conductor repo.
+To learn more about Conductor checkout our [developer's guide](https://docs.conductor-oss.org/devguide/concepts/index.html) and give it a ⭐ to make it famous!
 
 [![GitHub stars](https://img.shields.io/github/stars/conductor-oss/conductor.svg?style=social&label=Star&maxAge=)](https://GitHub.com/conductor-oss/conductor/)
 
-## Content
+# Content
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Install Conductor Go SDK](#install-conductor-go-sdk)
-  - [Get Conductor Go SDK](#get-conductor-go-sdk)
-- [Hello World Application Using Conductor](#hello-world-application-using-conductor)
-  - [Step 1: Create Workflow](#step-1-create-workflow)
-    - [Creating Workflows by Code](#creating-workflows-by-code)
-    - [(Alternatively) Creating Workflows in JSON](#alternatively-creating-workflows-in-json)
-  - [Step 2: Write Task Worker](#step-2-write-task-worker)
-  - [Step 3: Write _Hello World_ Application](#step-3-write-_hello-world_-application)
-- [Running Workflows on Conductor Standalone (Installed Locally)](#running-workflows-on-conductor-standalone-installed-locally)
-  - [Setup Environment Variable](#setup-environment-variable)
-  - [Start Conductor Server](#start-conductor-server)
-  - [Execute Hello World Application](#execute-hello-world-application)
-- [Running Workflows on Orkes Conductor](#running-workflows-on-orkes-conductor)
-- [Learn More about Conductor Go SDK](#learn-more-about-conductor-go-sdk)
+- [Installation](#installation)
+- [Hello World!](#hello-world)
+  - [Step 1: Creating the workflow by code](#step-1-creating-the-workflow-by-code)
+  - [Step 2: Creating the worker](#step-2-write-task-worker)
+  - [Step 3: Running the application](#step-3-running-the-application)
+- [API Documentation](#api-documentation)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+## Installation
 
-
-## Install Conductor Go SDK
-
-Before installing Conductor Go SDK, it is a good practice to set up a dedicated folder for it.
+1. Initialize your module. e.g.:
 
 ```shell
-mkdir quickstart/
-cd quickstart/
-go mod init quickstart
+mkdir hello_world
+cd hello_world
+go mod init hello_world
 ```
 
-### Get Conductor Go SDK
+2. Get the SDK:
 
-The SDK requires Go. To install the SDK, use the following command
 ```shell
 go get github.com/conductor-sdk/conductor-go
 ```
-## Hello World Application Using Conductor
 
-In this section, we will create a simple "Hello World" application that executes a "greetings" workflow managed by Conductor.
+## Hello World
 
-### Step 1: Create Workflow
+In this repo you will find a basic "Hello World" under [examples/hello_world](examples/hello_world/). 
 
-#### Creating Workflows by Code
+Let's analyze the app in 3 steps.
 
-Create workflow/workflow.go with the following:
+
+> [!note]
+> You will need an up & running Conductor Server. 
+>
+> For details on how to run Conductor take a look at [our guide](https://conductor-oss.github.io/conductor/devguide/running/docker.html).
+>
+> The examples expect the server to be listening on http://localhost:8080.
+
+
+### Step 1: Creating the workflow by code
+
+The "greetings" workflow is going to be created by code and registered in Conductor. 
+
+Check the `CreateWorkflow` function in [examples/hello_world/src/workflow.go](examples/hello_world/src/workflow.go).
 
 ```go
-package workflow
-
-import (
-	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"github.com/conductor-sdk/conductor-go/sdk/workflow"
-	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
-)
-
-// Name struct that represents the input to the workflow
-type NameInput struct {
-	Name string
-}
-
-func GetTaskDefinitions() []model.TaskDef {
-	taskDefs := []model.TaskDef{
-		{Name: "greet", TimeoutSeconds: 60},
-	}
-	return taskDefs
-}
-
-// Create a workflow and register it with the server
 func CreateWorkflow(executor *executor.WorkflowExecutor) *workflow.ConductorWorkflow {
-
 	wf := workflow.NewConductorWorkflow(executor).
 		Name("greetings").
 		Version(1).
 		Description("Greetings workflow - Greets a user by their name").
 		TimeoutPolicy(workflow.TimeOutWorkflow, 600)
 
-	//Greet Task
 	greet := workflow.NewSimpleTask("greet", "greet_ref").
-		Input("name", "${workflow.input.Name}")
+		Input("person_to_be_greated", "${workflow.input.name}")
 
-	//Add tasks to workflow
 	wf.Add(greet)
-	//Add the output of the workflow from the task
+
 	wf.OutputParameters(map[string]interface{}{
-		"Greetings": greet.OutputRef("greetings"),
+		"greetings": greet.OutputRef("hello"),
 	})
+
 	return wf
 }
 ```
 
-#### (Alternatively) Creating Workflows in JSON
+In the above code first we create a workflow by calling `workflow.NewConductorWorkflow(..)` and set its properties `Name`, `Version`, `Description` and `TimeoutPolicy`. 
 
-Create `greetings_workflow.json` with the following:
+Then we create a [Simple Task](https://orkes.io/content/reference-docs/worker-task) of type `"greet"` with reference name `"greet_ref"` and add it to the workflow. That task gets the workflow input `"name"` as an input with key `"person_to_be_greated"`.
+
+> [!note]
+>`"person_to_be_greated"` is too verbose! Why would you name it like that?
+>
+> It's just to make it clear that the workflow input is not passed automatically. 
+>
+> The worker will get the actual value of the workflow input because of this mapping  `Input("person_to_be_greated", "${workflow.input.name}")` in the workflow definition. 
+>
+>Expressions like `"${workflow.input.name}"` will be replaced by their value during execution.
+
+Last but not least, the output of the workflow is set by calling `wf.OutputParameters(..)`. 
+
+The value of `"greetings"` is going to be whatever `"hello"` is in the output of the executed `"greet"` task, e.g.: if the task output is:
+```
+{
+	"hello" : "Hello, John"
+}
+```
+
+The expected workflow output will be:
+```
+{
+	"greetings": "Hello, John"
+}
+```
+
+The Go code translates to this JSON defininition. You can view this in your Conductor server after registering the workflow.
 
 ```json
 {
+  "schemaVersion": 2,
   "name": "greetings",
-  "description": "Sample greetings workflow",
+  "description": "Greetings workflow - Greets a user by their name",
   "version": 1,
   "tasks": [
     {
@@ -124,179 +126,163 @@ Create `greetings_workflow.json` with the following:
       }
     }
   ],
+  "outputParameters": {
+    "Greetings": "${greet_ref.output.greetings}"
+  },
   "timeoutPolicy": "TIME_OUT_WF",
-  "timeoutSeconds": 60
+  "timeoutSeconds": 600
 }
 ```
 
-Workflows must be registered to the Conductor server. Use the API to register the greetings workflow from the JSON file above:
-```shell
-curl -X POST -H "Content-Type:application/json" \
-http://localhost:8080/api/metadata/workflow -d @greetings_workflow.json
-```
 > [!note]
-> To use the Conductor API, the Conductor server must be up and running (see [Running over Conductor standalone (installed locally)](#running-over-conductor-standalone-installed-locally)).
+> Workflows can also be registered using the API. Using the JSON you can make the following request:
+> ```shell
+> curl -X POST -H "Content-Type:application/json" \
+> http://localhost:8080/api/metadata/workflow -d @greetings_workflow.json
+> ```
 
-### Step 2: Write Task Worker
+In [Step 3](#step-3-running-the-application) you will see how to create an instance of `executor.WorkflowExecutor`.
 
-Using Go, a worker represents a function with a specific task to perform. Create greet/greet.go
 
-> [!note]
-> A single workflow can have task workers written in different languages and deployed anywhere, making your workflow polyglot and distributed!
+### Step 2: Creating the worker
+
+A worker is a function with a specific task to perform.
+
+In this example the worker just uses the input `person_to_be_greated` to say hello, as you can see in [examples/hello_world/src/worker.go](examples/hello_world/src/worker.go).
 
 ```go
-package greet
-
-import (
-	"fmt"
-	"github.com/conductor-sdk/conductor-go/sdk/model"
-)
-
-// Task worker
 func Greet(task *model.Task) (interface{}, error) {
 	return map[string]interface{}{
-		"greetings": "Hello, " + fmt.Sprintf("%v", task.InputData["name"]),
+		"hello": "Hello, " + fmt.Sprintf("%v", task.InputData["person_to_be_greated"]),
 	}, nil
 }
 ```
 
-Now, we are ready to write our main application, which will execute our workflow.
+> [!note]
+> A single workflow can have task workers written in different languages and deployed anywhere, making your workflow polyglot and distributed!
 
-### Step 3: Write _Hello World_ Application
+### Step 3: Running the application
 
-Let's add main.go with a `main` method:
+The application is going to start the Greet worker (to execute tasks of type "greet") and it will register the workflow created in [step 1](#step-1-creating-the-workflow-by-code).
+
+To begin with, let's take a look at the variable declaration in [examples/hello_world/main.go](examples/hello_world/main.go).
 
 ```go
-package main
-
-import (
-	"fmt"
-	"os"
-	"quickstart/greet"
-	"quickstart/workflow"
-	"time"
-
-	"github.com/conductor-sdk/conductor-go/sdk/client"
-	"github.com/conductor-sdk/conductor-go/sdk/settings"
-
-	"github.com/conductor-sdk/conductor-go/sdk/worker"
-	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
-)
 
 var (
 	apiClient = client.NewAPIClient(
-		settings.NewAuthenticationSettings(
-			os.Getenv("KEY"),
-			os.Getenv("SECRET"),
-		),
-		settings.NewHttpSettings(
-			os.Getenv("CONDUCTOR_SERVER_URL"),
-		))
+		authSettings(),
+		httpSettings(),
+	)
 	taskRunner       = worker.NewTaskRunnerWithApiClient(apiClient)
 	workflowExecutor = executor.NewWorkflowExecutor(apiClient)
-	metadataClient   = client.MetadataResourceApiService{APIClient: apiClient}
 )
 
-func StartWorkers() {
-	taskRunner.StartWorker("greet", greet.Greet, 1, time.Millisecond*100)
+func authSettings() *settings.AuthenticationSettings {
+	key := os.Getenv("KEY")
+	secret := os.Getenv("SECRET")
+	if key != "" && secret != "" {
+		return settings.NewAuthenticationSettings(
+			key,
+			secret,
+		)
+	}
+
+	return nil
 }
 
+func httpSettings() *settings.HttpSettings {
+	url := os.Getenv("CONDUCTOR_SERVER_URL")
+	if url == "" {
+		fmt.Fprintf(os.Stderr, "Error: CONDUCTOR_SERVER_URL env variable is not set\n")
+		os.Exit(1)
+	}
+
+	return settings.NewHttpSettings(url)
+}
+```
+
+First we create an `APIClient` instance. This is a REST client. 
+
+We need to pass on the proper settings to our client. For convenience to run the example you can set the following environment variables: `CONDUCTOR_SERVER_URL`, `KEY`, `SECRET`.
+
+
+Now let's take a look at the `main` function:
+
+```go
 func main() {
+	// Start the Greet Worker. This worker will process "greet" tasks.
+	taskRunner.StartWorker("greet", hello_world.Greet, 1, time.Millisecond*100)
 
-	//Start the workers
-	StartWorkers()
-    	/* This is used to register the Workflow, it's a one-time process. Comment from here */
-	wf := workflow.CreateWorkflow(workflowExecutor)
-	err := wf.Register(false)
+	// This is used to register the Workflow, it's a one-time process. You can comment from here
+	wf := hello_world.CreateWorkflow(workflowExecutor)
+	err := wf.Register(true)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Error(err.Error())
 		return
 	}
-	/* Till Here after registering the workflow*/
-	id, err := wf.StartWorkflowWithInput(&workflow.NameInput{
-		Name: "Orkes",
-	})
+	// Till Here after registering the workflow
+
+	// Start the greetings workflow 
+	id, err := workflowExecutor.StartWorkflow(
+		&model.StartWorkflowRequest{
+			Name:    "greetings",
+			Version: 1,
+			Input: map[string]string{
+				"name": "Gopher",
+			},
+		},
+	)
+
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Error(err.Error())
 		return
 	}
-    fmt.Println("Started workflow with Id: ", id)
 
-	/*Get a channel to monitor the workflow execution -
-	  Note: This is useful in case of short duration workflows that completes in few seconds.*/
+	log.Info("Started workflow with Id: ", id)
+
+	// Get a channel to monitor the workflow execution -
+	// Note: This is useful in case of short duration workflows that completes in few seconds.
 	channel, _ := workflowExecutor.MonitorExecution(id)
 	run := <-channel
-	fmt.Println("Output of the workflow, ", run.Status)
-
+	log.Info("Output of the workflow: ", run.Output)
 }
 ```
 
-## Running Workflows on Conductor Standalone (Installed Locally)
+The `taskRunner` uses the `apiClient` to poll for work and complete tasks. It also starts the worker and handles concurrency and polling intervals for us based on the configuration provided.
 
-### Setup Environment Variable
+That simple line `taskRunner.StartWorker("greet", hello_world.Greet, 1, time.Millisecond*100)` is all that's needed to get our Greet worker up & running and processing tasks of type `"greet"`.
 
-Set the following environment variable to point the SDK to the Conductor Server API endpoint:
+The `workflowExecutor` gives us an abstraction on top of the `apiClient` to manage workflows. It is used under the hood by `ConductorWorkflow` to register the workflow and it's also used to start and monitor the execution.
 
+#### Running the example with a local Conductor OSS server:
 ```shell
-export CONDUCTOR_SERVER_URL=http://localhost:8080/api
-```
-> [!NOTE]
-> To setup the required dependencies use `go mod tidy` 
-
-### Start Conductor Server
-
-To start the Conductor server in a standalone mode from a Docker image, type the command below:
-
-```shell
-docker run --init -p 8080:8080 -p 5000:5000 conductoross/conductor-standalone:3.15.0
-```
-To ensure the server has started successfully, open Conductor UI on http://localhost:5000.
-
-### Execute Hello World Application
-
-To run the application, type the following command:
-
-```shell
-go run main.go
-```
-Now, the workflow is executed, and its execution status can be viewed from Conductor UI (http://localhost:5000).
-
-Navigate to the **Executions** tab to view the workflow execution.
-
-<img width="1437" alt="Screenshot 2024-04-16 at 10 21 43 PM" src="https://github.com/Srividhya-S-Subramanian/conductor-go/assets/163816773/7312c908-3195-4cad-b9de-8db762b1203b">
-
-## Running Workflows on Orkes Conductor
-
-For running the workflow in Orkes Conductor,
-
-- Update the Conductor server URL to your cluster name.
-
-```shell
-export CONDUCTOR_SERVER_URL=https://[cluster-name].orkesconductor.io/api
-```
-- If you want to run the workflow on the Orkes Conductor Playground, set the Conductor Server variable as follows:
-
-```shell
-export CONDUCTOR_SERVER_URL=https://play.orkes.io/api
+export CONDUCTOR_SERVER_URL="http://localhost:8080/api"
+cd examples
+go run hello_world/main.go
 ```
 
-- Orkes Conductor requires authentication. [Obtain the key and secret from the Conductor server](https://orkes.io/content/how-to-videos/access-key-and-secret) and set the following environment variables.
-
+#### Running the example in Orkes playground.
 ```shell
-export CONDUCTOR_AUTH_KEY=your_key
-export CONDUCTOR_AUTH_SECRET=your_key_secret
+export CONDUCTOR_SERVER_URL="https://play.orkes.io/api"
+export KEY="..."
+export SECRET="..."
+cd examples
+go run hello_world/main.go
 ```
 
-Run the application and view the execution status from Conductor's UI Console.
+> [!note]
+> Orkes Conductor requires authentication. [Get a key and secret from the server](https://orkes.io/content/how-to-videos/access-key-and-secret) to set those variables.
 
-> [!NOTE]
-> That's it - you just created and executed your first distributed Go app!
+The above commands should give an output similar to
+```shell
+INFO[0000] Updated poll interval for task: greet, to: 100ms 
+INFO[0000] Started 1 worker(s) for taskName greet, polling in interval of 100 ms 
+INFO[0000] Started workflow with Id:14a9fcc5-3d74-11ef-83dc-acde48001122 
+INFO[0000] Output of the workflow:map[Greetings:Hello, Gopher] 
+```
 
-## Learn More about Conductor Go SDK
+# API Documentation
 
-There are three main ways you can use Conductor when building durable, resilient, distributed applications.
-
-1. Write service workers that implement business logic to accomplish a specific goal - such as initiating payment transfer, getting user information from the database, etc.
-2. Create Conductor workflows that implement application state - A typical workflow implements the saga pattern.
-3. Use Conductor SDK and APIs to manage workflows from your application.
+You can find the SDK API documentation [here](https://pkg.go.dev/github.com/conductor-sdk/conductor-go).
 

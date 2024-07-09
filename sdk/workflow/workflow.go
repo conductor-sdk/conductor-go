@@ -163,8 +163,8 @@ func (workflow *ConductorWorkflow) UnRegister() error {
 	return workflow.executor.UnRegisterWorkflow(workflow.name, workflow.version)
 }
 
-// StartWorkflowWithInput ExecuteWorkflowWithInput Execute the workflow with specific input.  The input struct MUST be serializable to JSON
-// Returns the workflow Id that can be used to monitor and get the status of the workflow execution
+// Start the workflow with specific input. The input struct MUST be serializable to JSON
+// Returns the workflow Id that can be used to monitor and get the status of the workflow execution.
 func (workflow *ConductorWorkflow) StartWorkflowWithInput(input interface{}) (workflowId string, err error) {
 	version := workflow.GetVersion()
 	return workflow.executor.StartWorkflow(
@@ -184,7 +184,7 @@ func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.Sta
 	return workflow.executor.StartWorkflow(startWorkflowRequest)
 }
 
-// ExecuteWorkflowWithInput Execute the workflow with specific input and wait for the workflow to complete or until the task specified as waitUntil is completed.
+// Executes the workflow with specific input and wait for the workflow to complete or until the task specified as waitUntil is completed.
 // waitUntilTask Reference name of the task which MUST be completed before returning the output.  if specified as empty string, then the call waits until the
 // workflow completes or reaches the timeout (as specified on the server)
 // The input struct MUST be serializable to JSON
