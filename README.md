@@ -39,9 +39,9 @@ go get github.com/conductor-sdk/conductor-go
 
 ## Hello World
 
-In this repo you will find basic "Hello World" under [examples/hello_world](examples/hello_world/). 
+In this repo you will find a basic "Hello World" under [examples/hello_world](examples/hello_world/). 
 
-We'll analyze the app in 3 steps.
+Let's analyze the app in 3 steps.
 
 
 > [!note]
@@ -79,18 +79,18 @@ func CreateWorkflow(executor *executor.WorkflowExecutor) *workflow.ConductorWork
 }
 ```
 
-In the above code first we create a workflow by calling `workflow.NewConductorWorkflow(..)` and set its properties (`Name`, `Version`, etc.). 
+In the above code first we create a workflow by calling `workflow.NewConductorWorkflow(..)` and set its properties `Name`, `Version`, `Description` and `TimeoutPolicy`. 
 
 Then we create a [Simple Task](https://orkes.io/content/reference-docs/worker-task) of type `"greet"` with reference name `"greet_ref"` and add it to the workflow. That task gets the workflow input `"name"` as an input with key `"person_to_be_greated"`.
 
 > [!note]
 >`"person_to_be_greated"` is too verbose! Why would you name it like that?
 >
-> We want to make it clear that the workflow input is not passed automatically. 
+> It's just to make it clear that the workflow input is not passed automatically. 
 >
 > The worker will get the actual value of the workflow input because of this mapping  `Input("person_to_be_greated", "${workflow.input.name}")` in the workflow definition. 
 >
->Expressions like `"${workflow.input.name}"` will be replaced by their value during workflow execution.
+>Expressions like `"${workflow.input.name}"` will be replaced by their value during execution.
 
 Last but not least, the output of the workflow is set by calling `wf.OutputParameters(..)`. 
 
@@ -112,6 +112,7 @@ The Go code translates to this JSON defininition. You can view this in your Cond
 
 ```json
 {
+  "schemaVersion": 2,
   "name": "greetings",
   "description": "Greetings workflow - Greets a user by their name",
   "version": 1,
@@ -125,6 +126,9 @@ The Go code translates to this JSON defininition. You can view this in your Cond
       }
     }
   ],
+  "outputParameters": {
+    "Greetings": "${greet_ref.output.greetings}"
+  },
   "timeoutPolicy": "TIME_OUT_WF",
   "timeoutSeconds": 600
 }
@@ -144,7 +148,7 @@ In [Step 3](#step-3-running-the-application) you will see how to create an insta
 
 A worker is a function with a specific task to perform.
 
-In this example this worker just uses the input `person_to_be_greated` to say hello. As you can see in [examples/hello_world/src/worker.go](examples/hello_world/src/worker.go).
+In this example the worker just uses the input `person_to_be_greated` to say hello, as you can see in [examples/hello_world/src/worker.go](examples/hello_world/src/worker.go).
 
 ```go
 func Greet(task *model.Task) (interface{}, error) {
@@ -159,9 +163,9 @@ func Greet(task *model.Task) (interface{}, error) {
 
 ### Step 3: Running the application
 
-The application is going to start the Greet worker, which will execute tasks of type "greet" and it will register the workflow created in [step 1](#step-1-creating-the-workflow-by-code).
+The application is going to start the Greet worker (to execute tasks of type "greet") and it will register the workflow created in [step 1](#step-1-creating-the-workflow-by-code).
 
-Let's take a look at the variable declaration in [examples/hello_world/main.go](examples/hello_world/main.go).
+To begin with, let's take a look at the variable declaration in [examples/hello_world/main.go](examples/hello_world/main.go).
 
 ```go
 
@@ -247,7 +251,7 @@ func main() {
 
 The `taskRunner` uses the `apiClient` to poll for work and complete tasks. It also starts the worker and handles concurrency and polling intervals for us based on the configuration provided.
 
-That simple line `taskRunner.StartWorker("greet", hello_world.Greet, 1, time.Millisecond*100)` is all that's needed to get our Greet worker up & running and processing tasks of type `"greet"`
+That simple line `taskRunner.StartWorker("greet", hello_world.Greet, 1, time.Millisecond*100)` is all that's needed to get our Greet worker up & running and processing tasks of type `"greet"`.
 
 The `workflowExecutor` gives us an abstraction on top of the APIClient to manage workflows. It is used under the hood by `ConductorWorkflow` to register the workflow and it's also used to monitor the execution.
 
