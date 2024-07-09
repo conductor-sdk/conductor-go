@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
+	hello_world "examples/hello_world/src"
 	"os"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 
-	hello_world "github.com/conductor-sdk/conductor-go/examples/hello_world/src"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 
@@ -40,7 +39,7 @@ func authSettings() *settings.AuthenticationSettings {
 func httpSettings() *settings.HttpSettings {
 	url := os.Getenv("CONDUCTOR_SERVER_URL")
 	if url == "" {
-		fmt.Fprintf(os.Stderr, "Error: CONDUCTOR_SERVER_URL env variable is not set\n")
+		log.Error("Error: CONDUCTOR_SERVER_URL env variable is not set")
 		os.Exit(1)
 	}
 
