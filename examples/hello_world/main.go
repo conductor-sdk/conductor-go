@@ -61,7 +61,7 @@ func main() {
 	// Till Here after registering the workflow
 
 	// Start the greetings workflow
-	id, err := wf.StartWorkflow(
+	id, err := workflowExecutor.StartWorkflow(
 		&model.StartWorkflowRequest{
 			Name:    "greetings",
 			Version: 1,

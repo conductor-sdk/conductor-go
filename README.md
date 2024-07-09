@@ -224,7 +224,7 @@ func main() {
 	// Till Here after registering the workflow
 
 	// Start the greetings workflow 
-	id, err := wf.StartWorkflow(
+	id, err := workflowExecutor.StartWorkflow(
 		&model.StartWorkflowRequest{
 			Name:    "greetings",
 			Version: 1,
@@ -253,7 +253,7 @@ The `taskRunner` uses the `apiClient` to poll for work and complete tasks. It al
 
 That simple line `taskRunner.StartWorker("greet", hello_world.Greet, 1, time.Millisecond*100)` is all that's needed to get our Greet worker up & running and processing tasks of type `"greet"`.
 
-The `workflowExecutor` gives us an abstraction on top of the APIClient to manage workflows. It is used under the hood by `ConductorWorkflow` to register the workflow and it's also used to monitor the execution.
+The `workflowExecutor` gives us an abstraction on top of the `apiClient` to manage workflows. It is used under the hood by `ConductorWorkflow` to register the workflow and it's also used to start and monitor the execution.
 
 #### Running the example with a local Conductor OSS server:
 ```shell
