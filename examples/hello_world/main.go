@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/conductor-sdk/conductor-go/sdk/client"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 
 	"github.com/conductor-sdk/conductor-go/sdk/worker"
@@ -59,9 +60,16 @@ func main() {
 	}
 	// Till Here after registering the workflow
 
-	id, err := wf.StartWorkflowWithInput(map[string]string{
-		"name": "Gopher",
-	})
+	// Start the greetings workflow
+	id, err := wf.StartWorkflow(
+		&model.StartWorkflowRequest{
+			Name:    "greetings",
+			Version: 1,
+			Input: map[string]string{
+				"name": "Gopher",
+			},
+		},
+	)
 
 	if err != nil {
 		log.Error(err.Error())

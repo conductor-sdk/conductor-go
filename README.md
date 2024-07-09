@@ -222,14 +222,22 @@ func main() {
 	}
 	// Till Here after registering the workflow
 
-	id, err := wf.StartWorkflowWithInput(map[string]string{
-		"name": "Gopher",
-	})
+	// Start the greetings workflow 
+	id, err := wf.StartWorkflow(
+		&model.StartWorkflowRequest{
+			Name:    "greetings",
+			Version: 1,
+			Input: map[string]string{
+				"name": "Gopher",
+			},
+		},
+	)
 
 	if err != nil {
 		log.Error(err.Error())
 		return
 	}
+
 	log.Info("Started workflow with Id: ", id)
 
 	// Get a channel to monitor the workflow execution -
