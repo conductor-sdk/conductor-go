@@ -15,9 +15,9 @@ To learn more about Conductor checkout our [developer's guide](https://docs.cond
 - [Installation](#installation)
 - [Hello World!](#hello-world)
   - [Step 1: Creating the workflow by code](#step-1-creating-the-workflow-by-code)
-  - [Step 2: Creating the worker](#step-2-write-task-worker)
+  - [Step 2: Creating the worker](#step-2-creating-the-worker)
   - [Step 3: Running the application](#step-3-running-the-application)
-- [API Documentation](#api-documentation)
+- [Further Reading](#further-reading)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -158,6 +158,8 @@ func Greet(task *model.Task) (interface{}, error) {
 }
 ```
 
+To learn more about workers take a look at [Writing Workers with the Go SDK](docs/workers_sdk.md).
+
 > [!note]
 > A single workflow can have task workers written in different languages and deployed anywhere, making your workflow polyglot and distributed!
 
@@ -282,7 +284,7 @@ INFO[0000] Started workflow with Id:14a9fcc5-3d74-11ef-83dc-acde48001122
 INFO[0000] Output of the workflow:map[Greetings:Hello, Gopher] 
 ```
 
-# API Documentation
+# Further Reading
 
-You can find the SDK API documentation [here](https://pkg.go.dev/github.com/conductor-sdk/conductor-go).
-
+- [Writing Workers with the Go SDK](docs/workers_sdk.md)
+- [Authoring Workflows with the Go SDK](docs/workflow_sdk.md)
