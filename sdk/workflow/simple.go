@@ -69,50 +69,58 @@ func (task *SimpleTask) toWorkflowTask() []model.WorkflowTask {
 
 // RetryPolicy for the task
 func (task *SimpleTask) RetryPolicy(retryCount int32, policy RetryLogic, retryDelay int32, backoffScaleFactor int32) *SimpleTask {
-	task.workflowTask.TaskDefinition.RetryCount = retryCount
-	task.workflowTask.TaskDefinition.RetryLogic = string(policy)
-	task.workflowTask.TaskDefinition.RetryDelaySeconds = retryDelay
-	task.workflowTask.TaskDefinition.BackoffScaleFactor = backoffScaleFactor
+
+	taskDefinition := task.ensureTaskDef()
+	taskDefinition.RetryCount = retryCount
+	taskDefinition.RetryLogic = string(policy)
+	taskDefinition.RetryDelaySeconds = retryDelay
+	taskDefinition.BackoffScaleFactor = backoffScaleFactor
 	return task
 }
 
 // RateLimitFrequency based on the frequency window for the task
 func (task *SimpleTask) RateLimitFrequency(rateLimitFrequencyInSeconds int32, rateLimitPerFrequency int32) *SimpleTask {
-	task.workflowTask.TaskDefinition.RateLimitPerFrequency = rateLimitPerFrequency
-	task.workflowTask.TaskDefinition.RateLimitFrequencyInSeconds = rateLimitFrequencyInSeconds
+	taskDefinition := task.ensureTaskDef()
+	taskDefinition.RateLimitPerFrequency = rateLimitPerFrequency
+	taskDefinition.RateLimitFrequencyInSeconds = rateLimitFrequencyInSeconds
 	return task
 }
 
 // ConcurrentExecutionLimit limits the max no. of concurrent execution of the tasks in the cluster
 func (task *SimpleTask) ConcurrentExecutionLimit(limit int32) *SimpleTask {
-	task.workflowTask.TaskDefinition.ConcurrentExecLimit = limit
+	taskDefinition := task.ensureTaskDef()
+	taskDefinition.ConcurrentExecLimit = limit
 	return task
 }
 
 // ExecutionTimeout time in seconds by when the task MUST complete
 // See #TimeoutPolicy
 func (task *SimpleTask) ExecutionTimeout(timoutInSecond int64) *SimpleTask {
-	task.workflowTask.TaskDefinition.TimeoutSeconds = timoutInSecond
+	taskDefinition := task.ensureTaskDef()
+	taskDefinition.TimeoutSeconds = timoutInSecond
 	return task
 }
 
 // PollTimeout time in seconds by when the task MUST be polled after getting scheduled
 // See #TimeoutPolicy
 func (task *SimpleTask) PollTimeout(timoutInSecond int32) *SimpleTask {
-	task.workflowTask.TaskDefinition.PollTimeoutSeconds = timoutInSecond
+	taskDefinition := task.ensureTaskDef()
+	taskDefinition.PollTimeoutSeconds = timoutInSecond
 	return task
 }
 
 // ResponseTimeout time in seconds by which long-running task MUST send back the updates.
 // See #TimeoutPolicy
 func (task *SimpleTask) ResponseTimeout(timoutInSecond int64) *SimpleTask {
-	task.workflowTask.TaskDefinition.ResponseTimeoutSeconds = timoutInSecond
+	taskDefinition := task.ensureTaskDef()
+	taskDefinition.ResponseTimeoutSeconds = timoutInSecond
 	return task
 }
 
 // TimeoutPolicy how to handle any of the timeout cases.
 func (task *SimpleTask) TimeoutPolicy(timeoutPolicy TaskTimeoutPolicy) *SimpleTask {
-	task.workflowTask.TaskDefinition.TimeoutPolicy = string(timeoutPolicy)
+	taskDefinition := task.ensureTaskDef()
+	taskDefinition.TimeoutPolicy = string(timeoutPolicy)
 	return task
 }
 
@@ -124,4 +132,11 @@ func (task *Task) CacheConfig(cacheKey string, ttlInSeconds int) *Task {
 		TtlInSeconds: ttlInSeconds,
 	}
 	return task
+}
+
+func (task *SimpleTask) ensureTaskDef() *model.TaskDef {
+	if task.workflowTask.TaskDefinition == nil {
+		task.workflowTask.TaskDefinition = &model.TaskDef{Name: task.name}
+	}
+	return task.workflowTask.TaskDefinition
 }
