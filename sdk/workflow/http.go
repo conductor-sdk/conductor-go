@@ -43,7 +43,6 @@ func NewHttpTask(taskRefName string, input *HttpInput) *HttpTask {
 				Name:              string(HTTP),
 				TaskReferenceName: taskRefName,
 				Type_:             string(HTTP),
-				TaskDefinition:    &model.TaskDef{Name: string(HTTP)},
 			},
 		},
 	}
