@@ -28,7 +28,6 @@ func NewSimpleTask(taskType string, taskRefName string) *SimpleTask {
 			Name:              taskType,
 			TaskReferenceName: taskRefName,
 			Type_:             string(SIMPLE),
-			TaskDefinition:    &model.TaskDef{Name: taskType},
 		},
 	}
 }
