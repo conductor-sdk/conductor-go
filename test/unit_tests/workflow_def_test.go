@@ -6,6 +6,7 @@ import (
 
 	"testing"
 
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/test/testdata"
 	"github.com/stretchr/testify/assert"
@@ -51,6 +52,57 @@ func TestHttpTask(t *testing.T) {
 	assert.NotNil(t, workflowTask.TaskDefinition)
 	assert.Equal(t, int32(10), workflowTask.TaskDefinition.RetryDelaySeconds)
 	assert.Equal(t, string(workflow.FixedRetry), workflowTask.TaskDefinition.RetryLogic)
+	json, _ := json.Marshal(workflowDef)
+	fmt.Println(string(json))
+}
+
+func TestUpdateTaskWithTaskId(t *testing.T) {
+
+	updateTask := workflow.NewUpdateTaskWithTaskId("update_task_ref", model.CompletedTask, "target_task_to_update")
+	updateTask.MergeOutput(true)
+	updateTask.TaskOutput(map[string]interface{}{"key": map[string]interface{}{"nestedKey": "nestedValue"}})
+
+	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("workflow_with_update_task").
+		Version(1).
+		Add(updateTask)
+	workflowDef := wf.ToWorkflowDef()
+
+	assert.NotNil(t, workflowDef)
+	assert.Equal(t, 1, len(workflowDef.Tasks))
+
+	taskFromWorkflow := workflowDef.Tasks[0]
+
+	assert.Equal(t, "update_task_ref", taskFromWorkflow.TaskReferenceName)
+	assert.Equal(t, "target_task_to_update", taskFromWorkflow.InputParameters["taskId"])
+	assert.Nil(t, taskFromWorkflow.InputParameters["workflowId"])
+	assert.Nil(t, taskFromWorkflow.InputParameters["taskRefName"])
+	json, _ := json.Marshal(workflowDef)
+	fmt.Println(string(json))
+}
+
+func TestUpdateTaskWithWorkflowIdAndTaskRef(t *testing.T) {
+
+	updateTask := workflow.NewUpdateTask("update_task_ref", model.CompletedTask, "target_workflow", "target_task_ref")
+	updateTask.MergeOutput(true)
+	integers := []int{2, 3, 5, 7, 11, 13}
+	updateTask.TaskOutput(map[string]interface{}{"key": integers})
+	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("workflow_with_update_task").
+		Version(1).
+		Add(updateTask)
+	workflowDef := wf.ToWorkflowDef()
+
+	assert.NotNil(t, workflowDef)
+	assert.Equal(t, 1, len(workflowDef.Tasks))
+
+	taskFromWorkflow := workflowDef.Tasks[0]
+
+	assert.Equal(t, "update_task_ref", taskFromWorkflow.TaskReferenceName)
+	assert.Equal(t, "target_workflow", taskFromWorkflow.InputParameters["workflowId"])
+	assert.Equal(t, "target_task_ref", taskFromWorkflow.InputParameters["taskRefName"])
+	assert.Nil(t, taskFromWorkflow.InputParameters["taskId"])
+
 	json, _ := json.Marshal(workflowDef)
 	fmt.Println(string(json))
 }

@@ -47,6 +47,7 @@ const (
 	HUMAN             TaskType = "HUMAN"
 	HTTP              TaskType = "HTTP"
 	INLINE            TaskType = "INLINE"
+	UPDATE            TaskType = "UPDATE_TASK"
 	TERMINATE         TaskType = "TERMINATE"
 	KAFKA_PUBLISH     TaskType = "KAFKA_PUBLISH"
 	JSON_JQ_TRANSFORM TaskType = "JSON_JQ_TRANSFORM"
