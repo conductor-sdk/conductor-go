@@ -11,56 +11,55 @@ package workflow
 
 import "github.com/conductor-sdk/conductor-go/sdk/model"
 
-
 type UpdateTask struct {
 	Task
 }
 
-//  Create a new Update with Task Id (targetTaskId)
+// Create a new Update with Task Id (targetTaskId)
 func NewUpdateTaskWithTaskId(taskRefName string, status model.TaskResultStatus, targetTaskId string) *UpdateTask {
 
 	update := &UpdateTask{
-			Task: Task{
-				name:              string(UPDATE),
-				taskReferenceName: taskRefName,
-				taskType:          UPDATE,
-				inputParameters:  map[string]interface{}{
-                    "taskId": targetTaskId,
-                    "taskStatus": status,
-                },
-        },
-    }
+		Task: Task{
+			name:              string(UPDATE),
+			taskReferenceName: taskRefName,
+			taskType:          UPDATE,
+			inputParameters: map[string]interface{}{
+				"taskId":     targetTaskId,
+				"taskStatus": status,
+			},
+		},
+	}
 
 	return update
 }
 
-//  Create a new Update Task with workflow Id (targetWorkflowId) and  task ref (targetTaskRefName)
+// Create a new Update Task with workflow Id (targetWorkflowId) and  task ref (targetTaskRefName)
 func NewUpdateTask(taskRefName string, status model.TaskResultStatus, targetWorkflowId string, targetTaskRefName string) *UpdateTask {
 
 	update := &UpdateTask{
-			Task: Task{
-				name:              string(UPDATE),
-				taskReferenceName: taskRefName,
-				taskType:          UPDATE,
-				inputParameters:  map[string]interface{}{
-                    "workflowId": targetWorkflowId,
-                    "taskRefName": targetTaskRefName,
-                    "taskStatus": status,
-                },
+		Task: Task{
+			name:              string(UPDATE),
+			taskReferenceName: taskRefName,
+			taskType:          UPDATE,
+			inputParameters: map[string]interface{}{
+				"workflowId":  targetWorkflowId,
+				"taskRefName": targetTaskRefName,
+				"taskStatus":  status,
 			},
-        }
+		},
+	}
 
 	return update
 }
 
-func (task *UpdateTask) MergeOutput(value interface{}) *UpdateTask {
+func (task *UpdateTask) MergeOutput(value bool) *UpdateTask {
 	task.Task.Input("mergeOutput", value)
 	return task
 }
 
 func (task *UpdateTask) TaskOutput(inputMap map[string]interface{}) *UpdateTask {
-    task.Task.Input("taskOutput", inputMap)
-    return task
+	task.Task.Input("taskOutput", inputMap)
+	return task
 }
 
 // Input to the task.  See https://conductor.netflix.com/how-tos/Tasks/task-inputs.html for details
