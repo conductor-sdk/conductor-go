@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
       - name: Test
         run: >
           DOCKER_BUILDKIT=1 docker build
@@ -20,5 +22,5 @@ jobs:
           --build-arg KEY=${{ secrets.KEY }}
           --build-arg SECRET=${{ secrets.SECRET }}
           --build-arg CONDUCTOR_SERVER_URL=${{ secrets.CONDUCTOR_SERVER_URL }}
-          --target=test          
+          --target=test
           .

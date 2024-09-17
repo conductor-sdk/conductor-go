@@ -19,5 +19,5 @@ jobs:
         run: >
           DOCKER_BUILDKIT=1 docker build
           --progress=plain
-          --target=build          
+          --target=build
           .
