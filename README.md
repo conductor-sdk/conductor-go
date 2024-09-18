@@ -289,3 +289,5 @@ INFO[0000] Output of the workflow:map[Greetings:Hello, Gopher]
 
 - [Writing Workers with the Go SDK](docs/workers_sdk.md)
 - [Authoring Workflows with the Go SDK](docs/workflow_sdk.md)
+
+...
