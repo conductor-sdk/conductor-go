@@ -21,3 +21,9 @@ jobs:
           --progress=plain
           --target=build
           .
+      - name: Test
+        run: >
+          DOCKER_BUILDKIT=1 docker build
+          --progress=plain
+          --target=test
+          .
