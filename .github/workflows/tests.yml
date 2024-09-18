@@ -26,3 +26,33 @@ jobs:
           --build-arg CONDUCTOR_SERVER_URL=${{ secrets.CONDUCTOR_SERVER_URL }}
           --target=inttest
           .
+      - name: Set PR Status to Failure
+        if: ${{ failure() }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const sha = context.payload.workflow_run.head_sha;
+            await github.rest.repos.createCommitStatus({
+              owner: owner,
+              repo: repo,
+              sha: sha,
+              state: 'failure',
+              context: 'Integration Tests',
+              description: 'Integration tests failed.',
+            });
+      - name: Set PR Status to Success
+        if: ${{ success() }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const sha = context.payload.workflow_run.head_sha;
+            await github.rest.repos.createCommitStatus({
+              owner: owner,
+              repo: repo,
+              sha: sha,
+              state: 'success',
+              context: 'Integration Tests',
+              description: 'Integration tests succeeded.',
+            });
