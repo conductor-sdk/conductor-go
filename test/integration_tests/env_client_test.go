@@ -17,7 +17,7 @@ func TestCreateOrUpdateEnvVariable(t *testing.T) {
 
 	resp, err := envClient.CreateOrUpdateEnvVariable(ctx, "test value", "testKey")
 	assert.NoError(t, err)
-	assert.NotNil(t, resp)
+	assert.Nil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	resp, err = envClient.CreateOrUpdateEnvVariable(ctx, "", "") // Edge case with empty values
