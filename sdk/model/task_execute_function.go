@@ -14,7 +14,7 @@ import (
 	"os"
 	"sync"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 )
 
 var hostname string
@@ -23,6 +23,11 @@ var once sync.Once
 type ExecuteTaskFunction func(t *Task) (interface{}, error)
 
 type ValidateWorkflowFunction func(w *Workflow) (bool, error)
+
+type TaskResultMaker interface {
+	ToTaskResult() *TaskResult
+	ToTaskResultWithError(err error) *TaskResult
+}
 
 func NewTaskResultFromTask(task *Task) *TaskResult {
 	return &TaskResult{
@@ -34,6 +39,7 @@ func NewTaskResultFromTask(task *Task) *TaskResult {
 
 func NewTaskResultFromTaskWithError(t *Task, err error) *TaskResult {
 	taskResult := NewTaskResultFromTask(t)
+	//taskResult := t.ToTaskResult(FailedTask)
 	taskResult.ReasonForIncompletion = err.Error()
 	switch err.(type) {
 	case *NonRetryableError:
@@ -61,7 +67,7 @@ func GetTaskResultFromTaskExecutionOutput(t *Task, taskExecutionOutput interface
 		if err != nil {
 			return nil, err
 		}
-		taskResult.OutputData = outputData
+		taskResult.OutputDataRaw = outputData
 		taskResult.Status = CompletedTask
 	}
 	return taskResult, nil

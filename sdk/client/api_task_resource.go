@@ -222,12 +222,21 @@ type TaskResourceApiBatchPollOpts struct {
 }
 
 func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiBatchPollOpts) ([]model.Task, *http.Response, error) {
+	returnValue := new([]model.Task)
+	_, response, err := a.batchPoll(ctx, tasktype, localVarOptionals, returnValue)
+	return *returnValue, response, err
+}
+func (a *TaskResourceApiService) BatchPollTask(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiBatchPollOpts) ([]model.PolledTask, *http.Response, error) {
+	returnValue := new([]model.PolledTask)
+	_, response, err := a.batchPoll(ctx, tasktype, localVarOptionals, returnValue)
+	return *returnValue, response, err
+}
+func (a *TaskResourceApiService) batchPoll(ctx context.Context, tasktype string, opts *TaskResourceApiBatchPollOpts, returnValue interface{}) (interface{}, *http.Response, error) {
 	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue []model.Task
+		method    = strings.ToUpper("Get")
+		body      interface{}
+		fileName  string
+		fileBytes []byte
 	)
 
 	// create path and map variables
@@ -238,17 +247,17 @@ func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string,
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarOptionals != nil && localVarOptionals.Workerid.IsSet() {
-		localVarQueryParams.Add("workerid", parameterToString(localVarOptionals.Workerid.Value(), ""))
+	if opts != nil && opts.Workerid.IsSet() {
+		localVarQueryParams.Add("workerid", parameterToString(opts.Workerid.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Domain.IsSet() {
-		localVarQueryParams.Add("domain", parameterToString(localVarOptionals.Domain.Value(), ""))
+	if opts != nil && opts.Domain.IsSet() {
+		localVarQueryParams.Add("domain", parameterToString(opts.Domain.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Count.IsSet() {
-		localVarQueryParams.Add("count", parameterToString(localVarOptionals.Count.Value(), ""))
+	if opts != nil && opts.Count.IsSet() {
+		localVarQueryParams.Add("count", parameterToString(opts.Count.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Timeout.IsSet() {
-		localVarQueryParams.Add("timeout", parameterToString(localVarOptionals.Timeout.Value(), ""))
+	if opts != nil && opts.Timeout.IsSet() {
+		localVarQueryParams.Add("timeout", parameterToString(opts.Timeout.Value(), ""))
 	}
 	// to determine the Content-Type header
 	localVarHttpContentTypes := []string{}
@@ -267,27 +276,27 @@ func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string,
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.prepareRequest(ctx, localVarPath, method, body, localVarHeaderParams, localVarQueryParams, localVarFormParams, fileName, fileBytes)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return returnValue, nil, err
 	}
 
 	localVarHttpResponse, err := a.callAPI(r)
 	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
+		return returnValue, localVarHttpResponse, err
 	}
 
 	localVarBody, err := getDecompressedBody(localVarHttpResponse)
 
 	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
+		return returnValue, localVarHttpResponse, err
 	}
 
 	if localVarHttpResponse.StatusCode < 300 {
 		// If we succeed, return the data, otherwise pass on to decode error.
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+		err = a.decode(&returnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 		if err == nil {
-			return localVarReturnValue, localVarHttpResponse, err
+			return returnValue, localVarHttpResponse, err
 		}
 	}
 
@@ -301,15 +310,15 @@ func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string,
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
+				return returnValue, localVarHttpResponse, newErr
 			}
 			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
+			return returnValue, localVarHttpResponse, newErr
 		}
-		return localVarReturnValue, localVarHttpResponse, newErr
+		return returnValue, localVarHttpResponse, newErr
 	}
 
-	return localVarReturnValue, localVarHttpResponse, nil
+	return returnValue, localVarHttpResponse, nil
 }
 
 /*
