@@ -24,7 +24,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 
 	"github.com/antihax/optional"
-	log "github.com/sirupsen/logrus"
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 )
 
 const taskUpdateRetryAttemptsLimit = 3
@@ -62,9 +62,8 @@ type TaskRunner struct {
 	pausedWorkersMutex sync.RWMutex
 	pausedWorkers      map[string]bool
 
-	pollTimeoutMutex      sync.RWMutex
-	pollTimeout           time.Duration
-	pollTimeoutByTaskName map[string]time.Duration
+	taskWorkerLegayExecutors map[string]model.ExecuteTaskFunction
+	taskWorkerExecutors      map[string]executePolledTaskFunction
 }
 
 // NewTaskRunner returns a new TaskRunner which authenticates via HTTP using the provided settings.
@@ -89,8 +88,8 @@ func NewTaskRunnerWithApiClient(
 		runningWorkersByTaskName: make(map[string]int),
 		pollIntervalByTaskName:   make(map[string]time.Duration),
 		pausedWorkers:            make(map[string]bool),
-		pollTimeoutByTaskName:    make(map[string]time.Duration),
-		pollTimeout:              -1 * time.Millisecond, //If negative, the server will use its default.
+		taskWorkerLegayExecutors: make(map[string]model.ExecuteTaskFunction),
+		taskWorkerExecutors:      make(map[string]executePolledTaskFunction),
 	}
 }
 
@@ -106,7 +105,8 @@ func (c *TaskRunner) SetSleepOnGenericError(duration time.Duration) {
 //
 //	StartWorkerWithDomain(taskName, executeFunction, batchSize, pollInterval, "")
 func (c *TaskRunner) StartWorkerWithDomain(taskName string, executeFunction model.ExecuteTaskFunction, batchSize int, pollInterval time.Duration, domain string) error {
-	return c.startWorker(taskName, executeFunction, batchSize, pollInterval, domain)
+	c.taskWorkerLegayExecutors[taskName+"-"+domain] = executeFunction
+	return c.startWorker(taskName, batchSize, pollInterval, domain)
 }
 
 // StartWorker starts a worker on a new goroutine, which polls conductor periodically for tasks matching the provided
@@ -116,7 +116,17 @@ func (c *TaskRunner) StartWorkerWithDomain(taskName string, executeFunction mode
 // pollInterval and increases the batch size for the task, which applies to all tasks shared by this TaskRunner with the
 // same taskName.
 func (c *TaskRunner) StartWorker(taskName string, executeFunction model.ExecuteTaskFunction, batchSize int, pollInterval time.Duration) error {
-	return c.startWorker(taskName, executeFunction, batchSize, pollInterval, "")
+	c.taskWorkerLegayExecutors[taskName+"-"] = executeFunction
+	return c.startWorker(taskName, batchSize, pollInterval, "")
+}
+
+func (c *TaskRunner) StartWorkerWithExecFn(taskName string, executeFunction executePolledTaskFunction, options *TaskWorkerOptions) error {
+	batchSize := options.BatchSize
+	pollInterval := options.PollInterval
+	domain := options.Domain
+
+	c.taskWorkerExecutors[taskName+"-"+domain] = executeFunction
+	return c.startWorker(taskName, batchSize, pollInterval, domain)
 }
 
 // SetBatchSize can be used to set the batch size for all workers running the provided task.
@@ -208,33 +218,6 @@ func (c *TaskRunner) Resume(taskName string) {
 	c.pausedWorkers[taskName] = false
 }
 
-// Shutdown the TaskRunner will stop polling for tasks and once all running workers are done,
-// a signal will be sent to the WaitGroup to indicate that this worker has completed its work.
-// When used in conjunction with TaskRunner.WaitWorkers() it allows a graceful shutdown.
-func (c *TaskRunner) Shutdown(taskName string) {
-	log.Info(
-		fmt.Sprintf(
-			"Shutting down workers for task: %s",
-			taskName,
-		),
-	)
-	c.batchSizeByTaskNameMutex.Lock()
-	delete(c.batchSizeByTaskName, taskName)
-	c.batchSizeByTaskNameMutex.Unlock()
-
-	c.pausedWorkersMutex.Lock()
-	delete(c.pausedWorkers, taskName)
-	c.pausedWorkersMutex.Unlock()
-
-	c.pollIntervalByTaskNameMutex.Lock()
-	delete(c.pollIntervalByTaskName, taskName)
-	c.pollIntervalByTaskNameMutex.Unlock()
-
-	c.pollTimeoutMutex.Lock()
-	delete(c.pollTimeoutByTaskName, taskName)
-	c.pollTimeoutMutex.Unlock()
-}
-
 func (c *TaskRunner) isPaused(taskName string) bool {
 	c.pausedWorkersMutex.RLock()
 	defer c.pausedWorkersMutex.RUnlock()
@@ -242,13 +225,16 @@ func (c *TaskRunner) isPaused(taskName string) bool {
 }
 
 // WaitWorkers uses an internal waitgroup to block the calling thread until all workers started by this TaskRunner have
-// been shut down.
+// been stopped.
 func (c *TaskRunner) WaitWorkers() {
 	c.workerWaitGroup.Wait()
 }
 
-func (c *TaskRunner) startWorker(taskName string, executeFunction model.ExecuteTaskFunction, batchSize int, pollInterval time.Duration, taskDomain string) error {
-	c.SetPollIntervalForTask(taskName, pollInterval)
+func (c *TaskRunner) startWorker(taskName string, batchSize int, pollInterval time.Duration, taskDomain string) error {
+	err := c.SetPollIntervalForTask(taskName, pollInterval)
+	if err != nil {
+		return err
+	}
 	c.Resume(taskName)
 	previousMaxAllowedWorkers, err := c.getMaxAllowedWorkers(taskName)
 	if err != nil {
@@ -260,7 +246,7 @@ func (c *TaskRunner) startWorker(taskName string, executeFunction model.ExecuteT
 	}
 	if previousMaxAllowedWorkers < 1 {
 		c.workerWaitGroup.Add(1)
-		go c.work4ever(taskName, executeFunction, taskDomain)
+		go c.work4ever(taskName, taskDomain)
 	}
 	log.Info(
 		fmt.Sprintf(
@@ -273,15 +259,15 @@ func (c *TaskRunner) startWorker(taskName string, executeFunction model.ExecuteT
 	return nil
 }
 
-func (c *TaskRunner) work4ever(taskName string, executeFunction model.ExecuteTaskFunction, domain string) {
+func (c *TaskRunner) work4ever(taskName string, domain string) {
 	defer c.workerWaitGroup.Done()
 	defer concurrency.HandlePanicError("poll_and_execute")
 	for c.isWorkerRegistered(taskName) {
-		c.workOnce(taskName, executeFunction, domain)
+		c.workOnce(taskName, domain)
 	}
 }
 
-func (c *TaskRunner) workOnce(taskName string, executeFunction model.ExecuteTaskFunction, domain string) {
+func (c *TaskRunner) workOnce(taskName string, domain string) {
 	if c.isPaused(taskName) {
 		pauseOnGenericError(taskName, domain, fmt.Errorf("worker is paused"))
 		return
@@ -319,24 +305,155 @@ func (c *TaskRunner) workOnce(taskName string, executeFunction model.ExecuteTask
 		time.Sleep(pollInterval)
 		return
 	}
+	key := taskName + "-" + domain
+	executeFunction := c.taskWorkerLegayExecutors[key]
+	typedFunction := c.taskWorkerExecutors[key]
 	for _, task := range tasks {
 		c.increaseRunningWorkers(taskName)
-		go c.executeAndUpdateTask(taskName, task, executeFunction)
+		go c.executeAndUpdateTask(taskName, task, executeFunction, typedFunction)
 	}
 }
 
-func (c *TaskRunner) executeAndUpdateTask(taskName string, task model.Task, executeFunction model.ExecuteTaskFunction) {
+func (c *TaskRunner) executeAndUpdateTask(taskName string, task model.PolledTask,
+	executeFunction model.ExecuteTaskFunction, typedFunction executePolledTaskFunction) {
 	defer c.runningWorkerDone(taskName)
 	defer concurrency.HandlePanicError("execute_and_update_task " + string(task.TaskId) + ": " + string(task.Status))
-	taskResult := c.executeTask(&task, executeFunction)
+	var taskResult *model.TaskResult
+	if typedFunction != nil {
+		taskResult = c.executeTaskWithTypedWorker(&task, typedFunction)
+	} else {
+		taskResult = c.executeTask(&task, executeFunction)
+	}
 	err := c.updateTaskWithRetry(taskName, taskResult)
 	if err != nil {
 		log.Error("failed to update task ", taskName, ",taskId = ", task.TaskId, ",workflowId = ", task.WorkflowInstanceId, ",", err)
 	}
 }
 
-func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]model.Task, error) {
-	timeout, err := c.GetPollTimeoutForTask(taskName)
+func (c *TaskRunner) executeTask(polledTask *model.PolledTask, executeFunction model.ExecuteTaskFunction) *model.TaskResult {
+
+	log.Trace(
+		"Executing task of type: ", polledTask.TaskDefName,
+		", taskId: ", polledTask.TaskId,
+		", workflowId: ", polledTask.WorkflowInstanceId,
+	)
+	startTime := time.Now()
+
+	t, err := polledTask.ToTask()
+	if err != nil {
+		metrics.IncrementTaskExecuteError(t.TaskDefName, err)
+		log.Debug(
+			"failed to execute task",
+			", reason: ", err.Error(),
+			", taskName: ", t.TaskDefName,
+			", taskId: ", t.TaskId,
+			", workflowId: ", t.WorkflowInstanceId,
+		)
+		return model.NewTaskResultFromTaskWithError(t, err)
+	}
+	taskExecutionOutput, err := executeFunction(t)
+
+	spentTime := time.Since(startTime)
+	metrics.RecordTaskExecuteTime(
+		polledTask.TaskDefName, float64(spentTime.Milliseconds()),
+	)
+	if err != nil {
+		metrics.IncrementTaskExecuteError(polledTask.TaskDefName, err)
+		log.Debug(
+			"failed to execute task",
+			", reason: ", err.Error(),
+			", taskName: ", polledTask.TaskDefName,
+			", taskId: ", polledTask.TaskId,
+			", workflowId: ", polledTask.WorkflowInstanceId,
+		)
+		if taskExecutionOutput == nil {
+			return model.NewTaskResultFromTaskWithError(t, err)
+		}
+	}
+	taskResult, err := model.GetTaskResultFromTaskExecutionOutput(t, taskExecutionOutput)
+	if err != nil {
+		log.Debug(
+			"Failed to extract taskResult from generated object",
+			", reason: ", err.Error(),
+			", task type: ", polledTask.TaskDefName,
+			", taskId: ", polledTask.TaskId,
+			", workflowId: ", polledTask.WorkflowInstanceId,
+			", response: ", err,
+		)
+		return model.NewTaskResultFromTaskWithError(t, err)
+	}
+	log.Trace(
+		"Executed task of type: ", polledTask.TaskDefName,
+		", taskId: ", polledTask.TaskId,
+		", workflowId: ", polledTask.WorkflowInstanceId,
+	)
+	return taskResult
+}
+
+func getContext(task *model.PolledTask) TaskContext {
+	return &TaskContextImpl{
+		Context:            context.Background(),
+		RetryCount:         task.RetryCount,
+		CorrelationId:      task.CorrelationId,
+		PollCount:          task.PollCount,
+		RetriedTaskId:      task.RetriedTaskId,
+		Retried:            task.Retried,
+		WorkflowInstanceId: task.WorkflowInstanceId,
+		WorkflowType:       task.WorkflowType,
+		TaskId:             task.TaskId,
+		WorkflowPriority:   task.WorkflowPriority,
+	}
+}
+func (c *TaskRunner) executeTaskWithTypedWorker(polledTask *model.PolledTask, executeFunction executePolledTaskFunction) *model.TaskResult {
+
+	log.Trace(
+		"Executing task of type: ", polledTask.TaskDefName,
+		", taskId: ", polledTask.TaskId,
+		", workflowId: ", polledTask.WorkflowInstanceId,
+	)
+	startTime := time.Now()
+
+	taskExecutionOutput, err := executeFunction(getContext(polledTask), polledTask)
+
+	spentTime := time.Since(startTime)
+	metrics.RecordTaskExecuteTime(
+		polledTask.TaskDefName, float64(spentTime.Milliseconds()),
+	)
+	if err != nil {
+		metrics.IncrementTaskExecuteError(polledTask.TaskDefName, err)
+		log.Debug(
+			"failed to execute task",
+			", reason: ", err.Error(),
+			", taskName: ", polledTask.TaskDefName,
+			", taskId: ", polledTask.TaskId,
+			", workflowId: ", polledTask.WorkflowInstanceId,
+		)
+		if taskExecutionOutput == nil {
+			return polledTask.ToTaskResultWithError(err)
+		}
+	}
+	taskResult, err := polledTask.ToTaskResultExecutionOutput(taskExecutionOutput)
+	if err != nil {
+		log.Debug(
+			"Failed to extract taskResult from generated object",
+			", reason: ", err.Error(),
+			", task type: ", polledTask.TaskDefName,
+			", taskId: ", polledTask.TaskId,
+			", workflowId: ", polledTask.WorkflowInstanceId,
+			", response: ", err,
+		)
+		return polledTask.ToTaskResultWithError(err)
+	}
+	log.Trace(
+		"Executed task of type: ", polledTask.TaskDefName,
+		", taskId: ", polledTask.TaskId,
+		", workflowId: ", polledTask.WorkflowInstanceId,
+	)
+	return taskResult
+}
+
+func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]model.PolledTask, error) {
+	timeout, err := c.GetPollIntervalForTask(taskName)
 	if err != nil {
 		return nil, err
 	}
@@ -344,23 +461,21 @@ func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]mod
 	if domain != "" {
 		domainOptional = optional.NewString(domain)
 	}
-	log.Debug("Polling for task: ", taskName, ", in batches of size: ", count, ", with poll timeout: ", timeout)
+	log.Debug(
+		"Polling for task: ", taskName, "with domain", domain,
+		", in batches of size: ", count,
+	)
 	metrics.IncrementTaskPoll(taskName)
 	startTime := time.Now()
-	opts := &client.TaskResourceApiBatchPollOpts{
-		Domain:   domainOptional,
-		Workerid: optional.NewString(hostname),
-		Count:    optional.NewInt32(int32(count)),
-	}
-
-	if timeout >= 0 {
-		opts.Timeout = optional.NewInt32(int32(timeout.Milliseconds()))
-	}
-
-	tasks, response, err := c.conductorTaskResourceClient.BatchPoll(
+	tasks, response, err := c.conductorTaskResourceClient.BatchPollTask(
 		context.Background(),
 		taskName,
-		opts,
+		&client.TaskResourceApiBatchPollOpts{
+			Domain:   domainOptional,
+			Workerid: optional.NewString(hostname),
+			Count:    optional.NewInt32(int32(count)),
+			Timeout:  optional.NewInt32(int32(timeout.Milliseconds())),
+		},
 	)
 	spentTime := time.Since(startTime)
 	metrics.RecordTaskPollTime(
@@ -378,51 +493,6 @@ func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]mod
 	}
 	log.Debug(fmt.Sprintf("Polled %d tasks for taskName: %s", len(tasks), taskName))
 	return tasks, nil
-}
-
-func (c *TaskRunner) executeTask(t *model.Task, executeFunction model.ExecuteTaskFunction) *model.TaskResult {
-	log.Trace(
-		"Executing task of type: ", t.TaskDefName,
-		", taskId: ", t.TaskId,
-		", workflowId: ", t.WorkflowInstanceId,
-	)
-	startTime := time.Now()
-	taskExecutionOutput, err := executeFunction(t)
-	spentTime := time.Since(startTime)
-	metrics.RecordTaskExecuteTime(
-		t.TaskDefName, float64(spentTime.Milliseconds()),
-	)
-	if err != nil {
-		metrics.IncrementTaskExecuteError(t.TaskDefName, err)
-		log.Debug(
-			"failed to execute task",
-			", reason: ", err.Error(),
-			", taskName: ", t.TaskDefName,
-			", taskId: ", t.TaskId,
-			", workflowId: ", t.WorkflowInstanceId,
-		)
-		if taskExecutionOutput == nil {
-			return model.NewTaskResultFromTaskWithError(t, err)
-		}
-	}
-	taskResult, err := model.GetTaskResultFromTaskExecutionOutput(t, taskExecutionOutput)
-	if err != nil {
-		log.Debug(
-			"Failed to extract taskResult from generated object",
-			", reason: ", err.Error(),
-			", task type: ", t.TaskDefName,
-			", taskId: ", t.TaskId,
-			", workflowId: ", t.WorkflowInstanceId,
-			", response: ", err,
-		)
-		return model.NewTaskResultFromTaskWithError(t, err)
-	}
-	log.Trace(
-		"Executed task of type: ", t.TaskDefName,
-		", taskId: ", t.TaskId,
-		", workflowId: ", t.WorkflowInstanceId,
-	)
-	return taskResult
 }
 
 func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.TaskResult) error {
@@ -504,7 +574,6 @@ func (c *TaskRunner) increaseRunningWorkers(taskName string) error {
 	c.runningWorkersByTaskNameMutex.Lock()
 	defer c.runningWorkersByTaskNameMutex.Unlock()
 	c.runningWorkersByTaskName[taskName] += 1
-	c.workerWaitGroup.Add(1)
 	log.Trace("Increased running workers for task: ", taskName)
 	return nil
 }
@@ -513,7 +582,6 @@ func (c *TaskRunner) runningWorkerDone(taskName string) error {
 	c.runningWorkersByTaskNameMutex.Lock()
 	defer c.runningWorkersByTaskNameMutex.Unlock()
 	c.runningWorkersByTaskName[taskName] -= 1
-	c.workerWaitGroup.Done()
 	log.Trace("Running worker done for task: ", taskName)
 	return nil
 }
@@ -531,7 +599,7 @@ func (c *TaskRunner) SetPollIntervalForTask(taskName string, pollInterval time.D
 	c.pollIntervalByTaskNameMutex.Lock()
 	defer c.pollIntervalByTaskNameMutex.Unlock()
 	c.pollIntervalByTaskName[taskName] = pollInterval
-	log.Info("Updated poll interval for task: ", taskName, " to: ", pollInterval.Milliseconds(), "ms")
+	log.Info("Updated poll interval for task: ", taskName, ", to: ", pollInterval.Milliseconds(), "ms")
 	return nil
 }
 
@@ -578,45 +646,4 @@ func pauseOnGenericError(taskName string, domain string, err error) {
 func pauseOnNoAvailableWorkerError(taskName string, domain string) {
 	log.Trace(fmt.Errorf("no worker available for the task %s, domain %s", taskName, domain))
 	time.Sleep(sleepForOnNoAvailableWorker)
-}
-
-// SetPollTimeout sets the default poll timeout for all tasks. If not explicitly set,
-// it defaults to a negative value, indicating that the server's default should be used.
-func (c *TaskRunner) SetPollTimeout(pollTimeout time.Duration) error {
-	c.pollTimeoutMutex.Lock()
-	defer c.pollTimeoutMutex.Unlock()
-	c.pollTimeout = pollTimeout
-	log.Info("Updated poll timeout to: ", pollTimeout.Milliseconds(), "ms")
-	return nil
-}
-
-// GetPollTimeout gets the default poll timeout for all tasks. The value may be negative.
-// In such cases, pollTimeout parameter is not sent, indicating that the server's default should be used.
-func (c *TaskRunner) GetPollTimeout() time.Duration {
-	c.pollTimeoutMutex.Lock()
-	defer c.pollTimeoutMutex.Unlock()
-	return c.pollTimeout
-}
-
-// GetPollTimeoutForTask retrieves the poll timeout for all tasks running with the provided taskName.
-// If there isn't a specific poll timeout for the task it uses the default timeout TaskRunner.pollTimeout.
-func (c *TaskRunner) GetPollTimeoutForTask(taskName string) (time.Duration, error) {
-	c.pollTimeoutMutex.Lock()
-	defer c.pollTimeoutMutex.Unlock()
-
-	pollTimeout, ok := c.pollTimeoutByTaskName[taskName]
-	if !ok {
-		return c.pollTimeout, nil
-	}
-
-	return pollTimeout, nil
-}
-
-// SetPollTimeoutForTask sets the pollInterval for all workers running the task with the provided taskName.
-func (c *TaskRunner) SetPollTimeoutForTask(taskName string, pollTimeout time.Duration) error {
-	c.pollTimeoutMutex.Lock()
-	defer c.pollTimeoutMutex.Unlock()
-	c.pollTimeoutByTaskName[taskName] = pollTimeout
-	log.Info("Updated poll timeout for task: ", taskName, " to: ", pollTimeout.Milliseconds(), "ms")
-	return nil
 }

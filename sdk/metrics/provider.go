@@ -13,8 +13,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -40,14 +40,12 @@ func ProvideMetrics(metricsSettings *settings.MetricsSettings) {
 		prometheus.MustRegister(gaugeByName[metricName])
 	}
 	collectionEnabled = true
-	
+
 	http.Handle(
 		metricsSettings.ApiEndpoint,
 		promhttp.HandlerFor(
 			prometheus.DefaultGatherer,
-			promhttp.HandlerOpts{
-				EnableOpenMetrics: true,
-			},
+			promhttp.HandlerOpts{},
 		),
 	)
 	portString := strconv.Itoa(metricsSettings.Port)
