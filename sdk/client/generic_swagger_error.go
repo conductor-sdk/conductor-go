@@ -18,14 +18,35 @@ type GenericSwaggerError struct {
 	model interface{}
 }
 
+type GenericSwaggerErrorV2 struct {
+	body  string
+	error string
+	model interface{}
+}
+
+// Error returns non-empty string if there was an error.
+func (e GenericSwaggerErrorV2) Error() string {
+	return fmt.Sprintf("error: %s, body: %s", e.error, e.body)
+}
+
+// Body returns the raw bytes of the response
+func (e GenericSwaggerErrorV2) Body() string {
+	return e.body
+}
+
+// Model returns the unpacked model of the error
+func (e GenericSwaggerErrorV2) Model() interface{} {
+	return e.model
+}
+
 // Error returns non-empty string if there was an error.
 func (e GenericSwaggerError) Error() string {
 	return fmt.Sprintf("error: %s, body: %s", e.error, e.body)
 }
 
 // Body returns the raw bytes of the response
-func (e GenericSwaggerError) Body() []byte {
-	return e.body
+func (e GenericSwaggerError) Body() string {
+	return string(e.body)
 }
 
 // Model returns the unpacked model of the error

@@ -252,8 +252,8 @@ func (a *ApplicationResourceApiService) CreateApplication(ctx context.Context, b
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
+		newErr := GenericSwaggerErrorV2{
+			body:  string(responseBody),
 			error: httpResponse.Status,
 		}
 		return nil, httpResponse, newErr
