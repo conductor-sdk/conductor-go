@@ -90,10 +90,7 @@ func (a *AuthorizationResourceApiService) GetPermissions(ctx context.Context, ty
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v interface{}
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -171,10 +168,7 @@ func (a *AuthorizationResourceApiService) GrantPermissions(ctx context.Context, 
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 
 		return httpResponse, newErr
 	}
@@ -243,10 +237,7 @@ func (a *AuthorizationResourceApiService) RemovePermissions(ctx context.Context,
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 
 		return httpResponse, newErr
 	}

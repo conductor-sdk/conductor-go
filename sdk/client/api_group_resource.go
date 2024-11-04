@@ -90,10 +90,7 @@ func (a *GroupResourceApiService) AddUserToGroup(ctx context.Context, groupId st
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v interface{}
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -168,10 +165,7 @@ func (a *GroupResourceApiService) AddUsersToGroup(ctx context.Context, body []st
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -238,10 +232,7 @@ func (a *GroupResourceApiService) DeleteGroup(ctx context.Context, id string) (*
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -313,10 +304,7 @@ func (a *GroupResourceApiService) GetGrantedPermissions1(ctx context.Context, gr
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v rbac.GrantedAccessResponse
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -398,10 +386,7 @@ func (a *GroupResourceApiService) GetGroup(ctx context.Context, id string) (inte
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v interface{}
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -483,10 +468,7 @@ func (a *GroupResourceApiService) GetUsersInGroup(ctx context.Context, id string
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v interface{}
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -566,10 +548,7 @@ func (a *GroupResourceApiService) ListGroups(ctx context.Context) ([]rbac.Group,
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v []rbac.Group
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -653,10 +632,7 @@ func (a *GroupResourceApiService) RemoveUserFromGroup(ctx context.Context, group
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v interface{}
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -731,10 +707,7 @@ func (a *GroupResourceApiService) RemoveUsersFromGroup(ctx context.Context, body
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -809,10 +782,7 @@ func (a *GroupResourceApiService) UpsertGroup(ctx context.Context, body rbac.Ups
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v interface{}
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))

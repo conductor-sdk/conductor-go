@@ -86,10 +86,7 @@ func (a *SecretResourceApiService) ClearLocalCache(ctx context.Context) (map[str
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v map[string]string
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -169,10 +166,7 @@ func (a *SecretResourceApiService) ClearRedisCache(ctx context.Context) (map[str
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v map[string]string
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -254,10 +248,7 @@ func (a *SecretResourceApiService) DeleteSecret(ctx context.Context, key string)
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v interface{}
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -332,10 +323,7 @@ func (a *SecretResourceApiService) DeleteTagForSecret(ctx context.Context, body 
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -407,10 +395,7 @@ func (a *SecretResourceApiService) GetSecret(ctx context.Context, key string) (s
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v string
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -492,10 +477,7 @@ func (a *SecretResourceApiService) GetTags(ctx context.Context, key string) ([]m
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v []model.Tag
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -575,10 +557,7 @@ func (a *SecretResourceApiService) ListAllSecretNames(ctx context.Context) ([]st
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v []string
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -658,10 +637,7 @@ func (a *SecretResourceApiService) ListSecretsThatUserCanGrantAccessTo(ctx conte
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v []string
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -741,10 +717,7 @@ func (a *SecretResourceApiService) ListSecretsWithTagsThatUserCanGrantAccessTo(c
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v []model.Secret
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -829,10 +802,7 @@ func (a *SecretResourceApiService) PutSecret(ctx context.Context, body string, k
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v interface{}
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -907,10 +877,7 @@ func (a *SecretResourceApiService) PutTagForSecret(ctx context.Context, body []m
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -982,10 +949,7 @@ func (a *SecretResourceApiService) SecretExists(ctx context.Context, key string)
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v interface{}
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))

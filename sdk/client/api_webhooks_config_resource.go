@@ -90,10 +90,7 @@ func (a *WebhooksConfigResourceApiService) CreateWebhook(ctx context.Context, bo
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v model.WebhookConfig
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -166,10 +163,7 @@ func (a *WebhooksConfigResourceApiService) DeleteTagForWebhook(ctx context.Conte
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -231,10 +225,7 @@ func (a *WebhooksConfigResourceApiService) DeleteWebhook(ctx context.Context, id
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -304,10 +295,7 @@ func (a *WebhooksConfigResourceApiService) GetAllWebhook(ctx context.Context) ([
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v []model.WebhookConfig
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -389,10 +377,7 @@ func (a *WebhooksConfigResourceApiService) GetTagsForWebhook(ctx context.Context
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v []model.Tag
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -474,10 +459,7 @@ func (a *WebhooksConfigResourceApiService) GetWebhook(ctx context.Context, id st
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v model.WebhookConfig
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -552,10 +534,7 @@ func (a *WebhooksConfigResourceApiService) PutTagForWebhook(ctx context.Context,
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -630,10 +609,7 @@ func (a *WebhooksConfigResourceApiService) UpdateWebhook(ctx context.Context, bo
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v model.WebhookConfig
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))

@@ -106,10 +106,7 @@ func (a *HumanTaskApiService) AssignAndClaim(ctx context.Context, taskId string,
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v human.HumanTaskEntry
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -191,10 +188,7 @@ func (a *HumanTaskApiService) BackPopulateFullTextIndex(ctx context.Context, var
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v map[string]interface{}
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -291,10 +285,7 @@ func (a *HumanTaskApiService) ClaimTask(ctx context.Context, taskId string, opti
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v human.HumanTaskEntry
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -367,10 +358,7 @@ func (a *HumanTaskApiService) DeleteTaskFromHumanTaskRecords(ctx context.Context
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -432,10 +420,7 @@ func (a *HumanTaskApiService) DeleteTaskFromHumanTaskRecords1(ctx context.Contex
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -497,10 +482,7 @@ func (a *HumanTaskApiService) DeleteTemplateByName(ctx context.Context, name str
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -564,10 +546,7 @@ func (a *HumanTaskApiService) DeleteTemplatesByNameAndVersion(ctx context.Contex
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -652,10 +631,7 @@ func (a *HumanTaskApiService) GetAllTemplates(ctx context.Context, optionals *Hu
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v []human.HumanTaskSearch
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -747,10 +723,7 @@ func (a *HumanTaskApiService) GetTask1(ctx context.Context, taskId string, optio
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v human.HumanTaskEntry
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -832,10 +805,7 @@ func (a *HumanTaskApiService) GetTaskDisplayNames(ctx context.Context, searchTyp
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v []string
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -919,10 +889,7 @@ func (a *HumanTaskApiService) GetTemplateByNameAndVersion(ctx context.Context, n
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v human.HumanTaskSearch
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -1004,10 +971,7 @@ func (a *HumanTaskApiService) GetTemplateByTaskId(ctx context.Context, humanTask
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v human.HumanTaskSearch
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -1082,10 +1046,7 @@ func (a *HumanTaskApiService) ReassignTask(ctx context.Context, body []human.Hum
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -1147,10 +1108,7 @@ func (a *HumanTaskApiService) ReleaseTask(ctx context.Context, taskId string) (*
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -1233,10 +1191,7 @@ func (a *HumanTaskApiService) SaveTemplate(ctx context.Context, body human.Human
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v human.HumanTaskSearch
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -1329,10 +1284,7 @@ func (a *HumanTaskApiService) SaveTemplates(ctx context.Context, body []human.Hu
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v []human.HumanTaskSearch
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -1415,10 +1367,7 @@ func (a *HumanTaskApiService) Search(ctx context.Context, body human.HumanTaskSe
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		if httpResponse.StatusCode == 200 {
 			var v human.HumanTaskSearchResult
 			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
@@ -1501,10 +1450,7 @@ func (a *HumanTaskApiService) SkipTask(ctx context.Context, taskId string, optio
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -1580,10 +1526,7 @@ func (a *HumanTaskApiService) UpdateTaskOutput(ctx context.Context, body map[str
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -1666,10 +1609,7 @@ func (a *HumanTaskApiService) UpdateTaskOutputByRef(ctx context.Context, body ma
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
