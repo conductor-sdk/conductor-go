@@ -92,16 +92,6 @@ func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (model.Heal
 
 	if localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		if localVarHttpResponse.StatusCode == 200 {
-			var v model.HealthCheckStatus
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 

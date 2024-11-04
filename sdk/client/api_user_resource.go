@@ -98,16 +98,6 @@ func (a *UserResourceApiService) CheckPermissions(ctx context.Context, userId st
 
 	if httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
 		return returnValue, httpResponse, newErr
 	}
 
@@ -248,16 +238,6 @@ func (a *UserResourceApiService) GetGrantedPermissions(ctx context.Context, user
 
 	if httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
 		return returnValue, httpResponse, newErr
 	}
 
@@ -406,16 +386,6 @@ func (a *UserResourceApiService) ListUsers(ctx context.Context, optionals *UserR
 
 	if httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		if httpResponse.StatusCode == 200 {
-			var v []rbac.ConductorUser
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
 		return returnValue, httpResponse, newErr
 	}
 

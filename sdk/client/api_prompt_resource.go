@@ -288,16 +288,6 @@ func (a *PromptResourceApiService) GetMessageTemplates(ctx context.Context) ([]i
 
 	if httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		if httpResponse.StatusCode == 200 {
-			var v []integration.PromptTemplate
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
 		return returnValue, httpResponse, newErr
 	}
 
@@ -370,16 +360,6 @@ func (a *PromptResourceApiService) GetTagsForPromptTemplate(ctx context.Context,
 
 	if httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		if httpResponse.StatusCode == 200 {
-			var v []model.Tag
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
 		return returnValue, httpResponse, newErr
 	}
 
@@ -596,16 +576,6 @@ func (a *PromptResourceApiService) TestMessageTemplate(ctx context.Context, body
 
 	if httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		if httpResponse.StatusCode == 200 {
-			var v string
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
 		return returnValue, httpResponse, newErr
 	}
 

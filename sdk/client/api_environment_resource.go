@@ -155,16 +155,6 @@ func (a *EnvironmentResourceApiService) DeleteEnvVariable(ctx context.Context, k
 
 	if httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		if httpResponse.StatusCode == 200 {
-			var v string
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
 		return returnValue, httpResponse, newErr
 	}
 
@@ -302,16 +292,6 @@ func (a *EnvironmentResourceApiService) Get(ctx context.Context, key string) (st
 
 	if httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		if httpResponse.StatusCode == 200 {
-			var v string
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
 		return returnValue, httpResponse, newErr
 	}
 
@@ -382,16 +362,6 @@ func (a *EnvironmentResourceApiService) GetAll(ctx context.Context) ([]model.Env
 
 	if httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		if httpResponse.StatusCode == 200 {
-			var v []model.EnvironmentVariable
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
 		return returnValue, httpResponse, newErr
 	}
 
@@ -464,16 +434,6 @@ func (a *EnvironmentResourceApiService) GetTagsForEnvVar(ctx context.Context, na
 
 	if httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		if httpResponse.StatusCode == 200 {
-			var v []model.Tag
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
 		return returnValue, httpResponse, newErr
 	}
 
