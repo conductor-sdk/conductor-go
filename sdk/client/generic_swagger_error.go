@@ -13,9 +13,10 @@ import "fmt"
 
 // GenericSwaggerError Provides access to the body, error and model on returned errors.
 type GenericSwaggerError struct {
-	body  []byte
-	error string
-	model interface{}
+	body       []byte
+	error      string
+	model      interface{}
+	statusCode int
 }
 
 // Error returns non-empty string if there was an error.
@@ -31,4 +32,17 @@ func (e GenericSwaggerError) Body() []byte {
 // Model returns the unpacked model of the error
 func (e GenericSwaggerError) Model() interface{} {
 	return e.model
+}
+
+func (e GenericSwaggerError) StatusCode() int {
+	return e.statusCode
+}
+
+func NewGenericSwaggerError(body []byte, errorMsg string, model interface{}, statusCode int) GenericSwaggerError {
+	return GenericSwaggerError{
+		body:       body,
+		error:      errorMsg,
+		model:      model,
+		statusCode: statusCode,
+	}
 }
