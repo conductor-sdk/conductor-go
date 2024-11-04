@@ -29,7 +29,8 @@ type HealthCheckResourceApiService struct {
 
 /*
 HealthCheckResourceApiService
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+
 @return http_model.HealthCheckStatus
 */
 func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (model.HealthCheckStatus, *http.Response, error) {
@@ -90,10 +91,7 @@ func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (model.Heal
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		if localVarHttpResponse.StatusCode == 200 {
 			var v model.HealthCheckStatus
 			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
