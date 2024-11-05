@@ -209,6 +209,8 @@ func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTask
 			IncludeTasks: optional.NewBool(includeTasks)},
 	)
 
+	// 404s in GetWorkflow are a bit inconsistent with other errors since
+	// it's using fmt.Errorf("..."). Keeping it this way to avoid breaking changes
 	if response.StatusCode == 404 {
 		return nil, fmt.Errorf("no such workflow by Id %s", workflowId)
 	}
@@ -400,7 +402,7 @@ func (e *WorkflowExecutor) ReRun(workflowId string, reRunRequest model.RerunWork
 	if err != nil {
 		return "", err
 	}
-	return id, err
+	return id, nil
 }
 
 // SkipTasksFromWorkflow Skips a given task execution from a current running workflow.
@@ -425,7 +427,10 @@ func (e *WorkflowExecutor) UpdateTask(taskId string, workflowInstanceId string, 
 		return err
 	}
 	taskResult.Status = status
-	e.taskClient.UpdateTask(context.Background(), taskResult)
+	_, _, err = e.taskClient.UpdateTask(context.Background(), taskResult)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
