@@ -200,7 +200,7 @@ func TestApplicationClientErrorHandling(t *testing.T) {
 	// Assume error handling in client converts HTTP 404 to specific Go error; response might not be accessible directly
 
 	// Try to get tags for a non-existent application
-	_, resp, err = appClient.GetTagsForApplication(ctx, invalidAppId)
+	_, _, err = appClient.GetTagsForApplication(ctx, invalidAppId)
 	assert.Nil(t, err)
 
 	// Try to delete a tag from a non-existent application

@@ -349,3 +349,7 @@ func addFile(w *multipart.Writer, fieldName, path string) error {
 
 	return err
 }
+
+func isSuccessfulStatus(statusCode int) bool {
+	return statusCode >= 200 && statusCode < 300
+}
