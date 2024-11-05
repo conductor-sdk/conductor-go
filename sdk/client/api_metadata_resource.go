@@ -88,10 +88,7 @@ func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, ov
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
 
@@ -165,10 +162,7 @@ func (a *MetadataResourceApiService) RegisterWorkflowDefWithTags(ctx context.Con
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
 
@@ -250,20 +244,7 @@ func (a *MetadataResourceApiService) Get(ctx context.Context, name string, local
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v model.WorkflowDef
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -334,20 +315,7 @@ func (a *MetadataResourceApiService) GetAll(ctx context.Context) ([]model.Workfl
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v []model.WorkflowDef
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -420,20 +388,7 @@ func (a *MetadataResourceApiService) GetTaskDef(ctx context.Context, tasktype st
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v model.TaskDef
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -504,20 +459,7 @@ func (a *MetadataResourceApiService) GetTaskDefs(ctx context.Context) ([]model.T
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v []model.TaskDef
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -580,10 +522,7 @@ func (a *MetadataResourceApiService) UpdateTaskDef(ctx context.Context, body mod
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
 
@@ -655,10 +594,7 @@ func (a *MetadataResourceApiService) UpdateTaskDefWithTags(ctx context.Context, 
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
 
@@ -721,10 +657,7 @@ func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body [
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
 
@@ -797,10 +730,7 @@ func (a *MetadataResourceApiService) RegisterTaskDefWithTags(ctx context.Context
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
 
@@ -862,10 +792,7 @@ func (a *MetadataResourceApiService) UnregisterTaskDef(ctx context.Context, task
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
 
@@ -929,10 +856,7 @@ func (a *MetadataResourceApiService) UnregisterWorkflowDef(ctx context.Context, 
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
 
@@ -995,10 +919,7 @@ func (a *MetadataResourceApiService) Update(ctx context.Context, body []model.Wo
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
 
@@ -1071,10 +992,7 @@ func (a *MetadataResourceApiService) UpdateWorkflowDefWithTags(ctx context.Conte
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
 
@@ -1149,10 +1067,7 @@ func (a *MetadataResourceApiService) GetTagsForWorkflowDef(ctx context.Context, 
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, newErr
 	}
 
@@ -1226,10 +1141,7 @@ func (a *MetadataResourceApiService) GetTagsForTaskDef(ctx context.Context, task
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, newErr
 	}
 

@@ -217,6 +217,7 @@ func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTask
 		return nil, err
 	}
 	if err != nil {
+
 		if retry < 0 {
 			return nil, err
 		} else {
@@ -313,7 +314,7 @@ func (e *WorkflowExecutor) Pause(workflowId string) error {
 	if err != nil {
 		return err
 	}
-	return err
+	return nil
 }
 
 // Resume the execution of a workflow that is paused.  If the workflow is not paused, this method has no effect
@@ -322,7 +323,7 @@ func (e *WorkflowExecutor) Resume(workflowId string) error {
 	if err != nil {
 		return err
 	}
-	return err
+	return nil
 }
 
 // Terminate a running workflow.  Reason must be provided that is captured as the termination resaon for the workflow
@@ -338,7 +339,7 @@ func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error {
 	if err != nil {
 		return err
 	}
-	return err
+	return nil
 }
 
 func (e *WorkflowExecutor) TerminateWithFailure(workflowId string, reason string, triggerFailureWorkflow bool) error {
@@ -353,7 +354,7 @@ func (e *WorkflowExecutor) TerminateWithFailure(workflowId string, reason string
 	if err != nil {
 		return err
 	}
-	return err
+	return nil
 }
 
 // Restart a workflow execution from the beginning with the same input.
@@ -369,7 +370,7 @@ func (e *WorkflowExecutor) Restart(workflowId string, useLatestDefinition bool) 
 	if err != nil {
 		return err
 	}
-	return err
+	return nil
 }
 
 // Retry a failed workflow from the last task that failed.  When called the task in the failed state is scheduled again
@@ -384,9 +385,9 @@ func (e *WorkflowExecutor) Retry(workflowId string, resumeSubworkflowTasks bool)
 		},
 	)
 	if err != nil {
-		return nil
+		return err
 	}
-	return err
+	return nil
 }
 
 // ReRun a completed workflow from a specific task (ReRunFromTaskId) and optionally change the input

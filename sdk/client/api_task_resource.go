@@ -98,20 +98,7 @@ func (a *TaskResourceApiService) All(ctx context.Context) (map[string]int64, *ht
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v map[string]int64
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -182,20 +169,7 @@ func (a *TaskResourceApiService) AllVerbose(ctx context.Context) (map[string]map
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v map[string]map[string]map[string]int64
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -292,20 +266,7 @@ func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string,
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v []model.Task
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -376,20 +337,7 @@ func (a *TaskResourceApiService) GetAllPollData(ctx context.Context) ([]model.Po
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v []model.PollData
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -466,20 +414,7 @@ func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v model.ExternalStorageLocation
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -552,20 +487,7 @@ func (a *TaskResourceApiService) GetPollData(ctx context.Context, taskType strin
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v []model.PollData
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -638,20 +560,7 @@ func (a *TaskResourceApiService) GetTask(ctx context.Context, taskId string) (mo
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v model.Task
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -724,20 +633,7 @@ func (a *TaskResourceApiService) GetTaskLogs(ctx context.Context, taskId string)
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v []model.TaskExecLog
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -802,10 +698,7 @@ func (a *TaskResourceApiService) Log(ctx context.Context, body string, taskId st
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
 
@@ -892,20 +785,7 @@ func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, loca
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v model.Task
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -978,20 +858,7 @@ func (a *TaskResourceApiService) RequeuePendingTask(ctx context.Context, taskTyp
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v string
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -1092,20 +959,7 @@ func (a *TaskResourceApiService) Search(ctx context.Context, localVarOptionals *
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v model.SearchResultTaskSummary
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -1206,20 +1060,7 @@ func (a *TaskResourceApiService) SearchV2(ctx context.Context, localVarOptionals
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v model.SearchResultTask
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -1299,20 +1140,7 @@ func (a *TaskResourceApiService) Size(ctx context.Context, localVarOptionals *Ta
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v map[string]int32
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -1387,20 +1215,7 @@ func (a *TaskResourceApiService) UpdateTask(ctx context.Context, taskResult *mod
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v string
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -1506,20 +1321,7 @@ func (a *TaskResourceApiService) updateTaskByRefName(ctx context.Context, body m
 	}
 
 	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  localVarBody,
-			error: string(localVarBody),
-		}
-		if localVarHttpResponse.StatusCode == 200 {
-			var v string
-			err = a.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			newErr.model = v
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 

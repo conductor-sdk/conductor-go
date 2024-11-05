@@ -89,20 +89,7 @@ func (a *SchedulerResourceApiService) DeleteSchedule(ctx context.Context, name s
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -167,10 +154,7 @@ func (a *SchedulerResourceApiService) DeleteTagForSchedule(ctx context.Context, 
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -250,20 +234,7 @@ func (a *SchedulerResourceApiService) GetAllSchedules(ctx context.Context, optio
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v []model.WorkflowScheduleModel
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -355,20 +326,7 @@ func (a *SchedulerResourceApiService) GetNextFewSchedules(ctx context.Context, c
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v []int64
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -440,20 +398,7 @@ func (a *SchedulerResourceApiService) GetSchedule(ctx context.Context, name stri
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v model.WorkflowSchedule
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -525,20 +470,7 @@ func (a *SchedulerResourceApiService) GetTagsForSchedule(ctx context.Context, na
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v []model.Tag
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -608,20 +540,7 @@ func (a *SchedulerResourceApiService) PauseAllSchedules(ctx context.Context) (ma
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v map[string]interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -693,20 +612,7 @@ func (a *SchedulerResourceApiService) PauseSchedule(ctx context.Context, name st
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -771,10 +677,7 @@ func (a *SchedulerResourceApiService) PutTagForSchedule(ctx context.Context, bod
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -844,20 +747,7 @@ func (a *SchedulerResourceApiService) RequeueAllExecutionRecords(ctx context.Con
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v map[string]interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -927,20 +817,7 @@ func (a *SchedulerResourceApiService) ResumeAllSchedules(ctx context.Context) (m
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v map[string]interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -1012,20 +889,7 @@ func (a *SchedulerResourceApiService) ResumeSchedule(ctx context.Context, name s
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -1098,20 +962,7 @@ func (a *SchedulerResourceApiService) SaveSchedule(ctx context.Context, body mod
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -1212,20 +1063,7 @@ func (a *SchedulerResourceApiService) SearchV2(ctx context.Context, optionals *S
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v model.SearchResultWorkflowSchedule
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 

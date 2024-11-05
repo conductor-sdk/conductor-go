@@ -97,20 +97,7 @@ func (a *UserResourceApiService) CheckPermissions(ctx context.Context, userId st
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -178,10 +165,7 @@ func (a *UserResourceApiService) DeleteUser(ctx context.Context, id string) (*ht
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -253,20 +237,7 @@ func (a *UserResourceApiService) GetGrantedPermissions(ctx context.Context, user
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -338,10 +309,7 @@ func (a *UserResourceApiService) GetUser(ctx context.Context, id string) (*rbac.
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return nil, httpResponse, newErr
 	}
 
@@ -417,20 +385,7 @@ func (a *UserResourceApiService) ListUsers(ctx context.Context, optionals *UserR
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v []rbac.ConductorUser
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -505,10 +460,7 @@ func (a *UserResourceApiService) UpsertUser(ctx context.Context, body rbac.Upser
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return nil, httpResponse, newErr
 	}
 

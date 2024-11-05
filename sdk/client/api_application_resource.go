@@ -91,20 +91,7 @@ func (a *ApplicationResourceApiService) AddRoleToApplicationUser(ctx context.Con
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -176,10 +163,7 @@ func (a *ApplicationResourceApiService) CreateAccessKey(ctx context.Context, id 
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return nil, httpResponse, newErr
 	}
 
@@ -252,10 +236,7 @@ func (a *ApplicationResourceApiService) CreateApplication(ctx context.Context, b
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return nil, httpResponse, newErr
 	}
 
@@ -329,10 +310,7 @@ func (a *ApplicationResourceApiService) DeleteAccessKey(ctx context.Context, app
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -404,20 +382,7 @@ func (a *ApplicationResourceApiService) DeleteApplication(ctx context.Context, i
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -482,10 +447,7 @@ func (a *ApplicationResourceApiService) DeleteTagForApplication(ctx context.Cont
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -557,10 +519,7 @@ func (a *ApplicationResourceApiService) GetAccessKeys(ctx context.Context, id st
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -632,20 +591,7 @@ func (a *ApplicationResourceApiService) GetAppByAccessKeyId(ctx context.Context,
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -717,10 +663,7 @@ func (a *ApplicationResourceApiService) GetApplication(ctx context.Context, id s
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return nil, httpResponse, newErr
 	}
 
@@ -792,20 +735,7 @@ func (a *ApplicationResourceApiService) GetTagsForApplication(ctx context.Contex
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v []model.Tag
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -875,20 +805,7 @@ func (a *ApplicationResourceApiService) ListApplications(ctx context.Context) ([
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v []rbac.ConductorApplication
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -953,10 +870,7 @@ func (a *ApplicationResourceApiService) PutTagForApplication(ctx context.Context
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
 
@@ -1030,20 +944,7 @@ func (a *ApplicationResourceApiService) RemoveRoleFromApplicationUser(ctx contex
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -1117,20 +1018,7 @@ func (a *ApplicationResourceApiService) ToggleAccessKeyStatus(ctx context.Contex
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
@@ -1205,10 +1093,7 @@ func (a *ApplicationResourceApiService) UpdateApplication(ctx context.Context, b
 	}
 
 	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return nil, httpResponse, newErr
 	}
 
