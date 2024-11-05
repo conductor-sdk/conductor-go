@@ -1,25 +1,92 @@
 package integration_tests
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/conductor-sdk/conductor-go/sdk/client"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/test/testdata"
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	// IDs are hardcoded on purpose. It should not be found.
+	notFoundWorkflowId = "2b3ea839-9aeb-11ef-9ac5-ce590b39fb93"
+	notFoundTaskId     = "75c6875d-9ba8-11ef-82ba-0680bfba1f84"
+)
+
 func TestRetryNotFound(t *testing.T) {
 	executor := testdata.WorkflowExecutor
-	// Workflow id is hardcoded on purpose. It should not be found.
-	err := executor.Retry("2b3ea839-9aeb-11ef-9ac5-ce590b39fb93", true)
+
+	err := executor.Retry(notFoundWorkflowId, true)
 	assert.Error(t, err, "Retry is expected to return an error")
 
 	if swaggerErr, ok := err.(client.GenericSwaggerError); ok {
-		// hmm... this should be a 404 or 400, but it's a 500 right now.
-		assert.Error(t, err, "GetWorkflow was expected to return a 500 error")
-		assert.Equal(t, 500, swaggerErr.StatusCode())
+		assert.Equal(t, 500, swaggerErr.StatusCode()) //TODO on test server update, should be a 404
 	} else {
-		assert.Fail(t, "err is not of type GenericSwaggerError ")
+		assert.Fail(t, "err is not of type GenericSwaggerError")
 	}
+}
 
+func TestRegisterWorkflow(t *testing.T) {
+	executor := testdata.WorkflowExecutor
+
+	wf := workflow.ConductorWorkflow{}
+	wf.Name("registration_test_wf").
+		Description("E2E test - Workflow Registration test").
+		Version(1).
+		Add(workflow.NewSimpleTask(
+			"SIMPLE", "simple_ref",
+		))
+
+	// register the workflow
+	err := executor.RegisterWorkflow(true, wf.ToWorkflowDef())
+	assert.Nil(t, err)
+
+	// modify the workflow and register with overwrite: false, to force a 409
+	wf.Add(workflow.NewSimpleTask(
+		"SIMPLE", "simple_ref_2",
+	))
+	err = executor.RegisterWorkflow(false, wf.ToWorkflowDef())
+	assert.Error(t, err, "Retry is expected to return an error")
+
+	if swaggerErr, ok := err.(client.GenericSwaggerError); ok {
+		assert.Equal(t, 409, swaggerErr.StatusCode())
+	} else {
+		assert.Fail(t, "err is not of type GenericSwaggerError")
+	}
+}
+
+func TestGetWorkflow(t *testing.T) {
+	executor := testdata.WorkflowExecutor
+
+	wf, err := executor.GetWorkflow(notFoundWorkflowId, false)
+
+	assert.Nil(t, wf)
+	assert.Error(t, err, "GetWorkflow is expected to return an error")
+	assert.Equal(t, fmt.Sprintf("no such workflow by Id %s", notFoundWorkflowId), err.Error())
+}
+
+func TestUpdateTaskByRefName(t *testing.T) {
+	executor := testdata.WorkflowExecutor
+	err := executor.UpdateTaskByRefName("task_ref", notFoundWorkflowId, model.CompletedTask, map[string]interface{}{})
+	assert.Error(t, err, "UpdateTaskByRefName is expected to return an error")
+	if swaggerErr, ok := err.(client.GenericSwaggerError); ok {
+		assert.Equal(t, 500, swaggerErr.StatusCode()) //TODO on test server update, should be a 404
+	} else {
+		assert.Fail(t, "err is not of type GenericSwaggerError")
+	}
+}
+
+func TestUpdate(t *testing.T) {
+	executor := testdata.WorkflowExecutor
+	err := executor.UpdateTask(notFoundTaskId, notFoundWorkflowId, model.CompletedTask, map[string]interface{}{})
+	assert.Error(t, err, "UpdateTask is expected to return an error")
+	if swaggerErr, ok := err.(client.GenericSwaggerError); ok {
+		assert.Equal(t, 404, swaggerErr.StatusCode())
+	} else {
+		assert.Fail(t, "err is not of type GenericSwaggerError")
+	}
 }
