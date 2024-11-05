@@ -89,7 +89,7 @@ func (a *WebhooksConfigResourceApiService) CreateWebhook(ctx context.Context, bo
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -152,7 +152,7 @@ func (a *WebhooksConfigResourceApiService) DeleteTagForWebhook(ctx context.Conte
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -214,7 +214,7 @@ func (a *WebhooksConfigResourceApiService) DeleteWebhook(ctx context.Context, id
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -284,7 +284,7 @@ func (a *WebhooksConfigResourceApiService) GetAllWebhook(ctx context.Context) ([
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -356,7 +356,7 @@ func (a *WebhooksConfigResourceApiService) GetTagsForWebhook(ctx context.Context
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -428,7 +428,7 @@ func (a *WebhooksConfigResourceApiService) GetWebhook(ctx context.Context, id st
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -493,7 +493,7 @@ func (a *WebhooksConfigResourceApiService) PutTagForWebhook(ctx context.Context,
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -568,7 +568,7 @@ func (a *WebhooksConfigResourceApiService) UpdateWebhook(ctx context.Context, bo
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}

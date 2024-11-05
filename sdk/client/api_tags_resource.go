@@ -91,7 +91,7 @@ func (a *TagsApiService) AddTaskTag(ctx context.Context, body model.TagObject, t
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -180,7 +180,7 @@ func (a *TagsApiService) AddWorkflowTag(ctx context.Context, body model.TagObjec
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -269,7 +269,7 @@ func (a *TagsApiService) DeleteTaskTag(ctx context.Context, body model.TagString
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -358,7 +358,7 @@ func (a *TagsApiService) DeleteWorkflowTag(ctx context.Context, body model.TagOb
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -442,7 +442,7 @@ func (a *TagsApiService) GetTags1(ctx context.Context) ([]model.TagObject, *http
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -528,7 +528,7 @@ func (a *TagsApiService) GetTaskTags(ctx context.Context, taskName string) ([]mo
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -616,7 +616,7 @@ func (a *TagsApiService) GetWorkflowTags(ctx context.Context, name string) ([]mo
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -705,7 +705,7 @@ func (a *TagsApiService) SetTaskTags(ctx context.Context, body []model.TagObject
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -794,7 +794,7 @@ func (a *TagsApiService) SetWorkflowTags(ctx context.Context, body []model.TagOb
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,

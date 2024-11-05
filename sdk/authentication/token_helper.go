@@ -79,7 +79,7 @@ func GetToken(credentials settings.AuthenticationSettings, httpSettings *setting
 			return localVarReturnValue, localVarHttpResponse, err
 		}
 	}
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := fmt.Errorf(string(localVarBody))
 		if localVarHttpResponse.StatusCode == 200 {
 			var v model.Task

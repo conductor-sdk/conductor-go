@@ -85,7 +85,7 @@ func (a *SecretResourceApiService) ClearLocalCache(ctx context.Context) (map[str
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -155,7 +155,7 @@ func (a *SecretResourceApiService) ClearRedisCache(ctx context.Context) (map[str
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -227,7 +227,7 @@ func (a *SecretResourceApiService) DeleteSecret(ctx context.Context, key string)
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -292,7 +292,7 @@ func (a *SecretResourceApiService) DeleteTagForSecret(ctx context.Context, body 
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -364,7 +364,7 @@ func (a *SecretResourceApiService) GetSecret(ctx context.Context, key string) (s
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -436,7 +436,7 @@ func (a *SecretResourceApiService) GetTags(ctx context.Context, key string) ([]m
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -506,7 +506,7 @@ func (a *SecretResourceApiService) ListAllSecretNames(ctx context.Context) ([]st
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -576,7 +576,7 @@ func (a *SecretResourceApiService) ListSecretsThatUserCanGrantAccessTo(ctx conte
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -646,7 +646,7 @@ func (a *SecretResourceApiService) ListSecretsWithTagsThatUserCanGrantAccessTo(c
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -721,7 +721,7 @@ func (a *SecretResourceApiService) PutSecret(ctx context.Context, body string, k
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 || httpResponse.StatusCode >= 300 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -786,7 +786,7 @@ func (a *SecretResourceApiService) PutTagForSecret(ctx context.Context, body []m
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -858,7 +858,7 @@ func (a *SecretResourceApiService) SecretExists(ctx context.Context, key string)
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}

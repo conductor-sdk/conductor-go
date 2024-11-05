@@ -81,7 +81,7 @@ func (a *EnvironmentResourceApiService) CreateOrUpdateEnvVariable(ctx context.Co
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -153,7 +153,7 @@ func (a *EnvironmentResourceApiService) DeleteEnvVariable(ctx context.Context, k
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -218,7 +218,7 @@ func (a *EnvironmentResourceApiService) DeleteTagForEnvVar(ctx context.Context, 
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -290,7 +290,7 @@ func (a *EnvironmentResourceApiService) Get(ctx context.Context, key string) (st
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -360,7 +360,7 @@ func (a *EnvironmentResourceApiService) GetAll(ctx context.Context) ([]model.Env
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -432,7 +432,7 @@ func (a *EnvironmentResourceApiService) GetTagsForEnvVar(ctx context.Context, na
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -497,7 +497,7 @@ func (a *EnvironmentResourceApiService) PutTagForEnvVar(ctx context.Context, bod
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}

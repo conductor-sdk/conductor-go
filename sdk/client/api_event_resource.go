@@ -78,7 +78,7 @@ func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body mode
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -144,7 +144,7 @@ func (a *EventResourceApiService) DeleteQueueConfig(ctx context.Context, queueTy
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -217,7 +217,7 @@ func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]model
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -311,7 +311,7 @@ func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, 
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -398,7 +398,7 @@ func (a *EventResourceApiService) GetQueueConfig(ctx context.Context, queueType 
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -481,7 +481,7 @@ func (a *EventResourceApiService) GetQueueNames(ctx context.Context) (map[string
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -560,7 +560,7 @@ func (a *EventResourceApiService) PutQueueConfig(ctx context.Context, body strin
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -624,7 +624,7 @@ func (a *EventResourceApiService) RemoveEventHandler(ctx context.Context, name s
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -689,7 +689,7 @@ func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body m
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,

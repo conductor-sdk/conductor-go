@@ -46,3 +46,12 @@ func NewGenericSwaggerError(body []byte, errorMsg string, model interface{}, sta
 		statusCode: statusCode,
 	}
 }
+
+func WrapErrorMessage(err GenericSwaggerError, errorMsg string) GenericSwaggerError {
+	return GenericSwaggerError{
+		body:       err.body,
+		error:      errorMsg,
+		model:      err.model,
+		statusCode: err.statusCode,
+	}
+}

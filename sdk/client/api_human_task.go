@@ -105,7 +105,7 @@ func (a *HumanTaskApiService) AssignAndClaim(ctx context.Context, taskId string,
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -177,7 +177,7 @@ func (a *HumanTaskApiService) BackPopulateFullTextIndex(ctx context.Context, var
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -264,7 +264,7 @@ func (a *HumanTaskApiService) ClaimTask(ctx context.Context, taskId string, opti
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -327,7 +327,7 @@ func (a *HumanTaskApiService) DeleteTaskFromHumanTaskRecords(ctx context.Context
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -389,7 +389,7 @@ func (a *HumanTaskApiService) DeleteTaskFromHumanTaskRecords1(ctx context.Contex
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -451,7 +451,7 @@ func (a *HumanTaskApiService) DeleteTemplateByName(ctx context.Context, name str
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -515,7 +515,7 @@ func (a *HumanTaskApiService) DeleteTemplatesByNameAndVersion(ctx context.Contex
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -600,7 +600,7 @@ func (a *HumanTaskApiService) GetAllTemplates(ctx context.Context, optionals *Hu
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 || httpResponse.StatusCode >= 300 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -682,7 +682,7 @@ func (a *HumanTaskApiService) GetTask1(ctx context.Context, taskId string, optio
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -754,7 +754,7 @@ func (a *HumanTaskApiService) GetTaskDisplayNames(ctx context.Context, searchTyp
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -828,7 +828,7 @@ func (a *HumanTaskApiService) GetTemplateByNameAndVersion(ctx context.Context, n
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -900,7 +900,7 @@ func (a *HumanTaskApiService) GetTemplateByTaskId(ctx context.Context, humanTask
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -965,7 +965,7 @@ func (a *HumanTaskApiService) ReassignTask(ctx context.Context, body []human.Hum
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -1027,7 +1027,7 @@ func (a *HumanTaskApiService) ReleaseTask(ctx context.Context, taskId string) (*
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -1110,7 +1110,7 @@ func (a *HumanTaskApiService) SaveTemplate(ctx context.Context, body human.Human
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -1193,7 +1193,7 @@ func (a *HumanTaskApiService) SaveTemplates(ctx context.Context, body []human.Hu
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -1266,7 +1266,7 @@ func (a *HumanTaskApiService) Search(ctx context.Context, body human.HumanTaskSe
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 || httpResponse.StatusCode >= 300 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -1339,7 +1339,7 @@ func (a *HumanTaskApiService) SkipTask(ctx context.Context, taskId string, optio
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -1415,7 +1415,7 @@ func (a *HumanTaskApiService) UpdateTaskOutput(ctx context.Context, body map[str
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -1498,7 +1498,7 @@ func (a *HumanTaskApiService) UpdateTaskOutputByRef(ctx context.Context, body ma
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}

@@ -96,7 +96,7 @@ func (a *UserResourceApiService) CheckPermissions(ctx context.Context, userId st
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -164,7 +164,7 @@ func (a *UserResourceApiService) DeleteUser(ctx context.Context, id string) (*ht
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return httpResponse, newErr
 	}
@@ -236,7 +236,7 @@ func (a *UserResourceApiService) GetGrantedPermissions(ctx context.Context, user
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -308,7 +308,7 @@ func (a *UserResourceApiService) GetUser(ctx context.Context, id string) (*rbac.
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return nil, httpResponse, newErr
 	}
@@ -384,7 +384,7 @@ func (a *UserResourceApiService) ListUsers(ctx context.Context, optionals *UserR
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
@@ -459,7 +459,7 @@ func (a *UserResourceApiService) UpsertUser(ctx context.Context, body rbac.Upser
 		}
 	}
 
-	if httpResponse.StatusCode >= 300 {
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return nil, httpResponse, newErr
 	}

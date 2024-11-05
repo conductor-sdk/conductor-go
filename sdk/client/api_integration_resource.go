@@ -84,7 +84,7 @@ func (a *IntegrationResourceApiService) AssociatePromptWithIntegration(ctx conte
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -151,7 +151,7 @@ func (a *IntegrationResourceApiService) DeleteIntegrationApi(ctx context.Context
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -216,7 +216,7 @@ func (a *IntegrationResourceApiService) DeleteIntegrationProvider(ctx context.Co
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -286,7 +286,7 @@ func (a *IntegrationResourceApiService) DeleteTagForIntegration(ctx context.Cont
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -354,7 +354,7 @@ func (a *IntegrationResourceApiService) DeleteTagForIntegrationProvider(ctx cont
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -432,7 +432,7 @@ func (a *IntegrationResourceApiService) GetIntegrationApi(ctx context.Context, n
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -523,7 +523,7 @@ func (a *IntegrationResourceApiService) GetIntegrationApis(ctx context.Context, 
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -609,7 +609,7 @@ func (a *IntegrationResourceApiService) GetIntegrationAvailableApis(ctx context.
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -695,7 +695,7 @@ func (a *IntegrationResourceApiService) GetIntegrationProvider(ctx context.Conte
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -788,7 +788,7 @@ func (a *IntegrationResourceApiService) GetIntegrationProviders(ctx context.Cont
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -876,7 +876,7 @@ func (a *IntegrationResourceApiService) GetPromptsWithIntegration(ctx context.Co
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -974,7 +974,7 @@ func (a *IntegrationResourceApiService) GetProvidersAndIntegrations(ctx context.
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -1062,7 +1062,7 @@ func (a *IntegrationResourceApiService) GetTagsForIntegration(ctx context.Contex
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -1148,7 +1148,7 @@ func (a *IntegrationResourceApiService) GetTagsForIntegrationProvider(ctx contex
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -1236,7 +1236,7 @@ func (a *IntegrationResourceApiService) GetTokenUsageForIntegration(ctx context.
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -1322,7 +1322,7 @@ func (a *IntegrationResourceApiService) GetTokenUsageForIntegrationProvider(ctx 
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -1402,7 +1402,7 @@ func (a *IntegrationResourceApiService) UpdateTagForIntegration(ctx context.Cont
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -1470,7 +1470,7 @@ func (a *IntegrationResourceApiService) UpdateTagForIntegrationProvider(ctx cont
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -1540,7 +1540,7 @@ func (a *IntegrationResourceApiService) SaveIntegrationApi(ctx context.Context, 
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -1608,7 +1608,7 @@ func (a *IntegrationResourceApiService) SaveIntegrationProvider(ctx context.Cont
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,

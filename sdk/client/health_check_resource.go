@@ -90,7 +90,7 @@ func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (model.Heal
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}

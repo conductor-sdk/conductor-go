@@ -83,7 +83,7 @@ func (a *WorkflowResourceApiService) Decide(ctx context.Context, workflowId stri
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
@@ -156,7 +156,7 @@ func (a *WorkflowResourceApiService) Delete(ctx context.Context, workflowId stri
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
@@ -238,7 +238,7 @@ func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, wor
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
@@ -306,7 +306,7 @@ func (a *WorkflowResourceApiService) GetWorkflowState(ctx context.Context, workf
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
@@ -383,7 +383,7 @@ func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Cont
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
@@ -475,7 +475,7 @@ func (a *WorkflowResourceApiService) GetRunningWorkflow(ctx context.Context, nam
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
@@ -560,7 +560,7 @@ func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []st
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
@@ -632,7 +632,7 @@ func (a *WorkflowResourceApiService) GetWorkflowsBatch(ctx context.Context, body
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
@@ -724,7 +724,7 @@ func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name str
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
@@ -786,7 +786,7 @@ func (a *WorkflowResourceApiService) PauseWorkflow(ctx context.Context, workflow
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
@@ -862,7 +862,7 @@ func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body model.Rerun
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
@@ -924,7 +924,7 @@ func (a *WorkflowResourceApiService) ResetWorkflow(ctx context.Context, workflow
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
@@ -997,7 +997,7 @@ func (a *WorkflowResourceApiService) Restart(ctx context.Context, workflowId str
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
@@ -1059,7 +1059,7 @@ func (a *WorkflowResourceApiService) ResumeWorkflow(ctx context.Context, workflo
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
@@ -1132,7 +1132,7 @@ func (a *WorkflowResourceApiService) Retry(ctx context.Context, workflowId strin
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
@@ -1233,7 +1233,7 @@ func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptiona
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
@@ -1334,7 +1334,7 @@ func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptio
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
@@ -1435,7 +1435,7 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context,
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
@@ -1536,7 +1536,7 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Contex
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		if localVarHttpResponse.StatusCode == 200 {
 			var v model.SearchResultWorkflow
@@ -1612,7 +1612,7 @@ func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, w
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
@@ -1707,7 +1707,7 @@ func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
@@ -1781,7 +1781,7 @@ func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body m
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
 			body:  localVarBody,
 			error: localVarHttpResponse.Status,
@@ -1868,7 +1868,7 @@ func (a *WorkflowResourceApiService) StartWorkflowWithRequest(ctx context.Contex
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
@@ -1946,7 +1946,7 @@ func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId s
 		return localVarHttpResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return localVarHttpResponse, newErr
 	}
