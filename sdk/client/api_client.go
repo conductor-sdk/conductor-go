@@ -128,6 +128,10 @@ func (c *APIClient) callAPI(request *http.Request) (*http.Response, error) {
 }
 
 func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err error) {
+	if len(b) == 0 {
+		return nil
+	}
+
 	if strings.Contains(contentType, "application/xml") {
 		if err = xml.Unmarshal(b, v); err != nil {
 			return err
@@ -146,6 +150,7 @@ func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err err
 		rv.Elem().SetString(string(b))
 		return nil
 	}
+
 	return errors.New("undefined response type")
 }
 
