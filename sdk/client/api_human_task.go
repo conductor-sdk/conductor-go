@@ -49,12 +49,13 @@ func (a *HumanTaskApiService) AssignAndClaim(ctx context.Context, taskId string,
 		returnValue human.HumanTaskEntry
 	)
 
-	// create path and map variables
 	path := "/human/tasks/{taskId}/externalUser/{userId}"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 	path = strings.Replace(path, "{"+"userId"+"}", fmt.Sprintf("%v", userId), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
@@ -64,23 +65,7 @@ func (a *HumanTaskApiService) AssignAndClaim(ctx context.Context, taskId string,
 	if optionals != nil && optionals.WithTemplate.IsSet() {
 		queryParams.Add("withTemplate", parameterToString(optionals.WithTemplate.Value(), ""))
 	}
-	// to determine the Content-Type header
-	contentTypes := []string{}
 
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -122,31 +107,16 @@ func (a *HumanTaskApiService) BackPopulateFullTextIndex(ctx context.Context, var
 		returnValue map[string]interface{}
 	)
 
-	// create path and map variables
 	path := "/human/tasks/backPopulateFullTextIndex"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
 	queryParams.Add("100", parameterToString(var100, ""))
-	// to determine the Content-Type header
-	contentTypes := []string{}
 
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -197,11 +167,12 @@ func (a *HumanTaskApiService) ClaimTask(ctx context.Context, taskId string, opti
 		returnValue human.HumanTaskEntry
 	)
 
-	// create path and map variables
 	path := "/human/tasks/{taskId}/claim"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
@@ -211,23 +182,7 @@ func (a *HumanTaskApiService) ClaimTask(ctx context.Context, taskId string, opti
 	if optionals != nil && optionals.WithTemplate.IsSet() {
 		queryParams.Add("withTemplate", parameterToString(optionals.WithTemplate.Value(), ""))
 	}
-	// to determine the Content-Type header
-	contentTypes := []string{}
 
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -267,31 +222,14 @@ func (a *HumanTaskApiService) DeleteTaskFromHumanTaskRecords(ctx context.Context
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/human/tasks/delete"
 
 	headerParams := make(map[string]string)
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -329,7 +267,6 @@ func (a *HumanTaskApiService) DeleteTaskFromHumanTaskRecords1(ctx context.Contex
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/human/tasks/delete/{taskId}"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
@@ -337,23 +274,6 @@ func (a *HumanTaskApiService) DeleteTaskFromHumanTaskRecords1(ctx context.Contex
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return nil, err
@@ -390,7 +310,6 @@ func (a *HumanTaskApiService) DeleteTemplateByName(ctx context.Context, name str
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/human/template/{name}"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
@@ -398,23 +317,6 @@ func (a *HumanTaskApiService) DeleteTemplateByName(ctx context.Context, name str
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return nil, err
@@ -452,7 +354,6 @@ func (a *HumanTaskApiService) DeleteTemplatesByNameAndVersion(ctx context.Contex
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/human/template/{name}/{version}"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 	path = strings.Replace(path, "{"+"version"+"}", fmt.Sprintf("%v", version), -1)
@@ -461,23 +362,6 @@ func (a *HumanTaskApiService) DeleteTemplatesByNameAndVersion(ctx context.Contex
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return nil, err
@@ -524,10 +408,11 @@ func (a *HumanTaskApiService) GetAllTemplates(ctx context.Context, optionals *Hu
 		returnValue []human.HumanTaskSearch
 	)
 
-	// create path and map variables
 	path := "/human/template"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
@@ -537,23 +422,7 @@ func (a *HumanTaskApiService) GetAllTemplates(ctx context.Context, optionals *Hu
 	if optionals != nil && optionals.Version.IsSet() {
 		queryParams.Add("version", parameterToString(optionals.Version.Value(), ""))
 	}
-	// to determine the Content-Type header
-	contentTypes := []string{}
 
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -602,34 +471,19 @@ func (a *HumanTaskApiService) GetTask1(ctx context.Context, taskId string, optio
 		returnValue human.HumanTaskEntry
 	)
 
-	// create path and map variables
 	path := "/human/tasks/{taskId}"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
 	if optionals != nil && optionals.WithTemplate.IsSet() {
 		queryParams.Add("withTemplate", parameterToString(optionals.WithTemplate.Value(), ""))
 	}
-	// to determine the Content-Type header
-	contentTypes := []string{}
 
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -671,31 +525,16 @@ func (a *HumanTaskApiService) GetTaskDisplayNames(ctx context.Context, searchTyp
 		returnValue []string
 	)
 
-	// create path and map variables
 	path := "/human/tasks/getTaskDisplayNames"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
 	queryParams.Add("searchType", parameterToString(searchType, ""))
-	// to determine the Content-Type header
-	contentTypes := []string{}
 
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -738,32 +577,15 @@ func (a *HumanTaskApiService) GetTemplateByNameAndVersion(ctx context.Context, n
 		returnValue human.HumanTaskSearch
 	)
 
-	// create path and map variables
 	path := "/human/template/{name}/{version}"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 	path = strings.Replace(path, "{"+"version"+"}", fmt.Sprintf("%v", version), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -805,31 +627,14 @@ func (a *HumanTaskApiService) GetTemplateByTaskId(ctx context.Context, humanTask
 		returnValue human.HumanTaskSearch
 	)
 
-	// create path and map variables
 	path := "/human/template/{humanTaskId}"
 	path = strings.Replace(path, "{"+"humanTaskId"+"}", fmt.Sprintf("%v", humanTaskId), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -870,32 +675,15 @@ func (a *HumanTaskApiService) ReassignTask(ctx context.Context, body []human.Hum
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/human/tasks/{taskId}/reassign"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -933,7 +721,6 @@ func (a *HumanTaskApiService) ReleaseTask(ctx context.Context, taskId string) (*
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/human/tasks/{taskId}/release"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
@@ -941,23 +728,6 @@ func (a *HumanTaskApiService) ReleaseTask(ctx context.Context, taskId string) (*
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return nil, err
@@ -1003,34 +773,19 @@ func (a *HumanTaskApiService) SaveTemplate(ctx context.Context, body human.Human
 		returnValue human.HumanTaskSearch
 	)
 
-	// create path and map variables
 	path := "/human/template"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
 	if optionals != nil && optionals.NewVersion.IsSet() {
 		queryParams.Add("newVersion", parameterToString(optionals.NewVersion.Value(), ""))
 	}
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
 
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -1080,34 +835,19 @@ func (a *HumanTaskApiService) SaveTemplates(ctx context.Context, body []human.Hu
 		returnValue []human.HumanTaskSearch
 	)
 
-	// create path and map variables
 	path := "/human/template/bulk"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
 	if optionals != nil && optionals.NewVersion.IsSet() {
 		queryParams.Add("newVersion", parameterToString(optionals.NewVersion.Value(), ""))
 	}
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
 
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -1150,31 +890,15 @@ func (a *HumanTaskApiService) Search(ctx context.Context, body human.HumanTaskSe
 		returnValue human.HumanTaskSearchResult
 	)
 
-	// create path and map variables
 	path := "/human/tasks/search"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -1223,7 +947,6 @@ func (a *HumanTaskApiService) SkipTask(ctx context.Context, taskId string, optio
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/human/tasks/{taskId}/skip"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
@@ -1233,23 +956,6 @@ func (a *HumanTaskApiService) SkipTask(ctx context.Context, taskId string, optio
 
 	if optionals != nil && optionals.Reason.IsSet() {
 		queryParams.Add("reason", parameterToString(optionals.Reason.Value(), ""))
-	}
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
 	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -1296,35 +1002,19 @@ func (a *HumanTaskApiService) UpdateTaskOutput(ctx context.Context, body map[str
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/human/tasks/{taskId}/update"
 	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
 	if optionals != nil && optionals.Complete.IsSet() {
 		queryParams.Add("complete", parameterToString(optionals.Complete.Value(), ""))
 	}
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
 
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -1374,10 +1064,11 @@ func (a *HumanTaskApiService) UpdateTaskOutputByRef(ctx context.Context, body ma
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/human/tasks/update/taskRef"
 
 	headerParams := make(map[string]string)
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
@@ -1389,24 +1080,7 @@ func (a *HumanTaskApiService) UpdateTaskOutputByRef(ctx context.Context, body ma
 	if optionals != nil && optionals.Iteration.IsSet() {
 		queryParams.Add("iteration", parameterToString(optionals.Iteration.Value(), "multi"))
 	}
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
 
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {

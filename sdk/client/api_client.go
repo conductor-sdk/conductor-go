@@ -225,36 +225,6 @@ func CacheExpires(r *http.Response) time.Time {
 	return expires
 }
 
-func selectHeaderContentType(contentTypes []string) string {
-	if len(contentTypes) == 0 {
-		return ""
-	}
-	if contains(contentTypes, "application/json") {
-		return "application/json"
-	}
-	return contentTypes[0] // use the first content type specified in 'consumes'
-}
-
-// selectHeaderAccept join all accept types and return
-func selectHeaderAccept(accepts []string) string {
-	if len(accepts) == 0 {
-		return ""
-	}
-	if contains(accepts, "application/json") {
-		return "application/json"
-	}
-	return strings.Join(accepts, ",")
-}
-
-func contains(haystack []string, needle string) bool {
-	for _, a := range haystack {
-		if strings.EqualFold(a, needle) {
-			return true
-		}
-	}
-	return false
-}
-
 func parameterToString(obj interface{}, collectionFormat string) string {
 	var delimiter string
 
