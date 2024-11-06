@@ -45,7 +45,6 @@ func (a *UserResourceApiService) CheckPermissions(ctx context.Context, userId st
 		returnValue map[string]interface{}
 	)
 
-	// create path and map variables
 	path := "/users/{userId}/checkPermissions"
 	path = strings.Replace(path, "{"+"userId"+"}", fmt.Sprintf("%v", userId), -1)
 
@@ -55,23 +54,7 @@ func (a *UserResourceApiService) CheckPermissions(ctx context.Context, userId st
 
 	queryParams.Add("type", parameterToString(type_, ""))
 	queryParams.Add("id", parameterToString(id, ""))
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
+	headerParams["Accept"] = "application/json"
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -112,31 +95,14 @@ func (a *UserResourceApiService) DeleteUser(ctx context.Context, id string) (*ht
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/users/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return nil, err
@@ -175,31 +141,14 @@ func (a *UserResourceApiService) GetGrantedPermissions(ctx context.Context, user
 		returnValue rbac.GrantedAccessResponse
 	)
 
-	// create path and map variables
 	path := "/users/{userId}/permissions"
 	path = strings.Replace(path, "{"+"userId"+"}", fmt.Sprintf("%v", userId), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -241,31 +190,14 @@ func (a *UserResourceApiService) GetUser(ctx context.Context, id string) (*rbac.
 		returnValue rbac.ConductorUser
 	)
 
-	// create path and map variables
 	path := "/users/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return nil, nil, err
@@ -309,33 +241,18 @@ func (a *UserResourceApiService) ListUsers(ctx context.Context, optionals *UserR
 		returnValue []rbac.ConductorUser
 	)
 
-	// create path and map variables
 	path := "/users"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
 	if optionals != nil && optionals.Apps.IsSet() {
 		queryParams.Add("apps", parameterToString(optionals.Apps.Value(), ""))
 	}
-	// to determine the Content-Type header
-	contentTypes := []string{}
 
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -378,32 +295,16 @@ func (a *UserResourceApiService) UpsertUser(ctx context.Context, body rbac.Upser
 		returnValue rbac.ConductorUser
 	)
 
-	// create path and map variables
 	path := "/users/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {

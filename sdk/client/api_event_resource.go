@@ -37,31 +37,14 @@ func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body mode
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/event"
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Content-Type"] = "application/json"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
-	// body params
 	localVarPostBody = &body
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
@@ -100,32 +83,15 @@ func (a *EventResourceApiService) DeleteQueueConfig(ctx context.Context, queueTy
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/event/queue/config/{queueType}/{queueName}"
 	localVarPath = strings.Replace(localVarPath, "{"+"queueType"+"}", fmt.Sprintf("%v", queueType), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"queueName"+"}", fmt.Sprintf("%v", queueName), -1)
 
 	localVarHeaderParams := make(map[string]string)
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -164,30 +130,14 @@ func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]model
 		localVarReturnValue []model.EventHandler
 	)
 
-	// create path and map variables
 	localVarPath := "/event"
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -235,34 +185,19 @@ func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, 
 		localVarReturnValue []model.EventHandler
 	)
 
-	// create path and map variables
 	localVarPath := "/event/{event}"
 	localVarPath = strings.Replace(localVarPath, "{"+"event"+"}", fmt.Sprintf("%v", event), -1)
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	if localVarOptionals != nil && localVarOptionals.ActiveOnly.IsSet() {
 		localVarQueryParams.Add("activeOnly", parameterToString(localVarOptionals.ActiveOnly.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -305,32 +240,16 @@ func (a *EventResourceApiService) GetQueueConfig(ctx context.Context, queueType 
 		localVarReturnValue map[string]interface{}
 	)
 
-	// create path and map variables
 	localVarPath := "/event/queue/config/{queueType}/{queueName}"
 	localVarPath = strings.Replace(localVarPath, "{"+"queueType"+"}", fmt.Sprintf("%v", queueType), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"queueName"+"}", fmt.Sprintf("%v", queueName), -1)
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -371,30 +290,14 @@ func (a *EventResourceApiService) GetQueueNames(ctx context.Context) (map[string
 		localVarReturnValue map[string]string
 	)
 
-	// create path and map variables
 	localVarPath := "/event/queue/config"
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -435,33 +338,16 @@ func (a *EventResourceApiService) PutQueueConfig(ctx context.Context, body strin
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/event/queue/config/{queueType}/{queueName}"
 	localVarPath = strings.Replace(localVarPath, "{"+"queueType"+"}", fmt.Sprintf("%v", queueType), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"queueName"+"}", fmt.Sprintf("%v", queueName), -1)
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Content-Type"] = "application/json"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
-	// body params
 	localVarPostBody = &body
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
@@ -499,31 +385,14 @@ func (a *EventResourceApiService) RemoveEventHandler(ctx context.Context, name s
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/event/{name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -560,31 +429,14 @@ func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body m
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/event"
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Content-Type"] = "application/json"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
-	// body params
 	localVarPostBody = &body
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {

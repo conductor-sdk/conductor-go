@@ -39,32 +39,15 @@ func (a *AuthorizationResourceApiService) GetPermissions(ctx context.Context, ty
 		returnValue interface{}
 	)
 
-	// create path and map variables
 	path := "/auth/authorization/{type}/{id}"
 	path = strings.Replace(path, "{"+"type"+"}", fmt.Sprintf("%v", type_), -1)
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -105,31 +88,15 @@ func (a *AuthorizationResourceApiService) GrantPermissions(ctx context.Context, 
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/auth/authorization"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -168,31 +135,15 @@ func (a *AuthorizationResourceApiService) RemovePermissions(ctx context.Context,
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/auth/authorization"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {

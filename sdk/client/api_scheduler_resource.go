@@ -39,31 +39,14 @@ func (a *SchedulerResourceApiService) DeleteSchedule(ctx context.Context, name s
 		returnValue interface{}
 	)
 
-	// create path and map variables
 	path := "/scheduler/schedules/{name}"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -104,32 +87,15 @@ func (a *SchedulerResourceApiService) DeleteTagForSchedule(ctx context.Context, 
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/scheduler/schedules/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -175,33 +141,18 @@ func (a *SchedulerResourceApiService) GetAllSchedules(ctx context.Context, optio
 		returnValue []model.WorkflowScheduleModel
 	)
 
-	// create path and map variables
 	path := "/scheduler/schedules"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
 	if optionals != nil && optionals.WorkflowName.IsSet() {
 		queryParams.Add("workflowName", parameterToString(optionals.WorkflowName.Value(), ""))
 	}
-	// to determine the Content-Type header
-	contentTypes := []string{}
 
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -254,7 +205,6 @@ func (a *SchedulerResourceApiService) GetNextFewSchedules(ctx context.Context, c
 		returnValue []int64
 	)
 
-	// create path and map variables
 	path := "/scheduler/nextFewSchedules"
 
 	headerParams := make(map[string]string)
@@ -271,23 +221,7 @@ func (a *SchedulerResourceApiService) GetNextFewSchedules(ctx context.Context, c
 	if optionals != nil && optionals.Limit.IsSet() {
 		queryParams.Add("limit", parameterToString(optionals.Limit.Value(), ""))
 	}
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
+	headerParams["Accept"] = "application/json"
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -329,31 +263,14 @@ func (a *SchedulerResourceApiService) GetSchedule(ctx context.Context, name stri
 		returnValue model.WorkflowSchedule
 	)
 
-	// create path and map variables
 	path := "/scheduler/schedules/{name}"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -395,31 +312,14 @@ func (a *SchedulerResourceApiService) GetTagsForSchedule(ctx context.Context, na
 		returnValue []model.Tag
 	)
 
-	// create path and map variables
 	path := "/scheduler/schedules/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -460,30 +360,13 @@ func (a *SchedulerResourceApiService) PauseAllSchedules(ctx context.Context) (ma
 		returnValue map[string]interface{}
 	)
 
-	// create path and map variables
 	path := "/scheduler/admin/pause"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -525,31 +408,14 @@ func (a *SchedulerResourceApiService) PauseSchedule(ctx context.Context, name st
 		returnValue interface{}
 	)
 
-	// create path and map variables
 	path := "/scheduler/schedules/{name}/pause"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -590,32 +456,15 @@ func (a *SchedulerResourceApiService) PutTagForSchedule(ctx context.Context, bod
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/scheduler/schedules/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -654,30 +503,13 @@ func (a *SchedulerResourceApiService) RequeueAllExecutionRecords(ctx context.Con
 		returnValue map[string]interface{}
 	)
 
-	// create path and map variables
 	path := "/scheduler/admin/requeue"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -718,30 +550,13 @@ func (a *SchedulerResourceApiService) ResumeAllSchedules(ctx context.Context) (m
 		returnValue map[string]interface{}
 	)
 
-	// create path and map variables
 	path := "/scheduler/admin/resume"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -783,31 +598,14 @@ func (a *SchedulerResourceApiService) ResumeSchedule(ctx context.Context, name s
 		returnValue interface{}
 	)
 
-	// create path and map variables
 	path := "/scheduler/schedules/{name}/resume"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -849,31 +647,15 @@ func (a *SchedulerResourceApiService) SaveSchedule(ctx context.Context, body mod
 		returnValue interface{}
 	)
 
-	// create path and map variables
 	path := "/scheduler/schedules"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -931,10 +713,11 @@ func (a *SchedulerResourceApiService) SearchV2(ctx context.Context, optionals *S
 		returnValue model.SearchResultWorkflowSchedule
 	)
 
-	// create path and map variables
 	path := "/scheduler/search/executions"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
@@ -953,23 +736,7 @@ func (a *SchedulerResourceApiService) SearchV2(ctx context.Context, optionals *S
 	if optionals != nil && optionals.Query.IsSet() {
 		queryParams.Add("query", parameterToString(optionals.Query.Value(), ""))
 	}
-	// to determine the Content-Type header
-	contentTypes := []string{}
 
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err

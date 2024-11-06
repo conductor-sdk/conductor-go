@@ -42,31 +42,14 @@ func (a *WorkflowResourceApiService) Decide(ctx context.Context, workflowId stri
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/decide/{workflowId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -112,7 +95,6 @@ func (a *WorkflowResourceApiService) Delete(ctx context.Context, workflowId stri
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{workflowId}/remove"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
@@ -123,23 +105,7 @@ func (a *WorkflowResourceApiService) Delete(ctx context.Context, workflowId stri
 	if localVarOptionals != nil && localVarOptionals.ArchiveWorkflow.IsSet() {
 		localVarQueryParams.Add("archiveWorkflow", parameterToString(localVarOptionals.ArchiveWorkflow.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -186,34 +152,19 @@ func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, wor
 		localVarReturnValue model.Workflow
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{workflowId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	if localVarOptionals != nil && localVarOptionals.IncludeTasks.IsSet() {
 		localVarQueryParams.Add("includeTasks", parameterToString(localVarOptionals.IncludeTasks.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -249,33 +200,18 @@ func (a *WorkflowResourceApiService) GetWorkflowState(ctx context.Context, workf
 		localVarReturnValue model.WorkflowState
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{workflowId}/status"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	localVarQueryParams.Add("includeOutput", parameterToString(includeOutput, ""))
 	localVarQueryParams.Add("includeVariables", parameterToString(includeVariables, ""))
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -320,33 +256,18 @@ func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Cont
 		localVarReturnValue model.ExternalStorageLocation
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/externalstoragelocation"
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	localVarQueryParams.Add("path", parameterToString(path, ""))
 	localVarQueryParams.Add("operation", parameterToString(operation, ""))
 	localVarQueryParams.Add("payloadType", parameterToString(payloadType, ""))
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -399,11 +320,12 @@ func (a *WorkflowResourceApiService) GetRunningWorkflow(ctx context.Context, nam
 		localVarReturnValue []string
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/running/{name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
@@ -416,23 +338,7 @@ func (a *WorkflowResourceApiService) GetRunningWorkflow(ctx context.Context, nam
 	if localVarOptionals != nil && localVarOptionals.EndTime.IsSet() {
 		localVarQueryParams.Add("endTime", parameterToString(localVarOptionals.EndTime.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -479,11 +385,13 @@ func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []st
 		localVarReturnValue map[string][]model.Workflow
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{name}/correlated"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+	localVarHeaderParams["Content-Type"] = "application/json"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
@@ -493,24 +401,7 @@ func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []st
 	if localVarOptionals != nil && localVarOptionals.IncludeTasks.IsSet() {
 		localVarQueryParams.Add("includeTasks", parameterToString(localVarOptionals.IncludeTasks.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{"application/json"}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
-	// body params
 	localVarPostBody = &body
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
@@ -550,6 +441,9 @@ func (a *WorkflowResourceApiService) GetWorkflowsBatch(ctx context.Context, body
 	localVarPath := "/workflow/correlated/batch"
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+	localVarHeaderParams["Content-Type"] = "application/json"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
@@ -559,24 +453,7 @@ func (a *WorkflowResourceApiService) GetWorkflowsBatch(ctx context.Context, body
 	if localVarOptionals != nil && localVarOptionals.IncludeTasks.IsSet() {
 		localVarQueryParams.Add("includeTasks", parameterToString(localVarOptionals.IncludeTasks.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{"application/json"}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
-	// body params
 	localVarPostBody = &body
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
@@ -632,12 +509,13 @@ func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name str
 		localVarReturnValue []model.Workflow
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{name}/correlated/{correlationId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"correlationId"+"}", fmt.Sprintf("%v", correlationId), -1)
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
@@ -647,23 +525,7 @@ func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name str
 	if localVarOptionals != nil && localVarOptionals.IncludeTasks.IsSet() {
 		localVarQueryParams.Add("includeTasks", parameterToString(localVarOptionals.IncludeTasks.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -703,31 +565,14 @@ func (a *WorkflowResourceApiService) PauseWorkflow(ctx context.Context, workflow
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{workflowId}/pause"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -769,32 +614,16 @@ func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body model.Rerun
 		localVarReturnValue string
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{workflowId}/rerun"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "text/plain"
+	localVarHeaderParams["Content-Type"] = "application/json"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"text/plain"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
-	// body params
 	localVarPostBody = &body
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
@@ -835,31 +664,14 @@ func (a *WorkflowResourceApiService) ResetWorkflow(ctx context.Context, workflow
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{workflowId}/resetcallbacks"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -905,7 +717,6 @@ func (a *WorkflowResourceApiService) Restart(ctx context.Context, workflowId str
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{workflowId}/restart"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
@@ -916,23 +727,7 @@ func (a *WorkflowResourceApiService) Restart(ctx context.Context, workflowId str
 	if localVarOptionals != nil && localVarOptionals.UseLatestDefinitions.IsSet() {
 		localVarQueryParams.Add("useLatestDefinitions", parameterToString(localVarOptionals.UseLatestDefinitions.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -970,31 +765,14 @@ func (a *WorkflowResourceApiService) ResumeWorkflow(ctx context.Context, workflo
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{workflowId}/resume"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
 	localVarHeaderParams := make(map[string]string)
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -1040,7 +818,6 @@ func (a *WorkflowResourceApiService) Retry(ctx context.Context, workflowId strin
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{workflowId}/retry"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
@@ -1051,23 +828,7 @@ func (a *WorkflowResourceApiService) Retry(ctx context.Context, workflowId strin
 	if localVarOptionals != nil && localVarOptionals.ResumeSubworkflowTasks.IsSet() {
 		localVarQueryParams.Add("resumeSubworkflowTasks", parameterToString(localVarOptionals.ResumeSubworkflowTasks.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -1122,7 +883,6 @@ func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptiona
 		localVarReturnValue model.SearchResultWorkflowSummary
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/search"
 
 	localVarHeaderParams := make(map[string]string)
@@ -1144,23 +904,7 @@ func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptiona
 	if localVarOptionals != nil && localVarOptionals.Query.IsSet() {
 		localVarQueryParams.Add("query", parameterToString(localVarOptionals.Query.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
+	localVarHeaderParams["Accept"] = "*/*"
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1217,10 +961,11 @@ func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptio
 		localVarReturnValue model.SearchResultWorkflow
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/search-v2"
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
@@ -1239,23 +984,7 @@ func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptio
 	if localVarOptionals != nil && localVarOptionals.Query.IsSet() {
 		localVarQueryParams.Add("query", parameterToString(localVarOptionals.Query.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1312,10 +1041,11 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context,
 		localVarReturnValue model.SearchResultWorkflowSummary
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/search-by-tasks"
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
@@ -1334,23 +1064,7 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context,
 	if localVarOptionals != nil && localVarOptionals.Query.IsSet() {
 		localVarQueryParams.Add("query", parameterToString(localVarOptionals.Query.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1407,10 +1121,11 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Contex
 		localVarReturnValue model.SearchResultWorkflow
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/search-by-tasks-v2"
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "*/*"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
@@ -1429,23 +1144,7 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Contex
 	if localVarOptionals != nil && localVarOptionals.Query.IsSet() {
 		localVarQueryParams.Add("query", parameterToString(localVarOptionals.Query.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1487,33 +1186,17 @@ func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, w
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{workflowId}/skiptask/{taskReferenceName}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"taskReferenceName"+"}", fmt.Sprintf("%v", taskReferenceName), -1)
 
 	localVarHeaderParams := make(map[string]string)
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	localVarQueryParams.Add("skipTaskRequest", parameterToString(skipTaskRequest, ""))
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -1565,11 +1248,13 @@ func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map
 		localVarReturnValue string
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "text/plain"
+	localVarHeaderParams["Content-Type"] = "application/json"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
@@ -1582,24 +1267,7 @@ func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map
 	if localVarOptionals != nil && localVarOptionals.Priority.IsSet() {
 		localVarQueryParams.Add("priority", parameterToString(localVarOptionals.Priority.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{"application/json"}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"text/plain"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
-	// body params
 	localVarPostBody = &body
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
@@ -1636,12 +1304,14 @@ func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body m
 		localVarReturnValue model.WorkflowRun
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/execute/{name}/{version}"
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"version"+"}", fmt.Sprintf("%v", version), -1)
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "application/json"
+	localVarHeaderParams["Content-Type"] = "application/json"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
@@ -1649,24 +1319,7 @@ func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body m
 	if len(waitUntilTask) > 0 {
 		localVarQueryParams.Add("waitUntilTaskRef", parameterToString(waitUntilTask, ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{"application/json"}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"application/json"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
-	// body params
 	localVarPostBody = &body
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
@@ -1711,31 +1364,15 @@ func (a *WorkflowResourceApiService) StartWorkflowWithRequest(ctx context.Contex
 		localVarReturnValue string
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow"
 
 	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "text/plain"
+	localVarHeaderParams["Content-Type"] = "application/json"
+
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"text/plain"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
-	// body params
 	localVarPostBody = &body
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
@@ -1785,7 +1422,6 @@ func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId s
 		localVarFileBytes  []byte
 	)
 
-	// create path and map variables
 	localVarPath := "/workflow/{workflowId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
 
@@ -1800,23 +1436,7 @@ func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId s
 	if localVarOptionals != nil && localVarOptionals.TriggerFailureWorkflow.IsSet() {
 		localVarQueryParams.Add("triggerFailureWorkflow", parameterToString(localVarOptionals.TriggerFailureWorkflow.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
 
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
 	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err

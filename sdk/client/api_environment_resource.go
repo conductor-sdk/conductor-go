@@ -38,32 +38,15 @@ func (a *EnvironmentResourceApiService) CreateOrUpdateEnvVariable(ctx context.Co
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/environment/{key}"
 	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Content-Type"] = "text/plain"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"text/plain"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -103,31 +86,14 @@ func (a *EnvironmentResourceApiService) DeleteEnvVariable(ctx context.Context, k
 		returnValue string
 	)
 
-	// create path and map variables
 	path := "/environment/{key}"
 	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -168,32 +134,15 @@ func (a *EnvironmentResourceApiService) DeleteTagForEnvVar(ctx context.Context, 
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/environment/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -233,31 +182,15 @@ func (a *EnvironmentResourceApiService) Get(ctx context.Context, key string) (st
 		returnValue string
 	)
 
-	// create path and map variables
 	path := "/environment/{key}"
 	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "text/plain"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"text/plain"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -298,30 +231,14 @@ func (a *EnvironmentResourceApiService) GetAll(ctx context.Context) ([]model.Env
 		returnValue []model.EnvironmentVariable
 	)
 
-	// create path and map variables
 	path := "/environment"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -363,31 +280,15 @@ func (a *EnvironmentResourceApiService) GetTagsForEnvVar(ctx context.Context, na
 		returnValue []model.Tag
 	)
 
-	// create path and map variables
 	path := "/environment/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -428,32 +329,15 @@ func (a *EnvironmentResourceApiService) PutTagForEnvVar(ctx context.Context, bod
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/environment/{name}/tags"
 	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
