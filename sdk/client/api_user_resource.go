@@ -166,13 +166,13 @@ UserResourceApiService Get the permissions this user has over workflows and task
   - @param userId
     @return interface{}
 */
-func (a *UserResourceApiService) GetGrantedPermissions(ctx context.Context, userId string) ([]rbac.GrantedAccess, *http.Response, error) {
+func (a *UserResourceApiService) GetGrantedPermissions(ctx context.Context, userId string) (rbac.GrantedAccessResponse, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Get")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue []rbac.GrantedAccess
+		returnValue rbac.GrantedAccessResponse
 	)
 
 	// create path and map variables
