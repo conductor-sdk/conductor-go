@@ -81,20 +81,14 @@ func (a *AuthorizationResourceApiService) GetPermissions(ctx context.Context, ty
 		return returnValue, httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
+	if isSuccessfulStatus(httpResponse.StatusCode) {
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
+	} else {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return returnValue, httpResponse, err
 }
 
 /*
@@ -153,13 +147,8 @@ func (a *AuthorizationResourceApiService) GrantPermissions(ctx context.Context, 
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		return httpResponse, err
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return httpResponse, newErr
+	if !isSuccessfulStatus(httpResponse.StatusCode) {
+		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 	}
 
 	return httpResponse, nil
@@ -221,13 +210,8 @@ func (a *AuthorizationResourceApiService) RemovePermissions(ctx context.Context,
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		return httpResponse, err
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return httpResponse, newErr
+	if !isSuccessfulStatus(httpResponse.StatusCode) {
+		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 	}
 
 	return httpResponse, nil

@@ -88,20 +88,14 @@ func (a *UserResourceApiService) CheckPermissions(ctx context.Context, userId st
 		return returnValue, httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
+	if isSuccessfulStatus(httpResponse.StatusCode) {
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
+	} else {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return returnValue, httpResponse, err
 }
 
 /*
@@ -159,14 +153,8 @@ func (a *UserResourceApiService) DeleteUser(ctx context.Context, id string) (*ht
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
-		return httpResponse, err
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return httpResponse, newErr
+	if !isSuccessfulStatus(httpResponse.StatusCode) {
+		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 	}
 
 	return httpResponse, nil
@@ -178,13 +166,13 @@ UserResourceApiService Get the permissions this user has over workflows and task
   - @param userId
     @return interface{}
 */
-func (a *UserResourceApiService) GetGrantedPermissions(ctx context.Context, userId string) ([]rbac.GrantedAccess, *http.Response, error) {
+func (a *UserResourceApiService) GetGrantedPermissions(ctx context.Context, userId string) (rbac.GrantedAccessResponse, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Get")
 		postBody    interface{}
 		fileName    string
 		fileBytes   []byte
-		returnValue []rbac.GrantedAccess
+		returnValue rbac.GrantedAccessResponse
 	)
 
 	// create path and map variables
@@ -228,20 +216,14 @@ func (a *UserResourceApiService) GetGrantedPermissions(ctx context.Context, user
 		return returnValue, httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
+	if isSuccessfulStatus(httpResponse.StatusCode) {
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
+	} else {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return returnValue, httpResponse, err
 }
 
 /*
@@ -300,20 +282,14 @@ func (a *UserResourceApiService) GetUser(ctx context.Context, id string) (*rbac.
 		return nil, httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
+	if isSuccessfulStatus(httpResponse.StatusCode) {
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return &returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
+	} else {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return nil, httpResponse, newErr
 	}
 
-	return nil, httpResponse, nil
+	return &returnValue, httpResponse, err
 }
 
 /*
@@ -376,20 +352,14 @@ func (a *UserResourceApiService) ListUsers(ctx context.Context, optionals *UserR
 		return returnValue, httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
+	if isSuccessfulStatus(httpResponse.StatusCode) {
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
+	} else {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return returnValue, httpResponse, err
 }
 
 /*
@@ -451,18 +421,12 @@ func (a *UserResourceApiService) UpsertUser(ctx context.Context, body rbac.Upser
 		return nil, httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
+	if isSuccessfulStatus(httpResponse.StatusCode) {
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return &returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
+	} else {
 		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return nil, httpResponse, newErr
 	}
 
-	return nil, httpResponse, nil
+	return &returnValue, httpResponse, err
 }

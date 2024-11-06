@@ -83,7 +83,7 @@ func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 // RegisterWorkflow Registers the workflow on the server.  Overwrites if the flag is set.  If the 'overwrite' flag is not set
 // and the workflow definition differs from the one on the server, the call will fail with response code 409
 func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.WorkflowDef) error {
-	response, err := e.metadataClient.RegisterWorkflowDef(
+	_, err := e.metadataClient.RegisterWorkflowDef(
 		context.Background(),
 		overwrite,
 		*workflow,
@@ -91,9 +91,7 @@ func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.Work
 	if err != nil {
 		return err
 	}
-	if response.StatusCode > 299 {
-		return fmt.Errorf(response.Status)
-	}
+
 	return nil
 }
 
@@ -120,7 +118,7 @@ func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWork
 	if error != nil {
 		return nil, error
 	}
-	return &workflowRun, err
+	return &workflowRun, nil
 }
 
 // MonitorExecution monitors the workflow execution
@@ -140,7 +138,7 @@ func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequest *model.StartWorkfl
 	if err != nil {
 		return "", err
 	}
-	return id, err
+	return id, nil
 }
 
 // StartWorkflows Start workflows in bulk
@@ -210,14 +208,18 @@ func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTask
 		&client.WorkflowResourceApiGetExecutionStatusOpts{
 			IncludeTasks: optional.NewBool(includeTasks)},
 	)
+
+	// 404s in GetWorkflow are a bit inconsistent with other errors since
+	// it's using fmt.Errorf("..."). Keeping it this way to avoid breaking changes
 	if response.StatusCode == 404 {
 		return nil, fmt.Errorf("no such workflow by Id %s", workflowId)
 	}
+
 	if response.StatusCode > 399 && response.StatusCode < 500 && response.StatusCode != 429 {
 		return nil, err
 	}
-	if err != nil {
 
+	if err != nil {
 		if retry < 0 {
 			return nil, err
 		} else {
@@ -225,10 +227,9 @@ func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTask
 			retry = retry - 1
 			return e.getWorkflow(retry, workflowId, includeTasks)
 		}
-
 	}
 
-	return &workflow, err
+	return &workflow, nil
 }
 
 // GetWorkflowStatus Get the status of the workflow execution.
@@ -401,7 +402,7 @@ func (e *WorkflowExecutor) ReRun(workflowId string, reRunRequest model.RerunWork
 	if err != nil {
 		return "", err
 	}
-	return id, err
+	return id, nil
 }
 
 // SkipTasksFromWorkflow Skips a given task execution from a current running workflow.
@@ -426,7 +427,10 @@ func (e *WorkflowExecutor) UpdateTask(taskId string, workflowInstanceId string, 
 		return err
 	}
 	taskResult.Status = status
-	e.taskClient.UpdateTask(context.Background(), taskResult)
+	_, _, err = e.taskClient.UpdateTask(context.Background(), taskResult)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -436,38 +440,33 @@ func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInsta
 	if err != nil {
 		return err
 	}
-	_, response, err := e.taskClient.UpdateTaskByRefName(context.Background(), outputData, workflowInstanceId, taskRefName, string(status))
+
+	_, _, err = e.taskClient.UpdateTaskByRefName(context.Background(), outputData, workflowInstanceId, taskRefName, string(status))
 	if err != nil {
 		return err
 	}
-	if response.StatusCode == 404 {
-		return fmt.Errorf(response.Status)
-	}
+
 	return nil
 }
 
 // GetTask by task Id returns nil if no such task is found by the id
 func (e *WorkflowExecutor) GetTask(taskId string) (task *model.Task, err error) {
-	t, response, err := e.taskClient.GetTask(context.Background(), taskId)
+	t, _, err := e.taskClient.GetTask(context.Background(), taskId)
 	if err != nil {
 		return nil, err
 	}
-	if response.StatusCode == 404 {
-		return nil, nil
-	}
+
 	return &t, nil
 }
 
 // RemoveWorkflow Remove workflow execution permanently from the system
 // Returns nil if no workflow is found by the id
 func (e *WorkflowExecutor) RemoveWorkflow(workflowId string) error {
-	response, err := e.workflowClient.Delete(context.Background(), workflowId, &client.WorkflowResourceApiDeleteOpts{ArchiveWorkflow: optional.NewBool(false)})
+	_, err := e.workflowClient.Delete(context.Background(), workflowId, &client.WorkflowResourceApiDeleteOpts{ArchiveWorkflow: optional.NewBool(false)})
 	if err != nil {
 		return err
 	}
-	if response.StatusCode != 200 {
-		return fmt.Errorf(response.Status)
-	}
+
 	return nil
 }
 

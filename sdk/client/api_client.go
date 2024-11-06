@@ -128,6 +128,10 @@ func (c *APIClient) callAPI(request *http.Request) (*http.Response, error) {
 }
 
 func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err error) {
+	if len(b) == 0 {
+		return nil
+	}
+
 	if strings.Contains(contentType, "application/xml") {
 		if err = xml.Unmarshal(b, v); err != nil {
 			return err
@@ -135,6 +139,13 @@ func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err err
 		return nil
 	} else if strings.Contains(contentType, "application/json") {
 		if err = json.Unmarshal(b, v); err != nil {
+			// Hacky - if json unmarshalling fails, return a string.
+			// it's because the backend might reply with content-type: application/json and a string.
+			rv := reflect.ValueOf(v)
+			if rv.Kind() == reflect.Ptr && rv.Elem().Kind() == reflect.String {
+				rv.Elem().SetString(string(b))
+				return nil
+			}
 			return err
 		}
 		return nil
@@ -146,6 +157,7 @@ func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err err
 		rv.Elem().SetString(string(b))
 		return nil
 	}
+
 	return errors.New("undefined response type")
 }
 
@@ -348,4 +360,8 @@ func addFile(w *multipart.Writer, fieldName, path string) error {
 	_, err = io.Copy(part, file)
 
 	return err
+}
+
+func isSuccessfulStatus(statusCode int) bool {
+	return statusCode >= 200 && statusCode < 300
 }

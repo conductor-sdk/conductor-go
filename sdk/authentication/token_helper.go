@@ -73,25 +73,14 @@ func GetToken(credentials settings.AuthenticationSettings, httpSettings *setting
 	if err != nil {
 		return localVarReturnValue, localVarHttpResponse, err
 	}
-	if localVarHttpResponse.StatusCode < 300 {
-		err = decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return localVarReturnValue, localVarHttpResponse, err
-		}
-	}
-	if localVarHttpResponse.StatusCode >= 300 {
+
+	if localVarHttpResponse.StatusCode < 200 || localVarHttpResponse.StatusCode >= 300 {
 		newErr := fmt.Errorf(string(localVarBody))
-		if localVarHttpResponse.StatusCode == 200 {
-			var v model.Task
-			err = decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				return localVarReturnValue, localVarHttpResponse, newErr
-			}
-			return localVarReturnValue, localVarHttpResponse, newErr
-		}
 		return localVarReturnValue, localVarHttpResponse, newErr
+	} else {
+		err = decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 	}
-	return localVarReturnValue, localVarHttpResponse, nil
+	return localVarReturnValue, localVarHttpResponse, err
 }
 
 func prepareRequest(
