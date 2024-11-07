@@ -114,9 +114,9 @@ func (e *WorkflowExecutor) UnRegisterWorkflow(name string, version int32) error 
 func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string) (run *model.WorkflowRun, err error) {
 	requestId := ""
 	version := startWorkflowRequest.Version
-	workflowRun, _, error := e.workflowClient.ExecuteWorkflow(context.Background(), *startWorkflowRequest, requestId, startWorkflowRequest.Name, version, waitUntilTask)
-	if error != nil {
-		return nil, error
+	workflowRun, _, err := e.workflowClient.ExecuteWorkflow(context.Background(), *startWorkflowRequest, requestId, startWorkflowRequest.Name, version, waitUntilTask)
+	if err != nil {
+		return nil, err
 	}
 	return &workflowRun, nil
 }

@@ -139,7 +139,12 @@ func (h *HttpRequester) prepareRequest(
 	// Encode the parameters.
 	url.RawQuery = query.Encode()
 
-	localVarRequest, err = http.NewRequestWithContext(ctx, method, url.String(), body)
+	if body != nil {
+		localVarRequest, err = http.NewRequestWithContext(ctx, method, url.String(), body)
+	} else {
+		localVarRequest, err = http.NewRequestWithContext(ctx, method, url.String(), nil)
+	}
+
 	if err != nil {
 		return nil, err
 	}

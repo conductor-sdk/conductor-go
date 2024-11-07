@@ -90,7 +90,7 @@ func TestGetTagsForApplication(t *testing.T) {
 
 	// Create an application to use in the test
 	ctx := context.Background()
-	createReq := rbac.CreateOrUpdateApplicationRequest{Name: "TestAppTags", Description: "Test Get Tags"}
+	createReq := rbac.CreateOrUpdateApplicationRequest{Name: "TestAppTags"}
 	application, _, _ := appClient.CreateApplication(ctx, createReq)
 
 	// Assuming tags are added here or exists; this could use PutTagForApplication if needed
@@ -114,7 +114,7 @@ func TestApplicationClientIntegration(t *testing.T) {
 	ctx := context.Background()
 
 	// Create an application
-	createReq := rbac.CreateOrUpdateApplicationRequest{Name: "IntegrationTestApp", Description: "Integration test for all methods"}
+	createReq := rbac.CreateOrUpdateApplicationRequest{Name: "IntegrationTestApp"}
 	application, _, err := appClient.CreateApplication(ctx, createReq)
 	assert.Nil(t, err)
 
@@ -151,7 +151,7 @@ func TestApplicationClientIntegration(t *testing.T) {
 	assert.Nil(t, err)
 
 	// Update the application
-	updateReq := rbac.CreateOrUpdateApplicationRequest{Name: "UpdatedIntegrationTestApp", Description: "Updated description"}
+	updateReq := rbac.CreateOrUpdateApplicationRequest{Name: "UpdatedIntegrationTestApp"}
 	updatedApp, _, err := appClient.UpdateApplication(ctx, updateReq, application.Id)
 	assert.Nil(t, err)
 	assert.Equal(t, "UpdatedIntegrationTestApp", updatedApp.Name)
@@ -181,7 +181,7 @@ func TestApplicationClientErrorHandling(t *testing.T) {
 	assert.Equal(t, 404, resp.StatusCode)
 
 	// Try to update a non-existent application
-	updateReq := rbac.CreateOrUpdateApplicationRequest{Name: "NonExistentApp", Description: "Non-existent update"}
+	updateReq := rbac.CreateOrUpdateApplicationRequest{Name: "NonExistentApp"}
 	_, resp, err = appClient.UpdateApplication(ctx, updateReq, invalidAppId)
 	assert.NotNil(t, err)
 	assert.Equal(t, 404, resp.StatusCode)
@@ -225,7 +225,7 @@ func TestGetAccessKeys(t *testing.T) {
 	ctx := context.Background()
 
 	// Create an application to use in the test
-	createReq := rbac.CreateOrUpdateApplicationRequest{Name: "TestAppAccessKeys", Description: "Test for GetAccessKeys method"}
+	createReq := rbac.CreateOrUpdateApplicationRequest{Name: "TestAppAccessKeys"}
 	application, _, err := appClient.CreateApplication(ctx, createReq)
 	assert.Nil(t, err)
 
