@@ -11,16 +11,13 @@ package executor
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
-	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/concurrency"
 	"github.com/conductor-sdk/conductor-go/sdk/event/queue"
@@ -83,42 +80,18 @@ func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 // RegisterWorkflow Registers the workflow on the server.  Overwrites if the flag is set.  If the 'overwrite' flag is not set
 // and the workflow definition differs from the one on the server, the call will fail with response code 409
 func (e *WorkflowExecutor) RegisterWorkflow(overwrite bool, workflow *model.WorkflowDef) error {
-	_, err := e.metadataClient.RegisterWorkflowDef(
-		context.Background(),
-		overwrite,
-		*workflow,
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return e.RegisterWorkflowWithContext(context.Background(), overwrite, workflow)
 }
 
 // UnRegisterWorkflow Un-registers the workflow on the server.
 func (e *WorkflowExecutor) UnRegisterWorkflow(name string, version int32) error {
-	_, err := e.metadataClient.UnregisterWorkflowDef(
-		context.Background(),
-		name,
-		version,
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return e.UnRegisterWorkflowWithContext(context.Background(), name, version)
 }
 
 // ExecuteWorkflow start a workflow and wait until the workflow completes or the waitUntilTask completes
 // Returns the output of the workflow
 func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string) (run *model.WorkflowRun, err error) {
-	requestId := ""
-	version := startWorkflowRequest.Version
-	workflowRun, _, err := e.workflowClient.ExecuteWorkflow(context.Background(), *startWorkflowRequest, requestId, startWorkflowRequest.Name, version, waitUntilTask)
-	if err != nil {
-		return nil, err
-	}
-	return &workflowRun, nil
+	return e.ExecuteWorkflowWithContext(context.Background(), startWorkflowRequest, waitUntilTask)
 }
 
 // MonitorExecution monitors the workflow execution
@@ -131,14 +104,7 @@ func (e *WorkflowExecutor) MonitorExecution(workflowId string) (workflowMonitor 
 // StartWorkflow Start workflows
 // Returns the id of the newly created workflow
 func (e *WorkflowExecutor) StartWorkflow(startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error) {
-	id, _, err := e.workflowClient.StartWorkflowWithRequest(
-		context.Background(),
-		*startWorkflowRequest,
-	)
-	if err != nil {
-		return "", err
-	}
-	return id, nil
+	return e.StartWorkflowWithContext(context.Background(), startWorkflowRequest)
 }
 
 // StartWorkflows Start workflows in bulk
@@ -178,7 +144,7 @@ func WaitForWorkflowCompletionUntilTimeout(executionChannel WorkflowExecutionCha
 	}
 }
 
-// WaitForRunningWorkflowUntilTimeout Helper method to wait for running workflows until the timeout for the workflow execution to complete
+// WaitForRunningWorkflowsUntilTimeout Helper method to wait for running workflows until the timeout for the workflow execution to complete
 func (e *WorkflowExecutor) WaitForRunningWorkflowsUntilTimeout(timeout time.Duration, runningWorkflows ...*RunningWorkflow) {
 	for idx := 0; idx < len(runningWorkflows); {
 		var waitGroup sync.WaitGroup
@@ -198,86 +164,27 @@ func waitForRunningWorkflowUntilTimeoutDaemon(timeout time.Duration, runningWork
 // GetWorkflow Get workflow execution by workflow Id.  If includeTasks is set, also fetches all the task details.
 // Returns nil if no workflow is found by the id
 func (e *WorkflowExecutor) GetWorkflow(workflowId string, includeTasks bool) (*model.Workflow, error) {
-	return e.getWorkflow(4, workflowId, includeTasks)
-}
-
-func (e *WorkflowExecutor) getWorkflow(retry int, workflowId string, includeTasks bool) (*model.Workflow, error) {
-	workflow, response, err := e.workflowClient.GetExecutionStatus(
-		context.Background(),
-		workflowId,
-		&client.WorkflowResourceApiGetExecutionStatusOpts{
-			IncludeTasks: optional.NewBool(includeTasks)},
-	)
-
-	// 404s in GetWorkflow are a bit inconsistent with other errors since
-	// it's using fmt.Errorf("..."). Keeping it this way to avoid breaking changes
-	if response.StatusCode == 404 {
-		return nil, fmt.Errorf("no such workflow by Id %s", workflowId)
-	}
-
-	if response.StatusCode > 399 && response.StatusCode < 500 && response.StatusCode != 429 {
-		return nil, err
-	}
-
-	if err != nil {
-		if retry < 0 {
-			return nil, err
-		} else {
-			time.Sleep(time.Duration(4-retry) * 10 * time.Second)
-			retry = retry - 1
-			return e.getWorkflow(retry, workflowId, includeTasks)
-		}
-	}
-
-	return &workflow, nil
+	return e.GetWorkflowWithContext(context.Background(), workflowId, includeTasks)
 }
 
 // GetWorkflowStatus Get the status of the workflow execution.
 // This is a lightweight method that returns only overall state of the workflow
 func (e *WorkflowExecutor) GetWorkflowStatus(workflowId string, includeOutput bool, includeVariables bool) (*model.WorkflowState, error) {
-	state, response, err := e.workflowClient.GetWorkflowState(context.Background(), workflowId, includeOutput, includeVariables)
-	if response.StatusCode == 404 {
-		return nil, nil
-	}
-	return &state, err
+	return e.GetWorkflowStatusWithContext(context.Background(), workflowId, includeOutput, includeVariables)
 }
 
 // GetByCorrelationIds Given the list of correlation ids, find and return workflows
 // Returns a map with key as correlationId and value as a list of Workflows
 // When IncludeClosed is set to true, the return value also includes workflows that are completed otherwise only running workflows are returned
 func (e *WorkflowExecutor) GetByCorrelationIds(workflowName string, includeClosed bool, includeTasks bool, correlationIds ...string) (map[string][]model.Workflow, error) {
-	workflows, _, err := e.workflowClient.GetWorkflows(
-		context.Background(),
-		correlationIds,
-		workflowName,
-		&client.WorkflowResourceApiGetWorkflowsOpts{
-			IncludeClosed: optional.NewBool(includeClosed),
-			IncludeTasks:  optional.NewBool(includeTasks),
-		})
-	if err != nil {
-		return nil, err
-	}
-	return workflows, nil
+	return e.GetByCorrelationIdsWithContext(context.Background(), workflowName, includeClosed, includeTasks, correlationIds...)
 }
 
 // GetByCorrelationIdsAndNames Given the list of correlation ids and list of workflow names, find and return workflows
 // Returns a map with key as correlationId and value as a list of Workflows
 // When IncludeClosed is set to true, the return value also includes workflows that are completed otherwise only running workflows are returned
 func (e *WorkflowExecutor) GetByCorrelationIdsAndNames(includeClosed bool, includeTasks bool, correlationIds []string, workflowNames []string) (map[string][]model.Workflow, error) {
-	workflows, _, err := e.workflowClient.GetWorkflowsBatch(
-		context.Background(),
-		map[string][]string{
-			"workflowNames":  workflowNames,
-			"correlationIds": correlationIds,
-		},
-		&client.WorkflowResourceApiGetWorkflowsOpts{
-			IncludeClosed: optional.NewBool(includeClosed),
-			IncludeTasks:  optional.NewBool(includeTasks),
-		})
-	if err != nil {
-		return nil, err
-	}
-	return workflows, nil
+	return e.GetByCorrelationIdsAndNamesWithContext(context.Background(), includeClosed, includeTasks, correlationIds, workflowNames)
 }
 
 // Search searches for workflows
@@ -293,181 +200,75 @@ func (e *WorkflowExecutor) GetByCorrelationIdsAndNames(includeClosed bool, inclu
 //   - FreeText: Full text search.  All the workflow input, output and task outputs upto certain limit (check with your admins to find the size limit)
 //     are full text indexed and can be used to search
 func (e *WorkflowExecutor) Search(start int32, size int32, query string, freeText string) ([]model.WorkflowSummary, error) {
-	workflows, _, err := e.workflowClient.Search(
-		context.Background(),
-		&client.WorkflowResourceApiSearchOpts{
-			Start:    optional.NewInt32(start),
-			Size:     optional.NewInt32(size),
-			FreeText: optional.NewString(freeText),
-			Query:    optional.NewString(query),
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	return workflows.Results, nil
+	return e.SearchWithContext(context.Background(), start, size, query, freeText)
 }
 
 // Pause the execution of a running workflow.
 // Any tasks that are currently running will finish but no new tasks are scheduled until the workflow is resumed
 func (e *WorkflowExecutor) Pause(workflowId string) error {
-	_, err := e.workflowClient.PauseWorkflow(context.Background(), workflowId)
-	if err != nil {
-		return err
-	}
-	return nil
+	return e.PauseWithContext(context.Background(), workflowId)
 }
 
 // Resume the execution of a workflow that is paused.  If the workflow is not paused, this method has no effect
 func (e *WorkflowExecutor) Resume(workflowId string) error {
-	_, err := e.workflowClient.ResumeWorkflow(context.Background(), workflowId)
-	if err != nil {
-		return err
-	}
-	return nil
+	return e.ResumeWithContext(context.Background(), workflowId)
 }
 
-// Terminate a running workflow.  Reason must be provided that is captured as the termination resaon for the workflow
+// Terminate Terminates a running workflow. Reason must be provided that is captured as the termination reason for the workflow.
 func (e *WorkflowExecutor) Terminate(workflowId string, reason string) error {
-	if strings.TrimSpace(workflowId) == "" {
-		err := errors.New("workflow id cannot be empty when calling terminate workflow API")
-		log.Error("Failed to terminate workflow: ", err.Error())
-		return err
-	}
-	_, err := e.workflowClient.Terminate(context.Background(), workflowId,
-		&client.WorkflowResourceApiTerminateOpts{Reason: optional.NewString(reason), TriggerFailureWorkflow: optional.NewBool(false)},
-	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return e.TerminateWithContext(context.Background(), workflowId, reason)
 }
 
+// TerminateWithFailure Terminates a running workflow.
 func (e *WorkflowExecutor) TerminateWithFailure(workflowId string, reason string, triggerFailureWorkflow bool) error {
-	if strings.TrimSpace(workflowId) == "" {
-		err := errors.New("workflow id cannot be empty when calling terminate workflow API")
-		log.Error("Failed to terminate workflow: ", err.Error())
-		return err
-	}
-	_, err := e.workflowClient.Terminate(context.Background(), workflowId,
-		&client.WorkflowResourceApiTerminateOpts{Reason: optional.NewString(reason), TriggerFailureWorkflow: optional.NewBool(triggerFailureWorkflow)},
-	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return e.TerminateWithFailureWithContext(context.Background(), workflowId, reason, triggerFailureWorkflow)
 }
 
 // Restart a workflow execution from the beginning with the same input.
 // When called on a workflow that is not in a terminal status, this operation has no effect
 // If useLatestDefinition is set, the restarted workflow fetches the latest definition from the metadata store
 func (e *WorkflowExecutor) Restart(workflowId string, useLatestDefinition bool) error {
-	_, err := e.workflowClient.Restart(
-		context.Background(),
-		workflowId,
-		&client.WorkflowResourceApiRestartOpts{
-			UseLatestDefinitions: optional.NewBool(useLatestDefinition),
-		})
-	if err != nil {
-		return err
-	}
-	return nil
+	return e.RestartWithContext(context.Background(), workflowId, useLatestDefinition)
 }
 
 // Retry a failed workflow from the last task that failed.  When called the task in the failed state is scheduled again
 // and workflow moves to RUNNING status.  If resumeSubworkflowTasks is set and the last failed task was a sub-workflow
 // the server restarts the subworkflow from the failed task.  If set to false, the sub-workflow is re-executed.
 func (e *WorkflowExecutor) Retry(workflowId string, resumeSubworkflowTasks bool) error {
-	_, err := e.workflowClient.Retry(
-		context.Background(),
-		workflowId,
-		&client.WorkflowResourceApiRetryOpts{
-			ResumeSubworkflowTasks: optional.NewBool(resumeSubworkflowTasks),
-		},
-	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return e.RetryWithContext(context.Background(), workflowId, resumeSubworkflowTasks)
 }
 
 // ReRun a completed workflow from a specific task (ReRunFromTaskId) and optionally change the input
 // Also update the completed tasks with new input (ReRunFromTaskId) if required
 func (e *WorkflowExecutor) ReRun(workflowId string, reRunRequest model.RerunWorkflowRequest) (id string, error error) {
-	id, _, err := e.workflowClient.Rerun(
-		context.Background(),
-		reRunRequest,
-		workflowId,
-	)
-	if err != nil {
-		return "", err
-	}
-	return id, nil
+	return e.ReRunWithContext(context.Background(), workflowId, reRunRequest)
 }
 
 // SkipTasksFromWorkflow Skips a given task execution from a current running workflow.
 // When skipped the task's input and outputs are updated  from skipTaskRequest parameter.
 func (e *WorkflowExecutor) SkipTasksFromWorkflow(workflowId string, taskReferenceName string, skipTaskRequest model.SkipTaskRequest) error {
-	_, err := e.workflowClient.SkipTaskFromWorkflow(
-		context.Background(),
-		workflowId,
-		taskReferenceName,
-		skipTaskRequest,
-	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return e.SkipTasksFromWorkflowWithContext(context.Background(), workflowId, taskReferenceName, skipTaskRequest)
 }
 
 // UpdateTask update the task with output and status.
 func (e *WorkflowExecutor) UpdateTask(taskId string, workflowInstanceId string, status model.TaskResultStatus, output interface{}) error {
-	taskResult, err := getTaskResultFromOutput(taskId, workflowInstanceId, output)
-	if err != nil {
-		return err
-	}
-	taskResult.Status = status
-	_, _, err = e.taskClient.UpdateTask(context.Background(), taskResult)
-	if err != nil {
-		return err
-	}
-	return nil
+	return e.UpdateTaskWithContext(context.Background(), taskId, workflowInstanceId, status, output)
 }
 
 // UpdateTaskByRefName Update the execution status and output of the task and status
 func (e *WorkflowExecutor) UpdateTaskByRefName(taskRefName string, workflowInstanceId string, status model.TaskResultStatus, output interface{}) error {
-	outputData, err := model.ConvertToMap(output)
-	if err != nil {
-		return err
-	}
-
-	_, _, err = e.taskClient.UpdateTaskByRefName(context.Background(), outputData, workflowInstanceId, taskRefName, string(status))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return e.UpdateTaskByRefNameWithContext(context.Background(), taskRefName, workflowInstanceId, status, output)
 }
 
 // GetTask by task Id returns nil if no such task is found by the id
 func (e *WorkflowExecutor) GetTask(taskId string) (task *model.Task, err error) {
-	t, _, err := e.taskClient.GetTask(context.Background(), taskId)
-	if err != nil {
-		return nil, err
-	}
-
-	return &t, nil
+	return e.GetTaskWithContext(context.Background(), taskId)
 }
 
 // RemoveWorkflow Remove workflow execution permanently from the system
 // Returns nil if no workflow is found by the id
 func (e *WorkflowExecutor) RemoveWorkflow(workflowId string) error {
-	_, err := e.workflowClient.Delete(context.Background(), workflowId, &client.WorkflowResourceApiDeleteOpts{ArchiveWorkflow: optional.NewBool(false)})
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return e.RemoveWorkflowWithContext(context.Background(), workflowId)
 }
 
 // DeleteQueueConfiguration Delete queue configuration permanently from the system
@@ -482,69 +283,16 @@ func (e *WorkflowExecutor) GetQueueConfiguration(queueConfiguration queue.QueueC
 	return e.eventClient.GetQueueConfig(context.Background(), queueConfiguration.QueueType, queueConfiguration.QueueName)
 }
 
-// GetQueueConfiguration Create or update a queue configuration
+// PutQueueConfiguration Create or update a queue configuration
 // Returns nil if no error occurred
 func (e *WorkflowExecutor) PutQueueConfiguration(queueConfiguration queue.QueueConfiguration) (*http.Response, error) {
-	body, err := queueConfiguration.GetConfiguration()
-	if err != nil {
-		return nil, err
-	}
-	return e.eventClient.PutQueueConfig(context.Background(), body, queueConfiguration.QueueType, queueConfiguration.QueueName)
-}
-
-func getTaskResultFromOutput(taskId string, workflowInstanceId string, taskExecutionOutput interface{}) (*model.TaskResult, error) {
-	taskResult, ok := taskExecutionOutput.(*model.TaskResult)
-	if !ok {
-		taskResult = model.NewTaskResult(taskId, workflowInstanceId)
-		outputData, err := model.ConvertToMap(taskExecutionOutput)
-		if err != nil {
-			return nil, err
-		}
-		taskResult.OutputData = outputData
-		taskResult.Status = model.CompletedTask
-	}
-	return taskResult, nil
+	return e.PutQueueConfigurationWithContext(context.Background(), queueConfiguration)
 }
 
 // ExecuteWorkflow Executes a workflow
 // Returns workflow Id for the newly started workflow
 func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request *model.StartWorkflowRequest) (workflowId string, err error) {
-	startWorkflowRequest := model.StartWorkflowRequest{
-		Name:                            request.Name,
-		Version:                         request.Version,
-		CorrelationId:                   request.CorrelationId,
-		Input:                           request.Input,
-		TaskToDomain:                    request.TaskToDomain,
-		ExternalInputPayloadStoragePath: request.ExternalInputPayloadStoragePath,
-		Priority:                        request.Priority,
-	}
-	if workflow != nil {
-		startWorkflowRequest.WorkflowDef = workflow
-	}
-	workflowId, response, err := e.workflowClient.StartWorkflowWithRequest(
-		context.Background(),
-		startWorkflowRequest,
-	)
-	if err != nil {
-		log.Debug(
-			"Failed to start workflow",
-			", reason: ", err.Error(),
-			", name: ", request.Name,
-			", version: ", request.Version,
-			", input: ", request.Input,
-			", workflowId: ", workflowId,
-			", response: ", response,
-		)
-		return "", err
-	}
-	log.Debug(
-		"Started workflow",
-		", workflowId: ", workflowId,
-		", name: ", request.Name,
-		", version: ", request.Version,
-		", input: ", request.Input,
-	)
-	return workflowId, err
+	return e.executeWorkflowWithContext(context.Background(), workflow, request)
 }
 
 func (e *WorkflowExecutor) startWorkflowDaemon(monitorExecution bool, request *model.StartWorkflowRequest, runningWorkflowChannel chan *RunningWorkflow, waitGroup *sync.WaitGroup) {

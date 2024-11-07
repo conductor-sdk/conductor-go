@@ -1,14 +1,14 @@
 package integration_tests
 
 import (
+	"context"
 	"fmt"
-	"testing"
-
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/test/testdata"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 const (
@@ -89,4 +89,16 @@ func TestUpdate(t *testing.T) {
 	} else {
 		assert.Fail(t, "err is not of type GenericSwaggerError")
 	}
+}
+
+func TestStartWorkflowWithContext(t *testing.T) {
+	executor := testdata.WorkflowExecutor
+
+	ctx, cancel := context.WithCancel(context.Background())
+	// cancel straightaway on purpose
+	cancel()
+
+	_, err := executor.StartWorkflowWithContext(ctx, &model.StartWorkflowRequest{})
+	assert.Error(t, err, "StartWorkflowWithContext is expected to return an error")
+	assert.Equal(t, context.Canceled, err, "Expected context canceled error")
 }
