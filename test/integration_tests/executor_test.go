@@ -24,7 +24,7 @@ func TestRetryNotFound(t *testing.T) {
 	assert.Error(t, err, "Retry is expected to return an error")
 
 	if swaggerErr, ok := err.(client.GenericSwaggerError); ok {
-		assert.Equal(t, 500, swaggerErr.StatusCode()) //TODO on test server update, should be a 404
+		assert.Equal(t, 404, swaggerErr.StatusCode())
 	} else {
 		assert.Fail(t, "err is not of type GenericSwaggerError")
 	}
@@ -74,7 +74,7 @@ func TestUpdateTaskByRefName(t *testing.T) {
 	err := executor.UpdateTaskByRefName("task_ref", notFoundWorkflowId, model.CompletedTask, map[string]interface{}{})
 	assert.Error(t, err, "UpdateTaskByRefName is expected to return an error")
 	if swaggerErr, ok := err.(client.GenericSwaggerError); ok {
-		assert.Equal(t, 500, swaggerErr.StatusCode()) //TODO on test server update, should be a 404
+		assert.Equal(t, 404, swaggerErr.StatusCode())
 	} else {
 		assert.Fail(t, "err is not of type GenericSwaggerError")
 	}
