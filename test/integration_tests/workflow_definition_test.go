@@ -18,6 +18,7 @@ import (
 const retryLimit = 5
 
 func TestWorkflowCreation(t *testing.T) {
+	executor := testdata.WorkflowExecutor
 	workflow := testdata.NewKitchenSinkWorkflow(testdata.WorkflowExecutor)
 	err := workflow.Register(true)
 	if err != nil {
@@ -31,9 +32,25 @@ func TestWorkflowCreation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to complete the workflow, reason: %s", err)
 	}
+
 	assert.NotEmpty(t, run, "Workflow is null", run)
-	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
-	assert.Equal(t, "input1", run.Input["key1"])
+
+	timeout := time.After(60 * time.Second)
+	tick := time.Tick(1 * time.Second)
+	workflowId := run.WorkflowId
+	for {
+		select {
+		case <-timeout:
+			t.Fatalf("Timed out and workflow %s didn't complete", workflowId)
+		case <-tick:
+			wf, err := executor.GetWorkflow(workflowId, false)
+			assert.NoError(t, err)
+			assert.Equal(t, model.CompletedWorkflow, wf.Status)
+			assert.Equal(t, "input1", run.Input["key1"])
+			return
+		}
+	}
+
 }
 
 func TestRemoveWorkflow(t *testing.T) {
