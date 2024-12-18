@@ -40,7 +40,7 @@ func httpSettings() *settings.HttpSettings {
 }
 
 type Data struct {
-	InputKey InputKey `json:inputKey`
+	InputKey InputKey `json:"inputKey"`
 }
 
 type InputKey struct {
