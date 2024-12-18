@@ -69,10 +69,9 @@ type Body struct {
 }
 
 func ProcessBody(body *Data) (*Data, error) {
-	if body == nil {
-		fmt.Println("Body is nil")
-		return nil, nil
-	}
+      if body == nil {
+          return nil, fmt.Errorf("received nil body")
+      }
 	body.InputKey.Body.HostName = "locally hosting"
 	fmt.Println("returning", body)
 	return body, nil
