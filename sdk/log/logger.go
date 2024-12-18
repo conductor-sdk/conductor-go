@@ -7,7 +7,9 @@ var (
 )
 
 func init() {
-	logger, _ := zap.NewProduction()
+	if err != nil {
+		panic("failed to initialize zap logger: " + err.Error()) // Handle error appropriately
+	}
 	defer logger.Sync() // flushes buffer, if any
 	sugar = logger.Sugar()
 }
