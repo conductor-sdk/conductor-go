@@ -36,8 +36,8 @@ jobs:
           gotestsum --format testname  --junitfile report.xml -- -v ./test/integration_tests/...
         env:
           CONDUCTOR_SERVER_URL: ${{ secrets.CONDUCTOR_SERVER_URL }}
-          KEY: ${{ secrets.KEY }}
-          SECRET: ${{ secrets.SECRET }}
+          CONDUCTOR_AUTH_KEY: ${{ secrets.KEY }}
+          CONDUCTOR_AUTH_SECRET: ${{ secrets.SECRET }}
 
       - name: Set PR Status to Failure
         if: ${{ failure() }}

@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"net"
 	"net/http"
@@ -47,7 +48,6 @@ var (
 
 type APIClient struct {
 	httpRequester *HttpRequester
-	tokenManager  authentication.TokenManager
 }
 
 func NewAPIClient(
@@ -62,9 +62,23 @@ func NewAPIClient(
 	)
 }
 func NewAPIClientFromEnv() *APIClient {
-	authenticationSettings := settings.NewAuthenticationSettings(os.Getenv(CONDUCTOR_AUTH_KEY), os.Getenv(CONDUCTOR_AUTH_SECRET))
-	httpSettings := settings.NewHttpSettings(os.Getenv(CONDUCTOR_SERVER_URL))
-	return NewAPIClient(authenticationSettings, httpSettings)
+	return NewAPIClient(NewAuthenticationSettingsFromEnv(), NewHttpSettingsFromEnv())
+}
+
+func NewAuthenticationSettingsFromEnv() *settings.AuthenticationSettings {
+	return settings.NewAuthenticationSettings(
+		os.Getenv(CONDUCTOR_AUTH_KEY),
+		os.Getenv(CONDUCTOR_AUTH_SECRET),
+	)
+}
+
+func NewHttpSettingsFromEnv() *settings.HttpSettings {
+	url := os.Getenv(CONDUCTOR_SERVER_URL)
+	if url == "" {
+		log.Fatalf("Error: %s env variable is not set", CONDUCTOR_SERVER_URL)
+	}
+
+	return settings.NewHttpSettings(url)
 }
 
 func NewAPIClientWithTokenExpiration(
