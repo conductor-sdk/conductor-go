@@ -173,41 +173,16 @@ To begin with, let's take a look at the variable declaration in [examples/hello_
 ```go
 
 var (
-	apiClient = client.NewAPIClient(
-		authSettings(),
-		httpSettings(),
-	)
+	apiClient        = client.NewAPIClientFromEnv()
 	taskRunner       = worker.NewTaskRunnerWithApiClient(apiClient)
 	workflowExecutor = executor.NewWorkflowExecutor(apiClient)
 )
 
-func authSettings() *settings.AuthenticationSettings {
-	key := os.Getenv("KEY")
-	secret := os.Getenv("SECRET")
-	if key != "" && secret != "" {
-		return settings.NewAuthenticationSettings(
-			key,
-			secret,
-		)
-	}
-
-	return nil
-}
-
-func httpSettings() *settings.HttpSettings {
-	url := os.Getenv("CONDUCTOR_SERVER_URL")
-	if url == "" {
-		fmt.Fprintf(os.Stderr, "Error: CONDUCTOR_SERVER_URL env variable is not set\n")
-		os.Exit(1)
-	}
-
-	return settings.NewHttpSettings(url)
-}
 ```
 
 First we create an `APIClient` instance. This is a REST client. 
 
-We need to pass on the proper settings to our client. For convenience to run the example you can set the following environment variables: `CONDUCTOR_SERVER_URL`, `KEY`, `SECRET`.
+We need to provide the correct settings to our client. In this example, `client.NewAPIClientFromEnv()` is used, which initializes a new client by reading the settings from the following environment variables: `CONDUCTOR_SERVER_URL`, `CONDUCTOR_AUTH_KEY`, and `CONDUCTOR_AUTH_SECRET`.
 
 
 Now let's take a look at the `main` function:
@@ -265,11 +240,11 @@ cd examples
 go run hello_world/main.go
 ```
 
-#### Running the example in Orkes playground.
+#### Running the example with an [Orkes developer account](https://developer.orkescloud.com).
 ```shell
-export CONDUCTOR_SERVER_URL="https://play.orkes.io/api"
-export KEY="..."
-export SECRET="..."
+export CONDUCTOR_SERVER_URL="https://developer.orkescloud.com/api"
+export CONDUCTOR_AUTH_KEY="..."
+export CONDUCTOR_AUTH_SECRET="..."
 cd examples
 go run hello_world/main.go
 ```

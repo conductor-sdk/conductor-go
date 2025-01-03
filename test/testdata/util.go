@@ -19,7 +19,6 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/authentication"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"github.com/conductor-sdk/conductor-go/sdk/settings"
 	"github.com/conductor-sdk/conductor-go/sdk/worker"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
@@ -27,17 +26,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	AUTHENTICATION_KEY_ID     = "KEY"
-	AUTHENTICATION_KEY_SECRET = "SECRET"
-	BASE_URL                  = "CONDUCTOR_SERVER_URL"
-)
-
 var (
-	apiClient = getApiClientWithAuthentication()
-)
-
-var (
+	apiClient = client.NewAPIClientWithTokenExpiration(
+		client.NewAuthenticationSettingsFromEnv(),
+		client.NewHttpSettingsFromEnv(),
+		authentication.NewTokenExpiration(3*time.Second, 30*time.Second),
+	)
 	MetadataClient = client.MetadataResourceApiService{
 		APIClient: apiClient,
 	}
@@ -96,30 +90,6 @@ func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, wo
 		return
 	}
 	outputChannel <- nil
-}
-
-func getApiClientWithAuthentication() *client.APIClient {
-	return client.NewAPIClientWithTokenExpiration(
-		getAuthenticationSettings(),
-		getHttpSettingsWithAuth(),
-		authentication.NewTokenExpiration(
-			3*time.Second,
-			30*time.Second,
-		),
-	)
-}
-
-func getAuthenticationSettings() *settings.AuthenticationSettings {
-	return settings.NewAuthenticationSettings(
-		os.Getenv(AUTHENTICATION_KEY_ID),
-		os.Getenv(AUTHENTICATION_KEY_SECRET),
-	)
-}
-
-func getHttpSettingsWithAuth() *settings.HttpSettings {
-	return settings.NewHttpSettings(
-		os.Getenv(BASE_URL),
-	)
 }
 
 func StartWorkflows(workflowQty int, workflowName string) ([]string, error) {
