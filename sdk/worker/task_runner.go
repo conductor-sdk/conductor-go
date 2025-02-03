@@ -206,10 +206,17 @@ func (c *TaskRunner) Resume(taskName string) {
 // a signal will be sent to the WaitGroup to indicate that this worker has completed its work.
 // When used in conjunction with TaskRunner.WaitWorkers() it allows a graceful shutdown.
 func (c *TaskRunner) Shutdown(taskName string) {
-	c.pausedWorkersMutex.Lock()
-	defer c.pausedWorkersMutex.Unlock()
+	c.batchSizeByTaskNameMutex.Lock()
 	delete(c.batchSizeByTaskName, taskName)
+	c.batchSizeByTaskNameMutex.Unlock()
+
+	c.pausedWorkersMutex.Lock()
 	delete(c.pausedWorkers, taskName)
+	c.pausedWorkersMutex.Unlock()
+
+	c.pollIntervalByTaskNameMutex.Lock()
+	delete(c.pollIntervalByTaskName, taskName)
+	c.pollIntervalByTaskNameMutex.Unlock()
 }
 
 func (c *TaskRunner) isPaused(taskName string) bool {
