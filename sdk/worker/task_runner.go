@@ -202,6 +202,23 @@ func (c *TaskRunner) Resume(taskName string) {
 	c.pausedWorkers[taskName] = false
 }
 
+// Shutdown the TaskRunner will stop polling for tasks and once all running workers are done,
+// a signal will be sent to the WaitGroup to indicate that this worker has completed its work.
+// When used in conjunction with TaskRunner.WaitWorkers() it allows a graceful shutdown.
+func (c *TaskRunner) Shutdown(taskName string) {
+	c.batchSizeByTaskNameMutex.Lock()
+	delete(c.batchSizeByTaskName, taskName)
+	c.batchSizeByTaskNameMutex.Unlock()
+
+	c.pausedWorkersMutex.Lock()
+	delete(c.pausedWorkers, taskName)
+	c.pausedWorkersMutex.Unlock()
+
+	c.pollIntervalByTaskNameMutex.Lock()
+	delete(c.pollIntervalByTaskName, taskName)
+	c.pollIntervalByTaskNameMutex.Unlock()
+}
+
 func (c *TaskRunner) isPaused(taskName string) bool {
 	c.pausedWorkersMutex.RLock()
 	defer c.pausedWorkersMutex.RUnlock()
@@ -209,7 +226,7 @@ func (c *TaskRunner) isPaused(taskName string) bool {
 }
 
 // WaitWorkers uses an internal waitgroup to block the calling thread until all workers started by this TaskRunner have
-// been stopped.
+// been shut down.
 func (c *TaskRunner) WaitWorkers() {
 	c.workerWaitGroup.Wait()
 }
@@ -469,6 +486,7 @@ func (c *TaskRunner) increaseRunningWorkers(taskName string) error {
 	c.runningWorkersByTaskNameMutex.Lock()
 	defer c.runningWorkersByTaskNameMutex.Unlock()
 	c.runningWorkersByTaskName[taskName] += 1
+	c.workerWaitGroup.Add(1)
 	log.Trace("Increased running workers for task: ", taskName)
 	return nil
 }
@@ -477,6 +495,7 @@ func (c *TaskRunner) runningWorkerDone(taskName string) error {
 	c.runningWorkersByTaskNameMutex.Lock()
 	defer c.runningWorkersByTaskNameMutex.Unlock()
 	c.runningWorkersByTaskName[taskName] -= 1
+	c.workerWaitGroup.Done()
 	log.Trace("Running worker done for task: ", taskName)
 	return nil
 }
