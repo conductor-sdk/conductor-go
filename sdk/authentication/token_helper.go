@@ -197,6 +197,13 @@ func prepareRequest(
 	}
 
 	for header, value := range httpSettings.Headers {
+		if header == "Content-Type" {
+			// a client can only produce content of one single type, so skip adding the Content-Type header
+			// when it already exists
+			if _, ok := localVarRequest.Header["Content-Type"]; ok {
+				continue
+			}
+		}
 		localVarRequest.Header.Add(header, value)
 	}
 
