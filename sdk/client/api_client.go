@@ -27,6 +27,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -36,9 +37,10 @@ import (
 )
 
 const (
-	CONDUCTOR_AUTH_KEY    = "CONDUCTOR_AUTH_KEY"
-	CONDUCTOR_AUTH_SECRET = "CONDUCTOR_AUTH_SECRET"
-	CONDUCTOR_SERVER_URL  = "CONDUCTOR_SERVER_URL"
+	CONDUCTOR_AUTH_KEY            = "CONDUCTOR_AUTH_KEY"
+	CONDUCTOR_AUTH_SECRET         = "CONDUCTOR_AUTH_SECRET"
+	CONDUCTOR_SERVER_URL          = "CONDUCTOR_SERVER_URL"
+	CONDUCTOR_CLIENT_HTTP_TIMEOUT = "CONDUCTOR_CLIENT_HTTP_TIMEOUT"
 )
 
 var (
@@ -112,6 +114,17 @@ func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpS
 	if httpSettings == nil {
 		httpSettings = settings.NewHttpDefaultSettings()
 	}
+	var httpTimeout = 30 * time.Second // Set default value once
+
+	timeoutStr := os.Getenv(CONDUCTOR_CLIENT_HTTP_TIMEOUT)
+	if timeoutStr != "" {
+		// Only try to parse if the environment variable is actually set
+		if timeoutInt, err := strconv.Atoi(timeoutStr); err == nil {
+			httpTimeout = time.Duration(timeoutInt) * time.Second
+		}
+		// If parsing fails, we'll keep the default value
+	}
+
 	baseDialer := &net.Dialer{
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,
@@ -127,7 +140,7 @@ func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpS
 		Transport:     netTransport,
 		CheckRedirect: nil,
 		Jar:           nil,
-		Timeout:       30 * time.Second,
+		Timeout:       httpTimeout,
 	}
 	return &APIClient{
 		httpRequester: NewHttpRequester(
