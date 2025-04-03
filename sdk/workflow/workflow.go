@@ -11,6 +11,7 @@ package workflow
 
 import (
 	"encoding/json"
+
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	log "github.com/sirupsen/logrus"
@@ -229,38 +230,6 @@ func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkfl
 	return workflow.executor.MonitorExecution(workflowId)
 }
 
-func (workflow *ConductorWorkflow) AddWorkflowTags(workflowName string, tags map[string]string) error {
-	err := workflow.executor.AddWorkflowTags(workflowName, tags)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (workflow *ConductorWorkflow) GetWorkflowTags(workflowName string) (map[string]string, error) {
-	tags, err := workflow.executor.GetWorkflowTags(workflowName)
-	if err != nil {
-		return nil, err
-	}
-	return tags, nil
-}
-
-func (workflow *ConductorWorkflow) UpdateWorkflowTags(workflowName string, tags map[string]string) error {
-	err := workflow.executor.UpdateWorkflowTags(workflowName, tags)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (workflow *ConductorWorkflow) DeleteWorkflowTags(workflowName string, tags map[string]string) error {
-	err := workflow.executor.DeleteWorkflowTags(workflowName, tags)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func getInputAsMap(input interface{}) map[string]interface{} {
 	if input == nil {
 		return nil
@@ -283,7 +252,7 @@ func getInputAsMap(input interface{}) map[string]interface{} {
 }
 
 // GetTags returns the workflow tags as a map of key-value pairs
-func (workflow *ConductorWorkflow) getTags() map[string]string {
+func (workflow *ConductorWorkflow) GetTags() map[string]string {
 	result := make(map[string]string)
 
 	for _, tag := range workflow.tags {

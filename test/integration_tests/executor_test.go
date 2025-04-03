@@ -3,12 +3,13 @@ package integration_tests
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/test/testdata"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 const (
@@ -50,7 +51,7 @@ func TestRegisterWorkflow(t *testing.T) {
 		"SIMPLE", "simple_ref_2",
 	))
 	err = executor.RegisterWorkflow(false, wf.ToWorkflowDef())
-	assert.Error(t, err, "Retry is expected to return an error")
+	assert.Error(t, err, "Registration is expected to return an error")
 
 	if swaggerErr, ok := err.(client.GenericSwaggerError); ok {
 		assert.Equal(t, 409, swaggerErr.StatusCode())
@@ -81,8 +82,10 @@ func TestRegisterWorkflowWithTags(t *testing.T) {
 		)).
 		Tags(tags)
 
+	assert.Equal(t, tags, wf.GetTags())
+
 	// register the workflow
-	err := executor.RegisterWorkflow(true, wf.ToWorkflowDef())
+	err := wf.Register(true)
 	assert.Nil(t, err)
 
 	actualTags, err := executor.GetWorkflowTags(wf.GetName())
@@ -101,6 +104,7 @@ func TestRegisterWorkflowWithTags(t *testing.T) {
 	assert.Nil(t, err, "Expected no error while updating tags for workflow")
 
 	actualTags, err = executor.GetWorkflowTags(wf.GetName())
+	assert.Nil(t, err)
 	assert.Equal(t, updateTags, actualTags)
 
 	tagsToDelete := map[string]string{
