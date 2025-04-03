@@ -29,6 +29,7 @@ import (
 type WorkflowExecutor struct {
 	metadataClient *client.MetadataResourceApiService
 	taskClient     *client.TaskResourceApiService
+	tagsClient     *client.TagsApiService
 	workflowClient *client.WorkflowResourceApiService
 	eventClient    *client.EventResourceApiService
 
@@ -46,6 +47,9 @@ const (
 // NewWorkflowExecutor Create a new workflow executor
 func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 	metadataClient := client.MetadataResourceApiService{
+		APIClient: apiClient,
+	}
+	tagsClient := client.TagsApiService{
 		APIClient: apiClient,
 	}
 	taskClient := client.TaskResourceApiService{
@@ -67,6 +71,7 @@ func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 	}
 	workflowExecutor := WorkflowExecutor{
 		metadataClient:           &metadataClient,
+		tagsClient:               &tagsClient,
 		taskClient:               &taskClient,
 		workflowClient:           &workflowClient,
 		eventClient:              &eventClient,
