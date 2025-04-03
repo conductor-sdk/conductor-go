@@ -457,3 +457,30 @@ func (e *WorkflowExecutor) executeWorkflowWithContext(ctx context.Context, workf
 
 	return workflowId, err
 }
+
+func (e *WorkflowExecutor) addWorkflowTagsWithContext(ctx context.Context, workflowName string, tags map[string]string) error {
+	if workflowName == "" {
+		return fmt.Errorf("workflow name cannot be empty")
+	}
+	if len(tags) == 0 {
+		return fmt.Errorf("tags cannot be empty")
+	}
+
+	// Convert map to array of TagObject
+	tagObjects := make([]model.TagObject, 0, len(tags))
+	for key, value := range tags {
+		tagObject := model.TagObject{
+			Key:   key,
+			Value: value,
+		}
+		tagObjects = append(tagObjects, tagObject)
+	}
+
+	// Call the metadata client to add tags
+	_, err := e.workflowClient.AddWorkflowTags(ctx, workflowName, tagObjects)
+	if err != nil {
+		return fmt.Errorf("failed to add tags to workflow %s: %w", workflowName, err)
+	}
+
+	return nil
+}

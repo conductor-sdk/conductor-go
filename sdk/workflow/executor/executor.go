@@ -295,6 +295,11 @@ func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request 
 	return e.executeWorkflowWithContext(context.Background(), workflow, request)
 }
 
+func (e *WorkflowExecutor) AddWorkflowTags(workflowName string, tags map[string]string) error {
+	return e.addWorkflowTagsWithContext(context.Background(), workflowName, tags)
+
+}
+
 func (e *WorkflowExecutor) startWorkflowDaemon(monitorExecution bool, request *model.StartWorkflowRequest, runningWorkflowChannel chan *RunningWorkflow, waitGroup *sync.WaitGroup) {
 	defer concurrency.HandlePanicError("start_workflow")
 	workflowId, err := e.executeWorkflow(nil, request)

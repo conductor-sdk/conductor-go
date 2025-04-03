@@ -212,6 +212,14 @@ func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkfl
 	return workflow.executor.MonitorExecution(workflowId)
 }
 
+func (workflow *ConductorWorkflow) AddWorkflowTags(workflowName string, tags map[string]string) error {
+	err := workflow.executor.AddWorkflowTags(workflowName, tags)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func getInputAsMap(input interface{}) map[string]interface{} {
 	if input == nil {
 		return nil
