@@ -59,6 +59,37 @@ func TestRegisterWorkflow(t *testing.T) {
 	}
 }
 
+func TestRegisterWorkflowWithTags(t *testing.T) {
+	executor := testdata.WorkflowExecutor
+
+	wf := workflow.NewConductorWorkflow(executor)
+
+	// Create a map of tags
+	tags := map[string]string{
+		"environment": "production",
+		"owner":       "data-team",
+		"priority":    "high",
+		"region":      "us-west",
+		"version":     "1.2.3",
+	}
+
+	wf.Name("registration_test_wf").
+		Description("E2E test - Workflow Registration test").
+		Version(1).
+		Add(workflow.NewSimpleTask(
+			"SIMPLE", "simple_ref",
+		)).
+		Tags(tags)
+
+	// register the workflow
+	err := executor.RegisterWorkflow(true, wf.ToWorkflowDef())
+	assert.Nil(t, err)
+
+	actualTags, err := executor.GetWorkflowTags(wf.GetName())
+	assert.Nil(t, err)
+	assert.Equal(t, tags, actualTags)
+}
+
 func TestGetWorkflow(t *testing.T) {
 	executor := testdata.WorkflowExecutor
 
