@@ -483,3 +483,85 @@ func (e *WorkflowExecutor) addWorkflowTagsWithContext(ctx context.Context, workf
 
 	return nil
 }
+
+// GetWorkflowTagsWithContext retrieves all tags for a specific workflow
+func (e *WorkflowExecutor) getWorkflowTagsWithContext(ctx context.Context, workflowName string) (map[string]string, error) {
+	if workflowName == "" {
+		return nil, fmt.Errorf("workflow name cannot be empty")
+	}
+
+	// Call the metadata client to get tags
+	tagObjects, _, err := e.tagsClient.GetWorkflowTags(ctx, workflowName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tags for workflow %s: %w", workflowName, err)
+	}
+
+	// Convert slice of TagObject to map[string]string
+	tags := make(map[string]string)
+	for _, tag := range tagObjects {
+		tags[tag.Key] = tag.Value
+	}
+
+	return tags, nil
+}
+
+func (e *WorkflowExecutor) updateWorkflowTagWithContext(ctx context.Context, workflowName string, tags map[string]string) error {
+	if workflowName == "" {
+		return fmt.Errorf("workflow name cannot be empty")
+	}
+
+	// If no tags to update, return early
+	if len(tags) == 0 {
+		return nil
+	}
+
+	// Convert map[string]string to array of TagObject
+	tagObjects := make([]model.TagObject, 0, len(tags))
+	for key, value := range tags {
+		metadataTag := model.MetadataTag{
+			Key:   key,
+			Value: value,
+		}
+
+		tagObject := model.NewTagObject(metadataTag)
+		tagObjects = append(tagObjects, tagObject)
+	}
+
+	// Call API to replace all tags
+	_, _, err := e.tagsClient.SetWorkflowTags(ctx, tagObjects, workflowName)
+	if err != nil {
+		return fmt.Errorf("failed to update tags for workflow %s: %w", workflowName, err)
+	}
+
+	return nil
+}
+
+// DeleteWorkflowTagWithContext deletes specific tags from a workflow
+func (e *WorkflowExecutor) deleteWorkflowTagWithContext(ctx context.Context, workflowName string, tags map[string]string) error {
+	if workflowName == "" {
+		return fmt.Errorf("workflow name cannot be empty")
+	}
+
+	// If no tags to delete, return early
+	if len(tags) == 0 {
+		return nil
+	}
+
+	// Delete each tag one by one
+	for key, value := range tags {
+		// Create a TagObject with just the key
+		metadataTag := model.MetadataTag{
+			Key:   key,
+			Value: value,
+		}
+
+		tagObject := model.NewTagObject(metadataTag)
+
+		_, _, err := e.tagsClient.DeleteWorkflowTag(ctx, tagObject, workflowName)
+		if err != nil {
+			return fmt.Errorf("failed to delete tag %s from workflow %s: %w", key, workflowName, err)
+		}
+	}
+
+	return nil
+}

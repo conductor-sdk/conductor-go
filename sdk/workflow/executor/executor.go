@@ -302,7 +302,18 @@ func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request 
 
 func (e *WorkflowExecutor) AddWorkflowTags(workflowName string, tags map[string]string) error {
 	return e.addWorkflowTagsWithContext(context.Background(), workflowName, tags)
+}
 
+func (e *WorkflowExecutor) GetWorkflowTags(workflowName string) (map[string]string, error) {
+	return e.getWorkflowTagsWithContext(context.Background(), workflowName)
+}
+
+func (e *WorkflowExecutor) UpdateWorkflowTags(workflowName string, tags map[string]string) error {
+	return e.updateWorkflowTagWithContext(context.Background(), workflowName, tags)
+}
+
+func (e *WorkflowExecutor) DeleteWorkflowTags(workflowName string, tags map[string]string) error {
+	return e.deleteWorkflowTagWithContext(context.Background(), workflowName, tags)
 }
 
 func (e *WorkflowExecutor) startWorkflowDaemon(monitorExecution bool, request *model.StartWorkflowRequest, runningWorkflowChannel chan *RunningWorkflow, waitGroup *sync.WaitGroup) {

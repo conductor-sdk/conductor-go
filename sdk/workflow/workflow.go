@@ -220,6 +220,30 @@ func (workflow *ConductorWorkflow) AddWorkflowTags(workflowName string, tags map
 	return nil
 }
 
+func (workflow *ConductorWorkflow) GetWorkflowTags(workflowName string) (map[string]string, error) {
+	tags, err := workflow.executor.GetWorkflowTags(workflowName)
+	if err != nil {
+		return nil, err
+	}
+	return tags, nil
+}
+
+func (workflow *ConductorWorkflow) UpdateWorkflowTags(workflowName string, tags map[string]string) error {
+	err := workflow.executor.UpdateWorkflowTags(workflowName, tags)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (workflow *ConductorWorkflow) DeleteWorkflowTags(workflowName string, tags map[string]string) error {
+	err := workflow.executor.DeleteWorkflowTags(workflowName, tags)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func getInputAsMap(input interface{}) map[string]interface{} {
 	if input == nil {
 		return nil

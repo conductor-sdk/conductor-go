@@ -19,11 +19,6 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 )
 
-// Linger please
-var (
-	_ context.Context
-)
-
 type TagsApiService struct {
 	*APIClient
 }
