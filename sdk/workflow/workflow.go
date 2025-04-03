@@ -42,6 +42,7 @@ type ConductorWorkflow struct {
 	workflowStatusListenerEnabled bool
 	idempotencyKey                string
 	tags                          []model.TagObject
+	overwiteTags                  bool
 }
 
 func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflow {
@@ -49,6 +50,7 @@ func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflo
 		executor:      executor,
 		timeoutPolicy: AlertOnly,
 		restartable:   true,
+		overwiteTags:  true,
 	}
 }
 
@@ -149,6 +151,11 @@ func (workflow *ConductorWorkflow) Tags(tags map[string]string) *ConductorWorkfl
 		tagObject := model.NewTagObject(metadataTag)
 		workflow.tags = append(workflow.tags, tagObject)
 	}
+	return workflow
+}
+
+func (workflow *ConductorWorkflow) OverwriteTags(overwrite bool) *ConductorWorkflow {
+	workflow.overwiteTags = overwrite
 	return workflow
 }
 
@@ -281,6 +288,7 @@ func (workflow *ConductorWorkflow) ToWorkflowDef() *model.WorkflowDef {
 		Restartable:                   workflow.restartable,
 		WorkflowStatusListenerEnabled: workflow.workflowStatusListenerEnabled,
 		Tags:                          workflow.tags,
+		OverwriteTags:                 workflow.overwiteTags,
 	}
 }
 
