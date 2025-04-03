@@ -29,6 +29,7 @@ import (
 type WorkflowExecutor struct {
 	metadataClient *client.MetadataResourceApiService
 	taskClient     *client.TaskResourceApiService
+	tagsClient     *client.TagsApiService
 	workflowClient *client.WorkflowResourceApiService
 	eventClient    *client.EventResourceApiService
 
@@ -46,6 +47,9 @@ const (
 // NewWorkflowExecutor Create a new workflow executor
 func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 	metadataClient := client.MetadataResourceApiService{
+		APIClient: apiClient,
+	}
+	tagsClient := client.TagsApiService{
 		APIClient: apiClient,
 	}
 	taskClient := client.TaskResourceApiService{
@@ -67,6 +71,7 @@ func NewWorkflowExecutor(apiClient *client.APIClient) *WorkflowExecutor {
 	}
 	workflowExecutor := WorkflowExecutor{
 		metadataClient:           &metadataClient,
+		tagsClient:               &tagsClient,
 		taskClient:               &taskClient,
 		workflowClient:           &workflowClient,
 		eventClient:              &eventClient,
@@ -293,6 +298,22 @@ func (e *WorkflowExecutor) PutQueueConfiguration(queueConfiguration queue.QueueC
 // Returns workflow Id for the newly started workflow
 func (e *WorkflowExecutor) executeWorkflow(workflow *model.WorkflowDef, request *model.StartWorkflowRequest) (workflowId string, err error) {
 	return e.executeWorkflowWithContext(context.Background(), workflow, request)
+}
+
+func (e *WorkflowExecutor) AddWorkflowTags(workflowName string, tags map[string]string) error {
+	return e.addWorkflowTagsWithContext(context.Background(), workflowName, tags)
+}
+
+func (e *WorkflowExecutor) GetWorkflowTags(workflowName string) (map[string]string, error) {
+	return e.getWorkflowTagsWithContext(context.Background(), workflowName)
+}
+
+func (e *WorkflowExecutor) UpdateWorkflowTags(workflowName string, tags map[string]string) error {
+	return e.updateWorkflowTagWithContext(context.Background(), workflowName, tags)
+}
+
+func (e *WorkflowExecutor) DeleteWorkflowTags(workflowName string, tags map[string]string) error {
+	return e.deleteWorkflowTagWithContext(context.Background(), workflowName, tags)
 }
 
 func (e *WorkflowExecutor) startWorkflowDaemon(monitorExecution bool, request *model.StartWorkflowRequest, runningWorkflowChannel chan *RunningWorkflow, waitGroup *sync.WaitGroup) {

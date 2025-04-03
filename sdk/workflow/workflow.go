@@ -11,7 +11,6 @@ package workflow
 
 import (
 	"encoding/json"
-
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	log "github.com/sirupsen/logrus"
@@ -41,6 +40,7 @@ type ConductorWorkflow struct {
 	restartable                   bool
 	workflowStatusListenerEnabled bool
 	idempotencyKey                string
+	tags                          []model.TagObject
 }
 
 func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflow {
@@ -134,6 +134,23 @@ func (workflow *ConductorWorkflow) OwnerEmail(ownerEmail string) *ConductorWorkf
 	return workflow
 }
 
+func (workflow *ConductorWorkflow) Tags(tags map[string]string) *ConductorWorkflow {
+	// Clear existing tags
+	workflow.tags = nil
+
+	// Convert and add new tags
+	for key, value := range tags {
+		metadataTag := model.MetadataTag{
+			Key:   key,
+			Value: value,
+		}
+
+		tagObject := model.NewTagObject(metadataTag)
+		workflow.tags = append(workflow.tags, tagObject)
+	}
+	return workflow
+}
+
 func (workflow *ConductorWorkflow) GetName() (name string) {
 	return workflow.name
 }
@@ -212,6 +229,38 @@ func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkfl
 	return workflow.executor.MonitorExecution(workflowId)
 }
 
+func (workflow *ConductorWorkflow) AddWorkflowTags(workflowName string, tags map[string]string) error {
+	err := workflow.executor.AddWorkflowTags(workflowName, tags)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (workflow *ConductorWorkflow) GetWorkflowTags(workflowName string) (map[string]string, error) {
+	tags, err := workflow.executor.GetWorkflowTags(workflowName)
+	if err != nil {
+		return nil, err
+	}
+	return tags, nil
+}
+
+func (workflow *ConductorWorkflow) UpdateWorkflowTags(workflowName string, tags map[string]string) error {
+	err := workflow.executor.UpdateWorkflowTags(workflowName, tags)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (workflow *ConductorWorkflow) DeleteWorkflowTags(workflowName string, tags map[string]string) error {
+	err := workflow.executor.DeleteWorkflowTags(workflowName, tags)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func getInputAsMap(input interface{}) map[string]interface{} {
 	if input == nil {
 		return nil
@@ -233,6 +282,17 @@ func getInputAsMap(input interface{}) map[string]interface{} {
 	return parsedInput
 }
 
+// GetTags returns the workflow tags as a map of key-value pairs
+func (workflow *ConductorWorkflow) getTags() map[string]string {
+	result := make(map[string]string)
+
+	for _, tag := range workflow.tags {
+		result[tag.Key] = tag.Value
+	}
+
+	return result
+}
+
 // ToWorkflowDef converts the workflow to the JSON serializable format
 func (workflow *ConductorWorkflow) ToWorkflowDef() *model.WorkflowDef {
 	return &model.WorkflowDef{
@@ -251,6 +311,7 @@ func (workflow *ConductorWorkflow) ToWorkflowDef() *model.WorkflowDef {
 		InputTemplate:                 workflow.inputTemplate,
 		Restartable:                   workflow.restartable,
 		WorkflowStatusListenerEnabled: workflow.workflowStatusListenerEnabled,
+		Tags:                          workflow.tags,
 	}
 }
 
