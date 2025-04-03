@@ -64,9 +64,6 @@ func TestRegisterWorkflowWithTags(t *testing.T) {
 
 	wf := workflow.NewConductorWorkflow(executor)
 
-	// remove already created workflow before starting test
-	executor.UnRegisterWorkflow(wf.GetName(), 1)
-
 	// Create a map of tags
 	tags := map[string]string{
 		"environment": "production",
@@ -126,6 +123,9 @@ func TestRegisterWorkflowWithTags(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, expectedRemainingTags, actualTags, "Tags remaining after deletion should match expected")
 
+	// remove created workflow
+	executor.UnRegisterWorkflow(wf.GetName(), wf.GetVersion())
+	executor.RemoveWorkflow(wf.GetName())
 }
 
 func TestGetWorkflow(t *testing.T) {
