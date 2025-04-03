@@ -11,6 +11,7 @@ package workflow
 
 import (
 	"encoding/json"
+
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	log "github.com/sirupsen/logrus"
@@ -251,7 +252,7 @@ func getInputAsMap(input interface{}) map[string]interface{} {
 }
 
 // GetTags returns the workflow tags as a map of key-value pairs
-func (workflow *ConductorWorkflow) getTags() map[string]string {
+func (workflow *ConductorWorkflow) GetTags() map[string]string {
 	result := make(map[string]string)
 
 	for _, tag := range workflow.tags {
