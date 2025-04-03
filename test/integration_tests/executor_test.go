@@ -88,6 +88,40 @@ func TestRegisterWorkflowWithTags(t *testing.T) {
 	actualTags, err := executor.GetWorkflowTags(wf.GetName())
 	assert.Nil(t, err)
 	assert.Equal(t, tags, actualTags)
+
+	updateTags := map[string]string{
+		"environment": "staging", // Changed from production to staging
+		"owner":       "data-team",
+		"priority":    "medium",  // Changed from high to medium
+		"region":      "us-east", // Changed from us-west to us-east
+		"version":     "1.3.0",   // Updated version
+	}
+
+	err = executor.UpdateWorkflowTags(wf.GetName(), updateTags)
+	assert.Nil(t, err, "Expected no error while updating tags for workflow")
+
+	actualTags, err = executor.GetWorkflowTags(wf.GetName())
+	assert.Equal(t, updateTags, actualTags)
+
+	tagsToDelete := map[string]string{
+		"priority": "medium",
+		"version":  "1.3.0",
+	}
+
+	err = executor.DeleteWorkflowTags(wf.GetName(), tagsToDelete)
+	assert.Nil(t, err)
+
+	// After deletion, create the expected result by removing the deleted tags
+	expectedRemainingTags := make(map[string]string)
+	for k, v := range updateTags {
+		if _, exists := tagsToDelete[k]; !exists {
+			expectedRemainingTags[k] = v
+		}
+	}
+
+	actualTags, err = executor.GetWorkflowTags(wf.GetName())
+	assert.Nil(t, err)
+	assert.Equal(t, expectedRemainingTags, actualTags, "Tags remaining after deletion should match expected")
 }
 
 func TestGetWorkflow(t *testing.T) {
