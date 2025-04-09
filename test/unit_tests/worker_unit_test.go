@@ -32,9 +32,7 @@ func TestTaskRunnerWithoutAuthenticationSettings(t *testing.T) {
 		nil,
 		settings.NewHttpDefaultSettings(),
 	)
-	taskRunner := worker.NewTaskRunnerWithApiClient(
-		apiClient,
-	)
+	taskRunner := worker.NewTaskRunnerWithApiClient(apiClient)
 	if taskRunner == nil {
 		t.Fail()
 	}
@@ -49,9 +47,7 @@ func TestTaskRunnerWithAuthenticationSettings(t *testing.T) {
 		authenticationSettings,
 		settings.NewHttpDefaultSettings(),
 	)
-	taskRunner := worker.NewTaskRunnerWithApiClient(
-		apiClient,
-	)
+	taskRunner := worker.NewTaskRunnerWithApiClient(apiClient)
 	if taskRunner == nil {
 		t.Fail()
 	}
@@ -65,9 +61,7 @@ func TestPauseResume(t *testing.T) {
 		authenticationSettings,
 		settings.NewHttpDefaultSettings(),
 	)
-	taskRunner := worker.NewTaskRunnerWithApiClient(
-		apiClient,
-	)
+	taskRunner := worker.NewTaskRunnerWithApiClient(apiClient)
 	taskRunner.StartWorker("test", TaskWorker, 21, time.Second)
 	taskRunner.Pause("test")
 	assert.Equal(t, 21, taskRunner.GetBatchSizeForTask("test"))
@@ -85,9 +79,7 @@ func TestShutown(t *testing.T) {
 		authenticationSettings,
 		settings.NewHttpDefaultSettings(),
 	)
-	taskRunner := worker.NewTaskRunnerWithApiClient(
-		apiClient,
-	)
+	taskRunner := worker.NewTaskRunnerWithApiClient(apiClient)
 	taskRunner.StartWorker("test_shutdown1", TaskWorker, 4, time.Second)
 	taskRunner.StartWorker("test_shutdown2", TaskWorker, 4, time.Second)
 
@@ -126,4 +118,51 @@ func TaskWorker(task *model.Task) (interface{}, error) {
 	return map[string]interface{}{
 		"zip": "10121",
 	}, nil
+}
+
+func TestTaskRunnerTimeoutSettings(t *testing.T) {
+	apiClient := client.NewAPIClient(
+		nil,
+		settings.NewHttpDefaultSettings(),
+	)
+	taskRunner := worker.NewTaskRunnerWithApiClient(apiClient)
+	if taskRunner == nil {
+		t.Fail()
+	}
+
+	// (1) default value should be negative
+	defaultTimeout := -1 * time.Millisecond
+	assert.Equal(t, defaultTimeout, taskRunner.GetPollTimeout())
+	taskTimeout, err := taskRunner.GetPollTimeoutForTask("le_task")
+	if err != nil {
+		t.Fail()
+	}
+	assert.Equal(t, defaultTimeout, taskTimeout)
+
+	// (2) setting the global timeout should apply to all tasks
+	timeout200 := 200 * time.Millisecond
+	taskRunner.SetPollTimeout(timeout200)
+	assert.Equal(t, timeout200, taskRunner.GetPollTimeout())
+
+	taskTimeout, err = taskRunner.GetPollTimeoutForTask("le_task")
+	assert.Nil(t, err)
+	assert.Equal(t, timeout200, taskTimeout)
+
+	taskTimeout, err = taskRunner.GetPollTimeoutForTask("another_task")
+	assert.Nil(t, err)
+	assert.Equal(t, timeout200, taskTimeout)
+
+	// (3) changing the timeout for one task only affects that task
+	timeout100 := 100 * taskTimeout
+	taskRunner.SetPollTimeoutForTask("le_task", timeout100)
+
+	assert.Equal(t, timeout200, taskRunner.GetPollTimeout())
+
+	taskTimeout, err = taskRunner.GetPollTimeoutForTask("le_task")
+	assert.Nil(t, err)
+	assert.Equal(t, timeout100, taskTimeout)
+
+	taskTimeout, err = taskRunner.GetPollTimeoutForTask("another_task")
+	assert.Nil(t, err)
+	assert.Equal(t, timeout200, taskTimeout)
 }
