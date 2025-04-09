@@ -531,7 +531,7 @@ func (c *TaskRunner) SetPollIntervalForTask(taskName string, pollInterval time.D
 	c.pollIntervalByTaskNameMutex.Lock()
 	defer c.pollIntervalByTaskNameMutex.Unlock()
 	c.pollIntervalByTaskName[taskName] = pollInterval
-	log.Info("Updated poll interval for task: ", taskName, ", to: ", pollInterval.Milliseconds(), "ms")
+	log.Info("Updated poll interval for task: ", taskName, " to: ", pollInterval.Milliseconds(), "ms")
 	return nil
 }
 
@@ -586,6 +586,7 @@ func (c *TaskRunner) SetPollTimeout(pollTimeout time.Duration) error {
 	c.pollTimeoutMutex.Lock()
 	defer c.pollTimeoutMutex.Unlock()
 	c.pollTimeout = pollTimeout
+	log.Info("Updated poll timeout to: ", pollTimeout.Milliseconds(), "ms")
 	return nil
 }
 
@@ -616,6 +617,6 @@ func (c *TaskRunner) SetPollTimeoutForTask(taskName string, pollTimeout time.Dur
 	c.pollTimeoutMutex.Lock()
 	defer c.pollTimeoutMutex.Unlock()
 	c.pollTimeoutByTaskName[taskName] = pollTimeout
-	log.Info("Updated poll timeout for task: ", taskName, ", to: ", pollTimeout.Milliseconds(), "ms")
+	log.Info("Updated poll timeout for task: ", taskName, " to: ", pollTimeout.Milliseconds(), "ms")
 	return nil
 }
