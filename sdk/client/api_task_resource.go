@@ -502,6 +502,57 @@ func (a *TaskResourceApiService) UpdateTaskSync(ctx context.Context, body map[st
 }
 
 /*
+TaskResourceApiService Update running task in the workflow with given status and output asynchronously
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param body
+  - @param workflowId
+  - @param status
+*/
+func (a *TaskResourceApiService) SignalWorkflowTaskASync(ctx context.Context, body map[string]interface{}, workflowId string, status string) (*http.Response, error) {
+	var (
+		localVarHttpMethod  = strings.ToUpper("Post")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue string
+	)
+
+	// create path and map variables
+	localVarPath := "/tasks/{workflowId}/{status}/signal"
+	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"status"+"}", fmt.Sprintf("%v", status), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	localVarPostBody = &body
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarHttpResponse, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
+	if err != nil {
+		return localVarHttpResponse, err
+	}
+
+	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
+		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+	} else {
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
+		return localVarHttpResponse, newErr
+	}
+
+	return localVarHttpResponse, err
+}
+
+/*
 TaskResourceApiService Internal method that signals a workflow task with a specific return strategy
 */
 func (a *TaskResourceApiService) signalWorkflowTaskWithReturnStrategy(
