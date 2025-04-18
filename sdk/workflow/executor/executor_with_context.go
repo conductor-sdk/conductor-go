@@ -496,6 +496,101 @@ func (e *WorkflowExecutor) PutQueueConfigurationWithContext(ctx context.Context,
 	return e.eventClient.PutQueueConfig(ctx, body, queueConfiguration.QueueType, queueConfiguration.QueueName)
 }
 
+// SignalTaskWithContext signals a task asynchronously
+func (e *WorkflowExecutor) SignalTaskWithContext(ctx context.Context, workflowId string, status model.TaskResultStatus, output interface{}) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
+	outputData, err := model.ConvertToMap(output)
+	if err != nil {
+		return err
+	}
+
+	_, _, err = e.taskClient.UpdateTaskSync(ctx, outputData, workflowId, "", string(status), nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// SignalTaskAndReturnTargetWorkflowWithContext signals a task and returns the target workflow
+func (e *WorkflowExecutor) SignalTaskAndReturnTargetWorkflowWithContext(ctx context.Context, workflowId string, status model.TaskResultStatus, output interface{}) (*model.WorkflowRun, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	outputData, err := model.ConvertToMap(output)
+	if err != nil {
+		return nil, err
+	}
+
+	workflowRun, _, err := e.taskClient.SignalWorkflowTaskAndReturnTargetWorkflow(ctx, outputData, workflowId, string(status))
+	if err != nil {
+		return nil, err
+	}
+
+	return &workflowRun, nil
+}
+
+// SignalTaskAndReturnBlockingWorkflowWithContext signals a task and returns the blocking workflow
+func (e *WorkflowExecutor) SignalTaskAndReturnBlockingWorkflowWithContext(ctx context.Context, workflowId string, status model.TaskResultStatus, output interface{}) (*model.WorkflowRun, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	outputData, err := model.ConvertToMap(output)
+	if err != nil {
+		return nil, err
+	}
+
+	workflowRun, _, err := e.taskClient.SignalWorkflowTaskAndReturnBlockingWorkflow(ctx, outputData, workflowId, string(status))
+	if err != nil {
+		return nil, err
+	}
+
+	return &workflowRun, nil
+}
+
+// SignalTaskAndReturnBlockingTaskWithContext signals a task and returns the blocking task
+func (e *WorkflowExecutor) SignalTaskAndReturnBlockingTaskWithContext(ctx context.Context, workflowId string, status model.TaskResultStatus, output interface{}) (*model.TaskRun, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	outputData, err := model.ConvertToMap(output)
+	if err != nil {
+		return nil, err
+	}
+
+	taskRun, _, err := e.taskClient.SignalWorkflowTaskAndReturnBlockingTask(ctx, outputData, workflowId, string(status))
+	if err != nil {
+		return nil, err
+	}
+
+	return &taskRun, nil
+}
+
+// SignalTaskAndReturnBlockingTaskInputWithContext signals a task and returns the blocking task input
+func (e *WorkflowExecutor) SignalTaskAndReturnBlockingTaskInputWithContext(ctx context.Context, workflowId string, status model.TaskResultStatus, output interface{}) (*model.TaskRun, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	outputData, err := model.ConvertToMap(output)
+	if err != nil {
+		return nil, err
+	}
+
+	taskRun, _, err := e.taskClient.SignalWorkflowTaskAndReturnBlockingTaskInput(ctx, outputData, workflowId, string(status))
+	if err != nil {
+		return nil, err
+	}
+
+	return &taskRun, nil
+}
+
 func getTaskResultFromOutput(taskId string, workflowInstanceId string, taskExecutionOutput interface{}) (*model.TaskResult, error) {
 	taskResult, ok := taskExecutionOutput.(*model.TaskResult)
 	if !ok {

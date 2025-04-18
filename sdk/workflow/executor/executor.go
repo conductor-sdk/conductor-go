@@ -356,6 +356,31 @@ func (e *WorkflowExecutor) startWorkflowDaemon(monitorExecution bool, request *m
 	runningWorkflowChannel <- NewRunningWorkflow(workflowId, executionChannel, nil)
 }
 
+// SignalTask signals a task asynchronously
+func (e *WorkflowExecutor) SignalTask(workflowId string, status model.TaskResultStatus, output interface{}) error {
+	return e.SignalTaskWithContext(context.Background(), workflowId, status, output)
+}
+
+// SignalTaskAndReturnTargetWorkflow signals a task and returns the target workflow
+func (e *WorkflowExecutor) SignalTaskAndReturnTargetWorkflow(workflowId string, status model.TaskResultStatus, output interface{}) (*model.WorkflowRun, error) {
+	return e.SignalTaskAndReturnTargetWorkflowWithContext(context.Background(), workflowId, status, output)
+}
+
+// SignalTaskAndReturnBlockingWorkflow signals a task and returns the blocking workflow
+func (e *WorkflowExecutor) SignalTaskAndReturnBlockingWorkflow(workflowId string, status model.TaskResultStatus, output interface{}) (*model.WorkflowRun, error) {
+	return e.SignalTaskAndReturnBlockingWorkflowWithContext(context.Background(), workflowId, status, output)
+}
+
+// SignalTaskAndReturnBlockingTask signals a task and returns the blocking task
+func (e *WorkflowExecutor) SignalTaskAndReturnBlockingTask(workflowId string, status model.TaskResultStatus, output interface{}) (*model.TaskRun, error) {
+	return e.SignalTaskAndReturnBlockingTaskWithContext(context.Background(), workflowId, status, output)
+}
+
+// SignalTaskAndReturnBlockingTaskInput signals a task and returns the blocking task input
+func (e *WorkflowExecutor) SignalTaskAndReturnBlockingTaskInput(workflowId string, status model.TaskResultStatus, output interface{}) (*model.TaskRun, error) {
+	return e.SignalTaskAndReturnBlockingTaskInputWithContext(context.Background(), workflowId, status, output)
+}
+
 func getEnvStr(key string) (string, error) {
 	v := os.Getenv(key)
 	if v == "" {
