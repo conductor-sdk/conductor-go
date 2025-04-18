@@ -15,6 +15,11 @@ type WorkflowRun struct {
 	CreateTime int64                  `json:"createTime,omitempty"`
 	Status     WorkflowStatus         `json:"status,omitempty"`
 	UpdateTime int64                  `json:"updateTime,omitempty"`
+
+	WorkflowId    string                 `json:"workflowId,omitempty"`
+	CorrelationId string                 `json:"correlationId,omitempty"`
+	Input         map[string]interface{} `json:"input,omitempty"`
+	Output        map[string]interface{} `json:"output,omitempty"`
 }
 
 // GetCreateTimeFormatted formats CreateTime as a readable string
