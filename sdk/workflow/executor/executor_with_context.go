@@ -507,7 +507,7 @@ func (e *WorkflowExecutor) SignalTaskWithContext(ctx context.Context, workflowId
 		return err
 	}
 
-	_, _, err = e.taskClient.UpdateTaskSync(ctx, outputData, workflowId, "", string(status), nil)
+	_, err = e.taskClient.SignalWorkflowTaskASync(ctx, outputData, workflowId, string(status))
 	if err != nil {
 		return err
 	}
