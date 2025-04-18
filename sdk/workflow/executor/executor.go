@@ -99,6 +99,26 @@ func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWork
 	return e.ExecuteWorkflowWithContext(context.Background(), startWorkflowRequest, waitUntilTask)
 }
 
+// ExecuteWorkflowWithTargetWorkflow starts a workflow and returns the target workflow
+func (e *WorkflowExecutor) ExecuteWorkflowWithTargetWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
+	return e.ExecuteWorkflowWithTargetWorkflowWithContext(context.Background(), startWorkflowRequest, waitUntilTask, waitForSeconds, consistency)
+}
+
+// ExecuteWorkflowWithBlockingWorkflow starts a workflow and returns the blocking workflow
+func (e *WorkflowExecutor) ExecuteWorkflowWithBlockingWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
+	return e.ExecuteWorkflowWithBlockingWorkflowWithContext(context.Background(), startWorkflowRequest, waitUntilTask, waitForSeconds, consistency)
+}
+
+// ExecuteWorkflowWithBlockingTask starts a workflow and returns the blocking task
+func (e *WorkflowExecutor) ExecuteWorkflowWithBlockingTask(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
+	return e.ExecuteWorkflowWithBlockingTaskWithContext(context.Background(), startWorkflowRequest, waitUntilTask, waitForSeconds, consistency)
+}
+
+// ExecuteWorkflowWithBlockingTaskInput starts a workflow and returns the blocking task input
+func (e *WorkflowExecutor) ExecuteWorkflowWithBlockingTaskInput(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
+	return e.ExecuteWorkflowWithBlockingTaskInputWithContext(context.Background(), startWorkflowRequest, waitUntilTask, waitForSeconds, consistency)
+}
+
 // MonitorExecution monitors the workflow execution
 // Returns the channel with the execution result of the workflow
 // Note: Channels will continue to grow if the workflows do not complete and/or are not taken out

@@ -46,6 +46,99 @@ func (e *WorkflowExecutor) ExecuteWorkflowWithContext(ctx context.Context, start
 	return &workflowRun, nil
 }
 
+func (e *WorkflowExecutor) ExecuteWorkflowWithTargetWorkflowWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	requestId := ""
+	version := startWorkflowRequest.Version
+	workflowRun, _, err := e.workflowClient.ExecuteWorkflowWithTargetWorkflow(
+		ctx,
+		*startWorkflowRequest,
+		requestId,
+		startWorkflowRequest.Name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &workflowRun, nil
+}
+
+func (e *WorkflowExecutor) ExecuteWorkflowWithBlockingWorkflowWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	requestId := ""
+	version := startWorkflowRequest.Version
+	workflowRun, _, err := e.workflowClient.ExecuteWorkflowWithBlockingWorkflow(
+		ctx,
+		*startWorkflowRequest,
+		requestId,
+		startWorkflowRequest.Name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &workflowRun, nil
+}
+
+func (e *WorkflowExecutor) ExecuteWorkflowWithBlockingTaskWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	requestId := ""
+	version := startWorkflowRequest.Version
+	taskRun, _, err := e.workflowClient.ExecuteWorkflowWithBlockingTask(
+		ctx,
+		*startWorkflowRequest,
+		requestId,
+		startWorkflowRequest.Name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &taskRun, nil
+}
+
+// Method for executing workflow with blocking task input
+func (e *WorkflowExecutor) ExecuteWorkflowWithBlockingTaskInputWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	requestId := ""
+	version := startWorkflowRequest.Version
+	taskRun, _, err := e.workflowClient.ExecuteWorkflowWithBlockingTaskInput(
+		ctx,
+		*startWorkflowRequest,
+		requestId,
+		startWorkflowRequest.Name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &taskRun, nil
+}
+
 func (e *WorkflowExecutor) StartWorkflowWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error) {
 	if err := ctx.Err(); err != nil {
 		return "", err
