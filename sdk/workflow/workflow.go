@@ -255,6 +255,86 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, w
 	)
 }
 
+// ExecuteWorkflowWithTargetWorkflow executes the workflow and returns the target workflow details.
+// waitUntilTask: Reference name of the task to wait for (empty string will wait for workflow completion)
+// waitForSeconds: Maximum time to wait in seconds
+// consistency: Consistency level ("DURABLE" or "EVENTUAL")
+// Returns the target workflow details
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithTargetWorkflow(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
+	version := workflow.GetVersion()
+	return workflow.executor.ExecuteWorkflowWithTargetWorkflow(
+		&model.StartWorkflowRequest{
+			Name:        workflow.GetName(),
+			Version:     version,
+			Input:       getInputAsMap(input),
+			WorkflowDef: workflow.ToWorkflowDef(),
+		},
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+}
+
+// ExecuteWorkflowWithBlockingWorkflow executes the workflow and returns the blocking workflow details.
+// waitUntilTask: Reference name of the task to wait for (empty string will wait for workflow completion)
+// waitForSeconds: Maximum time to wait in seconds
+// consistency: Consistency level ("DURABLE" or "EVENTUAL")
+// Returns the blocking workflow details
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingWorkflow(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
+	version := workflow.GetVersion()
+	return workflow.executor.ExecuteWorkflowWithBlockingWorkflow(
+		&model.StartWorkflowRequest{
+			Name:        workflow.GetName(),
+			Version:     version,
+			Input:       getInputAsMap(input),
+			WorkflowDef: workflow.ToWorkflowDef(),
+		},
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+}
+
+// ExecuteWorkflowWithBlockingTask executes the workflow and returns the blocking task details.
+// waitUntilTask: Reference name of the task to wait for (required)
+// waitForSeconds: Maximum time to wait in seconds
+// consistency: Consistency level ("DURABLE" or "EVENTUAL")
+// Returns the blocking task details
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTask(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
+	version := workflow.GetVersion()
+	return workflow.executor.ExecuteWorkflowWithBlockingTask(
+		&model.StartWorkflowRequest{
+			Name:        workflow.GetName(),
+			Version:     version,
+			Input:       getInputAsMap(input),
+			WorkflowDef: workflow.ToWorkflowDef(),
+		},
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+}
+
+// ExecuteWorkflowWithBlockingTaskInput executes the workflow and returns the blocking task input.
+// waitUntilTask: Reference name of the task to wait for (required)
+// waitForSeconds: Maximum time to wait in seconds
+// consistency: Consistency level ("DURABLE" or "EVENTUAL")
+// Returns the blocking task with its input data
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTaskInput(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
+	version := workflow.GetVersion()
+	return workflow.executor.ExecuteWorkflowWithBlockingTaskInput(
+		&model.StartWorkflowRequest{
+			Name:        workflow.GetName(),
+			Version:     version,
+			Input:       getInputAsMap(input),
+			WorkflowDef: workflow.ToWorkflowDef(),
+		},
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+}
+
 // StartWorkflowsAndMonitorExecution Starts the workflow execution and returns a channel that can be used to monitor the workflow execution
 // This method is useful for short duration workflows that are expected to complete in few seconds.  For long-running workflows use GetStatus APIs to periodically check the status
 func (workflow *ConductorWorkflow) StartWorkflowsAndMonitorExecution(startWorkflowRequest *model.StartWorkflowRequest) (executionChannel executor.WorkflowExecutionChannel, err error) {
