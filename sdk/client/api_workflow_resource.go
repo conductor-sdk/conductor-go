@@ -1357,6 +1357,7 @@ func (a *WorkflowResourceApiService) executeWorkflowImpl(
 	}
 
 	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	fmt.Printf("Raw response body: %s\n", string(localVarBody))
 
 	localVarHttpResponse.Body.Close()
 	if err != nil {
@@ -1373,6 +1374,7 @@ func (a *WorkflowResourceApiService) executeWorkflowImpl(
 			// Default to WorkflowRun for TARGET_WORKFLOW, BLOCKING_WORKFLOW or no returnStrategy
 			var workflowRun model.WorkflowRun
 			err = a.decode(&workflowRun, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+			fmt.Printf("Decoded WorkflowRun: %+v\n", workflowRun)
 			localVarReturnValue = workflowRun
 		}
 	} else {
