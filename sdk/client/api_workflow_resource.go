@@ -16,6 +16,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // Linger please
@@ -655,22 +656,264 @@ func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map
 	return result, resp, nil
 }
 
-func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask string) (model.WorkflowRun, *http.Response, error) {
-	var result model.WorkflowRun
+func (a *WorkflowResourceApiService) executeWorkflowImpl(
+	ctx context.Context,
+	body model.StartWorkflowRequest,
+	requestId string,
+	name string,
+	version int32,
+	waitUntilTask string,
+	waitForSeconds int,
+	consistency string,
+	returnStrategy string) (interface{}, *http.Response, error) {
+
+	var (
+		localVarHttpMethod  = strings.ToUpper("Post")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue interface{}
+	)
 
 	path := fmt.Sprintf("/workflow/execute/%s/%d", name, version)
 
-	queryParams := url.Values{}
-	queryParams.Add("requestId", parameterToString(requestId, ""))
-	if len(waitUntilTask) > 0 {
-		queryParams.Add("waitUntilTaskRef", parameterToString(waitUntilTask, ""))
+	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "application/json"
+	localVarHeaderParams["Content-Type"] = "application/json"
+
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if requestId != "" {
+		localVarQueryParams.Add("requestId", parameterToString(requestId, ""))
 	}
 
-	resp, err := a.PostWithParams(ctx, path, queryParams, body, &result)
-	if err != nil {
-		return model.WorkflowRun{}, resp, err
+	if waitUntilTask != "" {
+		localVarQueryParams.Add("waitUntilTaskRef", parameterToString(waitUntilTask, ""))
 	}
-	return result, resp, nil
+
+	if waitForSeconds > 0 {
+		localVarQueryParams.Add("waitForSeconds", parameterToString(waitForSeconds, ""))
+	}
+
+	if consistency != "" {
+		localVarQueryParams.Add("consistency", parameterToString(consistency, ""))
+	}
+
+	if returnStrategy != "" {
+		localVarQueryParams.Add("returnStrategy", parameterToString(returnStrategy, ""))
+	}
+
+	localVarPostBody = &body
+	r, err := a.prepareRequest(ctx, path, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return nil, localVarHttpResponse, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
+	localVarHttpResponse.Body.Close()
+	if err != nil {
+		return nil, localVarHttpResponse, err
+	}
+
+	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
+		// Decode response based on returnStrategy
+		if returnStrategy == "BLOCKING_TASK" || returnStrategy == "BLOCKING_TASK_INPUT" {
+			var taskRun model.TaskRun
+			err = a.decode(&taskRun, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+			localVarReturnValue = taskRun
+		} else {
+			// Default to WorkflowRun for TARGET_WORKFLOW, BLOCKING_WORKFLOW or no returnStrategy
+			var workflowRun model.WorkflowRun
+			err = a.decode(&workflowRun, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+			localVarReturnValue = workflowRun
+		}
+	} else {
+		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
+		return nil, localVarHttpResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHttpResponse, err
+}
+
+func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask string) (model.WorkflowRun, *http.Response, error) {
+	waitForSeconds := 10
+	consistency := "DURABLE"
+	returnStrategy := "TARGET_WORKFLOW"
+
+	response, httpResponse, err := a.executeWorkflowImpl(
+		ctx,
+		body,
+		requestId,
+		name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+		returnStrategy,
+	)
+
+	if err != nil {
+		return model.WorkflowRun{}, httpResponse, err
+	}
+
+	// We know this should be a WorkflowRun based on returnStrategy
+	workflowRun, ok := response.(model.WorkflowRun)
+	if !ok {
+		return model.WorkflowRun{}, httpResponse, fmt.Errorf("expected WorkflowRun but got %T", response)
+	}
+
+	return workflowRun, httpResponse, nil
+}
+
+func (a *WorkflowResourceApiService) ExecuteWorkflowWithBlockingTask(
+	ctx context.Context,
+	body model.StartWorkflowRequest,
+	requestId string,
+	name string,
+	version int32,
+	waitUntilTask string,
+	waitForSeconds int,
+	consistency string) (model.TaskRun, *http.Response, error) {
+
+	returnStrategy := "BLOCKING_TASK"
+
+	response, httpResponse, err := a.executeWorkflowImpl(
+		ctx,
+		body,
+		requestId,
+		name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+		returnStrategy,
+	)
+
+	if err != nil {
+		return model.TaskRun{}, httpResponse, err
+	}
+
+	taskRun, ok := response.(model.TaskRun)
+	if !ok {
+		return model.TaskRun{}, httpResponse, fmt.Errorf("expected TaskRun but got %T", response)
+	}
+
+	return taskRun, httpResponse, nil
+}
+
+func (a *WorkflowResourceApiService) ExecuteWorkflowWithBlockingTaskInput(
+	ctx context.Context,
+	body model.StartWorkflowRequest,
+	requestId string,
+	name string,
+	version int32,
+	waitUntilTask string,
+	waitForSeconds int,
+	consistency string) (model.TaskRun, *http.Response, error) {
+
+	returnStrategy := "BLOCKING_TASK_INPUT"
+
+	response, httpResponse, err := a.executeWorkflowImpl(
+		ctx,
+		body,
+		requestId,
+		name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+		returnStrategy,
+	)
+
+	if err != nil {
+		return model.TaskRun{}, httpResponse, err
+	}
+
+	taskRun, ok := response.(model.TaskRun)
+	if !ok {
+		return model.TaskRun{}, httpResponse, fmt.Errorf("expected TaskRun but got %T", response)
+	}
+
+	return taskRun, httpResponse, nil
+}
+
+func (a *WorkflowResourceApiService) ExecuteWorkflowWithBlockingWorkflow(
+	ctx context.Context,
+	body model.StartWorkflowRequest,
+	requestId string,
+	name string,
+	version int32,
+	waitUntilTask string,
+	waitForSeconds int,
+	consistency string) (model.WorkflowRun, *http.Response, error) {
+
+	returnStrategy := "BLOCKING_WORKFLOW"
+
+	response, httpResponse, err := a.executeWorkflowImpl(
+		ctx,
+		body,
+		requestId,
+		name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+		returnStrategy,
+	)
+
+	if err != nil {
+		return model.WorkflowRun{}, httpResponse, err
+	}
+
+	workflowRun, ok := response.(model.WorkflowRun)
+	if !ok {
+		return model.WorkflowRun{}, httpResponse, fmt.Errorf("expected WorkflowRun but got %T", response)
+	}
+
+	return workflowRun, httpResponse, nil
+}
+
+func (a *WorkflowResourceApiService) ExecuteWorkflowWithTargetWorkflow(
+	ctx context.Context,
+	body model.StartWorkflowRequest,
+	requestId string,
+	name string,
+	version int32,
+	waitUntilTask string,
+	waitForSeconds int,
+	consistency string) (model.WorkflowRun, *http.Response, error) {
+
+	returnStrategy := "TARGET_WORKFLOW"
+
+	response, httpResponse, err := a.executeWorkflowImpl(
+		ctx,
+		body,
+		requestId,
+		name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+		returnStrategy,
+	)
+
+	if err != nil {
+		return model.WorkflowRun{}, httpResponse, err
+	}
+
+	workflowRun, ok := response.(model.WorkflowRun)
+	if !ok {
+		return model.WorkflowRun{}, httpResponse, fmt.Errorf("expected WorkflowRun but got %T", response)
+	}
+
+	return workflowRun, httpResponse, nil
 }
 
 /*
