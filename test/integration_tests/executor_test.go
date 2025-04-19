@@ -610,5 +610,217 @@ func TestComplexWorkflowSignalWithBlockingWorkflow(t *testing.T) {
 
 	// 7. Check the response
 	assert.NotNil(t, response2, "Response should not be null")
+}
 
+// Test complex workflow signaling with TARGET_WORKFLOW strategy
+func TestComplexWorkflowSignalWithTargetWorkflow(t *testing.T) {
+	executor := testdata.WorkflowExecutor
+
+	// Register all the complex workflows
+	registerComplexWorkflows(t)
+
+	startRequest := &model.StartWorkflowRequest{
+		Name:    "complex_wf_signal_test",
+		Version: 1,
+		Input:   map[string]interface{}{},
+	}
+
+	// 1. Start workflow
+	workflowRun, err := executor.ExecuteWorkflowWithTargetWorkflow(
+		startRequest,
+		"",        // No waitUntilTask
+		10,        // waitForSeconds
+		"DURABLE", // consistency
+	)
+	assert.Nil(t, err)
+	assert.NotEmpty(t, workflowRun)
+	workflowId := workflowRun.WorkflowId
+
+	t.Logf("Started complex workflow with ID: %s", workflowId)
+
+	// Wait for workflow to execute the HTTP task and start the subworkflow
+	time.Sleep(20 * time.Millisecond)
+
+	// 2. Get workflow and check its status
+	workflow, err := executor.GetWorkflow(workflowId, true)
+	assert.Nil(t, err)
+	assert.Equal(t, model.RunningWorkflow, workflow.Status, "Workflow should be RUNNING")
+
+	// 3. Check that first task (HTTP) is completed and second task (SUBWORKFLOW) is in progress
+	assert.GreaterOrEqual(t, len(workflow.Tasks), 2, "Workflow should have at least 2 tasks")
+
+	httpTask := workflow.Tasks[0]
+	assert.Equal(t, "JSON_JQ_TRANSFORM", httpTask.ReferenceTaskName, "First task should be http_ref")
+	assert.Equal(t, model.CompletedTask, httpTask.Status, "HTTP task should be COMPLETED")
+
+	subWorkflowTask := workflow.Tasks[1]
+	assert.Equal(t, "sub_workflow_ref", subWorkflowTask.ReferenceTaskName, "Second task should be sub_workflow_ref")
+	assert.Equal(t, model.InProgressTask, subWorkflowTask.Status, "SUBWORKFLOW task should be IN_PROGRESS")
+
+	// 4. Signal with TARGET_WORKFLOW return strategy
+	response1, err := executor.SignalTaskAndReturnTargetWorkflow(
+		workflow.WorkflowId,
+		model.CompletedTask,
+		map[string]interface{}{"result": "Signal received for first subworkflow"},
+	)
+	assert.Nil(t, err)
+
+	// 5. Check the response
+	assert.NotNil(t, response1, "Response should not be null")
+
+	// Wait for the second subworkflow to start and reach the YIELD task
+	time.Sleep(10 * time.Millisecond)
+
+	// 6. Signal second subworkflow with BLOCKING_WORKFLOW return strategy
+	response2, err := executor.SignalTaskAndReturnTargetWorkflow(
+		workflow.WorkflowId,
+		model.CompletedTask,
+		map[string]interface{}{"result": "Signal received for second subworkflow"},
+	)
+	assert.Nil(t, err)
+
+	// 7. Check the response
+	assert.NotNil(t, response2, "Response should not be null")
+}
+
+// Test complex workflow signaling with BLOCKING_TASK strategy
+func TestComplexWorkflowSignalWithBlockingTask(t *testing.T) {
+	executor := testdata.WorkflowExecutor
+
+	// Register all the complex workflows
+	registerComplexWorkflows(t)
+
+	startRequest := &model.StartWorkflowRequest{
+		Name:    "complex_wf_signal_test",
+		Version: 1,
+		Input:   map[string]interface{}{},
+	}
+
+	// 1. Start workflow
+	workflowRun, err := executor.ExecuteWorkflowWithBlockingTask(
+		startRequest,
+		"",            // No waitUntilTask
+		10,            // waitForSeconds
+		"SYNCHRONOUS", // consistency
+	)
+	assert.Nil(t, err)
+	assert.NotEmpty(t, workflowRun)
+	workflowId := workflowRun.WorkflowId
+
+	t.Logf("Started complex workflow with ID: %s", workflowId)
+
+	// Wait for workflow to execute the HTTP task and start the subworkflow
+	time.Sleep(20 * time.Millisecond)
+
+	// 2. Get workflow and check its status
+	workflow, err := executor.GetWorkflow(workflowId, true)
+	assert.Nil(t, err)
+	assert.Equal(t, model.RunningWorkflow, workflow.Status, "Workflow should be RUNNING")
+
+	// 3. Check that first task (HTTP) is completed and second task (SUBWORKFLOW) is in progress
+	assert.GreaterOrEqual(t, len(workflow.Tasks), 2, "Workflow should have at least 2 tasks")
+
+	httpTask := workflow.Tasks[0]
+	assert.Equal(t, "JSON_JQ_TRANSFORM", httpTask.ReferenceTaskName, "First task should be http_ref")
+	assert.Equal(t, model.CompletedTask, httpTask.Status, "HTTP task should be COMPLETED")
+
+	subWorkflowTask := workflow.Tasks[1]
+	assert.Equal(t, "sub_workflow_ref", subWorkflowTask.ReferenceTaskName, "Second task should be sub_workflow_ref")
+	assert.Equal(t, model.InProgressTask, subWorkflowTask.Status, "SUBWORKFLOW task should be IN_PROGRESS")
+
+	// 4. Signal with TARGET_WORKFLOW return strategy
+	response1, err := executor.SignalTaskAndReturnBlockingTask(
+		workflow.WorkflowId,
+		model.CompletedTask,
+		map[string]interface{}{"result": "Signal received for first subworkflow"},
+	)
+	assert.Nil(t, err)
+
+	// 5. Check the response
+	assert.NotNil(t, response1, "Response should not be null")
+
+	// Wait for the second subworkflow to start and reach the YIELD task
+	time.Sleep(10 * time.Millisecond)
+
+	// 6. Signal second subworkflow with BLOCKING_WORKFLOW return strategy
+	response2, err := executor.SignalTaskAndReturnBlockingTask(
+		workflow.WorkflowId,
+		model.CompletedTask,
+		map[string]interface{}{"result": "Signal received for second subworkflow"},
+	)
+	assert.Nil(t, err)
+
+	// 7. Check the response
+	assert.NotNil(t, response2, "Response should not be null")
+}
+
+// Test complex workflow signaling with BLOCKING_TASK_INPUT strategy
+func TestComplexWorkflowSignalWithBlockingTaskInput(t *testing.T) {
+	executor := testdata.WorkflowExecutor
+
+	// Register all the complex workflows
+	registerComplexWorkflows(t)
+
+	startRequest := &model.StartWorkflowRequest{
+		Name:    "complex_wf_signal_test",
+		Version: 1,
+		Input:   map[string]interface{}{},
+	}
+
+	// 1. Start workflow
+	workflowRun, err := executor.ExecuteWorkflowWithBlockingTaskInput(
+		startRequest,
+		"",            // No waitUntilTask
+		10,            // waitForSeconds
+		"SYNCHRONOUS", // consistency
+	)
+	assert.Nil(t, err)
+	assert.NotEmpty(t, workflowRun)
+	workflowId := workflowRun.WorkflowId
+
+	t.Logf("Started complex workflow with ID: %s", workflowId)
+
+	// Wait for workflow to execute the HTTP task and start the subworkflow
+	time.Sleep(20 * time.Millisecond)
+
+	// 2. Get workflow and check its status
+	workflow, err := executor.GetWorkflow(workflowId, true)
+	assert.Nil(t, err)
+	assert.Equal(t, model.RunningWorkflow, workflow.Status, "Workflow should be RUNNING")
+
+	// 3. Check that first task (HTTP) is completed and second task (SUBWORKFLOW) is in progress
+	assert.GreaterOrEqual(t, len(workflow.Tasks), 2, "Workflow should have at least 2 tasks")
+
+	httpTask := workflow.Tasks[0]
+	assert.Equal(t, "JSON_JQ_TRANSFORM", httpTask.ReferenceTaskName, "First task should be http_ref")
+	assert.Equal(t, model.CompletedTask, httpTask.Status, "HTTP task should be COMPLETED")
+
+	subWorkflowTask := workflow.Tasks[1]
+	assert.Equal(t, "sub_workflow_ref", subWorkflowTask.ReferenceTaskName, "Second task should be sub_workflow_ref")
+	assert.Equal(t, model.InProgressTask, subWorkflowTask.Status, "SUBWORKFLOW task should be IN_PROGRESS")
+
+	// 4. Signal with TARGET_WORKFLOW return strategy
+	response1, err := executor.SignalTaskAndReturnBlockingTaskInput(
+		workflow.WorkflowId,
+		model.CompletedTask,
+		map[string]interface{}{"result": "Signal received for first subworkflow"},
+	)
+	assert.Nil(t, err)
+
+	// 5. Check the response
+	assert.NotNil(t, response1, "Response should not be null")
+
+	// Wait for the second subworkflow to start and reach the YIELD task
+	time.Sleep(10 * time.Millisecond)
+
+	// 6. Signal second subworkflow with BLOCKING_TASK_INPUT return strategy
+	response2, err := executor.SignalTaskAndReturnBlockingTaskInput(
+		workflow.WorkflowId,
+		model.CompletedTask,
+		map[string]interface{}{"result": "Signal received for second subworkflow"},
+	)
+	assert.Nil(t, err)
+
+	// 7. Check the response
+	assert.NotNil(t, response2, "Response should not be null")
 }
