@@ -716,7 +716,6 @@ func (a *WorkflowResourceApiService) executeWorkflowImpl(
 	}
 
 	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-	fmt.Printf("Raw response body: %s\n", string(localVarBody))
 
 	localVarHttpResponse.Body.Close()
 	if err != nil {
