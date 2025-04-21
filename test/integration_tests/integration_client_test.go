@@ -120,3 +120,7 @@ func NewIntegrationClient() client.IntegrationClient {
 func NewPromptClient() client.PromptClient {
 	return testdata.PromptClient
 }
+
+func NewServiceRegistryClient() client.ServiceRegistryClient {
+	return testdata.ServiceRegistryClient
+}
