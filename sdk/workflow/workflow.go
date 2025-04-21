@@ -214,7 +214,7 @@ func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.Sta
 // workflow completes or reaches the timeout (as specified on the server)
 // The input struct MUST be serializable to JSON
 // Returns the workflow output
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, waitUntilTask string) (worfklowRun *model.WorkflowRun, err error) {
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, waitUntilTask string) (workflowRun *model.WorkflowRun, err error) {
 	version := workflow.GetVersion()
 	return workflow.executor.ExecuteWorkflow(
 		&model.StartWorkflowRequest{
