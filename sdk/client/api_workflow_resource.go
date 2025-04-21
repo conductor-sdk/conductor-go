@@ -733,7 +733,6 @@ func (a *WorkflowResourceApiService) executeWorkflowImpl(
 			// Default to WorkflowRun for TARGET_WORKFLOW, BLOCKING_WORKFLOW or no returnStrategy
 			var workflowRun model.WorkflowRun
 			err = a.decode(&workflowRun, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			fmt.Printf("Decoded WorkflowRun: %+v\n", workflowRun)
 			localVarReturnValue = workflowRun
 		}
 	} else {
