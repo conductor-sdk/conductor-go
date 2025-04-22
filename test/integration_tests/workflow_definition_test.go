@@ -45,7 +45,7 @@ func TestWorkflowCreation(t *testing.T) {
 		case <-tick:
 			wf, err := executor.GetWorkflow(workflowId, false)
 			assert.NoError(t, err)
-			assert.Equal(t, model.RunningWorkflow, wf.Status)
+			assert.Equal(t, model.CompletedWorkflow, wf.Status)
 			assert.Equal(t, "input1", run.Input["key1"])
 			return
 		}

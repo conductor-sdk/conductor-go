@@ -1314,9 +1314,7 @@ func (a *WorkflowResourceApiService) executeWorkflowImpl(
 		localVarReturnValue interface{}
 	)
 
-	localVarPath := "/workflow/execute/{name}/{version}"
-	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"version"+"}", fmt.Sprintf("%v", version), -1)
+	localVarPath := fmt.Sprintf("/workflow/execute/%v/%v", name, version)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarHeaderParams["Accept"] = "application/json"
