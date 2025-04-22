@@ -461,11 +461,7 @@ func (a *TaskResourceApiService) UpdateTaskSync(ctx context.Context, body map[st
 		localVarReturnValue model.Workflow
 	)
 
-	// create path and map variables
-	localVarPath := "/tasks/{workflowId}/{taskRefName}/{status}/sync"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"taskRefName"+"}", fmt.Sprintf("%v", taskRefName), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"status"+"}", fmt.Sprintf("%v", status), -1)
+	localVarPath := fmt.Sprintf("/tasks/%v/%v/%v/sync", workflowId, taskRefName, status)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -518,9 +514,7 @@ func (a *TaskResourceApiService) SignalWorkflowTaskASync(ctx context.Context, bo
 	)
 
 	// create path and map variables
-	localVarPath := "/tasks/{workflowId}/{status}/signal"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"status"+"}", fmt.Sprintf("%v", status), -1)
+	localVarPath := fmt.Sprintf("/tasks/%v/%v/signal", workflowId, status)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -571,9 +565,7 @@ func (a *TaskResourceApiService) signalWorkflowTaskWithReturnStrategy(
 	)
 
 	// create path and map variables
-	localVarPath := "/tasks/{workflowId}/{status}/signal/sync"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"status"+"}", fmt.Sprintf("%v", status), -1)
+	localVarPath := fmt.Sprintf("/tasks/%v/%v/signal/sync", workflowId, status)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
