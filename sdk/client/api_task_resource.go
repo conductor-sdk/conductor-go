@@ -499,6 +499,7 @@ func (a *TaskResourceApiService) UpdateTaskSync(ctx context.Context, body map[st
 }
 
 /*
+Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
 TaskResourceApiService Signal workflow to update running task in the workflow with given status and output asynchronously
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
@@ -614,6 +615,7 @@ func (a *TaskResourceApiService) signalWorkflowTaskWithReturnStrategy(
 }
 
 /*
+Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
 SignalWorkflowTaskAndReturnTargetWorkflow Signal workflow to update running task with given status and output synchronously and return target workflow details
 */
 func (a *TaskResourceApiService) SignalAndGetTargetWorkflow(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.WorkflowRun, *http.Response, error) {
@@ -631,6 +633,7 @@ func (a *TaskResourceApiService) SignalAndGetTargetWorkflow(ctx context.Context,
 }
 
 /*
+Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
 SignalWorkflowTaskAndReturnBlockingWorkflow Signal workflow to update running task with given status and output synchronously and return blocking workflow details
 */
 func (a *TaskResourceApiService) SignalAndGetBlockingWorkflow(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.WorkflowRun, *http.Response, error) {
@@ -648,6 +651,7 @@ func (a *TaskResourceApiService) SignalAndGetBlockingWorkflow(ctx context.Contex
 }
 
 /*
+Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
 SignalWorkflowTaskAndReturnBlockingTask Signal workflow to update running task with given status and output synchronously and return blocking task details
 */
 func (a *TaskResourceApiService) SignalAndGetBlockingTask(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.TaskRun, *http.Response, error) {
@@ -665,6 +669,7 @@ func (a *TaskResourceApiService) SignalAndGetBlockingTask(ctx context.Context, b
 }
 
 /*
+Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
 SignalWorkflowTaskAndReturnBlockingTaskInput Signal workflow to update running task with given status and output synchronously and return blocking task input
 */
 func (a *TaskResourceApiService) SignalAndGetBlockingTaskInput(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.TaskRun, *http.Response, error) {

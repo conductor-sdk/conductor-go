@@ -772,6 +772,7 @@ func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body m
 	return workflowRun, httpResponse, nil
 }
 
+// Enterprise: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
 func (a *WorkflowResourceApiService) ExecuteAndGetBlockingTask(
 	ctx context.Context,
 	body model.StartWorkflowRequest,
@@ -808,6 +809,7 @@ func (a *WorkflowResourceApiService) ExecuteAndGetBlockingTask(
 	return taskRun, httpResponse, nil
 }
 
+// Enterprise: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
 func (a *WorkflowResourceApiService) ExecuteAndGetBlockingTaskInput(
 	ctx context.Context,
 	body model.StartWorkflowRequest,
@@ -844,6 +846,7 @@ func (a *WorkflowResourceApiService) ExecuteAndGetBlockingTaskInput(
 	return taskRun, httpResponse, nil
 }
 
+// Enterprise: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
 func (a *WorkflowResourceApiService) ExecuteAndGetBlockingWorkflow(
 	ctx context.Context,
 	body model.StartWorkflowRequest,
@@ -880,7 +883,8 @@ func (a *WorkflowResourceApiService) ExecuteAndGetBlockingWorkflow(
 	return workflowRun, httpResponse, nil
 }
 
-func (a *WorkflowResourceApiService) ExecuteAndGetTargetWorkflow(
+// Enterprise: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+func (a *WorkflowResourceApiService) ExecuteAndGetTarget(
 	ctx context.Context,
 	body model.StartWorkflowRequest,
 	requestId string,

@@ -29,7 +29,7 @@ type WorkflowClient interface {
 	StartWorkflow(ctx context.Context, body map[string]interface{}, name string, localVarOptionals *WorkflowResourceApiStartWorkflowOpts) (string, *http.Response, error)
 	ExecuteWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask string) (model.WorkflowRun, *http.Response, error)
 	StartWorkflowWithRequest(ctx context.Context, body model.StartWorkflowRequest) (string, *http.Response, error)
-	ExecuteAndGetTargetWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask string, waitForSeconds int, consistency string) (model.WorkflowRun, *http.Response, error)
+	ExecuteAndGetTarget(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask string, waitForSeconds int, consistency string) (model.WorkflowRun, *http.Response, error)
 	ExecuteAndGetBlockingWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask string, waitForSeconds int, consistency string) (model.WorkflowRun, *http.Response, error)
 	ExecuteAndGetBlockingTask(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask string, waitForSeconds int, consistency string) (model.TaskRun, *http.Response, error)
 	ExecuteAndGetBlockingTaskInput(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask string, waitForSeconds int, consistency string) (model.TaskRun, *http.Response, error)
