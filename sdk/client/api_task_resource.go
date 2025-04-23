@@ -890,6 +890,256 @@ func (a *TaskResourceApiService) UpdateTask(ctx context.Context, taskResult *mod
 }
 
 /*
+TaskResourceApiService Update a task By Ref Name synchronously. The output data is merged if data from a previous API call already exists.
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ * @param body
+ * @param workflowId
+ * @param taskRefName
+ * @param status
+ * @param optional nil or *TaskResourceApiUpdateTaskSyncOpts - Optional Parameters:
+     * @param "Workerid" (optional.String) -
+@return Workflow
+*/
+
+type TaskResourceApiUpdateTaskSyncOpts struct {
+	Workerid optional.String
+}
+
+func (a *TaskResourceApiService) UpdateTaskSync(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, localVarOptionals *TaskResourceApiUpdateTaskSyncOpts) (model.Workflow, *http.Response, error) {
+	var (
+		localVarHttpMethod  = strings.ToUpper("Post")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue model.Workflow
+	)
+
+	localVarPath := fmt.Sprintf("/tasks/%v/%v/%v/sync", workflowId, taskRefName, status)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	localVarPostBody = &body
+
+	if localVarOptionals != nil && localVarOptionals.Workerid.IsSet() {
+		localVarQueryParams.Add("workerid", parameterToString(localVarOptionals.Workerid.Value(), ""))
+	}
+
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
+	if err != nil {
+		return localVarReturnValue, localVarHttpResponse, err
+	}
+
+	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
+		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+	} else {
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
+		return localVarReturnValue, localVarHttpResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHttpResponse, err
+}
+
+/*
+Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+TaskResourceApiService Signal workflow to update running task in the workflow with given status and output asynchronously
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param body
+  - @param workflowId
+  - @param status
+*/
+func (a *TaskResourceApiService) SignalTaskAsync(ctx context.Context, body map[string]interface{}, workflowId string, status string) (*http.Response, error) {
+	var (
+		localVarHttpMethod  = strings.ToUpper("Post")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue string
+	)
+
+	// create path and map variables
+	localVarPath := fmt.Sprintf("/tasks/%v/%v/signal", workflowId, status)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	localVarPostBody = &body
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return localVarHttpResponse, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
+	if err != nil {
+		return localVarHttpResponse, err
+	}
+
+	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
+		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+	} else {
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
+		return localVarHttpResponse, newErr
+	}
+
+	return localVarHttpResponse, err
+}
+
+/*
+TaskResourceApiService Internal method that signals a workflow task with a specific return strategy
+*/
+func (a *TaskResourceApiService) signalWorkflowTaskWithReturnStrategy(
+	ctx context.Context,
+	body map[string]interface{},
+	workflowId string,
+	status string,
+	returnStrategy string) (interface{}, *http.Response, error) {
+
+	var (
+		localVarHttpMethod  = strings.ToUpper("Post")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue interface{}
+	)
+
+	// create path and map variables
+	localVarPath := fmt.Sprintf("/tasks/%v/%v/signal/sync", workflowId, status)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// Add returnStrategy parameter
+	localVarQueryParams.Add("returnStrategy", returnStrategy)
+
+	// body params
+	localVarPostBody = &body
+
+	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return nil, localVarHttpResponse, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	if err != nil {
+		return nil, localVarHttpResponse, err
+	}
+
+	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
+		// Determine which type to decode to based on returnStrategy
+		if returnStrategy == "BLOCKING_TASK" || returnStrategy == "BLOCKING_TASK_INPUT" {
+			var taskRun model.TaskRun
+			err = a.decode(&taskRun, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+			localVarReturnValue = taskRun
+		} else {
+			// Default to WorkflowRun for TARGET_WORKFLOW, BLOCKING_WORKFLOW or no returnStrategy
+			var workflowRun model.WorkflowRun
+			err = a.decode(&workflowRun, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+			localVarReturnValue = workflowRun
+		}
+	} else {
+		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
+		return nil, localVarHttpResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHttpResponse, err
+}
+
+/*
+Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+SignalWorkflowTaskAndReturnTargetWorkflow Signal workflow to update running task with given status and output synchronously and return target workflow details
+*/
+func (a *TaskResourceApiService) SignalAndGetTargetWorkflow(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.WorkflowRun, *http.Response, error) {
+	response, httpResponse, err := a.signalWorkflowTaskWithReturnStrategy(ctx, body, workflowId, status, "TARGET_WORKFLOW")
+	if err != nil {
+		return model.WorkflowRun{}, httpResponse, err
+	}
+
+	workflowRun, ok := response.(model.WorkflowRun)
+	if !ok {
+		return model.WorkflowRun{}, httpResponse, fmt.Errorf("expected WorkflowRun but got %T", response)
+	}
+
+	return workflowRun, httpResponse, nil
+}
+
+/*
+Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+SignalWorkflowTaskAndReturnBlockingWorkflow Signal workflow to update running task with given status and output synchronously and return blocking workflow details
+*/
+func (a *TaskResourceApiService) SignalAndGetBlockingWorkflow(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.WorkflowRun, *http.Response, error) {
+	response, httpResponse, err := a.signalWorkflowTaskWithReturnStrategy(ctx, body, workflowId, status, "BLOCKING_WORKFLOW")
+	if err != nil {
+		return model.WorkflowRun{}, httpResponse, err
+	}
+
+	workflowRun, ok := response.(model.WorkflowRun)
+	if !ok {
+		return model.WorkflowRun{}, httpResponse, fmt.Errorf("expected WorkflowRun but got %T", response)
+	}
+
+	return workflowRun, httpResponse, nil
+}
+
+/*
+Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+SignalWorkflowTaskAndReturnBlockingTask Signal workflow to update running task with given status and output synchronously and return blocking task details
+*/
+func (a *TaskResourceApiService) SignalAndGetBlockingTask(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.TaskRun, *http.Response, error) {
+	response, httpResponse, err := a.signalWorkflowTaskWithReturnStrategy(ctx, body, workflowId, status, "BLOCKING_TASK")
+	if err != nil {
+		return model.TaskRun{}, httpResponse, err
+	}
+
+	taskRun, ok := response.(model.TaskRun)
+	if !ok {
+		return model.TaskRun{}, httpResponse, fmt.Errorf("expected TaskRun but got %T", response)
+	}
+
+	return taskRun, httpResponse, nil
+}
+
+/*
+Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+SignalWorkflowTaskAndReturnBlockingTaskInput Signal workflow to update running task with given status and output synchronously and return blocking task input
+*/
+func (a *TaskResourceApiService) SignalAndGetBlockingTaskInput(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.TaskRun, *http.Response, error) {
+	response, httpResponse, err := a.signalWorkflowTaskWithReturnStrategy(ctx, body, workflowId, status, "BLOCKING_TASK_INPUT")
+	if err != nil {
+		return model.TaskRun{}, httpResponse, err
+	}
+
+	taskRun, ok := response.(model.TaskRun)
+	if !ok {
+		return model.TaskRun{}, httpResponse, fmt.Errorf("expected TaskRun but got %T", response)
+	}
+
+	return taskRun, httpResponse, nil
+}
+
+/*
 TaskResourceApiService Update a task By Ref Name
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body

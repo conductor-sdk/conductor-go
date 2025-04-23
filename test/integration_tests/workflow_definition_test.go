@@ -3,6 +3,7 @@ package integration_tests
 import (
 	"context"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	"strconv"
 	"testing"
 	"time"
@@ -34,23 +35,36 @@ func TestWorkflowCreation(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, run, "Workflow is null", run)
-
-	timeout := time.After(60 * time.Second)
-	tick := time.Tick(1 * time.Second)
 	workflowId := run.WorkflowId
-	for {
-		select {
-		case <-timeout:
-			t.Fatalf("Timed out and workflow %s didn't complete", workflowId)
-		case <-tick:
-			wf, err := executor.GetWorkflow(workflowId, false)
-			assert.NoError(t, err)
-			assert.Equal(t, model.CompletedWorkflow, wf.Status)
-			assert.Equal(t, "input1", run.Input["key1"])
-			return
-		}
-	}
+	err = waitForWorkflowCompletion(executor, workflowId, 60*time.Second)
+	assert.NoError(t, err)
 
+	wf, err := executor.GetWorkflow(workflowId, false)
+	assert.NoError(t, err)
+	assert.Equal(t, model.CompletedWorkflow, wf.Status)
+	assert.Equal(t, "input1", run.Input["key1"])
+}
+
+// Helper function that polls until completion or timeout
+func waitForWorkflowCompletion(executor *executor.WorkflowExecutor, workflowId string, maxWait time.Duration) error {
+	deadline := time.Now().Add(maxWait)
+	for time.Now().Before(deadline) {
+		wf, err := executor.GetWorkflow(workflowId, false)
+		if err != nil {
+			time.Sleep(1 * time.Second)
+			continue
+		}
+
+		if wf.Status == model.CompletedWorkflow {
+			return nil // Success!
+		} else if wf.Status == model.FailedWorkflow || wf.Status == model.TerminatedWorkflow {
+			return fmt.Errorf("workflow failed with status: %s", wf.Status)
+		}
+
+		// Exponential backoff - start with 1s, then increase
+		time.Sleep(1 * time.Second)
+	}
+	return fmt.Errorf("timed out waiting for workflow %s to complete", workflowId)
 }
 
 func TestRemoveWorkflow(t *testing.T) {
@@ -106,7 +120,7 @@ func TestExecuteWorkflow(t *testing.T) {
 		},
 	)
 	assert.NoError(t, err, "Failed to start workflow")
-	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
+	assert.Equal(t, model.CompletedWorkflow, run.Status)
 
 	execution, err := executor.GetWorkflow(run.WorkflowId, true)
 	assert.NoError(t, err, "Failed to get workflow execution")
@@ -216,7 +230,7 @@ func TestExecuteWorkflowSync(t *testing.T) {
 		t.Fatalf("Failed to complete the workflow, reason: %s", err)
 	}
 	assert.NotEmpty(t, run, "Workflow is null", run)
-	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
+	assert.Equal(t, model.CompletedWorkflow, run.Status)
 
 	execution, err := executor.GetWorkflow(run.WorkflowId, true)
 	assert.NoError(t, err, "Failed to get workflow execution")
