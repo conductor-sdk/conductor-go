@@ -36,7 +36,7 @@ func TestWorkflowCreation(t *testing.T) {
 	assert.NotEmpty(t, run, "Workflow is null", run)
 
 	timeout := time.After(60 * time.Second)
-	tick := time.Tick(1 * time.Second)
+	tick := time.Tick(7 * time.Second)
 	workflowId := run.WorkflowId
 	assert.NoError(t, err)
 	for {
