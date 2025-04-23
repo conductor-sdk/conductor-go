@@ -772,7 +772,7 @@ func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body m
 	return workflowRun, httpResponse, nil
 }
 
-func (a *WorkflowResourceApiService) ExecuteWorkflowWithBlockingTask(
+func (a *WorkflowResourceApiService) ExecuteAndGetBlockingTask(
 	ctx context.Context,
 	body model.StartWorkflowRequest,
 	requestId string,
@@ -808,7 +808,7 @@ func (a *WorkflowResourceApiService) ExecuteWorkflowWithBlockingTask(
 	return taskRun, httpResponse, nil
 }
 
-func (a *WorkflowResourceApiService) ExecuteWorkflowWithBlockingTaskInput(
+func (a *WorkflowResourceApiService) ExecuteAndGetBlockingTaskInput(
 	ctx context.Context,
 	body model.StartWorkflowRequest,
 	requestId string,
@@ -844,7 +844,7 @@ func (a *WorkflowResourceApiService) ExecuteWorkflowWithBlockingTaskInput(
 	return taskRun, httpResponse, nil
 }
 
-func (a *WorkflowResourceApiService) ExecuteWorkflowWithBlockingWorkflow(
+func (a *WorkflowResourceApiService) ExecuteAndGetBlockingWorkflow(
 	ctx context.Context,
 	body model.StartWorkflowRequest,
 	requestId string,
@@ -880,7 +880,7 @@ func (a *WorkflowResourceApiService) ExecuteWorkflowWithBlockingWorkflow(
 	return workflowRun, httpResponse, nil
 }
 
-func (a *WorkflowResourceApiService) ExecuteWorkflowWithTargetWorkflow(
+func (a *WorkflowResourceApiService) ExecuteAndGetTargetWorkflow(
 	ctx context.Context,
 	body model.StartWorkflowRequest,
 	requestId string,
