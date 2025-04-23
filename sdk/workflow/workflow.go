@@ -227,24 +227,14 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, w
 	)
 }
 
-<<<<<<< HEAD
 // ExecuteAndGetTarget executes the workflow and returns the target workflow details.
-=======
-// ExecuteWorkflowWithTargetWorkflow executes the workflow and returns the target workflow details.
->>>>>>> e976a87 (Code changes to introduce api orch feature in sdk)
 // waitUntilTask: Reference name of the task to wait for (empty string will wait for workflow completion)
 // waitForSeconds: Maximum time to wait in seconds
 // consistency: Consistency level ("DURABLE" or "EVENTUAL")
 // Returns the target workflow details
-<<<<<<< HEAD
 func (workflow *ConductorWorkflow) ExecuteAndGetTarget(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
 	version := workflow.GetVersion()
 	return workflow.executor.ExecuteAndGetTarget(
-=======
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithTargetWorkflow(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
-	version := workflow.GetVersion()
-	return workflow.executor.ExecuteWorkflowWithTargetWorkflow(
->>>>>>> e976a87 (Code changes to introduce api orch feature in sdk)
 		&model.StartWorkflowRequest{
 			Name:        workflow.GetName(),
 			Version:     version,
@@ -264,11 +254,7 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithTargetWorkflow(input inter
 // Returns the blocking workflow details
 func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingWorkflow(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
 	version := workflow.GetVersion()
-<<<<<<< HEAD
 	return workflow.executor.ExecuteAndGetBlockingWorkflow(
-=======
-	return workflow.executor.ExecuteWorkflowWithBlockingWorkflow(
->>>>>>> e976a87 (Code changes to introduce api orch feature in sdk)
 		&model.StartWorkflowRequest{
 			Name:        workflow.GetName(),
 			Version:     version,
@@ -288,11 +274,7 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingWorkflow(input int
 // Returns the blocking task details
 func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTask(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
 	version := workflow.GetVersion()
-<<<<<<< HEAD
 	return workflow.executor.ExecuteAndGetBlockingTask(
-=======
-	return workflow.executor.ExecuteWorkflowWithBlockingTask(
->>>>>>> e976a87 (Code changes to introduce api orch feature in sdk)
 		&model.StartWorkflowRequest{
 			Name:        workflow.GetName(),
 			Version:     version,
@@ -312,11 +294,7 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTask(input interfa
 // Returns the blocking task with its input data
 func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTaskInput(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
 	version := workflow.GetVersion()
-<<<<<<< HEAD
 	return workflow.executor.ExecuteAndGetBlockingTaskInput(
-=======
-	return workflow.executor.ExecuteWorkflowWithBlockingTaskInput(
->>>>>>> e976a87 (Code changes to introduce api orch feature in sdk)
 		&model.StartWorkflowRequest{
 			Name:        workflow.GetName(),
 			Version:     version,
