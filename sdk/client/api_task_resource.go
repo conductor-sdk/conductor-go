@@ -919,6 +919,7 @@ func (a *TaskResourceApiService) UpdateTaskSync(ctx context.Context, body map[st
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+	localVarPostBody = &body
 
 	if localVarOptionals != nil && localVarOptionals.Workerid.IsSet() {
 		localVarQueryParams.Add("workerid", parameterToString(localVarOptionals.Workerid.Value(), ""))
@@ -957,7 +958,7 @@ TaskResourceApiService Update running task in the workflow with given status and
   - @param workflowId
   - @param status
 */
-func (a *TaskResourceApiService) SignalWorkflowTaskASync(ctx context.Context, body map[string]interface{}, workflowId string, status string) (*http.Response, error) {
+func (a *TaskResourceApiService) SignalTaskASync(ctx context.Context, body map[string]interface{}, workflowId string, status string) (*http.Response, error) {
 	var (
 		localVarHttpMethod  = strings.ToUpper("Post")
 		localVarPostBody    interface{}
@@ -1068,7 +1069,7 @@ func (a *TaskResourceApiService) signalWorkflowTaskWithReturnStrategy(
 /*
 SignalWorkflowTaskAndReturnTargetWorkflow Update running task in the workflow with given status and output synchronously and return target workflow details
 */
-func (a *TaskResourceApiService) SignalWorkflowTaskAndReturnTargetWorkflow(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.WorkflowRun, *http.Response, error) {
+func (a *TaskResourceApiService) SignalTaskAndGetTargetWorkflow(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.WorkflowRun, *http.Response, error) {
 	response, httpResponse, err := a.signalWorkflowTaskWithReturnStrategy(ctx, body, workflowId, status, "TARGET_WORKFLOW")
 	if err != nil {
 		return model.WorkflowRun{}, httpResponse, err
@@ -1085,7 +1086,7 @@ func (a *TaskResourceApiService) SignalWorkflowTaskAndReturnTargetWorkflow(ctx c
 /*
 SignalWorkflowTaskAndReturnBlockingWorkflow Update running task in the workflow with given status and output synchronously and return blocking workflow details
 */
-func (a *TaskResourceApiService) SignalWorkflowTaskAndReturnBlockingWorkflow(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.WorkflowRun, *http.Response, error) {
+func (a *TaskResourceApiService) SignalTaskAndGetBlockingWorkflow(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.WorkflowRun, *http.Response, error) {
 	response, httpResponse, err := a.signalWorkflowTaskWithReturnStrategy(ctx, body, workflowId, status, "BLOCKING_WORKFLOW")
 	if err != nil {
 		return model.WorkflowRun{}, httpResponse, err
@@ -1102,7 +1103,7 @@ func (a *TaskResourceApiService) SignalWorkflowTaskAndReturnBlockingWorkflow(ctx
 /*
 SignalWorkflowTaskAndReturnBlockingTask Update running task in the workflow with given status and output synchronously and return blocking task details
 */
-func (a *TaskResourceApiService) SignalWorkflowTaskAndReturnBlockingTask(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.TaskRun, *http.Response, error) {
+func (a *TaskResourceApiService) SignalTaskAndGetBlockingTask(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.TaskRun, *http.Response, error) {
 	response, httpResponse, err := a.signalWorkflowTaskWithReturnStrategy(ctx, body, workflowId, status, "BLOCKING_TASK")
 	if err != nil {
 		return model.TaskRun{}, httpResponse, err
@@ -1119,7 +1120,7 @@ func (a *TaskResourceApiService) SignalWorkflowTaskAndReturnBlockingTask(ctx con
 /*
 SignalWorkflowTaskAndReturnBlockingTaskInput Update running task in the workflow with given status and output synchronously and return blocking task input
 */
-func (a *TaskResourceApiService) SignalWorkflowTaskAndReturnBlockingTaskInput(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.TaskRun, *http.Response, error) {
+func (a *TaskResourceApiService) SignalTaskAndGetBlockingTaskInput(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.TaskRun, *http.Response, error) {
 	response, httpResponse, err := a.signalWorkflowTaskWithReturnStrategy(ctx, body, workflowId, status, "BLOCKING_TASK_INPUT")
 	if err != nil {
 		return model.TaskRun{}, httpResponse, err
