@@ -53,7 +53,7 @@ func (e *WorkflowExecutor) ExecuteWorkflowWithTargetWorkflowWithContext(ctx cont
 
 	requestId := ""
 	version := startWorkflowRequest.Version
-	workflowRun, _, err := e.workflowClient.ExecuteWorkflowWithTargetWorkflow(
+	workflowRun, _, err := e.workflowClient.ExecuteAndGetTargetWorkflow(
 		ctx,
 		*startWorkflowRequest,
 		requestId,
@@ -76,7 +76,7 @@ func (e *WorkflowExecutor) ExecuteWorkflowWithBlockingWorkflowWithContext(ctx co
 
 	requestId := ""
 	version := startWorkflowRequest.Version
-	workflowRun, _, err := e.workflowClient.ExecuteWorkflowWithBlockingWorkflow(
+	workflowRun, _, err := e.workflowClient.ExecuteAndGetBlockingWorkflow(
 		ctx,
 		*startWorkflowRequest,
 		requestId,
@@ -99,7 +99,7 @@ func (e *WorkflowExecutor) ExecuteWorkflowWithBlockingTaskWithContext(ctx contex
 
 	requestId := ""
 	version := startWorkflowRequest.Version
-	taskRun, _, err := e.workflowClient.ExecuteWorkflowWithBlockingTask(
+	taskRun, _, err := e.workflowClient.ExecuteAndGetBlockingTask(
 		ctx,
 		*startWorkflowRequest,
 		requestId,
@@ -123,7 +123,7 @@ func (e *WorkflowExecutor) ExecuteWorkflowWithBlockingTaskInputWithContext(ctx c
 
 	requestId := ""
 	version := startWorkflowRequest.Version
-	taskRun, _, err := e.workflowClient.ExecuteWorkflowWithBlockingTaskInput(
+	taskRun, _, err := e.workflowClient.ExecuteAndGetBlockingTaskInput(
 		ctx,
 		*startWorkflowRequest,
 		requestId,
