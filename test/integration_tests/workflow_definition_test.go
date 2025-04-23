@@ -37,6 +37,7 @@ func TestWorkflowCreation(t *testing.T) {
 	workflowId := run.WorkflowId
 	timeout := time.After(60 * time.Second)
 	tick := time.Tick(1 * time.Second)
+
 	assert.NoError(t, err)
 
 	for {
