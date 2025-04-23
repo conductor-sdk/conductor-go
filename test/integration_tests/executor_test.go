@@ -238,7 +238,7 @@ func TestRegisterWorkflowWithWaitSignal(t *testing.T) {
 	assert.Equal(t, model.RunningWorkflow, workflow.Status)
 
 	// Signal the WAIT task to continue
-	err = executor.SignalTask(workflowId, model.CompletedTask, map[string]interface{}{
+	err = executor.SignalWorkflowTaskAsync(workflowId, model.CompletedTask, map[string]interface{}{
 		"result": "Signal received, continuing workflow",
 	})
 	assert.Nil(t, err)
@@ -301,7 +301,7 @@ func TestSubWorkflowSignal(t *testing.T) {
 	t.Logf("Verified workflow is RUNNING and WAIT task is IN_PROGRESS")
 
 	// 3. Signal Workflow with task Completed
-	err = executor.SignalTask(parentWorkflowId, model.CompletedTask, map[string]interface{}{
+	err = executor.SignalWorkflowTaskAsync(parentWorkflowId, model.CompletedTask, map[string]interface{}{
 		"result": "Signal received, continuing workflow",
 	})
 	assert.Nil(t, err)
@@ -364,7 +364,7 @@ func TestSubWorkflowSignalWithSyncConsistency(t *testing.T) {
 	t.Logf("Verified workflow is RUNNING and WAIT task is IN_PROGRESS")
 
 	// 3. Signal Workflow with task Completed
-	err = executor.SignalTask(parentWorkflowId, model.CompletedTask, map[string]interface{}{
+	err = executor.SignalWorkflowTaskAsync(parentWorkflowId, model.CompletedTask, map[string]interface{}{
 		"result": "Signal received, continuing workflow",
 	})
 	assert.Nil(t, err)
@@ -427,7 +427,7 @@ func TestSubWorkflowSignalWithDurableConsistency(t *testing.T) {
 	t.Logf("Verified workflow is RUNNING and WAIT task is IN_PROGRESS")
 
 	// 3. Signal Workflow with task Completed
-	err = executor.SignalTask(parentWorkflowId, model.CompletedTask, map[string]interface{}{
+	err = executor.SignalWorkflowTaskAsync(parentWorkflowId, model.CompletedTask, map[string]interface{}{
 		"result": "Signal received, continuing workflow",
 	})
 	assert.Nil(t, err)
