@@ -336,7 +336,7 @@ func TestSubWorkflowSignalWithSyncConsistency(t *testing.T) {
 	}
 
 	// Execute the workflow with BLOCKING_WORKFLOW return strategy
-	workflowRun, err := executor.ExecuteWorkflowWithBlockingWorkflow(
+	workflowRun, err := executor.ExecuteAndGetBlockingWorkflow(
 		startRequest,
 		"",            // No waitUntilTask
 		10,            // waitForSeconds
@@ -399,7 +399,7 @@ func TestSubWorkflowSignalWithDurableConsistency(t *testing.T) {
 	}
 
 	// Execute the workflow with BLOCKING_WORKFLOW return strategy
-	workflowRun, err := executor.ExecuteWorkflowWithBlockingWorkflow(
+	workflowRun, err := executor.ExecuteAndGetBlockingWorkflow(
 		startRequest,
 		"",            // No waitUntilTask
 		10,            // waitForSeconds
@@ -558,7 +558,7 @@ func TestComplexWorkflowSignalWithBlockingWorkflow(t *testing.T) {
 	}
 
 	// 1. Start workflow
-	workflowRun, err := executor.ExecuteWorkflowWithBlockingWorkflow(
+	workflowRun, err := executor.ExecuteAndGetBlockingWorkflow(
 		startRequest,
 		"",        // No waitUntilTask
 		10,        // waitForSeconds
@@ -629,7 +629,7 @@ func TestComplexWorkflowSignalWithTargetWorkflow(t *testing.T) {
 	}
 
 	// 1. Start workflow
-	workflowRun, err := executor.ExecuteWorkflowWithTargetWorkflow(
+	workflowRun, err := executor.ExecuteAndGetTarget(
 		startRequest,
 		"",        // No waitUntilTask
 		10,        // waitForSeconds
@@ -700,7 +700,7 @@ func TestComplexWorkflowSignalWithBlockingTask(t *testing.T) {
 	}
 
 	// 1. Start workflow
-	workflowRun, err := executor.ExecuteWorkflowWithBlockingTask(
+	workflowRun, err := executor.ExecuteAndGetBlockingTask(
 		startRequest,
 		"",            // No waitUntilTask
 		10,            // waitForSeconds
@@ -771,7 +771,7 @@ func TestComplexWorkflowSignalWithBlockingTaskInput(t *testing.T) {
 	}
 
 	// 1. Start workflow
-	workflowRun, err := executor.ExecuteWorkflowWithBlockingTaskInput(
+	workflowRun, err := executor.ExecuteAndGetBlockingTaskInput(
 		startRequest,
 		"",            // No waitUntilTask
 		10,            // waitForSeconds

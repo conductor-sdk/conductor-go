@@ -227,14 +227,14 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, w
 	)
 }
 
-// ExecuteWorkflowWithTargetWorkflow executes the workflow and returns the target workflow details.
+// ExecuteAndGetTarget executes the workflow and returns the target workflow details.
 // waitUntilTask: Reference name of the task to wait for (empty string will wait for workflow completion)
 // waitForSeconds: Maximum time to wait in seconds
 // consistency: Consistency level ("DURABLE" or "EVENTUAL")
 // Returns the target workflow details
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithTargetWorkflow(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
+func (workflow *ConductorWorkflow) ExecuteAndGetTarget(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
 	version := workflow.GetVersion()
-	return workflow.executor.ExecuteWorkflowWithTargetWorkflow(
+	return workflow.executor.ExecuteAndGetTarget(
 		&model.StartWorkflowRequest{
 			Name:        workflow.GetName(),
 			Version:     version,
@@ -254,7 +254,7 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithTargetWorkflow(input inter
 // Returns the blocking workflow details
 func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingWorkflow(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
 	version := workflow.GetVersion()
-	return workflow.executor.ExecuteWorkflowWithBlockingWorkflow(
+	return workflow.executor.ExecuteAndGetBlockingWorkflow(
 		&model.StartWorkflowRequest{
 			Name:        workflow.GetName(),
 			Version:     version,
@@ -274,7 +274,7 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingWorkflow(input int
 // Returns the blocking task details
 func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTask(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
 	version := workflow.GetVersion()
-	return workflow.executor.ExecuteWorkflowWithBlockingTask(
+	return workflow.executor.ExecuteAndGetBlockingTask(
 		&model.StartWorkflowRequest{
 			Name:        workflow.GetName(),
 			Version:     version,
@@ -294,7 +294,7 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTask(input interfa
 // Returns the blocking task with its input data
 func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTaskInput(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
 	version := workflow.GetVersion()
-	return workflow.executor.ExecuteWorkflowWithBlockingTaskInput(
+	return workflow.executor.ExecuteAndGetBlockingTaskInput(
 		&model.StartWorkflowRequest{
 			Name:        workflow.GetName(),
 			Version:     version,
