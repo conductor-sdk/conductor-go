@@ -507,7 +507,7 @@ func (e *WorkflowExecutor) SignalWorkflowTaskWithContext(ctx context.Context, wo
 		return err
 	}
 
-	_, err = e.taskClient.SignalTaskASync(ctx, outputData, workflowId, string(status))
+	_, err = e.taskClient.SignalTaskAsync(ctx, outputData, workflowId, string(status))
 	if err != nil {
 		return err
 	}
@@ -526,7 +526,7 @@ func (e *WorkflowExecutor) SignalTaskAndGetTargetWorkflowWithContext(ctx context
 		return nil, err
 	}
 
-	workflowRun, _, err := e.taskClient.SignalTaskAndGetTargetWorkflow(ctx, outputData, workflowId, string(status))
+	workflowRun, _, err := e.taskClient.SignalAndGetTargetWorkflow(ctx, outputData, workflowId, string(status))
 	if err != nil {
 		return nil, err
 	}
@@ -545,7 +545,7 @@ func (e *WorkflowExecutor) SignalTaskAndGetBlockingWorkflowWithContext(ctx conte
 		return nil, err
 	}
 
-	workflowRun, _, err := e.taskClient.SignalTaskAndGetBlockingWorkflow(ctx, outputData, workflowId, string(status))
+	workflowRun, _, err := e.taskClient.SignalAndGetBlockingWorkflow(ctx, outputData, workflowId, string(status))
 	if err != nil {
 		return nil, err
 	}
@@ -564,7 +564,7 @@ func (e *WorkflowExecutor) SignalTaskAndReturnBlockingTaskWithContext(ctx contex
 		return nil, err
 	}
 
-	taskRun, _, err := e.taskClient.SignalTaskAndGetBlockingTask(ctx, outputData, workflowId, string(status))
+	taskRun, _, err := e.taskClient.SignalAndGetBlockingTask(ctx, outputData, workflowId, string(status))
 	if err != nil {
 		return nil, err
 	}
@@ -583,7 +583,7 @@ func (e *WorkflowExecutor) SignalTaskAndGetBlockingTaskInputWithContext(ctx cont
 		return nil, err
 	}
 
-	taskRun, _, err := e.taskClient.SignalTaskAndGetBlockingTaskInput(ctx, outputData, workflowId, string(status))
+	taskRun, _, err := e.taskClient.SignalAndGetBlockingTaskInput(ctx, outputData, workflowId, string(status))
 	if err != nil {
 		return nil, err
 	}
