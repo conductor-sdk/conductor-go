@@ -188,23 +188,7 @@ func (a *TaskResourceApiService) batchPoll(ctx context.Context, tasktype string,
 	if opts != nil && opts.Timeout.IsSet() {
 		localVarQueryParams.Add("timeout", parameterToString(opts.Timeout.Value(), ""))
 	}
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
+	
 	r, err := a.prepareRequest(ctx, localVarPath, method, body, localVarHeaderParams, localVarQueryParams, localVarFormParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
