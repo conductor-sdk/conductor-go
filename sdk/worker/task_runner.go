@@ -65,7 +65,7 @@ type TaskRunner struct {
 	taskWorkerLegayExecutors map[string]model.ExecuteTaskFunction
 	taskWorkerExecutors      map[string]executePolledTaskFunction
 
-  pollTimeoutMutex      sync.RWMutex
+	pollTimeoutMutex      sync.RWMutex
 	pollTimeout           time.Duration
 	pollTimeoutByTaskName map[string]time.Duration
 }
@@ -486,7 +486,7 @@ func (c *TaskRunner) executeTaskWithTypedWorker(polledTask *model.PolledTask, ex
 }
 
 func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]model.PolledTask, error) {
-	timeout, err := c.GetPollIntervalForTask(taskName)
+	_, err := c.GetPollIntervalForTask(taskName)
 	if err != nil {
 		return nil, err
 	}
@@ -494,6 +494,12 @@ func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]mod
 	if domain != "" {
 		domainOptional = optional.NewString(domain)
 	}
+	opts := &client.TaskResourceApiBatchPollOpts{
+		Domain:   domainOptional,
+		Workerid: optional.NewString(hostname),
+		Count:    optional.NewInt32(int32(count)),
+	}
+
 	log.Debug(
 		"Polling for task: ", taskName, "with domain", domain,
 		", in batches of size: ", count,

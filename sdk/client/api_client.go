@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"github.com/conductor-sdk/conductor-go/sdk/log"
 	"io"
-	"log"
 	"mime/multipart"
 	"net"
 	"net/http"
@@ -77,7 +76,7 @@ func NewAuthenticationSettingsFromEnv() *settings.AuthenticationSettings {
 func NewHttpSettingsFromEnv() *settings.HttpSettings {
 	url := os.Getenv(CONDUCTOR_SERVER_URL)
 	if url == "" {
-		log.Fatalf("Error: %s env variable is not set", CONDUCTOR_SERVER_URL)
+		log.Error("Error: %s env variable is not set", CONDUCTOR_SERVER_URL)
 	}
 
 	return settings.NewHttpSettings(url)
