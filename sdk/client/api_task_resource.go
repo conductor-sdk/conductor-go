@@ -188,7 +188,7 @@ func (a *TaskResourceApiService) batchPoll(ctx context.Context, tasktype string,
 	if opts != nil && opts.Timeout.IsSet() {
 		localVarQueryParams.Add("timeout", parameterToString(opts.Timeout.Value(), ""))
 	}
-	
+
 	r, err := a.prepareRequest(ctx, localVarPath, method, body, localVarHeaderParams, localVarQueryParams, localVarFormParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
