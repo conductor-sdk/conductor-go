@@ -360,3 +360,97 @@ func addFile(w *multipart.Writer, fieldName, path string) error {
 func isSuccessfulStatus(statusCode int) bool {
 	return statusCode >= 200 && statusCode < 300
 }
+
+// executeCall performs an HTTP request with centralized error handling
+// Supports all CRUD operations through a common interface
+func (c *APIClient) executeCall(ctx context.Context, method, path string, queryParams url.Values, body interface{}, result interface{}) (*http.Response, error) {
+	// Create headers
+	headers := make(map[string]string)
+
+	// Set content type if body is provided (needed for POST, PUT, PATCH)
+	if body != nil {
+		headers["Content-Type"] = "application/json"
+	}
+
+	// Set accept header for all requests
+	headers["Accept"] = "*/*"
+
+	// Prepare the request
+	req, err := c.prepareRequest(ctx, path, method, body, headers, queryParams, nil, "", nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to prepare request: %w", err)
+	}
+
+	// Call the API
+	resp, err := c.callAPI(req)
+	if err != nil || resp == nil {
+		return resp, err
+	}
+
+	// Get response body
+	respBody, err := getDecompressedBody(resp)
+	if err != nil {
+		return resp, err
+	}
+
+	// Handle successful response (2xx status codes)
+	if resp.StatusCode < 300 {
+		if result != nil && len(respBody) > 0 {
+			err = c.decode(result, respBody, resp.Header.Get("Content-Type"))
+		}
+		return resp, err
+	}
+
+	// Handle error response (3xx+ status codes)
+	newErr := GenericSwaggerError{
+		body:  respBody,
+		error: string(respBody),
+	}
+
+	// Try to decode error response if it has the expected format
+	if resp.StatusCode == 200 && result != nil {
+		err = c.decode(result, respBody, resp.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+		} else {
+			newErr.model = result
+		}
+	}
+
+	return resp, newErr
+}
+
+// Get performs a GET request
+func (c *APIClient) Get(ctx context.Context, path string, queryParams url.Values, result interface{}) (*http.Response, error) {
+	return c.executeCall(ctx, "GET", path, queryParams, nil, result)
+}
+
+// Post performs a POST request
+func (c *APIClient) Post(ctx context.Context, path string, body interface{}, result interface{}) (*http.Response, error) {
+	return c.executeCall(ctx, "POST", path, nil, body, result)
+}
+
+// PostWithParams performs a POST request with query parameters
+func (c *APIClient) PostWithParams(ctx context.Context, path string, queryParams url.Values, body interface{}, result interface{}) (*http.Response, error) {
+	return c.executeCall(ctx, "POST", path, queryParams, body, result)
+}
+
+// Put performs a PUT request
+func (c *APIClient) Put(ctx context.Context, path string, body interface{}, result interface{}) (*http.Response, error) {
+	return c.executeCall(ctx, "PUT", path, nil, body, result)
+}
+
+// PutWithParams performs a PUT request with query parameters
+func (c *APIClient) PutWithParams(ctx context.Context, path string, queryParams url.Values, body interface{}, result interface{}) (*http.Response, error) {
+	return c.executeCall(ctx, "PUT", path, queryParams, body, result)
+}
+
+// Delete performs a DELETE request
+func (c *APIClient) Delete(ctx context.Context, path string, queryParams url.Values, result interface{}) (*http.Response, error) {
+	return c.executeCall(ctx, "DELETE", path, queryParams, nil, result)
+}
+
+// Patch performs a PATCH request
+func (c *APIClient) Patch(ctx context.Context, path string, body interface{}, result interface{}) (*http.Response, error) {
+	return c.executeCall(ctx, "PATCH", path, nil, body, result)
+}
