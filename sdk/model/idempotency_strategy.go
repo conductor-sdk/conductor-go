@@ -14,4 +14,5 @@ type IdempotencyStrategy string
 const (
 	FailOnConflict IdempotencyStrategy = "FAIL"
 	ReturnExisting IdempotencyStrategy = "RETURN_EXISTING"
+	FailOnRunning  IdempotencyStrategy = "FAIL_ON_RUNNING"
 )

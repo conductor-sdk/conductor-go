@@ -108,7 +108,7 @@ func TestIntegrationClient(t *testing.T) {
 	require.NoError(t, err, "Failed to delete integration API")
 
 	// Cleanup: Deleting providers to clean the test environment
-	for i, _ := range integrationEntries {
+	for i := range integrationEntries {
 		resp, err = integrationClient.DeleteIntegrationProvider(ctx, names[i])
 		require.NoError(t, err, "error deleting integration provider")
 		require.NotNil(t, resp, "response should not be nil for DeleteIntegrationProvider")

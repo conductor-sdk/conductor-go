@@ -8,7 +8,7 @@ import (
 
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
-	"github.com/conductor-sdk/conductor-go/test/testdata"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +17,7 @@ func TestRetrySettings(t *testing.T) {
 	simpleTask.RetryPolicy(2, workflow.FixedRetry, 10, 1)
 	simpleTask.Input("url", "${workflow.input.url}")
 	simpleTask.CacheConfig("${url}", 120)
-	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+	wf := workflow.NewConductorWorkflow(nil).
 		Name("workflow_with_task_retries").
 		Version(1).
 		Add(simpleTask)
@@ -41,7 +41,7 @@ func TestHttpTask(t *testing.T) {
 	httpTask.RetryPolicy(2, workflow.FixedRetry, 10, 1)
 	httpTask.Input("url", "${workflow.input.url}")
 	httpTask.CacheConfig("${url}", 120)
-	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+	wf := workflow.NewConductorWorkflow(nil).
 		Name("workflow_with_http_task_retries").
 		Version(1).
 		Add(httpTask)
@@ -62,7 +62,7 @@ func TestUpdateTaskWithTaskId(t *testing.T) {
 	updateTask.MergeOutput(true)
 	updateTask.TaskOutput(map[string]interface{}{"key": map[string]interface{}{"nestedKey": "nestedValue"}})
 
-	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+	wf := workflow.NewConductorWorkflow(nil).
 		Name("workflow_with_update_task").
 		Version(1).
 		Add(updateTask)
@@ -82,12 +82,11 @@ func TestUpdateTaskWithTaskId(t *testing.T) {
 }
 
 func TestUpdateTaskWithWorkflowIdAndTaskRef(t *testing.T) {
-
 	updateTask := workflow.NewUpdateTask("update_task_ref", model.CompletedTask, "target_workflow", "target_task_ref")
 	updateTask.MergeOutput(true)
 	integers := []int{2, 3, 5, 7, 11, 13}
 	updateTask.TaskOutput(map[string]interface{}{"key": integers})
-	wf := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+	wf := workflow.NewConductorWorkflow(nil).
 		Name("workflow_with_update_task").
 		Version(1).
 		Add(updateTask)

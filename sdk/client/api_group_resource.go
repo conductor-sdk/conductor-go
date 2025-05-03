@@ -39,32 +39,15 @@ func (a *GroupResourceApiService) AddUserToGroup(ctx context.Context, groupId st
 		returnValue interface{}
 	)
 
-	// create path and map variables
 	path := "/groups/{groupId}/users/{userId}"
 	path = strings.Replace(path, "{"+"groupId"+"}", fmt.Sprintf("%v", groupId), -1)
 	path = strings.Replace(path, "{"+"userId"+"}", fmt.Sprintf("%v", userId), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -81,33 +64,14 @@ func (a *GroupResourceApiService) AddUserToGroup(ctx context.Context, groupId st
 		return returnValue, httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
+	if isSuccessfulStatus(httpResponse.StatusCode) {
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+	} else {
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return returnValue, httpResponse, err
 }
 
 /*
@@ -124,32 +88,15 @@ func (a *GroupResourceApiService) AddUsersToGroup(ctx context.Context, body []st
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/groups/{groupId}/users"
 	path = strings.Replace(path, "{"+"groupId"+"}", fmt.Sprintf("%v", groupId), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -167,12 +114,8 @@ func (a *GroupResourceApiService) AddUsersToGroup(ctx context.Context, body []st
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		return httpResponse, newErr
+	if !isSuccessfulStatus(httpResponse.StatusCode) {
+		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 	}
 
 	return httpResponse, nil
@@ -192,31 +135,14 @@ func (a *GroupResourceApiService) DeleteGroup(ctx context.Context, id string) (*
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/groups/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return nil, err
@@ -233,16 +159,8 @@ func (a *GroupResourceApiService) DeleteGroup(ctx context.Context, id string) (*
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		return httpResponse, err
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		return httpResponse, newErr
+	if !isSuccessfulStatus(httpResponse.StatusCode) {
+		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 	}
 
 	return httpResponse, nil
@@ -263,31 +181,14 @@ func (a *GroupResourceApiService) GetGrantedPermissions1(ctx context.Context, gr
 		returnValue rbac.GrantedAccessResponse
 	)
 
-	// create path and map variables
 	path := "/groups/{groupId}/permissions"
 	path = strings.Replace(path, "{"+"groupId"+"}", fmt.Sprintf("%v", groupId), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -304,33 +205,14 @@ func (a *GroupResourceApiService) GetGrantedPermissions1(ctx context.Context, gr
 		return returnValue, httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
+	if isSuccessfulStatus(httpResponse.StatusCode) {
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v rbac.GrantedAccessResponse
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+	} else {
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return returnValue, httpResponse, err
 }
 
 /*
@@ -348,31 +230,14 @@ func (a *GroupResourceApiService) GetGroup(ctx context.Context, id string) (inte
 		returnValue interface{}
 	)
 
-	// create path and map variables
 	path := "/groups/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -389,33 +254,14 @@ func (a *GroupResourceApiService) GetGroup(ctx context.Context, id string) (inte
 		return returnValue, httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
+	if isSuccessfulStatus(httpResponse.StatusCode) {
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+	} else {
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return returnValue, httpResponse, err
 }
 
 /*
@@ -433,31 +279,14 @@ func (a *GroupResourceApiService) GetUsersInGroup(ctx context.Context, id string
 		returnValue interface{}
 	)
 
-	// create path and map variables
 	path := "/groups/{id}/users"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -474,33 +303,14 @@ func (a *GroupResourceApiService) GetUsersInGroup(ctx context.Context, id string
 		return returnValue, httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
+	if isSuccessfulStatus(httpResponse.StatusCode) {
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+	} else {
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return returnValue, httpResponse, err
 }
 
 /*
@@ -517,30 +327,13 @@ func (a *GroupResourceApiService) ListGroups(ctx context.Context) ([]rbac.Group,
 		returnValue []rbac.Group
 	)
 
-	// create path and map variables
 	path := "/groups"
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -557,33 +350,14 @@ func (a *GroupResourceApiService) ListGroups(ctx context.Context) ([]rbac.Group,
 		return returnValue, httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
+	if isSuccessfulStatus(httpResponse.StatusCode) {
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v []rbac.Group
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+	} else {
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return returnValue, httpResponse, err
 }
 
 /*
@@ -602,32 +376,15 @@ func (a *GroupResourceApiService) RemoveUserFromGroup(ctx context.Context, group
 		returnValue interface{}
 	)
 
-	// create path and map variables
 	path := "/groups/{groupId}/users/{userId}"
 	path = strings.Replace(path, "{"+"groupId"+"}", fmt.Sprintf("%v", groupId), -1)
 	path = strings.Replace(path, "{"+"userId"+"}", fmt.Sprintf("%v", userId), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
-
-	// to determine the Content-Type header
-	contentTypes := []string{}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
 		return returnValue, nil, err
@@ -644,35 +401,17 @@ func (a *GroupResourceApiService) RemoveUserFromGroup(ctx context.Context, group
 		return returnValue, httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
+	if isSuccessfulStatus(httpResponse.StatusCode) {
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+	} else {
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return returnValue, httpResponse, err
 }
 
+//TODO test this method
 /*
 GroupResourceApiService Remove users from group
 * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
@@ -687,32 +426,15 @@ func (a *GroupResourceApiService) RemoveUsersFromGroup(ctx context.Context, body
 		fileBytes  []byte
 	)
 
-	// create path and map variables
 	path := "/groups/{groupId}/users"
 	path = strings.Replace(path, "{"+"groupId"+"}", fmt.Sprintf("%v", groupId), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -730,12 +452,8 @@ func (a *GroupResourceApiService) RemoveUsersFromGroup(ctx context.Context, body
 		return httpResponse, err
 	}
 
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		return httpResponse, newErr
+	if !isSuccessfulStatus(httpResponse.StatusCode) {
+		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 	}
 
 	return httpResponse, nil
@@ -757,32 +475,16 @@ func (a *GroupResourceApiService) UpsertGroup(ctx context.Context, body rbac.Ups
 		returnValue interface{}
 	)
 
-	// create path and map variables
 	path := "/groups/{id}"
 	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
 
 	headerParams := make(map[string]string)
+	headerParams["Accept"] = "application/json"
+	headerParams["Content-Type"] = "application/json"
+
 	queryParams := url.Values{}
 	formParams := url.Values{}
 
-	// to determine the Content-Type header
-	contentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	contentType := selectHeaderContentType(contentTypes)
-	if contentType != "" {
-		headerParams["Content-Type"] = contentType
-	}
-
-	// to determine the Accept header
-	headerAccepts := []string{"application/json"}
-
-	// set Accept header
-	headerAccept := selectHeaderAccept(headerAccepts)
-	if headerAccept != "" {
-		headerParams["Accept"] = headerAccept
-	}
-	// body params
 	postBody = &body
 	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
@@ -800,31 +502,12 @@ func (a *GroupResourceApiService) UpsertGroup(ctx context.Context, body rbac.Ups
 		return returnValue, httpResponse, err
 	}
 
-	if httpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
+	if isSuccessfulStatus(httpResponse.StatusCode) {
 		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-		if err == nil {
-			return returnValue, httpResponse, err
-		}
-	}
-
-	if httpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body:  responseBody,
-			error: httpResponse.Status,
-		}
-		if httpResponse.StatusCode == 200 {
-			var v interface{}
-			err = a.decode(&v, responseBody, httpResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return returnValue, httpResponse, newErr
-			}
-			newErr.model = v
-			return returnValue, httpResponse, newErr
-		}
+	} else {
+		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
 		return returnValue, httpResponse, newErr
 	}
 
-	return returnValue, httpResponse, nil
+	return returnValue, httpResponse, err
 }

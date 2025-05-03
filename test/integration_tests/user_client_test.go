@@ -63,8 +63,8 @@ func TestGetGrantedPermissions(t *testing.T) {
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status OK, got %v", resp.Status)
 	}
-	if len(permissions) != 0 {
-		t.Errorf("Expected non-empty permissions %d", len(permissions))
+	if len(permissions.GrantedAccess) != 0 {
+		t.Errorf("Expected non-empty permissions %d", len(permissions.GrantedAccess))
 	}
 }
 

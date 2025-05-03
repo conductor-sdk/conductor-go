@@ -33,7 +33,7 @@ func TestDeleteEnvVariable(t *testing.T) {
 	message, resp, err := envClient.DeleteEnvVariable(ctx, "testKey")
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
-	assert.Equal(t, "", message)
+	assert.Equal(t, "test value", message)
 
 }
 

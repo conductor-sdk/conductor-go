@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"github.com/conductor-sdk/conductor-go/sdk/log"
 	"io"
+	"log"
 	"mime/multipart"
 	"net"
 	"net/http"
@@ -27,6 +28,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -35,9 +37,10 @@ import (
 )
 
 const (
-	CONDUCTOR_AUTH_KEY    = "CONDUCTOR_AUTH_KEY"
-	CONDUCTOR_AUTH_SECRET = "CONDUCTOR_AUTH_SECRET"
-	CONDUCTOR_SERVER_URL  = "CONDUCTOR_SERVER_URL"
+	CONDUCTOR_AUTH_KEY            = "CONDUCTOR_AUTH_KEY"
+	CONDUCTOR_AUTH_SECRET         = "CONDUCTOR_AUTH_SECRET"
+	CONDUCTOR_SERVER_URL          = "CONDUCTOR_SERVER_URL"
+	CONDUCTOR_CLIENT_HTTP_TIMEOUT = "CONDUCTOR_CLIENT_HTTP_TIMEOUT"
 )
 
 var (
@@ -47,7 +50,6 @@ var (
 
 type APIClient struct {
 	httpRequester *HttpRequester
-	tokenManager  authentication.TokenManager
 }
 
 func NewAPIClient(
@@ -62,9 +64,23 @@ func NewAPIClient(
 	)
 }
 func NewAPIClientFromEnv() *APIClient {
-	authenticationSettings := settings.NewAuthenticationSettings(os.Getenv(CONDUCTOR_AUTH_KEY), os.Getenv(CONDUCTOR_AUTH_SECRET))
-	httpSettings := settings.NewHttpSettings(os.Getenv(CONDUCTOR_SERVER_URL))
-	return NewAPIClient(authenticationSettings, httpSettings)
+	return NewAPIClient(NewAuthenticationSettingsFromEnv(), NewHttpSettingsFromEnv())
+}
+
+func NewAuthenticationSettingsFromEnv() *settings.AuthenticationSettings {
+	return settings.NewAuthenticationSettings(
+		os.Getenv(CONDUCTOR_AUTH_KEY),
+		os.Getenv(CONDUCTOR_AUTH_SECRET),
+	)
+}
+
+func NewHttpSettingsFromEnv() *settings.HttpSettings {
+	url := os.Getenv(CONDUCTOR_SERVER_URL)
+	if url == "" {
+		log.Fatalf("Error: %s env variable is not set", CONDUCTOR_SERVER_URL)
+	}
+
+	return settings.NewHttpSettings(url)
 }
 
 func NewAPIClientWithTokenExpiration(
@@ -98,6 +114,17 @@ func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpS
 	if httpSettings == nil {
 		httpSettings = settings.NewHttpDefaultSettings()
 	}
+	var httpTimeout = 30 * time.Second // Set default value once
+
+	timeoutStr := os.Getenv(CONDUCTOR_CLIENT_HTTP_TIMEOUT)
+	if timeoutStr != "" {
+		// Only try to parse if the environment variable is actually set
+		if timeoutInt, err := strconv.Atoi(timeoutStr); err == nil {
+			httpTimeout = time.Duration(timeoutInt) * time.Second
+		}
+		// If parsing fails, we'll keep the default value
+	}
+
 	baseDialer := &net.Dialer{
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,
@@ -113,7 +140,7 @@ func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpS
 		Transport:     netTransport,
 		CheckRedirect: nil,
 		Jar:           nil,
-		Timeout:       30 * time.Second,
+		Timeout:       httpTimeout,
 	}
 	return &APIClient{
 		httpRequester: NewHttpRequester(
@@ -128,6 +155,10 @@ func (c *APIClient) callAPI(request *http.Request) (*http.Response, error) {
 }
 
 func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err error) {
+	if len(b) == 0 {
+		return nil
+	}
+
 	if strings.Contains(contentType, "application/xml") {
 		if err = xml.Unmarshal(b, v); err != nil {
 			return err
@@ -135,6 +166,13 @@ func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err err
 		return nil
 	} else if strings.Contains(contentType, "application/json") {
 		if err = json.Unmarshal(b, v); err != nil {
+			// Hacky - if json unmarshalling fails, return a string.
+			// it's because the backend might reply with content-type: application/json and a string.
+			rv := reflect.ValueOf(v)
+			if rv.Kind() == reflect.Ptr && rv.Elem().Kind() == reflect.String {
+				rv.Elem().SetString(string(b))
+				return nil
+			}
 			return err
 		}
 		return nil
@@ -146,6 +184,7 @@ func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err err
 		rv.Elem().SetString(string(b))
 		return nil
 	}
+
 	return errors.New("undefined response type")
 }
 
@@ -213,36 +252,6 @@ func CacheExpires(r *http.Response) time.Time {
 	return expires
 }
 
-func selectHeaderContentType(contentTypes []string) string {
-	if len(contentTypes) == 0 {
-		return ""
-	}
-	if contains(contentTypes, "application/json") {
-		return "application/json"
-	}
-	return contentTypes[0] // use the first content type specified in 'consumes'
-}
-
-// selectHeaderAccept join all accept types and return
-func selectHeaderAccept(accepts []string) string {
-	if len(accepts) == 0 {
-		return ""
-	}
-	if contains(accepts, "application/json") {
-		return "application/json"
-	}
-	return strings.Join(accepts, ",")
-}
-
-func contains(haystack []string, needle string) bool {
-	for _, a := range haystack {
-		if strings.EqualFold(a, needle) {
-			return true
-		}
-	}
-	return false
-}
-
 func parameterToString(obj interface{}, collectionFormat string) string {
 	var delimiter string
 
@@ -265,9 +274,8 @@ func parameterToString(obj interface{}, collectionFormat string) string {
 }
 
 func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err error) {
-	if bodyBuf == nil {
-		bodyBuf = &bytes.Buffer{}
-	}
+	bodyBuf = &bytes.Buffer{}
+
 	if reader, ok := body.(io.Reader); ok {
 		_, err = bodyBuf.ReadFrom(reader)
 	} else if b, ok := body.([]byte); ok {
@@ -279,7 +287,7 @@ func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err e
 	} else if jsonCheck.MatchString(contentType) {
 		err = json.NewEncoder(bodyBuf).Encode(body)
 	} else if xmlCheck.MatchString(contentType) {
-		xml.NewEncoder(bodyBuf).Encode(body)
+		err = xml.NewEncoder(bodyBuf).Encode(body)
 	}
 
 	if err != nil {
@@ -348,4 +356,8 @@ func addFile(w *multipart.Writer, fieldName, path string) error {
 	_, err = io.Copy(part, file)
 
 	return err
+}
+
+func isSuccessfulStatus(statusCode int) bool {
+	return statusCode >= 200 && statusCode < 300
 }

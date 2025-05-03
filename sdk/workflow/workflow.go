@@ -41,6 +41,8 @@ type ConductorWorkflow struct {
 	restartable                   bool
 	workflowStatusListenerEnabled bool
 	idempotencyKey                string
+	tags                          []model.TagObject
+	overwiteTags                  bool
 }
 
 func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflow {
@@ -48,6 +50,7 @@ func NewConductorWorkflow(executor *executor.WorkflowExecutor) *ConductorWorkflo
 		executor:      executor,
 		timeoutPolicy: AlertOnly,
 		restartable:   true,
+		overwiteTags:  true,
 	}
 }
 
@@ -131,6 +134,28 @@ func (workflow *ConductorWorkflow) InputParameters(inputParameters ...string) *C
 
 func (workflow *ConductorWorkflow) OwnerEmail(ownerEmail string) *ConductorWorkflow {
 	workflow.ownerEmail = ownerEmail
+	return workflow
+}
+
+func (workflow *ConductorWorkflow) Tags(tags map[string]string) *ConductorWorkflow {
+	// Clear existing tags
+	workflow.tags = nil
+
+	// Convert and add new tags
+	for key, value := range tags {
+		metadataTag := model.MetadataTag{
+			Key:   key,
+			Value: value,
+		}
+
+		tagObject := model.NewTagObject(metadataTag)
+		workflow.tags = append(workflow.tags, tagObject)
+	}
+	return workflow
+}
+
+func (workflow *ConductorWorkflow) OverwriteTags(overwrite bool) *ConductorWorkflow {
+	workflow.overwiteTags = overwrite
 	return workflow
 }
 
@@ -233,6 +258,17 @@ func getInputAsMap(input interface{}) map[string]interface{} {
 	return parsedInput
 }
 
+// GetTags returns the workflow tags as a map of key-value pairs
+func (workflow *ConductorWorkflow) GetTags() map[string]string {
+	result := make(map[string]string)
+
+	for _, tag := range workflow.tags {
+		result[tag.Key] = tag.Value
+	}
+
+	return result
+}
+
 // ToWorkflowDef converts the workflow to the JSON serializable format
 func (workflow *ConductorWorkflow) ToWorkflowDef() *model.WorkflowDef {
 	return &model.WorkflowDef{
@@ -251,6 +287,8 @@ func (workflow *ConductorWorkflow) ToWorkflowDef() *model.WorkflowDef {
 		InputTemplate:                 workflow.inputTemplate,
 		Restartable:                   workflow.restartable,
 		WorkflowStatusListenerEnabled: workflow.workflowStatusListenerEnabled,
+		Tags:                          workflow.tags,
+		OverwriteTags:                 workflow.overwiteTags,
 	}
 }
 
