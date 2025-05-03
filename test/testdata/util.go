@@ -12,7 +12,6 @@ package testdata
 import (
 	"context"
 	"fmt"
-	"os"
 	"reflect"
 	"time"
 
