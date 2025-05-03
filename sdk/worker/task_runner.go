@@ -64,6 +64,10 @@ type TaskRunner struct {
 
 	taskWorkerLegayExecutors map[string]model.ExecuteTaskFunction
 	taskWorkerExecutors      map[string]executePolledTaskFunction
+
+	pollTimeoutMutex      sync.RWMutex
+	pollTimeout           time.Duration
+	pollTimeoutByTaskName map[string]time.Duration
 }
 
 // NewTaskRunner returns a new TaskRunner which authenticates via HTTP using the provided settings.
@@ -90,6 +94,8 @@ func NewTaskRunnerWithApiClient(
 		pausedWorkers:            make(map[string]bool),
 		taskWorkerLegayExecutors: make(map[string]model.ExecuteTaskFunction),
 		taskWorkerExecutors:      make(map[string]executePolledTaskFunction),
+		pollTimeoutByTaskName:    make(map[string]time.Duration),
+		pollTimeout:              -1 * time.Millisecond, //If negative, the server will use its default.
 	}
 }
 
@@ -218,6 +224,33 @@ func (c *TaskRunner) Resume(taskName string) {
 	c.pausedWorkers[taskName] = false
 }
 
+// Shutdown the TaskRunner will stop polling for tasks and once all running workers are done,
+// a signal will be sent to the WaitGroup to indicate that this worker has completed its work.
+// When used in conjunction with TaskRunner.WaitWorkers() it allows a graceful shutdown.
+func (c *TaskRunner) Shutdown(taskName string) {
+	log.Info(
+		fmt.Sprintf(
+			"Shutting down workers for task: %s",
+			taskName,
+		),
+	)
+	c.batchSizeByTaskNameMutex.Lock()
+	delete(c.batchSizeByTaskName, taskName)
+	c.batchSizeByTaskNameMutex.Unlock()
+
+	c.pausedWorkersMutex.Lock()
+	delete(c.pausedWorkers, taskName)
+	c.pausedWorkersMutex.Unlock()
+
+	c.pollIntervalByTaskNameMutex.Lock()
+	delete(c.pollIntervalByTaskName, taskName)
+	c.pollIntervalByTaskNameMutex.Unlock()
+
+	c.pollTimeoutMutex.Lock()
+	delete(c.pollTimeoutByTaskName, taskName)
+	c.pollTimeoutMutex.Unlock()
+}
+
 func (c *TaskRunner) isPaused(taskName string) bool {
 	c.pausedWorkersMutex.RLock()
 	defer c.pausedWorkersMutex.RUnlock()
@@ -225,7 +258,7 @@ func (c *TaskRunner) isPaused(taskName string) bool {
 }
 
 // WaitWorkers uses an internal waitgroup to block the calling thread until all workers started by this TaskRunner have
-// been stopped.
+// been shut down.
 func (c *TaskRunner) WaitWorkers() {
 	c.workerWaitGroup.Wait()
 }
@@ -453,7 +486,7 @@ func (c *TaskRunner) executeTaskWithTypedWorker(polledTask *model.PolledTask, ex
 }
 
 func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]model.PolledTask, error) {
-	timeout, err := c.GetPollIntervalForTask(taskName)
+	_, err := c.GetPollIntervalForTask(taskName)
 	if err != nil {
 		return nil, err
 	}
@@ -461,6 +494,12 @@ func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]mod
 	if domain != "" {
 		domainOptional = optional.NewString(domain)
 	}
+	opts := &client.TaskResourceApiBatchPollOpts{
+		Domain:   domainOptional,
+		Workerid: optional.NewString(hostname),
+		Count:    optional.NewInt32(int32(count)),
+	}
+
 	log.Debug(
 		"Polling for task: ", taskName, "with domain", domain,
 		", in batches of size: ", count,
@@ -470,12 +509,7 @@ func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]mod
 	tasks, response, err := c.conductorTaskResourceClient.BatchPollTask(
 		context.Background(),
 		taskName,
-		&client.TaskResourceApiBatchPollOpts{
-			Domain:   domainOptional,
-			Workerid: optional.NewString(hostname),
-			Count:    optional.NewInt32(int32(count)),
-			Timeout:  optional.NewInt32(int32(timeout.Milliseconds())),
-		},
+		opts,
 	)
 	spentTime := time.Since(startTime)
 	metrics.RecordTaskPollTime(
@@ -574,6 +608,7 @@ func (c *TaskRunner) increaseRunningWorkers(taskName string) error {
 	c.runningWorkersByTaskNameMutex.Lock()
 	defer c.runningWorkersByTaskNameMutex.Unlock()
 	c.runningWorkersByTaskName[taskName] += 1
+	c.workerWaitGroup.Add(1)
 	log.Trace("Increased running workers for task: ", taskName)
 	return nil
 }
@@ -582,6 +617,7 @@ func (c *TaskRunner) runningWorkerDone(taskName string) error {
 	c.runningWorkersByTaskNameMutex.Lock()
 	defer c.runningWorkersByTaskNameMutex.Unlock()
 	c.runningWorkersByTaskName[taskName] -= 1
+	c.workerWaitGroup.Done()
 	log.Trace("Running worker done for task: ", taskName)
 	return nil
 }
@@ -599,7 +635,7 @@ func (c *TaskRunner) SetPollIntervalForTask(taskName string, pollInterval time.D
 	c.pollIntervalByTaskNameMutex.Lock()
 	defer c.pollIntervalByTaskNameMutex.Unlock()
 	c.pollIntervalByTaskName[taskName] = pollInterval
-	log.Info("Updated poll interval for task: ", taskName, ", to: ", pollInterval.Milliseconds(), "ms")
+	log.Info("Updated poll interval for task: ", taskName, " to: ", pollInterval.Milliseconds(), "ms")
 	return nil
 }
 
@@ -646,4 +682,45 @@ func pauseOnGenericError(taskName string, domain string, err error) {
 func pauseOnNoAvailableWorkerError(taskName string, domain string) {
 	log.Trace(fmt.Errorf("no worker available for the task %s, domain %s", taskName, domain))
 	time.Sleep(sleepForOnNoAvailableWorker)
+}
+
+// SetPollTimeout sets the default poll timeout for all tasks. If not explicitly set,
+// it defaults to a negative value, indicating that the server's default should be used.
+func (c *TaskRunner) SetPollTimeout(pollTimeout time.Duration) error {
+	c.pollTimeoutMutex.Lock()
+	defer c.pollTimeoutMutex.Unlock()
+	c.pollTimeout = pollTimeout
+	log.Info("Updated poll timeout to: ", pollTimeout.Milliseconds(), "ms")
+	return nil
+}
+
+// GetPollTimeout gets the default poll timeout for all tasks. The value may be negative.
+// In such cases, pollTimeout parameter is not sent, indicating that the server's default should be used.
+func (c *TaskRunner) GetPollTimeout() time.Duration {
+	c.pollTimeoutMutex.Lock()
+	defer c.pollTimeoutMutex.Unlock()
+	return c.pollTimeout
+}
+
+// GetPollTimeoutForTask retrieves the poll timeout for all tasks running with the provided taskName.
+// If there isn't a specific poll timeout for the task it uses the default timeout TaskRunner.pollTimeout.
+func (c *TaskRunner) GetPollTimeoutForTask(taskName string) (time.Duration, error) {
+	c.pollTimeoutMutex.Lock()
+	defer c.pollTimeoutMutex.Unlock()
+
+	pollTimeout, ok := c.pollTimeoutByTaskName[taskName]
+	if !ok {
+		return c.pollTimeout, nil
+	}
+
+	return pollTimeout, nil
+}
+
+// SetPollTimeoutForTask sets the pollInterval for all workers running the task with the provided taskName.
+func (c *TaskRunner) SetPollTimeoutForTask(taskName string, pollTimeout time.Duration) error {
+	c.pollTimeoutMutex.Lock()
+	defer c.pollTimeoutMutex.Unlock()
+	c.pollTimeoutByTaskName[taskName] = pollTimeout
+	log.Info("Updated poll timeout for task: ", taskName, " to: ", pollTimeout.Milliseconds(), "ms")
+	return nil
 }
