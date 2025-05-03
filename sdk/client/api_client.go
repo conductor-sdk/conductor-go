@@ -373,7 +373,7 @@ func (c *APIClient) executeCall(ctx context.Context, method, path string, queryP
 	}
 
 	// Set accept header for all requests
-	headers["Accept"] = "*/*"
+	headers["Accept"] = "application/json"
 
 	// Prepare the request
 	req, err := c.prepareRequest(ctx, path, method, body, headers, queryParams, nil, "", nil)
@@ -445,9 +445,14 @@ func (c *APIClient) PutWithParams(ctx context.Context, path string, queryParams 
 	return c.executeCall(ctx, "PUT", path, queryParams, body, result)
 }
 
-// Delete performs a DELETE request
+// Delete performs a DELETE request without a body
 func (c *APIClient) Delete(ctx context.Context, path string, queryParams url.Values, result interface{}) (*http.Response, error) {
 	return c.executeCall(ctx, "DELETE", path, queryParams, nil, result)
+}
+
+// DeleteWithBody performs a DELETE request with a body
+func (c *APIClient) DeleteWithBody(ctx context.Context, path string, body interface{}, result interface{}) (*http.Response, error) {
+	return c.executeCall(ctx, "DELETE", path, nil, body, result)
 }
 
 // Patch performs a PATCH request
