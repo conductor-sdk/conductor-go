@@ -12,12 +12,9 @@ package client
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"net/url"
-	"strings"
-
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/model/rbac"
+	"net/http"
 )
 
 type ApplicationResourceApiService struct {
@@ -32,47 +29,10 @@ ApplicationResourceApiService
     @return interface{}
 */
 func (a *ApplicationResourceApiService) AddRoleToApplicationUser(ctx context.Context, applicationId string, role string) (interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Post")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue interface{}
-	)
-
-	path := "/applications/{applicationId}/roles/{role}"
-	path = strings.Replace(path, "{"+"applicationId"+"}", fmt.Sprintf("%v", applicationId), -1)
-	path = strings.Replace(path, "{"+"role"+"}", fmt.Sprintf("%v", role), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	var result interface{}
+	path := fmt.Sprintf("/applications/%s/roles/%s", applicationId, role)
+	resp, err := a.Post(ctx, path, nil, &result)
+	return result, resp, err
 }
 
 /*
@@ -82,46 +42,14 @@ ApplicationResourceApiService Create an access key for an application
     @return interface{}
 */
 func (a *ApplicationResourceApiService) CreateAccessKey(ctx context.Context, id string) (*rbac.ConductorApplication, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Post")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue rbac.ConductorApplication
-	)
-
-	path := "/applications/{id}/accessKeys"
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	var result rbac.ConductorApplication
+	path := fmt.Sprintf("/applications/%s/accessKeys", id)
+	resp, err := a.Post(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return nil, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return nil, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return nil, httpResponse, newErr
-	}
-
-	return &returnValue, httpResponse, err
+	return &result, resp, err
 }
 
 /*
@@ -131,48 +59,14 @@ ApplicationResourceApiService Create an application
     @return interface{}
 */
 func (a *ApplicationResourceApiService) CreateApplication(ctx context.Context, body rbac.CreateOrUpdateApplicationRequest) (*rbac.ConductorApplication, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Post")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue rbac.ConductorApplication
-	)
+	var result rbac.ConductorApplication
+	resp, err := a.Post(ctx, "/applications", body, &result)
 
-	path := "/applications"
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return nil, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return nil, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return nil, httpResponse, newErr
-	}
-
-	return &returnValue, httpResponse, err
+	return &result, resp, err
 }
 
 /*
@@ -183,46 +77,9 @@ ApplicationResourceApiService Delete an access key
     @return interface{}
 */
 func (a *ApplicationResourceApiService) DeleteAccessKey(ctx context.Context, applicationId string, keyId string) (*http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Delete")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue interface{}
-	)
-
-	path := "/applications/{applicationId}/accessKeys/{keyId}"
-	path = strings.Replace(path, "{"+"applicationId"+"}", fmt.Sprintf("%v", applicationId), -1)
-	path = strings.Replace(path, "{"+"keyId"+"}", fmt.Sprintf("%v", keyId), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, err
+	path := fmt.Sprintf("/applications/%s/accessKeys/%s", applicationId, keyId)
+	resp, err := a.Delete(ctx, path, nil, nil)
+	return resp, err
 }
 
 /*
@@ -232,46 +89,10 @@ ApplicationResourceApiService Delete an application
     @return interface{}
 */
 func (a *ApplicationResourceApiService) DeleteApplication(ctx context.Context, id string) (interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Delete")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue interface{}
-	)
-
-	path := "/applications/{id}"
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	var result interface{}
+	path := fmt.Sprintf("/applications/%s", id)
+	resp, err := a.Delete(ctx, path, nil, &result)
+	return result, resp, err
 }
 
 /*
@@ -281,485 +102,86 @@ ApplicationResourceApiService Delete a tag for application
   - @param id
 */
 func (a *ApplicationResourceApiService) DeleteTagForApplication(ctx context.Context, body []model.Tag, id string) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Delete")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
-
-	path := "/applications/{id}/tags"
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	path := fmt.Sprintf("/applications/%s/tags", id)
+	resp, err := a.DeleteWithBody(ctx, path, body, nil)
+	return resp, err
 }
 
-/*
-ApplicationResourceApiService Get application&#x27;s access keys
-* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param id
-    @return interface{}
-*/
+// GetAccessKeys gets all access keys for an application
 func (a *ApplicationResourceApiService) GetAccessKeys(ctx context.Context, id string) ([]rbac.AccessKeyResponse, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []rbac.AccessKeyResponse
-	)
-
-	path := "/applications/{id}/accessKeys"
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	var result []rbac.AccessKeyResponse
+	path := fmt.Sprintf("/applications/%s/accessKeys", id)
+	resp, err := a.Get(ctx, path, nil, &result)
+	return result, resp, err
 }
 
-/*
-ApplicationResourceApiService Get application id by access key id
-* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param accessKeyId
-    @return interface{}
-*/
+// GetAppByAccessKeyId gets an application by access key ID
 func (a *ApplicationResourceApiService) GetAppByAccessKeyId(ctx context.Context, accessKeyId string) (interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue interface{}
-	)
-
-	path := "/applications/key/{accessKeyId}"
-	path = strings.Replace(path, "{"+"accessKeyId"+"}", fmt.Sprintf("%v", accessKeyId), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	var result interface{}
+	path := fmt.Sprintf("/applications/key/%s", accessKeyId)
+	resp, err := a.Get(ctx, path, nil, &result)
+	return result, resp, err
 }
 
-/*
-ApplicationResourceApiService Get an application by id
-* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param id
-    @return interface{}
-*/
+// GetApplication gets an application by ID
 func (a *ApplicationResourceApiService) GetApplication(ctx context.Context, id string) (*rbac.ConductorApplication, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue rbac.ConductorApplication
-	)
-
-	path := "/applications/{id}"
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	var result rbac.ConductorApplication
+	path := fmt.Sprintf("/applications/%s", id)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return nil, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return nil, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return nil, httpResponse, newErr
-	}
-
-	return &returnValue, httpResponse, err
+	return &result, resp, err
 }
 
-/*
-ApplicationResourceApiService Get tags by application
-* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param id
-    @return []model.Tag
-*/
+// GetTagsForApplication gets all tags for an application
 func (a *ApplicationResourceApiService) GetTagsForApplication(ctx context.Context, id string) ([]model.Tag, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []model.Tag
-	)
-
-	path := "/applications/{id}/tags"
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	var result []model.Tag
+	path := fmt.Sprintf("/applications/%s/tags", id)
+	resp, err := a.Get(ctx, path, nil, &result)
+	return result, resp, err
 }
 
-/*
-ApplicationResourceApiService Get all applications
-  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-    @return []rbac.ConductorApplication
-*/
+// ListApplications lists all applications
 func (a *ApplicationResourceApiService) ListApplications(ctx context.Context) ([]rbac.ConductorApplication, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []rbac.ConductorApplication
-	)
-
-	path := "/applications"
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	var result []rbac.ConductorApplication
+	resp, err := a.Get(ctx, "/applications", nil, &result)
+	return result, resp, err
 }
 
-/*
-ApplicationResourceApiService Put a tag to application
-* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param body
-  - @param id
-*/
+// PutTagForApplication adds tags to an application
 func (a *ApplicationResourceApiService) PutTagForApplication(ctx context.Context, body []model.Tag, id string) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Put")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
-
-	path := "/applications/{id}/tags"
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	path := fmt.Sprintf("/applications/%s/tags", id)
+	resp, err := a.Put(ctx, path, body, nil)
+	return resp, err
 }
 
-/*
-ApplicationResourceApiService
-* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param applicationId
-  - @param role
-    @return interface{}
-*/
+// RemoveRoleFromApplicationUser removes a role from an application user
 func (a *ApplicationResourceApiService) RemoveRoleFromApplicationUser(ctx context.Context, applicationId string, role string) (interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Delete")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue interface{}
-	)
-
-	path := "/applications/{applicationId}/roles/{role}"
-	path = strings.Replace(path, "{"+"applicationId"+"}", fmt.Sprintf("%v", applicationId), -1)
-	path = strings.Replace(path, "{"+"role"+"}", fmt.Sprintf("%v", role), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	var result interface{}
+	path := fmt.Sprintf("/applications/%s/roles/%s", applicationId, role)
+	resp, err := a.Delete(ctx, path, nil, &result)
+	return result, resp, err
 }
 
-/*
-ApplicationResourceApiService Toggle the status of an access key
-* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param applicationId
-  - @param keyId
-    @return interface{}
-*/
+// ToggleAccessKeyStatus toggles the status of an access key
 func (a *ApplicationResourceApiService) ToggleAccessKeyStatus(ctx context.Context, applicationId string, keyId string) (interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Post")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue interface{}
-	)
-
-	path := "/applications/{applicationId}/accessKeys/{keyId}/status"
-	path = strings.Replace(path, "{"+"applicationId"+"}", fmt.Sprintf("%v", applicationId), -1)
-	path = strings.Replace(path, "{"+"keyId"+"}", fmt.Sprintf("%v", keyId), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return returnValue, nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, nil
+	var result interface{}
+	path := fmt.Sprintf("/applications/%s/accessKeys/%s/status", applicationId, keyId)
+	resp, err := a.Post(ctx, path, nil, &result)
+	return result, resp, err
 }
 
-/*
-ApplicationResourceApiService Update an application
-* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-  - @param body
-  - @param id
-    @return interface{}
-*/
+// UpdateApplication updates an application
 func (a *ApplicationResourceApiService) UpdateApplication(ctx context.Context, body rbac.CreateOrUpdateApplicationRequest, id string) (*rbac.ConductorApplication, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Put")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue rbac.ConductorApplication
-	)
+	var result rbac.ConductorApplication
+	path := fmt.Sprintf("/applications/%s", id)
+	resp, err := a.Put(ctx, path, body, &result)
 
-	path := "/applications/{id}"
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return nil, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return nil, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return nil, httpResponse, newErr
-	}
-
-	return &returnValue, httpResponse, err
+	return &result, resp, err
 }
