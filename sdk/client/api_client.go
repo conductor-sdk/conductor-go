@@ -367,7 +367,7 @@ func (c *APIClient) executeCall(ctx context.Context, method, path string, queryP
 	// Create headers
 	headers := make(map[string]string)
 
-	// Set content type if body is provided (needed for POST, PUT, PATCH)
+	// Set content type if body is provided
 	if body != nil {
 		headers["Content-Type"] = "application/json"
 	}
@@ -378,7 +378,7 @@ func (c *APIClient) executeCall(ctx context.Context, method, path string, queryP
 	// Prepare the request
 	req, err := c.prepareRequest(ctx, path, method, body, headers, queryParams, nil, "", nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to prepare request: %w", err)
+		return nil, err
 	}
 
 	// Call the API
@@ -393,30 +393,16 @@ func (c *APIClient) executeCall(ctx context.Context, method, path string, queryP
 		return resp, err
 	}
 
-	// Handle successful response (2xx status codes)
-	if resp.StatusCode < 300 {
+	// Handle successful response
+	if isSuccessfulStatus(resp.StatusCode) {
 		if result != nil && len(respBody) > 0 {
 			err = c.decode(result, respBody, resp.Header.Get("Content-Type"))
 		}
 		return resp, err
 	}
 
-	// Handle error response (3xx+ status codes)
-	newErr := GenericSwaggerError{
-		body:  respBody,
-		error: string(respBody),
-	}
-
-	// Try to decode error response if it has the expected format
-	if resp.StatusCode == 200 && result != nil {
-		err = c.decode(result, respBody, resp.Header.Get("Content-Type"))
-		if err != nil {
-			newErr.error = err.Error()
-		} else {
-			newErr.model = result
-		}
-	}
-
+	// Handle error response - create GenericSwaggerError with status code
+	newErr := NewGenericSwaggerError(respBody, string(respBody), nil, resp.StatusCode)
 	return resp, newErr
 }
 
