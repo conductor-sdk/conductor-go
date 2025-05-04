@@ -1,6 +1,6 @@
 module github.com/conductor-sdk/conductor-go
 
-go 1.17
+go 1.18
 
 require (
 	github.com/antihax/optional v1.0.0
@@ -8,7 +8,8 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.12.1
 	github.com/sirupsen/logrus v1.8.1
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.8.1
+	go.uber.org/zap v1.27.0
 )
 
 require (
@@ -21,6 +22,8 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
