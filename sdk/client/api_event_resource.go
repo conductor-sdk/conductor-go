@@ -12,12 +12,10 @@ package client
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"net/url"
-	"strings"
-
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"net/http"
+	"net/url"
 )
 
 type EventResourceApiService struct {
@@ -30,43 +28,8 @@ EventResourceApiService Add a new event handler.
   - @param body
 */
 func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body model.EventHandler) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Post")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
-
-	localVarPath := "/event"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	resp, err := a.Post(ctx, "/event", body, nil)
+	return resp, err
 }
 
 /*
@@ -76,43 +39,9 @@ EventResourceApiService Delete queue config by name
   - @param queueName
 */
 func (a *EventResourceApiService) DeleteQueueConfig(ctx context.Context, queueType string, queueName string) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Delete")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
-
-	localVarPath := "/event/queue/config/{queueType}/{queueName}"
-	localVarPath = strings.Replace(localVarPath, "{"+"queueType"+"}", fmt.Sprintf("%v", queueType), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"queueName"+"}", fmt.Sprintf("%v", queueName), -1)
-
-	localVarHeaderParams := make(map[string]string)
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	path := fmt.Sprintf("/event/queue/config/%s/%s", queueType, queueName)
+	resp, err := a.Delete(ctx, path, nil, nil)
+	return resp, err
 }
 
 /*
@@ -122,45 +51,14 @@ EventResourceApiService Get all the event handlers
 @return []model.EventHandler
 */
 func (a *EventResourceApiService) GetEventHandlers(ctx context.Context) ([]model.EventHandler, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue []model.EventHandler
-	)
+	var result []model.EventHandler
+	resp, err := a.Get(ctx, "/event", nil, &result)
 
-	localVarPath := "/event"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, resp, err
 	}
 
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -176,51 +74,23 @@ type EventResourceApiGetEventHandlersForEventOpts struct {
 	ActiveOnly optional.Bool
 }
 
-func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, event string, localVarOptionals *EventResourceApiGetEventHandlersForEventOpts) ([]model.EventHandler, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue []model.EventHandler
-	)
+func (a *EventResourceApiService) GetEventHandlersForEvent(ctx context.Context, event string, opts *EventResourceApiGetEventHandlersForEventOpts) ([]model.EventHandler, *http.Response, error) {
+	var result []model.EventHandler
+	path := fmt.Sprintf("/event/%s", event)
 
-	localVarPath := "/event/{event}"
-	localVarPath = strings.Replace(localVarPath, "{"+"event"+"}", fmt.Sprintf("%v", event), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.ActiveOnly.IsSet() {
-		localVarQueryParams.Add("activeOnly", parameterToString(localVarOptionals.ActiveOnly.Value(), ""))
+	// Build query parameters
+	queryParams := url.Values{}
+	if opts != nil && opts.ActiveOnly.IsSet() {
+		queryParams.Add("activeOnly", parameterToString(opts.ActiveOnly.Value(), ""))
 	}
 
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Get(ctx, path, queryParams, &result)
+
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, resp, err
 	}
 
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -232,47 +102,15 @@ EventResourceApiService Get queue config by name
 @return map[string]interface{}
 */
 func (a *EventResourceApiService) GetQueueConfig(ctx context.Context, queueType string, queueName string) (map[string]interface{}, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue map[string]interface{}
-	)
+	var result map[string]interface{}
+	path := fmt.Sprintf("/event/queue/config/%s/%s", queueType, queueName)
+	resp, err := a.Get(ctx, path, nil, &result)
 
-	localVarPath := "/event/queue/config/{queueType}/{queueName}"
-	localVarPath = strings.Replace(localVarPath, "{"+"queueType"+"}", fmt.Sprintf("%v", queueType), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"queueName"+"}", fmt.Sprintf("%v", queueName), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, resp, err
 	}
 
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -282,45 +120,14 @@ EventResourceApiService Get all queue configs
 @return map[string]string
 */
 func (a *EventResourceApiService) GetQueueNames(ctx context.Context) (map[string]string, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue map[string]string
-	)
+	var result map[string]string
+	resp, err := a.Get(ctx, "/event/queue/config", nil, &result)
 
-	localVarPath := "/event/queue/config"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, resp, err
 	}
 
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -331,45 +138,33 @@ EventResourceApiService Create or update queue config by name
   - @param queueName
 */
 func (a *EventResourceApiService) PutQueueConfig(ctx context.Context, body string, queueType string, queueName string) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Put")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
+	path := fmt.Sprintf("/event/queue/config/%s/%s", queueType, queueName)
 
-	localVarPath := "/event/queue/config/{queueType}/{queueName}"
-	localVarPath = strings.Replace(localVarPath, "{"+"queueType"+"}", fmt.Sprintf("%v", queueType), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"queueName"+"}", fmt.Sprintf("%v", queueName), -1)
+	// Custom headers for content type
+	headers := make(map[string]string)
+	headers["Content-Type"] = "application/json"
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	// Use executeCall directly for custom headers
+	req, err := a.prepareRequest(ctx, path, "PUT", body, headers, nil, nil, "", nil)
 	if err != nil {
 		return nil, err
 	}
 
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
+	resp, err := a.callAPI(req)
+	if err != nil || resp == nil {
+		return resp, err
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+	respBody, err := getDecompressedBody(resp)
 	if err != nil {
-		return localVarHttpResponse, err
+		return resp, err
 	}
 
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
+	if !isSuccessfulStatus(resp.StatusCode) {
+		return resp, NewGenericSwaggerError(respBody, resp.Status, nil, resp.StatusCode)
 	}
 
-	return localVarHttpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -378,42 +173,9 @@ EventResourceApiService Remove an event handler
   - @param name
 */
 func (a *EventResourceApiService) RemoveEventHandler(ctx context.Context, name string) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Delete")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
-
-	localVarPath := "/event/{name}"
-	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	localVarHeaderParams := make(map[string]string)
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	path := fmt.Sprintf("/event/%s", name)
+	resp, err := a.Delete(ctx, path, nil, nil)
+	return resp, err
 }
 
 /*
@@ -422,41 +184,6 @@ EventResourceApiService Update an existing event handler.
   - @param body
 */
 func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body model.EventHandler) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Put")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
-
-	localVarPath := "/event"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	resp, err := a.Put(ctx, "/event", body, nil)
+	return resp, err
 }

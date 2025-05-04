@@ -41,7 +41,7 @@ func TestWorkflowCreation(t *testing.T) {
 	workflowId := run.WorkflowId
 	err = waitForWorkflowCompletion(executor, workflowId, 60*time.Second)
 	assert.NoError(t, err)
-	
+
 	for {
 		select {
 		case <-timeout:
