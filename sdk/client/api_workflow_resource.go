@@ -12,12 +12,10 @@ package client
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"net/url"
-	"strings"
-
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"net/http"
+	"net/url"
 )
 
 // Linger please
@@ -35,43 +33,13 @@ WorkflowResourceApiService Starts the decision task for a workflow
   - @param workflowId
 */
 func (a *WorkflowResourceApiService) Decide(ctx context.Context, workflowId string) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Put")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
+	path := fmt.Sprintf("/workflow/decide/%s", workflowId)
 
-	localVarPath := "/workflow/decide/{workflowId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
-
-	localVarHeaderParams := make(map[string]string)
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Put(ctx, path, nil, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -88,46 +56,18 @@ type WorkflowResourceApiDeleteOpts struct {
 }
 
 func (a *WorkflowResourceApiService) Delete(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiDeleteOpts) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Delete")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
+	path := fmt.Sprintf("/workflow/%s/remove", workflowId)
 
-	localVarPath := "/workflow/{workflowId}/remove"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
+	queryParams := url.Values{}
 	if localVarOptionals != nil && localVarOptionals.ArchiveWorkflow.IsSet() {
-		localVarQueryParams.Add("archiveWorkflow", parameterToString(localVarOptionals.ArchiveWorkflow.Value(), ""))
+		queryParams.Add("archiveWorkflow", parameterToString(localVarOptionals.ArchiveWorkflow.Value(), ""))
 	}
 
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.APIClient.Delete(ctx, path, queryParams, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -143,99 +83,38 @@ type WorkflowResourceApiGetExecutionStatusOpts struct {
 	IncludeTasks optional.Bool
 }
 
-func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiGetExecutionStatusOpts) (model.Workflow, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.Workflow
-	)
+func (a *WorkflowResourceApiService) GetExecutionStatus(ctx context.Context, workflowId string, opts *WorkflowResourceApiGetExecutionStatusOpts) (model.Workflow, *http.Response, error) {
+	var result model.Workflow
 
-	localVarPath := "/workflow/{workflowId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
+	path := fmt.Sprintf("/workflow/%s", workflowId)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.IncludeTasks.IsSet() {
-		localVarQueryParams.Add("includeTasks", parameterToString(localVarOptionals.IncludeTasks.Value(), ""))
+	queryParams := url.Values{}
+	if opts != nil && opts.IncludeTasks.IsSet() {
+		queryParams.Add("includeTasks", parameterToString(opts.IncludeTasks.Value(), ""))
 	}
 
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return model.Workflow{}, resp, err
 	}
 
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 func (a *WorkflowResourceApiService) GetWorkflowState(ctx context.Context, workflowId string, includeOutput bool, includeVariables bool) (model.WorkflowState, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.WorkflowState
-	)
+	var result model.WorkflowState
 
-	localVarPath := "/workflow/{workflowId}/status"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
+	path := fmt.Sprintf("/workflow/%s/status", workflowId)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
+	queryParams := url.Values{}
+	queryParams.Add("includeOutput", parameterToString(includeOutput, ""))
+	queryParams.Add("includeVariables", parameterToString(includeVariables, ""))
 
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarQueryParams.Add("includeOutput", parameterToString(includeOutput, ""))
-	localVarQueryParams.Add("includeVariables", parameterToString(includeVariables, ""))
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return model.WorkflowState{}, nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -248,50 +127,20 @@ WorkflowResourceApiService Get the uri and path of the external storage where th
 @return http_model.ExternalStorageLocation
 */
 func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Context, path string, operation string, payloadType string) (model.ExternalStorageLocation, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.ExternalStorageLocation
-	)
+	var result model.ExternalStorageLocation
 
-	localVarPath := "/workflow/externalstoragelocation"
+	path = "/workflow/externalstoragelocation"
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
+	queryParams := url.Values{}
+	queryParams.Add("path", parameterToString(path, ""))
+	queryParams.Add("operation", parameterToString(operation, ""))
+	queryParams.Add("payloadType", parameterToString(payloadType, ""))
 
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarQueryParams.Add("path", parameterToString(path, ""))
-	localVarQueryParams.Add("operation", parameterToString(operation, ""))
-	localVarQueryParams.Add("payloadType", parameterToString(payloadType, ""))
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return model.ExternalStorageLocation{}, nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -311,58 +160,27 @@ type WorkflowResourceApiGetRunningWorkflowOpts struct {
 	EndTime   optional.Int64
 }
 
-func (a *WorkflowResourceApiService) GetRunningWorkflow(ctx context.Context, name string, localVarOptionals *WorkflowResourceApiGetRunningWorkflowOpts) ([]string, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue []string
-	)
+func (a *WorkflowResourceApiService) GetRunningWorkflow(ctx context.Context, name string, opts *WorkflowResourceApiGetRunningWorkflowOpts) ([]string, *http.Response, error) {
+	var result []string
 
-	localVarPath := "/workflow/running/{name}"
-	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
+	path := fmt.Sprintf("/workflow/running/%s", name)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.Version.IsSet() {
-		localVarQueryParams.Add("version", parameterToString(localVarOptionals.Version.Value(), ""))
+	queryParams := url.Values{}
+	if opts != nil && opts.Version.IsSet() {
+		queryParams.Add("version", parameterToString(opts.Version.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.StartTime.IsSet() {
-		localVarQueryParams.Add("startTime", parameterToString(localVarOptionals.StartTime.Value(), ""))
+	if opts != nil && opts.StartTime.IsSet() {
+		queryParams.Add("startTime", parameterToString(opts.StartTime.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.EndTime.IsSet() {
-		localVarQueryParams.Add("endTime", parameterToString(localVarOptionals.EndTime.Value(), ""))
+	if opts != nil && opts.EndTime.IsSet() {
+		queryParams.Add("endTime", parameterToString(opts.EndTime.Value(), ""))
 	}
 
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -376,109 +194,44 @@ WorkflowResourceApiService Lists workflows for the given correlation id list
 @return map[string][]http_model.Workflow
 */
 
-func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []string, name string, localVarOptionals *WorkflowResourceApiGetWorkflowsOpts) (map[string][]model.Workflow, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue map[string][]model.Workflow
-	)
+func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []string, name string, opts *WorkflowResourceApiGetWorkflowsOpts) (map[string][]model.Workflow, *http.Response, error) {
+	var result map[string][]model.Workflow
 
-	localVarPath := "/workflow/{name}/correlated"
-	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
+	path := fmt.Sprintf("/workflow/%s/correlated", name)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.IncludeClosed.IsSet() {
-		localVarQueryParams.Add("includeClosed", parameterToString(localVarOptionals.IncludeClosed.Value(), ""))
+	queryParams := url.Values{}
+	if opts != nil && opts.IncludeClosed.IsSet() {
+		queryParams.Add("includeClosed", parameterToString(opts.IncludeClosed.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.IncludeTasks.IsSet() {
-		localVarQueryParams.Add("includeTasks", parameterToString(localVarOptionals.IncludeTasks.Value(), ""))
+	if opts != nil && opts.IncludeTasks.IsSet() {
+		queryParams.Add("includeTasks", parameterToString(opts.IncludeTasks.Value(), ""))
 	}
 
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 func (a *WorkflowResourceApiService) GetWorkflowsBatch(ctx context.Context, body map[string][]string, localVarOptionals *WorkflowResourceApiGetWorkflowsOpts) (map[string][]model.Workflow, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue map[string][]model.Workflow
-	)
+	var result map[string][]model.Workflow
 
-	localVarPath := "/workflow/correlated/batch"
+	path := "/workflow/correlated/batch"
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
+	queryParams := url.Values{}
 	if localVarOptionals != nil && localVarOptionals.IncludeClosed.IsSet() {
-		localVarQueryParams.Add("includeClosed", parameterToString(localVarOptionals.IncludeClosed.Value(), ""))
+		queryParams.Add("includeClosed", parameterToString(localVarOptionals.IncludeClosed.Value(), ""))
 	}
 	if localVarOptionals != nil && localVarOptionals.IncludeTasks.IsSet() {
-		localVarQueryParams.Add("includeTasks", parameterToString(localVarOptionals.IncludeTasks.Value(), ""))
+		queryParams.Add("includeTasks", parameterToString(localVarOptionals.IncludeTasks.Value(), ""))
 	}
 
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.PostWithParams(ctx, path, queryParams, body, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -497,59 +250,27 @@ type WorkflowResourceApiGetWorkflowsOpts struct {
 	IncludeTasks  optional.Bool
 }
 
-func (a *WorkflowResourceApiService) GetWorkflowsByCorrelationId(ctx context.Context, name string, correlationId string, localVarOptionals *WorkflowResourceApiGetWorkflowsOpts) ([]model.Workflow, *http.Response, error) {
-	return a.GetWorkflows1(ctx, name, correlationId, localVarOptionals)
+func (a *WorkflowResourceApiService) GetWorkflowsByCorrelationId(ctx context.Context, name string, correlationId string, opts *WorkflowResourceApiGetWorkflowsOpts) ([]model.Workflow, *http.Response, error) {
+	return a.GetWorkflows1(ctx, name, correlationId, opts)
 }
-func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name string, correlationId string, localVarOptionals *WorkflowResourceApiGetWorkflowsOpts) ([]model.Workflow, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue []model.Workflow
-	)
+func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name string, correlationId string, opts *WorkflowResourceApiGetWorkflowsOpts) ([]model.Workflow, *http.Response, error) {
+	var result []model.Workflow
 
-	localVarPath := "/workflow/{name}/correlated/{correlationId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"correlationId"+"}", fmt.Sprintf("%v", correlationId), -1)
+	localVarPath := fmt.Sprintf("/workflow/%s/correlated/%s", name, correlationId)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.IncludeClosed.IsSet() {
-		localVarQueryParams.Add("includeClosed", parameterToString(localVarOptionals.IncludeClosed.Value(), ""))
+	queryParams := url.Values{}
+	if opts != nil && opts.IncludeClosed.IsSet() {
+		queryParams.Add("includeClosed", parameterToString(opts.IncludeClosed.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.IncludeTasks.IsSet() {
-		localVarQueryParams.Add("includeTasks", parameterToString(localVarOptionals.IncludeTasks.Value(), ""))
+	if opts != nil && opts.IncludeTasks.IsSet() {
+		queryParams.Add("includeTasks", parameterToString(opts.IncludeTasks.Value(), ""))
 	}
 
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Get(ctx, localVarPath, queryParams, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -558,43 +279,13 @@ WorkflowResourceApiService Pauses the workflow
   - @param workflowId
 */
 func (a *WorkflowResourceApiService) PauseWorkflow(ctx context.Context, workflowId string) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Put")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
+	path := fmt.Sprintf("/workflow/%s/pause", workflowId)
 
-	localVarPath := "/workflow/{workflowId}/pause"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
-
-	localVarHeaderParams := make(map[string]string)
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Put(ctx, path, nil, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -606,49 +297,15 @@ WorkflowResourceApiService Reruns the workflow from a specific task
 @return string
 */
 func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body model.RerunWorkflowRequest, workflowId string) (string, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue string
-	)
+	var result string
 
-	localVarPath := "/workflow/{workflowId}/rerun"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
+	path := fmt.Sprintf("/workflow/%s/rerun", workflowId)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "text/plain"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Post(ctx, path, body, nil)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return "", nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -657,43 +314,13 @@ WorkflowResourceApiService Resets callback times of all non-terminal SIMPLE task
   - @param workflowId
 */
 func (a *WorkflowResourceApiService) ResetWorkflow(ctx context.Context, workflowId string) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Post")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
+	path := fmt.Sprintf("/workflow/%s/resetcallbacks", workflowId)
 
-	localVarPath := "/workflow/{workflowId}/resetcallbacks"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
-
-	localVarHeaderParams := make(map[string]string)
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Post(ctx, path, nil, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -709,47 +336,19 @@ type WorkflowResourceApiRestartOpts struct {
 	UseLatestDefinitions optional.Bool
 }
 
-func (a *WorkflowResourceApiService) Restart(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiRestartOpts) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Post")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
+func (a *WorkflowResourceApiService) Restart(ctx context.Context, workflowId string, opts *WorkflowResourceApiRestartOpts) (*http.Response, error) {
+	path := fmt.Sprintf("/workflow/%s/restart", workflowId)
 
-	localVarPath := "/workflow/{workflowId}/restart"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.UseLatestDefinitions.IsSet() {
-		localVarQueryParams.Add("useLatestDefinitions", parameterToString(localVarOptionals.UseLatestDefinitions.Value(), ""))
+	queryParams := url.Values{}
+	if opts != nil && opts.UseLatestDefinitions.IsSet() {
+		queryParams.Add("useLatestDefinitions", parameterToString(opts.UseLatestDefinitions.Value(), ""))
 	}
 
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.PostWithParams(ctx, path, queryParams, nil, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -758,43 +357,13 @@ WorkflowResourceApiService Resumes the workflow
   - @param workflowId
 */
 func (a *WorkflowResourceApiService) ResumeWorkflow(ctx context.Context, workflowId string) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Put")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
+	path := fmt.Sprintf("/workflow/%s/resume", workflowId)
 
-	localVarPath := "/workflow/{workflowId}/resume"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
-
-	localVarHeaderParams := make(map[string]string)
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Put(ctx, path, nil, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -810,47 +379,19 @@ type WorkflowResourceApiRetryOpts struct {
 	ResumeSubworkflowTasks optional.Bool
 }
 
-func (a *WorkflowResourceApiService) Retry(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiRetryOpts) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Post")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
+func (a *WorkflowResourceApiService) Retry(ctx context.Context, workflowId string, opts *WorkflowResourceApiRetryOpts) (*http.Response, error) {
+	path := fmt.Sprintf("/workflow/%s/retry", workflowId)
 
-	localVarPath := "/workflow/{workflowId}/retry"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.ResumeSubworkflowTasks.IsSet() {
-		localVarQueryParams.Add("resumeSubworkflowTasks", parameterToString(localVarOptionals.ResumeSubworkflowTasks.Value(), ""))
+	queryParams := url.Values{}
+	if opts != nil && opts.ResumeSubworkflowTasks.IsSet() {
+		queryParams.Add("resumeSubworkflowTasks", parameterToString(opts.ResumeSubworkflowTasks.Value(), ""))
 	}
 
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.PostWithParams(ctx, path, queryParams, nil, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -874,61 +415,33 @@ type WorkflowResourceApiSearchOpts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) Search(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchOpts) (model.SearchResultWorkflowSummary, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.SearchResultWorkflowSummary
-	)
+func (a *WorkflowResourceApiService) Search(ctx context.Context, opts *WorkflowResourceApiSearchOpts) (model.SearchResultWorkflowSummary, *http.Response, error) {
+	var result model.SearchResultWorkflowSummary
 
-	localVarPath := "/workflow/search"
+	path := "/workflow/search"
 
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
+	queryParams := url.Values{}
+	if opts != nil && opts.Start.IsSet() {
+		queryParams.Add("start", parameterToString(opts.Start.Value(), ""))
+	}
+	if opts != nil && opts.Size.IsSet() {
+		queryParams.Add("size", parameterToString(opts.Size.Value(), ""))
+	}
+	if opts != nil && opts.Sort.IsSet() {
+		queryParams.Add("sort", parameterToString(opts.Sort.Value(), ""))
+	}
+	if opts != nil && opts.FreeText.IsSet() {
+		queryParams.Add("freeText", parameterToString(opts.FreeText.Value(), ""))
+	}
+	if opts != nil && opts.Query.IsSet() {
+		queryParams.Add("query", parameterToString(opts.Query.Value(), ""))
+	}
 
-	if localVarOptionals != nil && localVarOptionals.Start.IsSet() {
-		localVarQueryParams.Add("start", parameterToString(localVarOptionals.Start.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Size.IsSet() {
-		localVarQueryParams.Add("size", parameterToString(localVarOptionals.Size.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Sort.IsSet() {
-		localVarQueryParams.Add("sort", parameterToString(localVarOptionals.Sort.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.FreeText.IsSet() {
-		localVarQueryParams.Add("freeText", parameterToString(localVarOptionals.FreeText.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Query.IsSet() {
-		localVarQueryParams.Add("query", parameterToString(localVarOptionals.Query.Value(), ""))
-	}
-	localVarHeaderParams["Accept"] = "*/*"
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return model.SearchResultWorkflowSummary{}, nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -952,63 +465,33 @@ type WorkflowResourceApiSearchV2Opts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchV2Opts) (model.SearchResultWorkflow, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.SearchResultWorkflow
-	)
+func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, opts *WorkflowResourceApiSearchV2Opts) (model.SearchResultWorkflow, *http.Response, error) {
+	var result model.SearchResultWorkflow
 
-	localVarPath := "/workflow/search-v2"
+	path := "/workflow/search-v2"
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.Start.IsSet() {
-		localVarQueryParams.Add("start", parameterToString(localVarOptionals.Start.Value(), ""))
+	queryParams := url.Values{}
+	if opts != nil && opts.Start.IsSet() {
+		queryParams.Add("start", parameterToString(opts.Start.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Size.IsSet() {
-		localVarQueryParams.Add("size", parameterToString(localVarOptionals.Size.Value(), ""))
+	if opts != nil && opts.Size.IsSet() {
+		queryParams.Add("size", parameterToString(opts.Size.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Sort.IsSet() {
-		localVarQueryParams.Add("sort", parameterToString(localVarOptionals.Sort.Value(), ""))
+	if opts != nil && opts.Sort.IsSet() {
+		queryParams.Add("sort", parameterToString(opts.Sort.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.FreeText.IsSet() {
-		localVarQueryParams.Add("freeText", parameterToString(localVarOptionals.FreeText.Value(), ""))
+	if opts != nil && opts.FreeText.IsSet() {
+		queryParams.Add("freeText", parameterToString(opts.FreeText.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Query.IsSet() {
-		localVarQueryParams.Add("query", parameterToString(localVarOptionals.Query.Value(), ""))
+	if opts != nil && opts.Query.IsSet() {
+		queryParams.Add("query", parameterToString(opts.Query.Value(), ""))
 	}
 
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return model.SearchResultWorkflow{}, nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -1032,63 +515,33 @@ type WorkflowResourceApiSearchWorkflowsByTasksOpts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksOpts) (model.SearchResultWorkflowSummary, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.SearchResultWorkflowSummary
-	)
+func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context, opts *WorkflowResourceApiSearchWorkflowsByTasksOpts) (model.SearchResultWorkflowSummary, *http.Response, error) {
+	var result model.SearchResultWorkflowSummary
 
 	localVarPath := "/workflow/search-by-tasks"
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.Start.IsSet() {
-		localVarQueryParams.Add("start", parameterToString(localVarOptionals.Start.Value(), ""))
+	queryParams := url.Values{}
+	if opts != nil && opts.Start.IsSet() {
+		queryParams.Add("start", parameterToString(opts.Start.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Size.IsSet() {
-		localVarQueryParams.Add("size", parameterToString(localVarOptionals.Size.Value(), ""))
+	if opts != nil && opts.Size.IsSet() {
+		queryParams.Add("size", parameterToString(opts.Size.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Sort.IsSet() {
-		localVarQueryParams.Add("sort", parameterToString(localVarOptionals.Sort.Value(), ""))
+	if opts != nil && opts.Sort.IsSet() {
+		queryParams.Add("sort", parameterToString(opts.Sort.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.FreeText.IsSet() {
-		localVarQueryParams.Add("freeText", parameterToString(localVarOptionals.FreeText.Value(), ""))
+	if opts != nil && opts.FreeText.IsSet() {
+		queryParams.Add("freeText", parameterToString(opts.FreeText.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Query.IsSet() {
-		localVarQueryParams.Add("query", parameterToString(localVarOptionals.Query.Value(), ""))
+	if opts != nil && opts.Query.IsSet() {
+		queryParams.Add("query", parameterToString(opts.Query.Value(), ""))
 	}
 
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Get(ctx, localVarPath, queryParams, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return model.SearchResultWorkflowSummary{}, nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -1112,63 +565,33 @@ type WorkflowResourceApiSearchWorkflowsByTasksV2Opts struct {
 	Query    optional.String
 }
 
-func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Context, localVarOptionals *WorkflowResourceApiSearchWorkflowsByTasksV2Opts) (model.SearchResultWorkflow, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.SearchResultWorkflow
-	)
+func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Context, opts *WorkflowResourceApiSearchWorkflowsByTasksV2Opts) (model.SearchResultWorkflow, *http.Response, error) {
+	var result model.SearchResultWorkflow
 
 	localVarPath := "/workflow/search-by-tasks-v2"
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.Start.IsSet() {
-		localVarQueryParams.Add("start", parameterToString(localVarOptionals.Start.Value(), ""))
+	queryParams := url.Values{}
+	if opts != nil && opts.Start.IsSet() {
+		queryParams.Add("start", parameterToString(opts.Start.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Size.IsSet() {
-		localVarQueryParams.Add("size", parameterToString(localVarOptionals.Size.Value(), ""))
+	if opts != nil && opts.Size.IsSet() {
+		queryParams.Add("size", parameterToString(opts.Size.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Sort.IsSet() {
-		localVarQueryParams.Add("sort", parameterToString(localVarOptionals.Sort.Value(), ""))
+	if opts != nil && opts.Sort.IsSet() {
+		queryParams.Add("sort", parameterToString(opts.Sort.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.FreeText.IsSet() {
-		localVarQueryParams.Add("freeText", parameterToString(localVarOptionals.FreeText.Value(), ""))
+	if opts != nil && opts.FreeText.IsSet() {
+		queryParams.Add("freeText", parameterToString(opts.FreeText.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Query.IsSet() {
-		localVarQueryParams.Add("query", parameterToString(localVarOptionals.Query.Value(), ""))
+	if opts != nil && opts.Query.IsSet() {
+		queryParams.Add("query", parameterToString(opts.Query.Value(), ""))
 	}
 
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Get(ctx, localVarPath, queryParams, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return model.SearchResultWorkflow{}, nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -1179,46 +602,16 @@ WorkflowResourceApiService Skips a given task from a current running workflow
   - @param skipTaskRequest
 */
 func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, workflowId string, taskReferenceName string, skipTaskRequest model.SkipTaskRequest) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Put")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
+	path := fmt.Sprintf("/workflow/%s/skiptask/%s", workflowId, taskReferenceName)
 
-	localVarPath := "/workflow/{workflowId}/skiptask/{taskReferenceName}"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"taskReferenceName"+"}", fmt.Sprintf("%v", taskReferenceName), -1)
+	queryParams := url.Values{}
+	queryParams.Add("skipTaskRequest", parameterToString(skipTaskRequest, ""))
 
-	localVarHeaderParams := make(map[string]string)
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarQueryParams.Add("skipTaskRequest", parameterToString(skipTaskRequest, ""))
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.PutWithParams(ctx, path, queryParams, nil, &model.SkipTaskRequest{})
 	if err != nil {
 		return nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -1239,113 +632,45 @@ type WorkflowResourceApiStartWorkflowOpts struct {
 	Priority      optional.Int32
 }
 
-func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map[string]interface{}, name string, localVarOptionals *WorkflowResourceApiStartWorkflowOpts) (string, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue string
-	)
+func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map[string]interface{}, name string, opts *WorkflowResourceApiStartWorkflowOpts) (string, *http.Response, error) {
+	var result string
 
-	localVarPath := "/workflow/{name}"
-	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
+	path := fmt.Sprintf("/workflow/%s", name)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "text/plain"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.Version.IsSet() {
-		localVarQueryParams.Add("version", parameterToString(localVarOptionals.Version.Value(), ""))
+	queryParams := url.Values{}
+	if opts != nil && opts.Version.IsSet() {
+		queryParams.Add("version", parameterToString(opts.Version.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.CorrelationId.IsSet() {
-		localVarQueryParams.Add("correlationId", parameterToString(localVarOptionals.CorrelationId.Value(), ""))
+	if opts != nil && opts.CorrelationId.IsSet() {
+		queryParams.Add("correlationId", parameterToString(opts.CorrelationId.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Priority.IsSet() {
-		localVarQueryParams.Add("priority", parameterToString(localVarOptionals.Priority.Value(), ""))
+	if opts != nil && opts.Priority.IsSet() {
+		queryParams.Add("priority", parameterToString(opts.Priority.Value(), ""))
 	}
 
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.PostWithParams(ctx, path, queryParams, body, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return "", nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask string) (model.WorkflowRun, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.WorkflowRun
-	)
+	var result model.WorkflowRun
 
-	localVarPath := "/workflow/execute/{name}/{version}"
-	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"version"+"}", fmt.Sprintf("%v", version), -1)
+	path := fmt.Sprintf("/workflow/execute/%s/%d", name, version)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "application/json"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarQueryParams.Add("requestId", parameterToString(requestId, ""))
+	queryParams := url.Values{}
+	queryParams.Add("requestId", parameterToString(requestId, ""))
 	if len(waitUntilTask) > 0 {
-		localVarQueryParams.Add("waitUntilTaskRef", parameterToString(waitUntilTask, ""))
+		queryParams.Add("waitUntilTaskRef", parameterToString(waitUntilTask, ""))
 	}
 
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.PostWithParams(ctx, path, queryParams, body, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return model.WorkflowRun{}, nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	localVarHttpResponse.Body.Close()
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -1356,48 +681,15 @@ WorkflowResourceApiService Start a new workflow with http_model.StartWorkflowReq
 @return string
 */
 func (a *WorkflowResourceApiService) StartWorkflowWithRequest(ctx context.Context, body model.StartWorkflowRequest) (string, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue string
-	)
+	var result string
 
-	localVarPath := "/workflow"
+	path := "/workflow"
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "text/plain"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Post(ctx, path, body, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return "", nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -1414,49 +706,20 @@ type WorkflowResourceApiTerminateOpts struct {
 	TriggerFailureWorkflow optional.Bool
 }
 
-func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId string, localVarOptionals *WorkflowResourceApiTerminateOpts) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Delete")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
+func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId string, opts *WorkflowResourceApiTerminateOpts) (*http.Response, error) {
+	path := fmt.Sprintf("/workflow/%s", workflowId)
 
-	localVarPath := "/workflow/{workflowId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.Reason.IsSet() {
-		localVarQueryParams.Add("reason", parameterToString(localVarOptionals.Reason.Value(), ""))
+	queryParams := url.Values{}
+	if opts != nil && opts.Reason.IsSet() {
+		queryParams.Add("reason", parameterToString(opts.Reason.Value(), ""))
+	}
+	if opts != nil && opts.TriggerFailureWorkflow.IsSet() {
+		queryParams.Add("triggerFailureWorkflow", parameterToString(opts.TriggerFailureWorkflow.Value(), ""))
 	}
 
-	if localVarOptionals != nil && localVarOptionals.TriggerFailureWorkflow.IsSet() {
-		localVarQueryParams.Add("triggerFailureWorkflow", parameterToString(localVarOptionals.TriggerFailureWorkflow.Value(), ""))
-	}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.APIClient.Delete(ctx, path, queryParams, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	return resp, nil
 }
