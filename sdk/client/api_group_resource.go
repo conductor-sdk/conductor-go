@@ -48,7 +48,11 @@ GroupResourceApiService Add users to group
 func (a *GroupResourceApiService) AddUsersToGroup(ctx context.Context, body []string, groupId string) (*http.Response, error) {
 	path := fmt.Sprintf("/groups/%s/users", groupId)
 	resp, err := a.Post(ctx, path, body, nil)
-	return resp, err
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, nil
 }
 
 /*
@@ -60,7 +64,10 @@ GroupResourceApiService Delete a group
 func (a *GroupResourceApiService) DeleteGroup(ctx context.Context, id string) (*http.Response, error) {
 	path := fmt.Sprintf("/groups/%s", id)
 	resp, err := a.Delete(ctx, path, nil, nil)
-	return resp, err
+	if err != nil {
+		return resp, err
+	}
+	return resp, nil
 }
 
 /*
@@ -75,7 +82,7 @@ func (a *GroupResourceApiService) GetGrantedPermissions1(ctx context.Context, gr
 	resp, err := a.Get(ctx, path, nil, &result)
 
 	if err != nil {
-		return result, resp, err
+		return rbac.GrantedAccessResponse{}, resp, err
 	}
 
 	return result, resp, nil
@@ -161,7 +168,12 @@ GroupResourceApiService Remove users from group
 */
 func (a *GroupResourceApiService) RemoveUsersFromGroup(ctx context.Context, body []string, groupId string) (*http.Response, error) {
 	path := fmt.Sprintf("/groups/%s/users", groupId)
+
 	resp, err := a.DeleteWithBody(ctx, path, body, nil)
+	if err != nil {
+		return resp, err
+	}
+
 	return resp, err
 }
 
@@ -175,8 +187,8 @@ GroupResourceApiService Create or update a group
 func (a *GroupResourceApiService) UpsertGroup(ctx context.Context, body rbac.UpsertGroupRequest, id string) (interface{}, *http.Response, error) {
 	var result interface{}
 	path := fmt.Sprintf("/groups/%s", id)
-	resp, err := a.Put(ctx, path, body, &result)
 
+	resp, err := a.Put(ctx, path, body, &result)
 	if err != nil {
 		return nil, resp, err
 	}
