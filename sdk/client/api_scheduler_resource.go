@@ -35,7 +35,7 @@ func (a *SchedulerResourceApiService) DeleteSchedule(ctx context.Context, name s
 
 	resp, err := a.Delete(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -51,7 +51,7 @@ func (a *SchedulerResourceApiService) DeleteTagForSchedule(ctx context.Context, 
 
 	resp, err := a.DeleteWithBody(ctx, path, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -79,7 +79,7 @@ func (a *SchedulerResourceApiService) GetAllSchedules(ctx context.Context, optio
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -119,7 +119,7 @@ func (a *SchedulerResourceApiService) GetNextFewSchedules(ctx context.Context, c
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -153,7 +153,7 @@ func (a *SchedulerResourceApiService) GetTagsForSchedule(ctx context.Context, na
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -170,7 +170,7 @@ func (a *SchedulerResourceApiService) PauseAllSchedules(ctx context.Context) (ma
 
 	resp, err := a.Post(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -187,7 +187,7 @@ func (a *SchedulerResourceApiService) PauseSchedule(ctx context.Context, name st
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -203,7 +203,7 @@ func (a *SchedulerResourceApiService) PutTagForSchedule(ctx context.Context, bod
 
 	resp, err := a.Put(ctx, path, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -220,7 +220,7 @@ func (a *SchedulerResourceApiService) RequeueAllExecutionRecords(ctx context.Con
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -237,7 +237,7 @@ func (a *SchedulerResourceApiService) ResumeAllSchedules(ctx context.Context) (m
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -254,7 +254,7 @@ func (a *SchedulerResourceApiService) ResumeSchedule(ctx context.Context, name s
 	path := fmt.Sprintf("/scheduler/schedules/%s/resume", name)
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -271,7 +271,7 @@ func (a *SchedulerResourceApiService) SaveSchedule(ctx context.Context, body mod
 
 	resp, err := a.Post(ctx, path, body, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -321,7 +321,7 @@ func (a *SchedulerResourceApiService) SearchV2(ctx context.Context, optionals *S
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return model.SearchResultWorkflowSchedule{}, nil, err
+		return model.SearchResultWorkflowSchedule{}, resp, err
 	}
 	return result, resp, nil
 }

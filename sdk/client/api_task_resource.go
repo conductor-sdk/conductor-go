@@ -46,7 +46,7 @@ func (a *TaskResourceApiService) All(ctx context.Context) (map[string]int64, *ht
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -64,7 +64,7 @@ func (a *TaskResourceApiService) AllVerbose(ctx context.Context) (map[string]map
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -109,7 +109,7 @@ func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string,
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -127,7 +127,7 @@ func (a *TaskResourceApiService) GetAllPollData(ctx context.Context) ([]model.Po
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -154,7 +154,7 @@ func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context
 
 	resp, err := a.Get(ctx, localVarPath, queryParams, &result)
 	if err != nil {
-		return model.ExternalStorageLocation{}, nil, err
+		return model.ExternalStorageLocation{}, resp, err
 	}
 	return result, resp, nil
 }
@@ -176,7 +176,7 @@ func (a *TaskResourceApiService) GetPollData(ctx context.Context, taskType strin
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -194,7 +194,7 @@ func (a *TaskResourceApiService) GetTask(ctx context.Context, taskId string) (mo
 	path := fmt.Sprintf("/tasks/%s", taskId)
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return model.Task{}, nil, err
+		return model.Task{}, resp, err
 	}
 
 	return result, resp, nil
@@ -213,7 +213,7 @@ func (a *TaskResourceApiService) GetTaskLogs(ctx context.Context, taskId string)
 	path := fmt.Sprintf("/tasks/%s/log", taskId)
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -229,7 +229,7 @@ func (a *TaskResourceApiService) Log(ctx context.Context, body string, taskId st
 	path := fmt.Sprintf("/tasks/%s/log", taskId)
 	resp, err := a.Post(ctx, path, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -265,7 +265,7 @@ func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, loca
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return model.Task{}, nil, err
+		return model.Task{}, resp, err
 	}
 	return result, resp, nil
 }
@@ -283,7 +283,7 @@ func (a *TaskResourceApiService) RequeuePendingTask(ctx context.Context, taskTyp
 	path := fmt.Sprintf("/tasks/queue/requeue/%s", taskType)
 	resp, err := a.Post(ctx, path, nil, &result)
 	if err != nil {
-		return "", nil, err
+		return "", resp, err
 	}
 	return result, resp, nil
 }
@@ -333,7 +333,7 @@ func (a *TaskResourceApiService) Search(ctx context.Context, localVarOptionals *
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return model.SearchResultTaskSummary{}, nil, err
+		return model.SearchResultTaskSummary{}, resp, err
 	}
 	return result, resp, nil
 }
@@ -383,7 +383,7 @@ func (a *TaskResourceApiService) SearchV2(ctx context.Context, localVarOptionals
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return model.SearchResultTask{}, nil, err
+		return model.SearchResultTask{}, resp, err
 	}
 	return result, resp, nil
 }

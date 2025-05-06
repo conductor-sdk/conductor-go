@@ -32,7 +32,7 @@ func (a *PromptResourceApiService) DeleteMessageTemplate(ctx context.Context, na
 
 	resp, err := a.Delete(ctx, path, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -48,7 +48,7 @@ func (a *PromptResourceApiService) DeleteTagForPromptTemplate(ctx context.Contex
 
 	resp, err := a.DeleteWithBody(ctx, path, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -115,7 +115,7 @@ func (a *PromptResourceApiService) PutTagForPromptTemplate(ctx context.Context, 
 
 	resp, err := a.Put(ctx, path, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 
 	return resp, nil
@@ -146,7 +146,7 @@ func (a *PromptResourceApiService) SaveMessageTemplate(ctx context.Context, body
 	}
 	resp, err := a.PostWithParams(ctx, path, queryParams, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }

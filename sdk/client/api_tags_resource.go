@@ -35,7 +35,7 @@ func (a *TagsApiService) AddTaskTag(ctx context.Context, body model.TagObject, t
 
 	resp, err := a.Post(ctx, path, body, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -54,7 +54,7 @@ func (a *TagsApiService) AddWorkflowTag(ctx context.Context, body model.TagObjec
 	path := fmt.Sprintf("/metadata/workflow/%s/tags", name)
 	resp, err := a.Post(ctx, path, body, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -74,7 +74,7 @@ func (a *TagsApiService) DeleteTaskTag(ctx context.Context, body model.TagString
 
 	resp, err := a.DeleteWithBody(ctx, path, body, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -93,7 +93,7 @@ func (a *TagsApiService) DeleteWorkflowTag(ctx context.Context, body model.TagOb
 	localVarPath := fmt.Sprintf("/metadata/workflow/%s/tags", name)
 	resp, err := a.DeleteWithBody(ctx, localVarPath, body, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -111,7 +111,7 @@ func (a *TagsApiService) GetTags1(ctx context.Context) ([]model.TagObject, *http
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -129,7 +129,7 @@ func (a *TagsApiService) GetTaskTags(ctx context.Context, taskName string) ([]mo
 	localVarPath := fmt.Sprintf("/metadata/task/%s/tags", taskName)
 	resp, err := a.Get(ctx, localVarPath, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -147,7 +147,7 @@ func (a *TagsApiService) GetWorkflowTags(ctx context.Context, name string) ([]mo
 	path := fmt.Sprintf("/metadata/workflow/%s/tags", name)
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -166,7 +166,7 @@ func (a *TagsApiService) SetTaskTags(ctx context.Context, body []model.TagObject
 	localVarPath := fmt.Sprintf("/metadata/task/%s/tags", taskName)
 	resp, err := a.Put(ctx, localVarPath, body, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -185,7 +185,7 @@ func (a *TagsApiService) SetWorkflowTags(ctx context.Context, body []model.TagOb
 	localVarPath := fmt.Sprintf("/metadata/workflow/%s/tags", name)
 	resp, err := a.Put(ctx, localVarPath, body, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
