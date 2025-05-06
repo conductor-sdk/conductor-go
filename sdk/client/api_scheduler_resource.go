@@ -12,12 +12,10 @@ package client
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"net/url"
-	"strings"
-
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"net/http"
+	"net/url"
 )
 
 type SchedulerResourceApiService struct {
@@ -31,46 +29,15 @@ SchedulerResourceApiService Deletes an existing workflow schedule by name
     @return interface{}
 */
 func (a *SchedulerResourceApiService) DeleteSchedule(ctx context.Context, name string) (interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Delete")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue interface{}
-	)
+	var result interface{}
 
-	path := "/scheduler/schedules/{name}"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
+	path := fmt.Sprintf("/scheduler/schedules/%s", name)
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Delete(ctx, path, nil, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -80,44 +47,13 @@ SchedulerResourceApiService Delete a tag for schedule
   - @param name
 */
 func (a *SchedulerResourceApiService) DeleteTagForSchedule(ctx context.Context, body []model.Tag, name string) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Delete")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
+	path := fmt.Sprintf("/scheduler/schedules/%s/tags", name)
 
-	path := "/scheduler/schedules/{name}/tags"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.DeleteWithBody(ctx, path, body, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -133,50 +69,19 @@ type SchedulerResourceApiGetAllSchedulesOpts struct {
 }
 
 func (a *SchedulerResourceApiService) GetAllSchedules(ctx context.Context, optionals *SchedulerResourceApiGetAllSchedulesOpts) ([]model.WorkflowScheduleModel, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []model.WorkflowScheduleModel
-	)
+	var result []model.WorkflowScheduleModel
 
 	path := "/scheduler/schedules"
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
 	if optionals != nil && optionals.WorkflowName.IsSet() {
 		queryParams.Add("workflowName", parameterToString(optionals.WorkflowName.Value(), ""))
 	}
 
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -197,20 +102,10 @@ type SchedulerResourceApiGetNextFewSchedulesOpts struct {
 }
 
 func (a *SchedulerResourceApiService) GetNextFewSchedules(ctx context.Context, cronExpression string, optionals *SchedulerResourceApiGetNextFewSchedulesOpts) ([]int64, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []int64
-	)
-
+	var result []int64
 	path := "/scheduler/nextFewSchedules"
 
-	headerParams := make(map[string]string)
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
 	queryParams.Add("cronExpression", parameterToString(cronExpression, ""))
 	if optionals != nil && optionals.ScheduleStartTime.IsSet() {
 		queryParams.Add("scheduleStartTime", parameterToString(optionals.ScheduleStartTime.Value(), ""))
@@ -221,31 +116,12 @@ func (a *SchedulerResourceApiService) GetNextFewSchedules(ctx context.Context, c
 	if optionals != nil && optionals.Limit.IsSet() {
 		queryParams.Add("limit", parameterToString(optionals.Limit.Value(), ""))
 	}
-	headerParams["Accept"] = "application/json"
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+
+	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -255,46 +131,14 @@ SchedulerResourceApiService Get an existing workflow schedule by name
     @return WorkflowSchedule
 */
 func (a *SchedulerResourceApiService) GetSchedule(ctx context.Context, name string) (model.WorkflowSchedule, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue model.WorkflowSchedule
-	)
+	var result model.WorkflowSchedule
+	path := fmt.Sprintf("/scheduler/schedules/%s", name)
 
-	path := "/scheduler/schedules/{name}"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return model.WorkflowSchedule{}, nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -304,46 +148,14 @@ SchedulerResourceApiService Get tags by schedule
     @return []Tag
 */
 func (a *SchedulerResourceApiService) GetTagsForSchedule(ctx context.Context, name string) ([]model.Tag, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []model.Tag
-	)
+	var result []model.Tag
+	path := fmt.Sprintf("/scheduler/schedules/%s/tags", name)
 
-	path := "/scheduler/schedules/{name}/tags"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -352,45 +164,15 @@ SchedulerResourceApiService Pause all scheduling in a single conductor server in
     @return map[string]interface{}
 */
 func (a *SchedulerResourceApiService) PauseAllSchedules(ctx context.Context) (map[string]interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue map[string]interface{}
-	)
+	var result map[string]interface{}
 
 	path := "/scheduler/admin/pause"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Post(ctx, path, nil, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -400,46 +182,14 @@ SchedulerResourceApiService Pauses an existing schedule by name
     @return interface{}
 */
 func (a *SchedulerResourceApiService) PauseSchedule(ctx context.Context, name string) (interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue interface{}
-	)
+	var result interface{}
+	path := fmt.Sprintf("/scheduler/schedules/%s/pause", name)
 
-	path := "/scheduler/schedules/{name}/pause"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -449,44 +199,13 @@ SchedulerResourceApiService Put a tag to schedule
   - @param name
 */
 func (a *SchedulerResourceApiService) PutTagForSchedule(ctx context.Context, body []model.Tag, name string) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Put")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
+	path := fmt.Sprintf("/scheduler/schedules/%s/tags", name)
 
-	path := "/scheduler/schedules/{name}/tags"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Put(ctx, path, body, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -495,45 +214,15 @@ SchedulerResourceApiService Requeue all execution records
     @return map[string]interface{}
 */
 func (a *SchedulerResourceApiService) RequeueAllExecutionRecords(ctx context.Context) (map[string]interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue map[string]interface{}
-	)
+	var result map[string]interface{}
 
 	path := "/scheduler/admin/requeue"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -542,45 +231,15 @@ SchedulerResourceApiService Resume all scheduling
     @return map[string]interface{}
 */
 func (a *SchedulerResourceApiService) ResumeAllSchedules(ctx context.Context) (map[string]interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue map[string]interface{}
-	)
+	var result map[string]interface{}
 
 	path := "/scheduler/admin/resume"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -590,46 +249,14 @@ SchedulerResourceApiService Resume a paused schedule by name
     @return interface{}
 */
 func (a *SchedulerResourceApiService) ResumeSchedule(ctx context.Context, name string) (interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue interface{}
-	)
+	var result interface{}
 
-	path := "/scheduler/schedules/{name}/resume"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	path := fmt.Sprintf("/scheduler/schedules/%s/resume", name)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -639,48 +266,14 @@ SchedulerResourceApiService Create or update a schedule for a specified workflow
     @return interface{}
 */
 func (a *SchedulerResourceApiService) SaveSchedule(ctx context.Context, body model.SaveScheduleRequest) (interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Post")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue interface{}
-	)
-
+	var result interface{}
 	path := "/scheduler/schedules"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Post(ctx, path, body, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -705,22 +298,11 @@ type SchedulerSearchOpts struct {
 }
 
 func (a *SchedulerResourceApiService) SearchV2(ctx context.Context, optionals *SchedulerSearchOpts) (model.SearchResultWorkflowSchedule, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue model.SearchResultWorkflowSchedule
-	)
+	var result model.SearchResultWorkflowSchedule
 
 	path := "/scheduler/search/executions"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
 	if optionals != nil && optionals.Start.IsSet() {
 		queryParams.Add("start", parameterToString(optionals.Start.Value(), ""))
 	}
@@ -737,28 +319,9 @@ func (a *SchedulerResourceApiService) SearchV2(ctx context.Context, optionals *S
 		queryParams.Add("query", parameterToString(optionals.Query.Value(), ""))
 	}
 
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return model.SearchResultWorkflowSchedule{}, nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
