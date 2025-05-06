@@ -45,7 +45,7 @@ func (a *UserResourceApiService) CheckPermissions(ctx context.Context, userId st
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, err
 }
@@ -61,7 +61,7 @@ func (a *UserResourceApiService) DeleteUser(ctx context.Context, id string) (*ht
 
 	resp, err := a.Delete(ctx, path, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -79,7 +79,7 @@ func (a *UserResourceApiService) GetGrantedPermissions(ctx context.Context, user
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return rbac.GrantedAccessResponse{}, nil, err
+		return rbac.GrantedAccessResponse{}, resp, err
 	}
 	return result, resp, err
 }
@@ -140,7 +140,7 @@ func (a *UserResourceApiService) UpsertUser(ctx context.Context, body rbac.Upser
 	path := fmt.Sprintf("/users/%s", id)
 	resp, err := a.Put(ctx, path, body, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 
 	return &result, resp, err

@@ -35,7 +35,7 @@ func (a *IntegrationResourceApiService) AssociatePromptWithIntegration(ctx conte
 
 	resp, err := a.Post(ctx, path, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 
 	return resp, nil
@@ -52,7 +52,7 @@ func (a *IntegrationResourceApiService) DeleteIntegrationApi(ctx context.Context
 
 	resp, err := a.Delete(ctx, path, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 
 	return resp, nil
@@ -67,7 +67,7 @@ func (a *IntegrationResourceApiService) DeleteIntegrationProvider(ctx context.Co
 	path := fmt.Sprintf("/integrations/provider/%s", name)
 	resp, err := a.Delete(ctx, path, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 
 	return resp, nil
@@ -84,7 +84,7 @@ func (a *IntegrationResourceApiService) DeleteTagForIntegration(ctx context.Cont
 	path := fmt.Sprintf("/integrations/provider/%s/integration/%s/tags", name, model)
 	resp, err := a.DeleteWithBody(ctx, path, tags, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -100,7 +100,7 @@ func (a *IntegrationResourceApiService) DeleteTagForIntegrationProvider(ctx cont
 
 	resp, err := a.DeleteWithBody(ctx, path, tags, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 
 	return resp, nil
@@ -368,7 +368,7 @@ func (a *IntegrationResourceApiService) UpdateTagForIntegration(ctx context.Cont
 
 	resp, err := a.Put(ctx, path, tags, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -384,7 +384,7 @@ func (a *IntegrationResourceApiService) UpdateTagForIntegrationProvider(ctx cont
 
 	resp, err := a.Put(ctx, path, tags, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -401,7 +401,7 @@ func (a *IntegrationResourceApiService) SaveIntegrationApi(ctx context.Context, 
 
 	resp, err := a.Post(ctx, path, integrationApiUpdate, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -416,7 +416,7 @@ func (a *IntegrationResourceApiService) SaveIntegrationProvider(ctx context.Cont
 	path := fmt.Sprintf("/integrations/provider/%s", name)
 	resp, err := a.Post(ctx, path, integrationUpdate, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }

@@ -41,7 +41,7 @@ func (a *MetadataResourceApiService) RegisterWorkflowDef(ctx context.Context, ov
 	}
 	resp, err := a.PostWithParams(ctx, path, queryParams, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -67,7 +67,7 @@ func (a *MetadataResourceApiService) RegisterWorkflowDefWithTags(ctx context.Con
 
 	resp, err := a.PostWithParams(ctx, path, params, workflowDefWithTags, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -98,7 +98,7 @@ func (a *MetadataResourceApiService) Get(ctx context.Context, name string, local
 
 	resp, err := a.APIClient.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return model.WorkflowDef{}, nil, err
+		return model.WorkflowDef{}, resp, err
 	}
 	return result, resp, nil
 }
@@ -118,7 +118,7 @@ func (a *MetadataResourceApiService) GetAll(ctx context.Context) ([]model.Workfl
 
 	resp, err := a.APIClient.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return []model.WorkflowDef{}, nil, err
+		return []model.WorkflowDef{}, resp, err
 	}
 	return result, resp, nil
 }
@@ -136,7 +136,7 @@ func (a *MetadataResourceApiService) GetTaskDef(ctx context.Context, tasktype st
 
 	resp, err := a.APIClient.Get(ctx, path, nil, &result)
 	if err != nil {
-		return model.TaskDef{}, nil, err
+		return model.TaskDef{}, resp, err
 	}
 
 	return result, resp, nil
@@ -155,7 +155,7 @@ func (a *MetadataResourceApiService) GetTaskDefs(ctx context.Context) ([]model.T
 
 	resp, err := a.APIClient.Get(ctx, path, nil, &result)
 	if err != nil {
-		return []model.TaskDef{}, nil, err
+		return []model.TaskDef{}, resp, err
 	}
 	return result, resp, nil
 }
@@ -170,7 +170,7 @@ func (a *MetadataResourceApiService) UpdateTaskDef(ctx context.Context, body mod
 
 	resp, err := a.APIClient.Put(ctx, path, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -194,7 +194,7 @@ func (a *MetadataResourceApiService) UpdateTaskDefWithTags(ctx context.Context, 
 
 	resp, err := a.APIClient.Put(ctx, path, taskDefWithTags, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -209,7 +209,7 @@ func (a *MetadataResourceApiService) RegisterTaskDef(ctx context.Context, body [
 
 	resp, err := a.APIClient.Post(ctx, path, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -235,7 +235,7 @@ func (a *MetadataResourceApiService) RegisterTaskDefWithTags(ctx context.Context
 
 	resp, err := a.APIClient.Post(ctx, path, taskDefs, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -250,7 +250,7 @@ func (a *MetadataResourceApiService) UnregisterTaskDef(ctx context.Context, task
 
 	resp, err := a.APIClient.Delete(ctx, path, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -266,7 +266,7 @@ func (a *MetadataResourceApiService) UnregisterWorkflowDef(ctx context.Context, 
 
 	resp, err := a.APIClient.Delete(ctx, path, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -281,7 +281,7 @@ func (a *MetadataResourceApiService) Update(ctx context.Context, body []model.Wo
 
 	resp, err := a.APIClient.Put(ctx, path, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -305,7 +305,7 @@ func (a *MetadataResourceApiService) UpdateWorkflowDefWithTags(ctx context.Conte
 
 	resp, err := a.APIClient.Put(ctx, path, workflowDefs, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }

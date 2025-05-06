@@ -37,7 +37,7 @@ func (a *WorkflowResourceApiService) Decide(ctx context.Context, workflowId stri
 
 	resp, err := a.Put(ctx, path, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -65,7 +65,7 @@ func (a *WorkflowResourceApiService) Delete(ctx context.Context, workflowId stri
 
 	resp, err := a.APIClient.Delete(ctx, path, queryParams, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -112,7 +112,7 @@ func (a *WorkflowResourceApiService) GetWorkflowState(ctx context.Context, workf
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return model.WorkflowState{}, nil, err
+		return model.WorkflowState{}, resp, err
 	}
 	return result, resp, nil
 }
@@ -138,7 +138,7 @@ func (a *WorkflowResourceApiService) GetExternalStorageLocation(ctx context.Cont
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return model.ExternalStorageLocation{}, nil, err
+		return model.ExternalStorageLocation{}, resp, err
 	}
 	return result, resp, nil
 }
@@ -178,7 +178,7 @@ func (a *WorkflowResourceApiService) GetRunningWorkflow(ctx context.Context, nam
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -209,7 +209,7 @@ func (a *WorkflowResourceApiService) GetWorkflows(ctx context.Context, body []st
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -229,7 +229,7 @@ func (a *WorkflowResourceApiService) GetWorkflowsBatch(ctx context.Context, body
 
 	resp, err := a.PostWithParams(ctx, path, queryParams, body, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -268,7 +268,7 @@ func (a *WorkflowResourceApiService) GetWorkflows1(ctx context.Context, name str
 
 	resp, err := a.Get(ctx, localVarPath, queryParams, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -283,7 +283,7 @@ func (a *WorkflowResourceApiService) PauseWorkflow(ctx context.Context, workflow
 
 	resp, err := a.Put(ctx, path, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -303,7 +303,7 @@ func (a *WorkflowResourceApiService) Rerun(ctx context.Context, body model.Rerun
 
 	resp, err := a.Post(ctx, path, body, nil)
 	if err != nil {
-		return "", nil, err
+		return "", resp, err
 	}
 	return result, resp, nil
 }
@@ -318,7 +318,7 @@ func (a *WorkflowResourceApiService) ResetWorkflow(ctx context.Context, workflow
 
 	resp, err := a.Post(ctx, path, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -346,7 +346,7 @@ func (a *WorkflowResourceApiService) Restart(ctx context.Context, workflowId str
 
 	resp, err := a.PostWithParams(ctx, path, queryParams, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -361,7 +361,7 @@ func (a *WorkflowResourceApiService) ResumeWorkflow(ctx context.Context, workflo
 
 	resp, err := a.Put(ctx, path, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -389,7 +389,7 @@ func (a *WorkflowResourceApiService) Retry(ctx context.Context, workflowId strin
 
 	resp, err := a.PostWithParams(ctx, path, queryParams, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -439,7 +439,7 @@ func (a *WorkflowResourceApiService) Search(ctx context.Context, opts *WorkflowR
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return model.SearchResultWorkflowSummary{}, nil, err
+		return model.SearchResultWorkflowSummary{}, resp, err
 	}
 	return result, resp, nil
 }
@@ -489,7 +489,7 @@ func (a *WorkflowResourceApiService) SearchV2(ctx context.Context, opts *Workflo
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
-		return model.SearchResultWorkflow{}, nil, err
+		return model.SearchResultWorkflow{}, resp, err
 	}
 	return result, resp, nil
 }
@@ -539,7 +539,7 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasks(ctx context.Context,
 
 	resp, err := a.Get(ctx, localVarPath, queryParams, &result)
 	if err != nil {
-		return model.SearchResultWorkflowSummary{}, nil, err
+		return model.SearchResultWorkflowSummary{}, resp, err
 	}
 	return result, resp, nil
 }
@@ -589,7 +589,7 @@ func (a *WorkflowResourceApiService) SearchWorkflowsByTasksV2(ctx context.Contex
 
 	resp, err := a.Get(ctx, localVarPath, queryParams, &result)
 	if err != nil {
-		return model.SearchResultWorkflow{}, nil, err
+		return model.SearchResultWorkflow{}, resp, err
 	}
 	return result, resp, nil
 }
@@ -609,7 +609,7 @@ func (a *WorkflowResourceApiService) SkipTaskFromWorkflow(ctx context.Context, w
 
 	resp, err := a.PutWithParams(ctx, path, queryParams, nil, &model.SkipTaskRequest{})
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -650,7 +650,7 @@ func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map
 
 	resp, err := a.PostWithParams(ctx, path, queryParams, body, &result)
 	if err != nil {
-		return "", nil, err
+		return "", resp, err
 	}
 	return result, resp, nil
 }
@@ -668,7 +668,7 @@ func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body m
 
 	resp, err := a.PostWithParams(ctx, path, queryParams, body, &result)
 	if err != nil {
-		return model.WorkflowRun{}, nil, err
+		return model.WorkflowRun{}, resp, err
 	}
 	return result, resp, nil
 }
@@ -687,7 +687,7 @@ func (a *WorkflowResourceApiService) StartWorkflowWithRequest(ctx context.Contex
 
 	resp, err := a.Post(ctx, path, body, &result)
 	if err != nil {
-		return "", nil, err
+		return "", resp, err
 	}
 	return result, resp, nil
 }
@@ -719,7 +719,7 @@ func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId s
 
 	resp, err := a.APIClient.Delete(ctx, path, queryParams, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }

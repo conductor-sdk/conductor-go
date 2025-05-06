@@ -31,7 +31,7 @@ func (a *SecretResourceApiService) ClearLocalCache(ctx context.Context) (map[str
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -48,7 +48,7 @@ func (a *SecretResourceApiService) ClearRedisCache(ctx context.Context) (map[str
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -65,7 +65,7 @@ func (a *SecretResourceApiService) DeleteSecret(ctx context.Context, key string)
 	path := fmt.Sprintf("/secrets/%s", key)
 	resp, err := a.Delete(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -81,7 +81,7 @@ func (a *SecretResourceApiService) DeleteTagForSecret(ctx context.Context, body 
 
 	resp, err := a.DeleteWithBody(ctx, path, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -99,7 +99,7 @@ func (a *SecretResourceApiService) GetSecret(ctx context.Context, key string) (s
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return "", nil, err
+		return "", resp, err
 	}
 	return result, resp, nil
 }
@@ -116,7 +116,7 @@ func (a *SecretResourceApiService) GetTags(ctx context.Context, key string) ([]m
 	path := fmt.Sprintf("/secrets/%s/tags", key)
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -133,7 +133,7 @@ func (a *SecretResourceApiService) ListAllSecretNames(ctx context.Context) ([]st
 
 	resp, err := a.Post(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -150,7 +150,7 @@ func (a *SecretResourceApiService) ListSecretsThatUserCanGrantAccessTo(ctx conte
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -167,7 +167,7 @@ func (a *SecretResourceApiService) ListSecretsWithTagsThatUserCanGrantAccessTo(c
 
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -185,7 +185,7 @@ func (a *SecretResourceApiService) PutSecret(ctx context.Context, body string, k
 	path := fmt.Sprintf("/secrets/%s", key)
 	resp, err := a.Put(ctx, path, body, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }
@@ -201,7 +201,7 @@ func (a *SecretResourceApiService) PutTagForSecret(ctx context.Context, body []m
 
 	resp, err := a.Put(ctx, path, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -218,7 +218,7 @@ func (a *SecretResourceApiService) SecretExists(ctx context.Context, key string)
 	path := fmt.Sprintf("/secrets/%s/exists", key)
 	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 	return result, resp, nil
 }

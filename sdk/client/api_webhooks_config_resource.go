@@ -131,7 +131,7 @@ func (a *WebhooksConfigResourceApiService) PutTagForWebhook(ctx context.Context,
 	path := fmt.Sprintf("/metadata/webhook/%s/tags", id)
 	resp, err := a.Put(ctx, path, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
