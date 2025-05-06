@@ -29,7 +29,10 @@ EventResourceApiService Add a new event handler.
 */
 func (a *EventResourceApiService) AddEventHandler(ctx context.Context, body model.EventHandler) (*http.Response, error) {
 	resp, err := a.Post(ctx, "/event", body, nil)
-	return resp, err
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 /*
@@ -41,7 +44,10 @@ EventResourceApiService Delete queue config by name
 func (a *EventResourceApiService) DeleteQueueConfig(ctx context.Context, queueType string, queueName string) (*http.Response, error) {
 	path := fmt.Sprintf("/event/queue/config/%s/%s", queueType, queueName)
 	resp, err := a.Delete(ctx, path, nil, nil)
-	return resp, err
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 /*
@@ -140,30 +146,10 @@ EventResourceApiService Create or update queue config by name
 func (a *EventResourceApiService) PutQueueConfig(ctx context.Context, body string, queueType string, queueName string) (*http.Response, error) {
 	path := fmt.Sprintf("/event/queue/config/%s/%s", queueType, queueName)
 
-	// Custom headers for content type
-	headers := make(map[string]string)
-	headers["Content-Type"] = "application/json"
-
-	// Use executeCall directly for custom headers
-	req, err := a.prepareRequest(ctx, path, "PUT", body, headers, nil, nil, "", nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := a.callAPI(req)
-	if err != nil || resp == nil {
-		return resp, err
-	}
-
-	respBody, err := getDecompressedBody(resp)
+	resp, err := a.Put(ctx, path, body, nil)
 	if err != nil {
 		return resp, err
 	}
-
-	if !isSuccessfulStatus(resp.StatusCode) {
-		return resp, NewGenericSwaggerError(respBody, resp.Status, nil, resp.StatusCode)
-	}
-
 	return resp, nil
 }
 
@@ -175,6 +161,10 @@ EventResourceApiService Remove an event handler
 func (a *EventResourceApiService) RemoveEventHandler(ctx context.Context, name string) (*http.Response, error) {
 	path := fmt.Sprintf("/event/%s", name)
 	resp, err := a.Delete(ctx, path, nil, nil)
+	if err != nil {
+		return resp, err
+	}
+
 	return resp, err
 }
 
@@ -185,5 +175,9 @@ EventResourceApiService Update an existing event handler.
 */
 func (a *EventResourceApiService) UpdateEventHandler(ctx context.Context, body model.EventHandler) (*http.Response, error) {
 	resp, err := a.Put(ctx, "/event", body, nil)
-	return resp, err
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, nil
 }

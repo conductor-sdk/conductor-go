@@ -30,7 +30,7 @@ EnvironmentResourceApiService Create or update an environment variable (requires
 func (a *EnvironmentResourceApiService) CreateOrUpdateEnvVariable(ctx context.Context, body string, key string) (*http.Response, error) {
 	path := fmt.Sprintf("/environment/%s", key)
 
-	resp, err := a.Put(ctx, path, body, nil)
+	resp, err := a.PutWithContentType(ctx, path, body, "text/plain", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (a *EnvironmentResourceApiService) Get(ctx context.Context, key string) (st
 	var result string
 	path := fmt.Sprintf("/environment/%s", key)
 
-	resp, err := a.APIClient.Get(ctx, path, nil, nil)
+	resp, err := a.APIClient.Get(ctx, path, nil, &result)
 	if err != nil {
 		return "", resp, err
 	}
