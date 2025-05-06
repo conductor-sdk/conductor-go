@@ -48,17 +48,17 @@ var (
 	TagsClient = client.TagsApiService{
 		APIClient: apiClient,
 	}
-	ApplicationClient   = client.NewApplicationClient(apiClient)
-	AuthorizationClient = client.NewAuthorizationClient(apiClient)
-	EnvironmentClient   = client.NewEnvironmentClient(apiClient)
-	IntegrationClient   = client.NewIntegrationClient(apiClient)
-	PromptClient        = client.NewPromptClient(apiClient)
-	UserClient          = client.NewUserClient(apiClient)
-	GroupClient         = client.NewGroupClient(apiClient)
-	SchedulerClient     = client.NewSchedulerClient(apiClient)
-	SecretClient        = client.NewSecretsClient(apiClient)
-	WebhookClient       = client.NewWebhooksConfigClient(apiClient)
-  ServiceRegistryClient = client.NewServiceRegistryClient(apiClient)
+	ApplicationClient     = client.NewApplicationClient(apiClient)
+	AuthorizationClient   = client.NewAuthorizationClient(apiClient)
+	EnvironmentClient     = client.NewEnvironmentClient(apiClient)
+	IntegrationClient     = client.NewIntegrationClient(apiClient)
+	PromptClient          = client.NewPromptClient(apiClient)
+	UserClient            = client.NewUserClient(apiClient)
+	GroupClient           = client.NewGroupClient(apiClient)
+	SchedulerClient       = client.NewSchedulerClient(apiClient)
+	SecretClient          = client.NewSecretsClient(apiClient)
+	WebhookClient         = client.NewWebhooksConfigClient(apiClient)
+	ServiceRegistryClient = client.NewServiceRegistryClient(apiClient)
 )
 
 var TaskRunner = worker.NewTaskRunnerWithApiClient(apiClient)
