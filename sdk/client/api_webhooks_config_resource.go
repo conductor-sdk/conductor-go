@@ -16,8 +16,6 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 
 	"net/http"
-	"net/url"
-	"strings"
 )
 
 type WebhooksConfigResourceApiService struct {
@@ -31,48 +29,15 @@ WebhooksConfigResourceApiService
     @return WebhookConfig
 */
 func (a *WebhooksConfigResourceApiService) CreateWebhook(ctx context.Context, body model.WebhookConfig) (model.WebhookConfig, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Post")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue model.WebhookConfig
-	)
+	var result model.WebhookConfig
 
 	path := "/metadata/webhook"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Post(ctx, path, body, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return model.WebhookConfig{}, resp, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -80,44 +45,14 @@ WebhooksConfigResourceApiService Delete a tag for webhook id
 * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
 */
-func (a *WebhooksConfigResourceApiService) DeleteTagForWebhook(ctx context.Context, body []model.Tag) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Delete")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
+func (a *WebhooksConfigResourceApiService) DeleteTagForWebhook(ctx context.Context, id string, body []model.Tag) (*http.Response, error) {
+	path := fmt.Sprintf("/metadata/webhook/%s/tags", id)
 
-	path := "/metadata/webhook/{id}/tags"
-
-	headerParams := make(map[string]string)
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.DeleteWithBody(ctx, path, body, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -126,41 +61,13 @@ WebhooksConfigResourceApiService
   - @param id
 */
 func (a *WebhooksConfigResourceApiService) DeleteWebhook(ctx context.Context, id string) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Delete")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
+	path := fmt.Sprintf("/metadata/webhook/%s", id)
 
-	path := "/metadata/webhook/{id}"
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Delete(ctx, path, nil, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -169,45 +76,15 @@ WebhooksConfigResourceApiService
     @return []WebhookConfig
 */
 func (a *WebhooksConfigResourceApiService) GetAllWebhook(ctx context.Context) ([]model.WebhookConfig, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []model.WebhookConfig
-	)
+	var result []model.WebhookConfig
 
 	path := "/metadata/webhook"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return []model.WebhookConfig{}, resp, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -217,46 +94,14 @@ WebhooksConfigResourceApiService Get tags by webhook id
     @return []Tag
 */
 func (a *WebhooksConfigResourceApiService) GetTagsForWebhook(ctx context.Context, id string) ([]model.Tag, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []model.Tag
-	)
+	var result []model.Tag
 
-	path := "/metadata/webhook/{id}/tags"
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	path := fmt.Sprintf("/metadata/webhook/%s/tags", id)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return []model.Tag{}, resp, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -266,46 +111,14 @@ WebhooksConfigResourceApiService
     @return WebhookConfig
 */
 func (a *WebhooksConfigResourceApiService) GetWebhook(ctx context.Context, id string) (model.WebhookConfig, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue model.WebhookConfig
-	)
+	var result model.WebhookConfig
 
-	path := "/metadata/webhook/{id}"
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	path := fmt.Sprintf("/metadata/webhook/%s", id)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return model.WebhookConfig{}, resp, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -315,44 +128,12 @@ WebhooksConfigResourceApiService Put a tag to webhook id
   - @param id
 */
 func (a *WebhooksConfigResourceApiService) PutTagForWebhook(ctx context.Context, body []model.Tag, id string) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Put")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
-
-	path := "/metadata/webhook/{id}/tags"
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	path := fmt.Sprintf("/metadata/webhook/%s/tags", id)
+	resp, err := a.Put(ctx, path, body, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -363,47 +144,12 @@ WebhooksConfigResourceApiService
     @return WebhookConfig
 */
 func (a *WebhooksConfigResourceApiService) UpdateWebhook(ctx context.Context, body model.WebhookConfig, id string) (model.WebhookConfig, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Put")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue model.WebhookConfig
-	)
+	var result model.WebhookConfig
 
-	path := "/metadata/webhook/{id}"
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	path := fmt.Sprintf("/metadata/webhook/%s", id)
+	resp, err := a.Put(ctx, path, body, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return model.WebhookConfig{}, resp, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
