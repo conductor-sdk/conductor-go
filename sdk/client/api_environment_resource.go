@@ -30,27 +30,10 @@ EnvironmentResourceApiService Create or update an environment variable (requires
 func (a *EnvironmentResourceApiService) CreateOrUpdateEnvVariable(ctx context.Context, body string, key string) (*http.Response, error) {
 	path := fmt.Sprintf("/environment/%s", key)
 
-	// Special handling for text/plain content type
-	headers := make(map[string]string)
-	headers["Content-Type"] = "text/plain"
-
-	// We need to use executeCall directly since our helper methods assume JSON
-	req, err := a.prepareRequest(ctx, path, "PUT", body, headers, nil, nil, "", nil)
+	resp, err := a.Put(ctx, path, body, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	resp, err := a.callAPI(req)
-	if err != nil {
-		return resp, err
-	}
-
-	// Handle error response
-	if !isSuccessfulStatus(resp.StatusCode) {
-		respBody, _ := getDecompressedBody(resp)
-		return resp, NewGenericSwaggerError(respBody, resp.Status, nil, resp.StatusCode)
-	}
-
 	return resp, nil
 }
 
@@ -95,36 +78,10 @@ func (a *EnvironmentResourceApiService) Get(ctx context.Context, key string) (st
 	var result string
 	path := fmt.Sprintf("/environment/%s", key)
 
-	// Special handling for text/plain response
-	headers := make(map[string]string)
-	headers["Accept"] = "text/plain"
-
-	// We need to use executeCall directly since our helper methods assume JSON
-	req, err := a.prepareRequest(ctx, path, "GET", nil, headers, nil, nil, "", nil)
-	if err != nil {
-		return "", nil, err
-	}
-
-	resp, err := a.callAPI(req)
-	if err != nil || resp == nil {
-		return "", resp, err
-	}
-
-	respBody, err := getDecompressedBody(resp)
+	resp, err := a.APIClient.Get(ctx, path, nil, nil)
 	if err != nil {
 		return "", resp, err
 	}
-
-	if isSuccessfulStatus(resp.StatusCode) {
-		err = a.decode(&result, respBody, resp.Header.Get("Content-Type"))
-		if err != nil {
-			return "", resp, err
-		}
-	} else {
-		newErr := NewGenericSwaggerError(respBody, resp.Status, nil, resp.StatusCode)
-		return "", resp, newErr
-	}
-
 	return result, resp, nil
 }
 
@@ -171,5 +128,8 @@ EnvironmentResourceApiService Put a tag to environment variable name
 func (a *EnvironmentResourceApiService) PutTagForEnvVar(ctx context.Context, body []model.Tag, name string) (*http.Response, error) {
 	path := fmt.Sprintf("/environment/%s/tags", name)
 	resp, err := a.Put(ctx, path, body, nil)
-	return resp, err
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }

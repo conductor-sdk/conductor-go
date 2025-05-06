@@ -49,7 +49,10 @@ AuthorizationResourceApiService Grant access to a user over the target
 func (a *AuthorizationResourceApiService) GrantPermissions(ctx context.Context, body rbac.AuthorizationRequest) (*http.Response, error) {
 	path := "/auth/authorization"
 	resp, err := a.Post(ctx, path, body, nil)
-	return resp, err
+	if err != nil {
+		return resp, err
+	}
+	return resp, nil
 }
 
 /*
@@ -61,5 +64,8 @@ AuthorizationResourceApiService Remove user&#x27;s access over the target
 func (a *AuthorizationResourceApiService) RemovePermissions(ctx context.Context, body rbac.AuthorizationRequest) (*http.Response, error) {
 	path := "/auth/authorization"
 	resp, err := a.DeleteWithBody(ctx, path, body, nil)
-	return resp, err
+	if err != nil {
+		return resp, err
+	}
+	return resp, nil
 }

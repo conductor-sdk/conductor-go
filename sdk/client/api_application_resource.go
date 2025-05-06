@@ -32,7 +32,10 @@ func (a *ApplicationResourceApiService) AddRoleToApplicationUser(ctx context.Con
 	var result interface{}
 	path := fmt.Sprintf("/applications/%s/roles/%s", applicationId, role)
 	resp, err := a.Post(ctx, path, nil, &result)
-	return result, resp, err
+	if err != nil {
+		return nil, resp, err
+	}
+	return result, resp, nil
 }
 
 /*
@@ -49,7 +52,7 @@ func (a *ApplicationResourceApiService) CreateAccessKey(ctx context.Context, id 
 		return nil, resp, err
 	}
 
-	return &result, resp, err
+	return &result, resp, nil
 }
 
 /*
@@ -66,7 +69,7 @@ func (a *ApplicationResourceApiService) CreateApplication(ctx context.Context, b
 		return nil, resp, err
 	}
 
-	return &result, resp, err
+	return &result, resp, nil
 }
 
 /*
@@ -79,7 +82,11 @@ ApplicationResourceApiService Delete an access key
 func (a *ApplicationResourceApiService) DeleteAccessKey(ctx context.Context, applicationId string, keyId string) (*http.Response, error) {
 	path := fmt.Sprintf("/applications/%s/accessKeys/%s", applicationId, keyId)
 	resp, err := a.Delete(ctx, path, nil, nil)
-	return resp, err
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, nil
 }
 
 /*
@@ -92,7 +99,10 @@ func (a *ApplicationResourceApiService) DeleteApplication(ctx context.Context, i
 	var result interface{}
 	path := fmt.Sprintf("/applications/%s", id)
 	resp, err := a.Delete(ctx, path, nil, &result)
-	return result, resp, err
+	if err != nil {
+		return nil, resp, err
+	}
+	return result, resp, nil
 }
 
 /*
@@ -104,7 +114,10 @@ ApplicationResourceApiService Delete a tag for application
 func (a *ApplicationResourceApiService) DeleteTagForApplication(ctx context.Context, body []model.Tag, id string) (*http.Response, error) {
 	path := fmt.Sprintf("/applications/%s/tags", id)
 	resp, err := a.DeleteWithBody(ctx, path, body, nil)
-	return resp, err
+	if err != nil {
+		return resp, err
+	}
+	return resp, nil
 }
 
 // GetAccessKeys gets all access keys for an application
@@ -112,7 +125,10 @@ func (a *ApplicationResourceApiService) GetAccessKeys(ctx context.Context, id st
 	var result []rbac.AccessKeyResponse
 	path := fmt.Sprintf("/applications/%s/accessKeys", id)
 	resp, err := a.Get(ctx, path, nil, &result)
-	return result, resp, err
+	if err != nil {
+		return nil, resp, err
+	}
+	return result, resp, nil
 }
 
 // GetAppByAccessKeyId gets an application by access key ID
@@ -120,7 +136,10 @@ func (a *ApplicationResourceApiService) GetAppByAccessKeyId(ctx context.Context,
 	var result interface{}
 	path := fmt.Sprintf("/applications/key/%s", accessKeyId)
 	resp, err := a.Get(ctx, path, nil, &result)
-	return result, resp, err
+	if err != nil {
+		return nil, resp, err
+	}
+	return result, resp, nil
 }
 
 // GetApplication gets an application by ID
@@ -140,21 +159,30 @@ func (a *ApplicationResourceApiService) GetTagsForApplication(ctx context.Contex
 	var result []model.Tag
 	path := fmt.Sprintf("/applications/%s/tags", id)
 	resp, err := a.Get(ctx, path, nil, &result)
-	return result, resp, err
+	if err != nil {
+		return nil, resp, err
+	}
+	return result, resp, nil
 }
 
 // ListApplications lists all applications
 func (a *ApplicationResourceApiService) ListApplications(ctx context.Context) ([]rbac.ConductorApplication, *http.Response, error) {
 	var result []rbac.ConductorApplication
 	resp, err := a.Get(ctx, "/applications", nil, &result)
-	return result, resp, err
+	if err != nil {
+		return nil, resp, err
+	}
+	return result, resp, nil
 }
 
 // PutTagForApplication adds tags to an application
 func (a *ApplicationResourceApiService) PutTagForApplication(ctx context.Context, body []model.Tag, id string) (*http.Response, error) {
 	path := fmt.Sprintf("/applications/%s/tags", id)
 	resp, err := a.Put(ctx, path, body, nil)
-	return resp, err
+	if err != nil {
+		return resp, err
+	}
+	return resp, nil
 }
 
 // RemoveRoleFromApplicationUser removes a role from an application user
@@ -162,7 +190,10 @@ func (a *ApplicationResourceApiService) RemoveRoleFromApplicationUser(ctx contex
 	var result interface{}
 	path := fmt.Sprintf("/applications/%s/roles/%s", applicationId, role)
 	resp, err := a.Delete(ctx, path, nil, &result)
-	return result, resp, err
+	if err != nil {
+		return nil, resp, err
+	}
+	return result, resp, nil
 }
 
 // ToggleAccessKeyStatus toggles the status of an access key
@@ -170,7 +201,10 @@ func (a *ApplicationResourceApiService) ToggleAccessKeyStatus(ctx context.Contex
 	var result interface{}
 	path := fmt.Sprintf("/applications/%s/accessKeys/%s/status", applicationId, keyId)
 	resp, err := a.Post(ctx, path, nil, &result)
-	return result, resp, err
+	if err != nil {
+		return nil, resp, err
+	}
+	return result, resp, nil
 }
 
 // UpdateApplication updates an application
@@ -183,5 +217,5 @@ func (a *ApplicationResourceApiService) UpdateApplication(ctx context.Context, b
 		return nil, resp, err
 	}
 
-	return &result, resp, err
+	return &result, resp, nil
 }
