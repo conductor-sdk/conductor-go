@@ -47,11 +47,12 @@ var (
 	TagsClient = client.TagsApiService{
 		APIClient: apiClient,
 	}
-	ApplicationClient = client.NewApplicationClient(apiClient)
-	EnvironmentClient = client.NewEnvironmentClient(apiClient)
-	IntegrationClient = client.NewIntegrationClient(apiClient)
-	PromptClient      = client.NewPromptClient(apiClient)
-	UserClient        = client.NewUserClient(apiClient)
+	ApplicationClient   = client.NewApplicationClient(apiClient)
+	AuthorizationClient = client.NewAuthorizationClient(apiClient)
+	EnvironmentClient   = client.NewEnvironmentClient(apiClient)
+	IntegrationClient   = client.NewIntegrationClient(apiClient)
+	PromptClient        = client.NewPromptClient(apiClient)
+	UserClient          = client.NewUserClient(apiClient)
 )
 
 var TaskRunner = worker.NewTaskRunnerWithApiClient(apiClient)

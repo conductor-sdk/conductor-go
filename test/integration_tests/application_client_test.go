@@ -62,6 +62,75 @@ func TestRoleManagementForApplicationUser(t *testing.T) {
 	_, _, _ = appClient.DeleteApplication(ctx, application.Id)
 }
 
+func TestAuthorizationResourcePermissions(t *testing.T) {
+	// Setup
+	appClient := testdata.ApplicationClient
+	authClient := testdata.AuthorizationClient
+	userClient := testdata.UserClient
+
+	// Create an application to use as our test resource
+	ctx := context.Background()
+	createReq := rbac.CreateOrUpdateApplicationRequest{Name: "TestAuthResource"}
+	application, resp, err := appClient.CreateApplication(ctx, createReq)
+	assert.Equal(t, 200, resp.StatusCode)
+	assert.NotNil(t, application)
+	assert.Nil(t, err)
+
+	// Test case 1: Initially verify no permissions are granted
+	permissions, resp, err := authClient.GetPermissions(ctx, "APPLICATION", application.Id)
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+	assert.NotNil(t, permissions)
+
+	// Test case 2: Grant permissions to a user
+	// create user
+	body := rbac.UpsertUserRequest{
+		Name:  "testuser",
+		Roles: []string{"ADMIN", "USER"},
+	}
+	id := "testUser"
+
+	user, resp, err := userClient.UpsertUser(ctx, body, id)
+	assert.NotNil(t, user)
+	assert.Equal(t, 200, resp.StatusCode)
+	assert.NotNil(t, user)
+
+	grantReq := rbac.AuthorizationRequest{
+		Access: []string{"READ", "CREATE"},
+		Subject: &rbac.SubjectRef{
+			Id:    user.Id,
+			Type_: "USER",
+		},
+		Target: &rbac.TargetRef{
+			Id:    application.Id,
+			Type_: "APPLICATION",
+		},
+	}
+
+	resp, err = authClient.GrantPermissions(ctx, grantReq)
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+
+	// Test case 3: Verify permissions were granted
+	permissions, resp, err = authClient.GetPermissions(ctx, "APPLICATION", application.Id)
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+
+	// Test case 4: Remove permissions
+	resp, err = authClient.RemovePermissions(ctx, grantReq)
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+
+	// Test case 5: Verify permissions were removed
+	permissions, resp, err = authClient.GetPermissions(ctx, "APPLICATION", application.Id)
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+	// Assert that permissions no longer includes the removed permission
+
+	// Cleanup
+	_, _, _ = appClient.DeleteApplication(ctx, application.Id)
+}
+
 func TestAccessKeyLifecycle(t *testing.T) {
 	appClient := testdata.ApplicationClient
 
