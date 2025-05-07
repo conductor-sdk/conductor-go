@@ -3,7 +3,6 @@ package integration_tests
 import (
 	"context"
 	"fmt"
-	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	"strconv"
 	"testing"
 	"time"
@@ -39,7 +38,6 @@ func TestWorkflowCreation(t *testing.T) {
 	timeout := time.After(60 * time.Second)
 	tick := time.Tick(1 * time.Second)
 	workflowId := run.WorkflowId
-	err = waitForWorkflowCompletion(executor, workflowId, 60*time.Second)
 	assert.NoError(t, err)
 
 	for {
@@ -49,33 +47,16 @@ func TestWorkflowCreation(t *testing.T) {
 		case <-tick:
 			wf, err := executor.GetWorkflow(workflowId, false)
 			assert.NoError(t, err)
-			assert.Equal(t, model.CompletedWorkflow, wf.Status)
-			assert.Equal(t, "input1", run.Input["key1"])
-			return
+			if wf.Status == model.CompletedWorkflow {
+				// Success! Verify the workflow details
+				assert.Equal(t, model.CompletedWorkflow, wf.Status)
+				assert.Equal(t, "input1", run.Input["key1"])
+				return
+			} else if wf.Status == model.FailedWorkflow || wf.Status == model.TerminatedWorkflow {
+				t.Fatalf("Workflow failed with status: %s", wf.Status)
+			}
 		}
 	}
-}
-
-// Helper function that polls until completion or timeout
-func waitForWorkflowCompletion(executor *executor.WorkflowExecutor, workflowId string, maxWait time.Duration) error {
-	deadline := time.Now().Add(maxWait)
-	for time.Now().Before(deadline) {
-		wf, err := executor.GetWorkflow(workflowId, false)
-		if err != nil {
-			time.Sleep(1 * time.Second)
-			continue
-		}
-
-		if wf.Status == model.CompletedWorkflow {
-			return nil // Success!
-		} else if wf.Status == model.FailedWorkflow || wf.Status == model.TerminatedWorkflow {
-			return fmt.Errorf("workflow failed with status: %s", wf.Status)
-		}
-
-		// Exponential backoff - start with 1s, then increase
-		time.Sleep(1 * time.Second)
-	}
-	return fmt.Errorf("timed out waiting for workflow %s to complete", workflowId)
 }
 
 func TestRemoveWorkflow(t *testing.T) {
