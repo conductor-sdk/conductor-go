@@ -55,7 +55,7 @@ var (
 	PromptClient        = client.NewPromptClient(apiClient)
 	UserClient          = client.NewUserClient(apiClient)
 	GroupClient         = client.NewGroupClient(apiClient)
-	HumanTaskClient     = client.NewHumanTaskClient(apiClient)
+	SchedulerClient     = client.NewSchedulerClient(apiClient)
 )
 
 var TaskRunner = worker.NewTaskRunnerWithApiClient(apiClient)
