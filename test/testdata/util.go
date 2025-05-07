@@ -57,6 +57,7 @@ var (
 	GroupClient         = client.NewGroupClient(apiClient)
 	SchedulerClient     = client.NewSchedulerClient(apiClient)
 	SecretClient        = client.NewSecretsClient(apiClient)
+	WebhookClient       = client.NewWebhooksConfigClient(apiClient)
 )
 
 var TaskRunner = worker.NewTaskRunnerWithApiClient(apiClient)
