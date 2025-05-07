@@ -66,7 +66,6 @@ func TestAuthorizationResourcePermissions(t *testing.T) {
 	// Setup
 	appClient := testdata.ApplicationClient
 	authClient := testdata.AuthorizationClient
-	userClient := testdata.UserClient
 
 	// Create an application to use as our test resource
 	ctx := context.Background()
@@ -83,17 +82,8 @@ func TestAuthorizationResourcePermissions(t *testing.T) {
 	assert.NotNil(t, permissions)
 
 	// Test case 2: Grant permissions to a user
-	// create user
-	body := rbac.UpsertUserRequest{
-		Name:  "testuser",
-		Roles: []string{"ADMIN", "USER"},
-	}
-	id := "testUser"
-
-	user, resp, err := userClient.UpsertUser(ctx, body, id)
-	assert.NotNil(t, user)
-	assert.Equal(t, 200, resp.StatusCode)
-	assert.NotNil(t, user)
+	user, err := testdata.CreateNewUser(ctx)
+	assert.Nil(t, err)
 
 	grantReq := rbac.AuthorizationRequest{
 		Access: []string{"READ", "CREATE"},
