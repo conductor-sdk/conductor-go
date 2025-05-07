@@ -199,7 +199,7 @@ SecretResourceApiService Tag a secret
 func (a *SecretResourceApiService) PutTagForSecret(ctx context.Context, body []model.Tag, key string) (*http.Response, error) {
 	path := fmt.Sprintf("/secrets/%s/tags", key)
 
-	resp, err := a.Put(ctx, path, nil, nil)
+	resp, err := a.Put(ctx, path, body, nil)
 	if err != nil {
 		return resp, err
 	}
