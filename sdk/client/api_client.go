@@ -76,7 +76,7 @@ func NewAuthenticationSettingsFromEnv() *settings.AuthenticationSettings {
 func NewHttpSettingsFromEnv() *settings.HttpSettings {
 	url := os.Getenv(CONDUCTOR_SERVER_URL)
 	if url == "" {
-		log.Error("Error: %s env variable is not set", CONDUCTOR_SERVER_URL)
+		log.Fatalf("Error: %s env variable is not set", CONDUCTOR_SERVER_URL)
 	}
 
 	return settings.NewHttpSettings(url)
