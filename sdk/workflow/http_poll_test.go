@@ -11,7 +11,6 @@ func TestHttpPollTaskHasNoInlineTaskDef(t *testing.T) {
 		Method:          GET,
 		Uri:             "http://example.com",
 		PollingInterval: 30,
-		PollingTimeout:  600,
 	}
 	task := NewHttpPollTask("http_poll_task_ref", pollInput)
 	wfTasks := task.toWorkflowTask()
@@ -25,8 +24,6 @@ func TestHttpPollTaskTaskDefMapping(t *testing.T) {
 		Method:              POST,
 		Uri:                 "http://example.com/api",
 		PollingInterval:     30,
-		PollingTimeout:      600,
-		SuccessCriteria:     "$.status == 'COMPLETED'",
 		TerminationCriteria: "$.status == 'FAILED'",
 	}
 	task := NewHttpPollTask("http_poll_task_ref", pollInput)
@@ -71,9 +68,7 @@ func TestHttpPollTaskInputParameters(t *testing.T) {
 		Accept:              "application/json",
 		ContentType:         "application/json",
 		PollingInterval:     60,
-		PollingTimeout:      3600,
 		PollingStrategy:     "FIXED",
-		SuccessCriteria:     "$.data.status == 'COMPLETED'",
 		TerminationCriteria: "(function(){ return $.output.response.body.status == 'FAILED';})();",
 		Encode:              true,
 	}
@@ -96,9 +91,7 @@ func TestHttpPollTaskInputParameters(t *testing.T) {
 	assert.Equal(t, "application/json", httpRequest["accept"])
 	assert.Equal(t, "application/json", httpRequest["contentType"])
 	assert.Equal(t, 60, httpRequest["pollingInterval"])
-	assert.Equal(t, 3600, httpRequest["pollingTimeout"])
 	assert.Equal(t, "FIXED", httpRequest["pollingStrategy"])
-	assert.Equal(t, "$.data.status == 'COMPLETED'", httpRequest["successCondition"])
 	assert.Equal(t, "(function(){ return $.output.response.body.status == 'FAILED';})();", httpRequest["terminationCondition"])
 	assert.Equal(t, true, httpRequest["encode"])
 }

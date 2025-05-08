@@ -65,14 +65,8 @@ func NewHttpPollTask(taskRefName string, input *HttpPollInput) *HttpPollTask {
 	if input.PollingInterval > 0 {
 		httpRequestMap["pollingInterval"] = input.PollingInterval
 	}
-	if input.PollingTimeout > 0 {
-		httpRequestMap["pollingTimeout"] = input.PollingTimeout
-	}
 	if input.PollingStrategy != "" {
 		httpRequestMap["pollingStrategy"] = input.PollingStrategy
-	}
-	if input.SuccessCriteria != "" {
-		httpRequestMap["successCondition"] = input.SuccessCriteria
 	}
 	if input.TerminationCriteria != "" {
 		httpRequestMap["terminationCondition"] = input.TerminationCriteria
@@ -104,9 +98,7 @@ type HttpPollInput struct {
 	ReadTimeout         int16               `json:"readTimeout,omitempty"`
 	Body                interface{}         `json:"body,omitempty"`
 	PollingInterval     int                 `json:"pollingInterval,omitempty"`      // In seconds
-	PollingTimeout      int                 `json:"pollingTimeout,omitempty"`       // In seconds
 	PollingStrategy     string              `json:"pollingStrategy,omitempty"`      // "FIXED" or other strategy
-	SuccessCriteria     string              `json:"successCondition,omitempty"`     // JavaScript expression
 	TerminationCriteria string              `json:"terminationCondition,omitempty"` // JavaScript expression
 	Encode              bool                `json:"encode,omitempty"`               // Whether to URL encode the request
 }

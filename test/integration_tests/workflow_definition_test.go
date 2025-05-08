@@ -45,9 +45,14 @@ func TestWorkflowCreation(t *testing.T) {
 		case <-tick:
 			wf, err := executor.GetWorkflow(workflowId, false)
 			assert.NoError(t, err)
-			assert.Equal(t, model.CompletedWorkflow, wf.Status)
-			assert.Equal(t, "input1", run.Input["key1"])
-			return
+			if wf.Status == model.CompletedWorkflow {
+				// Success! Verify the workflow details
+				assert.Equal(t, model.CompletedWorkflow, wf.Status)
+				assert.Equal(t, "input1", run.Input["key1"])
+				return
+			} else if wf.Status == model.FailedWorkflow || wf.Status == model.TerminatedWorkflow {
+				t.Fatalf("Workflow failed with status: %s", wf.Status)
+			}
 		}
 	}
 
