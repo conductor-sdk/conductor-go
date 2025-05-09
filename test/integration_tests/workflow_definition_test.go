@@ -3,6 +3,7 @@ package integration_tests
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strconv"
 	"testing"
 	"time"
@@ -200,6 +201,51 @@ func TestTerminateWorkflowWithFailure(t *testing.T) {
 	assert.NotEmpty(t, terminatedWfStatus.Output["conductor.failure_workflow"])
 }
 
+func TestWorkflowTest(t *testing.T) {
+	httpTaskWorkflow := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("TEST_GO_WORKFLOW_TEST").
+		Version(1).
+		Add(testdata.TestHttpTask)
+
+	err := testdata.ValidateWorkflowRegistration(httpTaskWorkflow)
+
+	if err != nil {
+		t.Fatal(
+			"Failed to register workflow. Reason: ", err.Error(),
+		)
+	}
+
+	taskMocks := make(map[string][]model.TaskMock)
+	taskMocks[testdata.TestHttpTask.ReferenceName()] = []model.TaskMock{
+		{
+			Status: "COMPLETED",
+			Output: map[string]interface{}{
+				"response": map[string]interface{}{
+					"body": map[string]interface{}{
+						"testKey": "testValue",
+					},
+					"statusCode": 200,
+				},
+			},
+			ExecutionTime: 50, // 50 milliseconds
+			QueueWaitTime: 5,  // 5 milliseconds
+		},
+	}
+	testRequest := model.WorkflowTestRequest{
+		Name:                httpTaskWorkflow.GetName(),
+		Version:             httpTaskWorkflow.GetVersion(),
+		Input:               map[string]interface{}{"inputParam1": "testValue1"},
+		TaskRefToMockOutput: taskMocks,
+		WorkflowDef:         httpTaskWorkflow.ToWorkflowDef(),
+	}
+	workflowResult, resp, err := testdata.WorkflowClient.TestWorkflow(context.Background(), testRequest)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.NotEmpty(t, workflowResult)
+	assert.Equal(t, 1, len(workflowResult.Tasks))
+	assert.Equal(t, model.TaskResultStatus("COMPLETED"), workflowResult.Tasks[0].Status)
+}
+
 func TestExecuteWorkflowSync(t *testing.T) {
 	executor := testdata.WorkflowExecutor
 	wf := workflow.NewConductorWorkflow(executor).
@@ -265,4 +311,132 @@ func executeWorkflowWithRetriesWithStartWorkflowRequest(startWorkflowRequest *mo
 		return workflowRun, nil
 	}
 	return nil, fmt.Errorf("exhausted retries for workflow execution")
+}
+
+func TestUpgradeRunningWorkflowToVersion(t *testing.T) {
+	input := &workflow.HttpInput{
+		Method: workflow.GET,
+		Uri:    "http://localhost:8081/api/hello/with-delay?name=SDK-Test&delaySeconds=1",
+	}
+	// Step 1: Create version 1 of a workflow
+	workflowV1 := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("TEST_GO_WORKFLOW_UPGRADE").
+		Version(1).
+		Add(workflow.NewHttpTask("http_1_ref_name", input))
+
+	err := testdata.ValidateWorkflowRegistration(workflowV1)
+	if err != nil {
+		t.Fatal(
+			"Failed to register workflow v1. Reason: ", err.Error(),
+		)
+	}
+
+	// Step 2: Create version 2 of the workflow with an additional task
+	workflowV2 := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("TEST_GO_WORKFLOW_UPGRADE").
+		Version(2).
+		Add(workflow.NewHttpTask("http_1_ref_name", input)).Add(workflow.NewHttpTask("http_2_ref_name", input))
+
+	err = testdata.ValidateWorkflowRegistration(workflowV2)
+	if err != nil {
+		t.Fatal(
+			"Failed to register workflow v2. Reason: ", err.Error(),
+		)
+	}
+
+	// Step 3: Start a workflow instance with version 1
+	workflowInput := map[string]interface{}{
+		"testKey": "testValue",
+	}
+
+	startRequest := &model.StartWorkflowRequest{
+		Name:    workflowV1.GetName(),
+		Version: 1,
+		Input:   workflowInput,
+	}
+
+	workflowId, err := testdata.WorkflowExecutor.StartWorkflow(startRequest)
+	if err != nil {
+		t.Fatal(
+			"Failed to start workflow. Reason: ", err.Error(),
+		)
+	}
+
+	t.Logf("Started workflow with ID: %s", workflowId)
+
+	// Step 5: Verify the workflow is running and at version 1
+	workflow, err := testdata.WorkflowExecutor.GetWorkflow(workflowId, true)
+	if err != nil {
+		t.Fatal(
+			"Failed to get workflow. Reason: ", err.Error(),
+		)
+	}
+
+	if workflow.WorkflowVersion != 1 {
+		t.Fatalf("Expected workflow version 1, got %d", workflow.WorkflowVersion)
+	}
+
+	// Step 6: Create upgrade request to version 2
+	upgradeRequest := model.UpgradeWorkflowRequest{
+		Name:    workflowV1.GetName(),
+		Version: 2,
+		// Optionally provide updated workflow input
+		WorkflowInput: map[string]interface{}{
+			"testKey": "updatedValue",
+		},
+	}
+
+	// Step 7: Call upgrade API
+	resp, err := testdata.WorkflowClient.UpgradeRunningWorkflowToVersion(
+		context.Background(),
+		upgradeRequest,
+		workflowId,
+	)
+
+	// Step 8: Validate upgrade response
+	if err != nil {
+		t.Fatal(
+			"Failed to upgrade workflow. Reason: ", err.Error(),
+		)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status code 200, got %d", resp.StatusCode)
+	}
+
+	// Step 9: Wait for the upgrade to take effect
+	time.Sleep(3 * time.Second)
+
+	// Step 10: Verify the workflow has been upgraded to version 2
+	upgradedWorkflow, err := testdata.WorkflowExecutor.GetWorkflow(workflowId, true)
+	if err != nil {
+		t.Fatal(
+			"Failed to get upgraded workflow. Reason: ", err.Error(),
+		)
+	}
+
+	if upgradedWorkflow.WorkflowVersion != 2 {
+		t.Fatalf("Expected workflow version 2 after upgrade, got %d", upgradedWorkflow.WorkflowVersion)
+	}
+
+	// Step 11: Verify the additional task exists in the workflow
+	var foundAdditionalTask bool
+	for _, task := range upgradedWorkflow.Tasks {
+		if task.ReferenceTaskName == "http_2_ref_name" {
+			foundAdditionalTask = true
+			break
+		}
+	}
+
+	if !foundAdditionalTask {
+		t.Fatal("Expected to find the additional task in the upgraded workflow")
+	}
+
+	// Step 12: Verify the updated workflow input
+	updatedValue, ok := upgradedWorkflow.Input["testKey"].(string)
+	if !ok || updatedValue != "updatedValue" {
+		t.Fatalf("Expected workflow input to be updated with 'updatedValue', got %v", upgradedWorkflow.Input)
+	}
+
+	t.Log("Successfully upgraded workflow version")
 }
