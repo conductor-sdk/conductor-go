@@ -12,11 +12,8 @@ package client
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"net/url"
-	"strings"
-
 	"github.com/conductor-sdk/conductor-go/sdk/model/rbac"
+	"net/http"
 )
 
 type AuthorizationResourceApiService struct {
@@ -31,47 +28,16 @@ AuthorizationResourceApiService Get the access that have been granted over the g
     @return interface{}
 */
 func (a *AuthorizationResourceApiService) GetPermissions(ctx context.Context, type_ string, id string) (interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue interface{}
-	)
+	var result interface{}
+	path := fmt.Sprintf("/auth/authorization/%s/%s", type_, id)
+	resp, err := a.Get(ctx, path, nil, &result)
 
-	path := "/auth/authorization/{type}/{id}"
-	path = strings.Replace(path, "{"+"type"+"}", fmt.Sprintf("%v", type_), -1)
-	path = strings.Replace(path, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	// Return nil result if there's an error to match original behavior
 	if err != nil {
-		return returnValue, nil, err
+		return nil, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -81,44 +47,12 @@ AuthorizationResourceApiService Grant access to a user over the target
     @return Response
 */
 func (a *AuthorizationResourceApiService) GrantPermissions(ctx context.Context, body rbac.AuthorizationRequest) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Post")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
-
 	path := "/auth/authorization"
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Post(ctx, path, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -128,42 +62,10 @@ AuthorizationResourceApiService Remove user&#x27;s access over the target
     @return Response
 */
 func (a *AuthorizationResourceApiService) RemovePermissions(ctx context.Context, body rbac.AuthorizationRequest) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Delete")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
-
 	path := "/auth/authorization"
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.DeleteWithBody(ctx, path, body, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, nil
 }

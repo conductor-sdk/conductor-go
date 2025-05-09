@@ -12,11 +12,8 @@ package client
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"net/url"
-	"strings"
-
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"net/http"
 )
 
 type TagsApiService struct {
@@ -32,49 +29,15 @@ TagsApiService Adds the tag to the task
 @return interface{}
 */
 func (a *TagsApiService) AddTaskTag(ctx context.Context, body model.TagObject, taskName string) (interface{}, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue interface{}
-	)
+	var result interface{}
 
-	localVarPath := "/metadata/task/{taskName}/tags"
-	localVarPath = strings.Replace(localVarPath, "{"+"taskName"+"}", fmt.Sprintf("%v", taskName), -1)
+	path := fmt.Sprintf("/metadata/task/%s/tags", taskName)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Post(ctx, path, body, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, resp, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -86,49 +49,14 @@ TagsApiService Adds the tag to the workflow
 @return interface{}
 */
 func (a *TagsApiService) AddWorkflowTag(ctx context.Context, body model.TagObject, name string) (interface{}, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue interface{}
-	)
+	var result interface{}
 
-	localVarPath := "/metadata/workflow/{name}/tags"
-	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	path := fmt.Sprintf("/metadata/workflow/%s/tags", name)
+	resp, err := a.Post(ctx, path, body, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, resp, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -140,49 +68,15 @@ TagsApiService Removes the tag of the task
 @return interface{}
 */
 func (a *TagsApiService) DeleteTaskTag(ctx context.Context, body model.TagString, taskName string) (interface{}, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Delete")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue interface{}
-	)
+	var result interface{}
 
-	localVarPath := "/metadata/task/{taskName}/tags"
-	localVarPath = strings.Replace(localVarPath, "{"+"taskName"+"}", fmt.Sprintf("%v", taskName), -1)
+	path := fmt.Sprintf("/metadata/task/%s/tags", taskName)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.DeleteWithBody(ctx, path, body, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, resp, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -194,49 +88,14 @@ TagsApiService Removes the tag of the workflow
 @return interface{}
 */
 func (a *TagsApiService) DeleteWorkflowTag(ctx context.Context, body model.TagObject, name string) (interface{}, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Delete")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue interface{}
-	)
+	var result interface{}
 
-	localVarPath := "/metadata/workflow/{name}/tags"
-	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	localVarPath := fmt.Sprintf("/metadata/workflow/%s/tags", name)
+	resp, err := a.DeleteWithBody(ctx, localVarPath, body, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, resp, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -246,46 +105,15 @@ TagsApiService List all tags
 @return []model.TagObject
 */
 func (a *TagsApiService) GetTags1(ctx context.Context) ([]model.TagObject, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue []model.TagObject
-	)
+	var result []model.TagObject
 
-	localVarPath := "/metadata/tags"
+	path := "/metadata/tags"
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, resp, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -296,46 +124,14 @@ TagsApiService Returns all the tags of the task
 @return []model.TagObject
 */
 func (a *TagsApiService) GetTaskTags(ctx context.Context, taskName string) ([]model.TagObject, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue []model.TagObject
-	)
+	var result []model.TagObject
 
-	localVarPath := "/metadata/task/{taskName}/tags"
-	localVarPath = strings.Replace(localVarPath, "{"+"taskName"+"}", fmt.Sprintf("%v", taskName), -1)
-
-	localVarHeaderParams := make(map[string]string)
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	localVarPath := fmt.Sprintf("/metadata/task/%s/tags", taskName)
+	resp, err := a.Get(ctx, localVarPath, nil, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, resp, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -346,49 +142,14 @@ TagsApiService Returns all the tags of the workflow
 @return []model.TagObject
 */
 func (a *TagsApiService) GetWorkflowTags(ctx context.Context, name string) ([]model.TagObject, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue []model.TagObject
-	)
+	var result []model.TagObject
 
-	localVarPath := "/metadata/workflow/{name}/tags"
-	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-
+	path := fmt.Sprintf("/metadata/workflow/%s/tags", name)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, resp, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -400,49 +161,14 @@ TagsApiService Adds the tag to the task
 @return interface{}
 */
 func (a *TagsApiService) SetTaskTags(ctx context.Context, body []model.TagObject, taskName string) (interface{}, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Put")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue interface{}
-	)
+	var result interface{}
 
-	localVarPath := "/metadata/task/{taskName}/tags"
-	localVarPath = strings.Replace(localVarPath, "{"+"taskName"+"}", fmt.Sprintf("%v", taskName), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	localVarPath := fmt.Sprintf("/metadata/task/%s/tags", taskName)
+	resp, err := a.Put(ctx, localVarPath, body, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, resp, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -454,47 +180,12 @@ TagsApiService Set the tags of the workflow
 @return interface{}
 */
 func (a *TagsApiService) SetWorkflowTags(ctx context.Context, body []model.TagObject, name string) (interface{}, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Put")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue interface{}
-	)
+	var result interface{}
 
-	localVarPath := "/metadata/workflow/{name}/tags"
-	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	localVarPath := fmt.Sprintf("/metadata/workflow/%s/tags", name)
+	resp, err := a.Put(ctx, localVarPath, body, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, resp, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }

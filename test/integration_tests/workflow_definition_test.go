@@ -38,6 +38,7 @@ func TestWorkflowCreation(t *testing.T) {
 	timeout := time.After(60 * time.Second)
 	tick := time.Tick(1 * time.Second)
 	workflowId := run.WorkflowId
+	assert.NoError(t, err)
 	for {
 		select {
 		case <-timeout:
@@ -55,7 +56,6 @@ func TestWorkflowCreation(t *testing.T) {
 			}
 		}
 	}
-
 }
 
 func TestRemoveWorkflow(t *testing.T) {
