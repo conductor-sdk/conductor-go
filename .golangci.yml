@@ -1,0 +1,39 @@
+linters:
+  enable:
+    - gofmt
+    - goimports
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - staticcheck
+    - typecheck
+    - unused
+    - errcheck
+    - gosec
+    - revive
+    - bodyclose
+    - gocritic
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  revive:
+    rules:
+      - name: exported
+        arguments:
+          - disableStutteringCheck
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - performance
+      - style
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gosec
+
+run:
+  timeout: 5m
