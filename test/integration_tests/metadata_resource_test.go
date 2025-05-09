@@ -21,6 +21,40 @@ import (
 const WorkflowName = "TestGoSDKWorkflowWithTags"
 const TaskName = "TEST_GO_SIMPLE_TASK"
 
+func TestRegisterWorkflowDef(t *testing.T) {
+	ctx := context.Background()
+	_, _ = testdata.MetadataClient.UnregisterWorkflowDef(ctx, WorkflowName, 1)
+	task := model.WorkflowTask{
+		Name:              "simple_task",
+		TaskReferenceName: "simple_task_ref",
+		Description:       "Test Simple Task",
+	}
+
+	workflowTasks := []model.WorkflowTask{}
+	workflowTasks = append(workflowTasks, task)
+
+	workflowDef := model.WorkflowDef{
+		Name:        WorkflowName,
+		Description: "Test Workflow created by GO SDK",
+		Tasks:       workflowTasks,
+	}
+
+	resp, err := testdata.MetadataClient.RegisterWorkflowDef(ctx, true, workflowDef)
+	assert.Nil(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, 200, resp.StatusCode)
+
+	t.Cleanup(func() {
+		_, err := testdata.MetadataClient.UnregisterWorkflowDef(context.Background(), WorkflowName, 1)
+
+		if err != nil {
+			t.Fatal(
+				"Failed to delete workflow. Reason: ", err.Error(),
+			)
+		}
+	})
+}
+
 func TestRegisterWorkflowDefWithTags(t *testing.T) {
 
 	_, _ = testdata.MetadataClient.UnregisterWorkflowDef(context.Background(), WorkflowName, 1)
