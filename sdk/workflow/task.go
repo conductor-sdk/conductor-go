@@ -46,6 +46,7 @@ const (
 	WAIT              TaskType = "WAIT"
 	HUMAN             TaskType = "HUMAN"
 	HTTP              TaskType = "HTTP"
+	HTTP_POLL         TaskType = "HTTP_POLL"
 	INLINE            TaskType = "INLINE"
 	UPDATE            TaskType = "UPDATE_TASK"
 	TERMINATE         TaskType = "TERMINATE"
