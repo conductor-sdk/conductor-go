@@ -39,7 +39,6 @@ func TestWorkflowCreation(t *testing.T) {
 	tick := time.Tick(1 * time.Second)
 	workflowId := run.WorkflowId
 	assert.NoError(t, err)
-
 	for {
 		select {
 		case <-timeout:
