@@ -23,7 +23,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/event/queue"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 )
 
 type WorkflowExecutor struct {

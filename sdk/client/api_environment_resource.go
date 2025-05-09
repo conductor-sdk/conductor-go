@@ -11,11 +11,8 @@ package client
 
 import (
 	"context"
-	"net/http"
-	"net/url"
-	"strings"
-
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"net/http"
 
 	"fmt"
 )
@@ -31,44 +28,30 @@ EnvironmentResourceApiService Create or update an environment variable (requires
   - @param key
 */
 func (a *EnvironmentResourceApiService) CreateOrUpdateEnvVariable(ctx context.Context, body string, key string) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Put")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
+	path := fmt.Sprintf("/environment/%s", key)
 
-	path := "/environment/{key}"
-	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
+	// Special handling for text/plain content type
+	headers := make(map[string]string)
+	headers["Content-Type"] = "text/plain"
 
-	headerParams := make(map[string]string)
-	headerParams["Content-Type"] = "text/plain"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	// We need to use executeCall directly since our helper methods assume JSON
+	req, err := a.prepareRequest(ctx, path, "PUT", body, headers, nil, nil, "", nil)
 	if err != nil {
 		return nil, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
+	resp, err := a.callAPI(req)
 	if err != nil {
-		return httpResponse, err
+		return resp, err
 	}
 
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
+	// Handle error response
+	if !isSuccessfulStatus(resp.StatusCode) {
+		respBody, _ := getDecompressedBody(resp)
+		return resp, NewGenericSwaggerError(respBody, resp.Status, nil, resp.StatusCode)
 	}
 
-	return httpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -78,46 +61,16 @@ EnvironmentResourceApiService Delete an environment variable (requires metadata 
     @return string
 */
 func (a *EnvironmentResourceApiService) DeleteEnvVariable(ctx context.Context, key string) (string, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Delete")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue string
-	)
+	var result string
+	path := fmt.Sprintf("/environment/%s", key)
 
-	path := "/environment/{key}"
-	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
+	resp, err := a.Delete(ctx, path, nil, &result)
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return returnValue, nil, err
+		return "", resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -127,44 +80,9 @@ EnvironmentResourceApiService Delete a tag for environment variable name
   - @param name
 */
 func (a *EnvironmentResourceApiService) DeleteTagForEnvVar(ctx context.Context, body []model.Tag, name string) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Delete")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
-
-	path := "/environment/{name}/tags"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	path := fmt.Sprintf("/environment/%s/tags", name)
+	resp, err := a.DeleteWithBody(ctx, path, body, nil)
+	return resp, err
 }
 
 /*
@@ -174,47 +92,40 @@ EnvironmentResourceApiService Get the environment value by key
     @return string
 */
 func (a *EnvironmentResourceApiService) Get(ctx context.Context, key string) (string, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue string
-	)
+	var result string
+	path := fmt.Sprintf("/environment/%s", key)
 
-	path := "/environment/{key}"
-	path = strings.Replace(path, "{"+"key"+"}", fmt.Sprintf("%v", key), -1)
+	// Special handling for text/plain response
+	headers := make(map[string]string)
+	headers["Accept"] = "text/plain"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "text/plain"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	// We need to use executeCall directly since our helper methods assume JSON
+	req, err := a.prepareRequest(ctx, path, "GET", nil, headers, nil, nil, "", nil)
 	if err != nil {
-		return returnValue, nil, err
+		return "", nil, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
+	resp, err := a.callAPI(req)
+	if err != nil || resp == nil {
+		return "", resp, err
 	}
 
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
+	respBody, err := getDecompressedBody(resp)
 	if err != nil {
-		return returnValue, httpResponse, err
+		return "", resp, err
 	}
 
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
+	if isSuccessfulStatus(resp.StatusCode) {
+		err = a.decode(&result, respBody, resp.Header.Get("Content-Type"))
+		if err != nil {
+			return "", resp, err
+		}
 	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
+		newErr := NewGenericSwaggerError(respBody, resp.Status, nil, resp.StatusCode)
+		return "", resp, newErr
 	}
 
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -223,46 +134,14 @@ EnvironmentResourceApiService List all the environment variables
     @return []model.EnvironmentVariable
 */
 func (a *EnvironmentResourceApiService) GetAll(ctx context.Context) ([]model.EnvironmentVariable, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []model.EnvironmentVariable
-	)
+	var result []model.EnvironmentVariable
+	resp, err := a.APIClient.Get(ctx, "/environment", nil, &result)
 
-	path := "/environment"
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -272,47 +151,15 @@ EnvironmentResourceApiService Get tags by environment variable name
     @return []Tag
 */
 func (a *EnvironmentResourceApiService) GetTagsForEnvVar(ctx context.Context, name string) ([]model.Tag, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []model.Tag
-	)
+	var result []model.Tag
+	path := fmt.Sprintf("/environment/%s/tags", name)
+	resp, err := a.APIClient.Get(ctx, path, nil, &result)
 
-	path := "/environment/{name}/tags"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -322,42 +169,7 @@ EnvironmentResourceApiService Put a tag to environment variable name
   - @param name
 */
 func (a *EnvironmentResourceApiService) PutTagForEnvVar(ctx context.Context, body []model.Tag, name string) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Put")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
-
-	path := "/environment/{name}/tags"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	path := fmt.Sprintf("/environment/%s/tags", name)
+	resp, err := a.Put(ctx, path, body, nil)
+	return resp, err
 }

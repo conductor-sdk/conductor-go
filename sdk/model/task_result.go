@@ -16,7 +16,8 @@ type TaskResult struct {
 	CallbackAfterSeconds             int64                  `json:"callbackAfterSeconds,omitempty"`
 	WorkerId                         string                 `json:"workerId,omitempty"`
 	Status                           TaskResultStatus       `json:"status,omitempty"`
-	OutputData                       map[string]interface{} `json:"outputData,omitempty"`
+	OutputData                       map[string]interface{} `json:"-"`
+	OutputDataRaw                    interface{}            `json:"outputData,omitempty"`
 	Logs                             []TaskExecLog          `json:"logs,omitempty"`
 	ExternalOutputPayloadStoragePath string                 `json:"externalOutputPayloadStoragePath,omitempty"`
 	SubWorkflowId                    string                 `json:"subWorkflowId,omitempty"`

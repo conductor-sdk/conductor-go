@@ -15,7 +15,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 	"sync"
 
 	"github.com/antihax/optional"
@@ -41,46 +40,9 @@ TaskResourceApiService Get the details about each queue
 @return map[string]int64
 */
 func (a *TaskResourceApiService) All(ctx context.Context) (map[string]int64, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue map[string]int64
-	)
-
-	localVarPath := "/tasks/queue/all"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	var result map[string]int64
+	resp, err := a.Get(ctx, "/tasks/queue/all", nil, &result)
+	return result, resp, err
 }
 
 /*
@@ -90,46 +52,9 @@ TaskResourceApiService Get the details about each queue
 @return map[string]map[string]map[string]int64
 */
 func (a *TaskResourceApiService) AllVerbose(ctx context.Context) (map[string]map[string]map[string]int64, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue map[string]map[string]map[string]int64
-	)
-
-	localVarPath := "/tasks/queue/all/verbose"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	var result map[string]map[string]map[string]int64
+	resp, err := a.Get(ctx, "/tasks/queue/all/verbose", nil, &result)
+	return result, resp, err
 }
 
 /*
@@ -151,59 +76,45 @@ type TaskResourceApiBatchPollOpts struct {
 	Timeout  optional.Int32
 }
 
+// BatchPoll polls for multiple tasks of the specified type
 func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiBatchPollOpts) ([]model.Task, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue []model.Task
-	)
+	returnValue := new([]model.Task)
+	_, response, err := a.batchPoll(ctx, tasktype, localVarOptionals, returnValue)
+	return *returnValue, response, err
+}
 
-	localVarPath := "/tasks/poll/batch/{tasktype}"
-	localVarPath = strings.Replace(localVarPath, "{"+"tasktype"+"}", fmt.Sprintf("%v", tasktype), -1)
+// BatchPollTask polls for multiple tasks of the specified type and returns them as PolledTask
+func (a *TaskResourceApiService) BatchPollTask(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiBatchPollOpts) ([]model.PolledTask, *http.Response, error) {
+	returnValue := new([]model.PolledTask)
+	_, response, err := a.batchPoll(ctx, tasktype, localVarOptionals, returnValue)
+	return *returnValue, response, err
+}
 
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
+// batchPoll is a helper method for batch polling
+func (a *TaskResourceApiService) batchPoll(ctx context.Context, tasktype string, opts *TaskResourceApiBatchPollOpts, returnValue interface{}) (interface{}, *http.Response, error) {
+	// Build path
+	path := fmt.Sprintf("/tasks/poll/batch/%s", tasktype)
 
-	if localVarOptionals != nil && localVarOptionals.Workerid.IsSet() {
-		localVarQueryParams.Add("workerid", parameterToString(localVarOptionals.Workerid.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Domain.IsSet() {
-		localVarQueryParams.Add("domain", parameterToString(localVarOptionals.Domain.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Count.IsSet() {
-		localVarQueryParams.Add("count", parameterToString(localVarOptionals.Count.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Timeout.IsSet() {
-		localVarQueryParams.Add("timeout", parameterToString(localVarOptionals.Timeout.Value(), ""))
-	}
-	localVarHeaderParams["Accept"] = "*/*"
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
+	// Build query parameters
+	queryParams := url.Values{}
+	if opts != nil {
+		if opts.Workerid.IsSet() {
+			queryParams.Add("workerid", parameterToString(opts.Workerid.Value(), ""))
+		}
+		if opts.Domain.IsSet() {
+			queryParams.Add("domain", parameterToString(opts.Domain.Value(), ""))
+		}
+		if opts.Count.IsSet() {
+			queryParams.Add("count", parameterToString(opts.Count.Value(), ""))
+		}
+		if opts.Timeout.IsSet() {
+			queryParams.Add("timeout", parameterToString(opts.Timeout.Value(), ""))
+		}
 	}
 
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	// Make request
+	resp, err := a.Get(ctx, path, queryParams, returnValue)
+	return returnValue, resp, err
 }
 
 /*
@@ -213,46 +124,9 @@ TaskResourceApiService Get the last poll data for all task types
 @return []PollData
 */
 func (a *TaskResourceApiService) GetAllPollData(ctx context.Context) ([]model.PollData, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue []model.PollData
-	)
-
-	localVarPath := "/tasks/queue/polldata/all"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	var result []model.PollData
+	resp, err := a.Get(ctx, "/tasks/queue/polldata/all", nil, &result)
+	return result, resp, err
 }
 
 /*
@@ -265,48 +139,16 @@ TaskResourceApiService Get the external uri where the task payload is to be stor
 @return ExternalStorageLocation
 */
 func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context, path string, operation string, payloadType string) (model.ExternalStorageLocation, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.ExternalStorageLocation
-	)
+	var result model.ExternalStorageLocation
 
-	localVarPath := "/tasks/externalstoragelocation"
+	// Build query parameters
+	queryParams := url.Values{}
+	queryParams.Add("path", parameterToString(path, ""))
+	queryParams.Add("operation", parameterToString(operation, ""))
+	queryParams.Add("payloadType", parameterToString(payloadType, ""))
 
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarQueryParams.Add("path", parameterToString(path, ""))
-	localVarQueryParams.Add("operation", parameterToString(operation, ""))
-	localVarQueryParams.Add("payloadType", parameterToString(payloadType, ""))
-	localVarHeaderParams["Accept"] = "*/*"
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	resp, err := a.Get(ctx, "/tasks/externalstoragelocation", queryParams, &result)
+	return result, resp, err
 }
 
 /*
@@ -317,46 +159,14 @@ TaskResourceApiService Get the last poll data for a given task type
 @return []PollData
 */
 func (a *TaskResourceApiService) GetPollData(ctx context.Context, taskType string) ([]model.PollData, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue []model.PollData
-	)
+	var result []model.PollData
 
-	localVarPath := "/tasks/queue/polldata"
+	// Build query parameters
+	queryParams := url.Values{}
+	queryParams.Add("taskType", parameterToString(taskType, ""))
 
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarQueryParams.Add("taskType", parameterToString(taskType, ""))
-	localVarHeaderParams["Accept"] = "*/*"
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	resp, err := a.Get(ctx, "/tasks/queue/polldata", queryParams, &result)
+	return result, resp, err
 }
 
 /*
@@ -367,47 +177,9 @@ TaskResourceApiService Get task by Id
 @return Task
 */
 func (a *TaskResourceApiService) GetTask(ctx context.Context, taskId string) (model.Task, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.Task
-	)
-
-	localVarPath := "/tasks/{taskId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	var result model.Task
+	resp, err := a.Get(ctx, fmt.Sprintf("/tasks/%s", taskId), nil, &result)
+	return result, resp, err
 }
 
 /*
@@ -418,47 +190,9 @@ TaskResourceApiService Get Task Execution Logs
 @return []TaskExecLog
 */
 func (a *TaskResourceApiService) GetTaskLogs(ctx context.Context, taskId string) ([]model.TaskExecLog, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue []model.TaskExecLog
-	)
-
-	localVarPath := "/tasks/{taskId}/log"
-	localVarPath = strings.Replace(localVarPath, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	var result []model.TaskExecLog
+	resp, err := a.Get(ctx, fmt.Sprintf("/tasks/%s/log", taskId), nil, &result)
+	return result, resp, err
 }
 
 /*
@@ -468,45 +202,7 @@ TaskResourceApiService Log Task Execution Details
   - @param taskId
 */
 func (a *TaskResourceApiService) Log(ctx context.Context, body string, taskId string) (*http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Post")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-	)
-
-	localVarPath := "/tasks/{taskId}/log"
-	localVarPath = strings.Replace(localVarPath, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if !isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, nil
+	return a.Post(ctx, fmt.Sprintf("/tasks/%s/log", taskId), body, nil)
 }
 
 /*
@@ -524,53 +220,25 @@ type TaskResourceApiPollOpts struct {
 	Domain   optional.String
 }
 
-func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiPollOpts) (model.Task, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.Task
-	)
+func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, opts *TaskResourceApiPollOpts) (model.Task, *http.Response, error) {
+	var result model.Task
 
-	localVarPath := "/tasks/poll/{tasktype}"
-	localVarPath = strings.Replace(localVarPath, "{"+"tasktype"+"}", fmt.Sprintf("%v", tasktype), -1)
+	// Build path
+	path := fmt.Sprintf("/tasks/poll/%s", tasktype)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.Workerid.IsSet() {
-		localVarQueryParams.Add("workerid", parameterToString(localVarOptionals.Workerid.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Domain.IsSet() {
-		localVarQueryParams.Add("domain", parameterToString(localVarOptionals.Domain.Value(), ""))
-	}
-	localVarHeaderParams["Accept"] = "*/*"
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
+	// Build query parameters
+	queryParams := url.Values{}
+	if opts != nil {
+		if opts.Workerid.IsSet() {
+			queryParams.Add("workerid", opts.Workerid.Value())
+		}
+		if opts.Domain.IsSet() {
+			queryParams.Add("domain", opts.Domain.Value())
+		}
 	}
 
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	resp, err := a.Get(ctx, path, queryParams, &result)
+	return result, resp, err
 }
 
 /*
@@ -581,47 +249,9 @@ TaskResourceApiService Requeue pending tasks
 @return string
 */
 func (a *TaskResourceApiService) RequeuePendingTask(ctx context.Context, taskType string) (string, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue string
-	)
-
-	localVarPath := "/tasks/queue/requeue/{taskType}"
-	localVarPath = strings.Replace(localVarPath, "{"+"taskType"+"}", fmt.Sprintf("%v", taskType), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "text/plain"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	var result string
+	resp, err := a.Post(ctx, fmt.Sprintf("/tasks/queue/requeue/%s", taskType), nil, &result)
+	return result, resp, err
 }
 
 /*
@@ -645,61 +275,31 @@ type TaskResourceApiSearch1Opts struct {
 	Query    optional.String
 }
 
-func (a *TaskResourceApiService) Search(ctx context.Context, localVarOptionals *TaskResourceApiSearch1Opts) (model.SearchResultTaskSummary, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.SearchResultTaskSummary
-	)
+func (a *TaskResourceApiService) Search(ctx context.Context, opts *TaskResourceApiSearch1Opts) (model.SearchResultTaskSummary, *http.Response, error) {
+	var result model.SearchResultTaskSummary
 
-	localVarPath := "/tasks/search"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.Start.IsSet() {
-		localVarQueryParams.Add("start", parameterToString(localVarOptionals.Start.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Size.IsSet() {
-		localVarQueryParams.Add("size", parameterToString(localVarOptionals.Size.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Sort.IsSet() {
-		localVarQueryParams.Add("sort", parameterToString(localVarOptionals.Sort.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.FreeText.IsSet() {
-		localVarQueryParams.Add("freeText", parameterToString(localVarOptionals.FreeText.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Query.IsSet() {
-		localVarQueryParams.Add("query", parameterToString(localVarOptionals.Query.Value(), ""))
-	}
-	localVarHeaderParams["Accept"] = "*/*"
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
+	// Build query parameters
+	queryParams := url.Values{}
+	if opts != nil {
+		if opts.Start.IsSet() {
+			queryParams.Add("start", parameterToString(opts.Start.Value(), ""))
+		}
+		if opts.Size.IsSet() {
+			queryParams.Add("size", parameterToString(opts.Size.Value(), ""))
+		}
+		if opts.Sort.IsSet() {
+			queryParams.Add("sort", parameterToString(opts.Sort.Value(), ""))
+		}
+		if opts.FreeText.IsSet() {
+			queryParams.Add("freeText", parameterToString(opts.FreeText.Value(), ""))
+		}
+		if opts.Query.IsSet() {
+			queryParams.Add("query", parameterToString(opts.Query.Value(), ""))
+		}
 	}
 
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	resp, err := a.Get(ctx, "/tasks/search", queryParams, &result)
+	return result, resp, err
 }
 
 /*
@@ -723,61 +323,31 @@ type TaskResourceApiSearchV21Opts struct {
 	Query    optional.String
 }
 
-func (a *TaskResourceApiService) SearchV2(ctx context.Context, localVarOptionals *TaskResourceApiSearchV21Opts) (model.SearchResultTask, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.SearchResultTask
-	)
+func (a *TaskResourceApiService) SearchV2(ctx context.Context, opts *TaskResourceApiSearchV21Opts) (model.SearchResultTask, *http.Response, error) {
+	var result model.SearchResultTask
 
-	localVarPath := "/tasks/search-v2"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.Start.IsSet() {
-		localVarQueryParams.Add("start", parameterToString(localVarOptionals.Start.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Size.IsSet() {
-		localVarQueryParams.Add("size", parameterToString(localVarOptionals.Size.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Sort.IsSet() {
-		localVarQueryParams.Add("sort", parameterToString(localVarOptionals.Sort.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.FreeText.IsSet() {
-		localVarQueryParams.Add("freeText", parameterToString(localVarOptionals.FreeText.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Query.IsSet() {
-		localVarQueryParams.Add("query", parameterToString(localVarOptionals.Query.Value(), ""))
-	}
-	localVarHeaderParams["Accept"] = "*/*"
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
+	// Build query parameters
+	queryParams := url.Values{}
+	if opts != nil {
+		if opts.Start.IsSet() {
+			queryParams.Add("start", parameterToString(opts.Start.Value(), ""))
+		}
+		if opts.Size.IsSet() {
+			queryParams.Add("size", parameterToString(opts.Size.Value(), ""))
+		}
+		if opts.Sort.IsSet() {
+			queryParams.Add("sort", parameterToString(opts.Sort.Value(), ""))
+		}
+		if opts.FreeText.IsSet() {
+			queryParams.Add("freeText", parameterToString(opts.FreeText.Value(), ""))
+		}
+		if opts.Query.IsSet() {
+			queryParams.Add("query", parameterToString(opts.Query.Value(), ""))
+		}
 	}
 
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	resp, err := a.Get(ctx, "/tasks/search-v2", queryParams, &result)
+	return result, resp, err
 }
 
 /*
@@ -792,49 +362,17 @@ type TaskResourceApiSizeOpts struct {
 	TaskType optional.Interface
 }
 
-func (a *TaskResourceApiService) Size(ctx context.Context, localVarOptionals *TaskResourceApiSizeOpts) (map[string]int32, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue map[string]int32
-	)
+func (a *TaskResourceApiService) Size(ctx context.Context, opts *TaskResourceApiSizeOpts) (map[string]int32, *http.Response, error) {
+	var result map[string]int32
 
-	localVarPath := "/tasks/queue/sizes"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if localVarOptionals != nil && localVarOptionals.TaskType.IsSet() {
-		localVarQueryParams.Add("taskType", parameterToString(localVarOptionals.TaskType.Value(), "multi"))
-	}
-	localVarHeaderParams["Accept"] = "*/*"
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
+	// Build query parameters
+	queryParams := url.Values{}
+	if opts != nil && opts.TaskType.IsSet() {
+		queryParams.Add("taskType", parameterToString(opts.TaskType.Value(), "multi"))
 	}
 
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	resp, err := a.Get(ctx, "/tasks/queue/sizes", queryParams, &result)
+	return result, resp, err
 }
 
 /*
@@ -845,48 +383,9 @@ TaskResourceApiService Update a task
 @return string
 */
 func (a *TaskResourceApiService) UpdateTask(ctx context.Context, taskResult *model.TaskResult) (string, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue string
-	)
-
-	localVarPath := "/tasks"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "text/plain"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	localVarPostBody = taskResult
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	var result string
+	resp, err := a.Post(ctx, "/tasks", taskResult, &result)
+	return result, resp, err
 }
 
 /*
@@ -922,55 +421,19 @@ func (a *TaskResourceApiService) UpdateTaskByRefNameWithWorkerId(ctx context.Con
 }
 
 func (a *TaskResourceApiService) updateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, workerId optional.String) (string, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue string
-	)
+	var result string
 
-	localVarPath := "/tasks/{workflowId}/{taskRefName}/{status}"
-	localVarPath = strings.Replace(localVarPath, "{"+"workflowId"+"}", fmt.Sprintf("%v", workflowId), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"taskRefName"+"}", fmt.Sprintf("%v", taskRefName), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"status"+"}", fmt.Sprintf("%v", status), -1)
+	// Build path
+	path := fmt.Sprintf("/tasks/%s/%s/%s", workflowId, taskRefName, status)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "text/plain"
-	localVarHeaderParams["Content-Type"] = "application/json"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
+	// Build query parameters
+	queryParams := url.Values{}
 	if workerId.IsSet() {
-		localVarQueryParams.Add("workerid", workerId.Value())
+		queryParams.Add("workerid", workerId.Value())
 	}
 
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	resp, err := a.PostWithParams(ctx, path, queryParams, body, &result)
+	return result, resp, err
 }
 
 func getHostname() string {

@@ -1,4 +1,4 @@
-FROM golang:1.17 as build
+FROM golang:1.19 as build
 RUN mkdir /package
 COPY /sdk /package/sdk
 COPY /go.mod /package/go.mod
