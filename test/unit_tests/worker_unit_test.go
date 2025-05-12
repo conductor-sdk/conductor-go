@@ -10,6 +10,9 @@
 package unit_tests
 
 import (
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -165,4 +168,100 @@ func TestTaskRunnerTimeoutSettings(t *testing.T) {
 	taskTimeout, err = taskRunner.GetPollTimeoutForTask("another_task")
 	assert.Nil(t, err)
 	assert.Equal(t, timeout200, taskTimeout)
+}
+
+type testRoundTripper struct {
+	base             http.RoundTripper
+	totalSuccessCall int
+}
+
+func (r *testRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	res, err := r.base.RoundTrip(req)
+	if err == nil {
+		r.totalSuccessCall++
+	}
+	return res, err
+}
+
+func TestAPIClient(t *testing.T) {
+	var count, countHttpClient, countRoundTripper int
+	// Setup a test http server to receive task runner poll request
+	testServer := httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		// Increase the counting when receive request task poll
+		if req.URL.Path == "/tasks/poll/batch/test_default" {
+			count++
+		}
+		if req.URL.Path == "/tasks/poll/batch/test_http_client" {
+			// Sleep over the client timeout time
+			time.Sleep(20 * time.Millisecond)
+			countHttpClient++
+		}
+		if req.URL.Path == "/tasks/poll/batch/test_round_tripper" {
+			countRoundTripper++
+		}
+		res.WriteHeader(http.StatusOK)
+	}))
+	defer func() { testServer.Close() }()
+	httpSettings := settings.NewHttpSettings(testServer.URL)
+
+	// Case 1: Default API Client without ops - no error
+	apiClientDefault := client.NewAPIClient(nil, httpSettings)
+	if apiClientDefault == nil {
+		t.Fail()
+	}
+	taskRunner := worker.NewTaskRunnerWithApiClient(apiClientDefault)
+	if taskRunner == nil {
+		t.Fail()
+	}
+	taskRunner.StartWorker("test_default", TaskWorker, 10, 10*time.Millisecond)
+
+	// Case 2: API Client with custom http client - no error
+	rt1 := &testRoundTripper{
+		base: http.DefaultTransport,
+	}
+	apiClientWithHttpClient := client.NewAPIClient(nil, httpSettings,
+		client.WithHTTPClient(&http.Client{
+			Timeout:   10 * time.Millisecond,
+			Transport: rt1,
+		}))
+	if apiClientWithHttpClient == nil {
+		t.Fail()
+	}
+	taskRunnerHttpClient := worker.NewTaskRunnerWithApiClient(apiClientWithHttpClient)
+	if taskRunner == nil {
+		t.Fail()
+	}
+	taskRunnerHttpClient.StartWorker("test_http_client", TaskWorker, 10, 10*time.Millisecond)
+
+	// Case 3: API Client with RoundTripper - no error
+	rt2 := &testRoundTripper{
+		base: http.DefaultTransport,
+	}
+	apiClientWithRoundTripper := client.NewAPIClient(nil, httpSettings,
+		client.WithRoundTripper(rt2))
+	if apiClientWithRoundTripper == nil {
+		t.Fail()
+	}
+	taskRunnerWithRoundTripper := worker.NewTaskRunnerWithApiClient(apiClientWithRoundTripper)
+	if taskRunner == nil {
+		t.Fail()
+	}
+	taskRunnerWithRoundTripper.StartWorker("test_round_tripper", TaskWorker, 10, 10*time.Millisecond)
+
+	time.Sleep(100 * time.Millisecond)
+	taskRunner.Shutdown("test_default")
+	taskRunnerHttpClient.Shutdown("test_http_client")
+	taskRunnerWithRoundTripper.Shutdown("test_round_tripper")
+
+	// Make sure server receive the poll request
+	fmt.Println(count, countHttpClient, countRoundTripper)
+	assert.True(t, count > 0)
+	assert.True(t, countHttpClient > 0)
+	assert.True(t, countRoundTripper > 0)
+
+	// Client timed out and the count not matched
+	assert.True(t, countHttpClient != rt1.totalSuccessCall)
+
+	// Client and server match count matched
+	assert.True(t, countRoundTripper == rt2.totalSuccessCall)
 }
