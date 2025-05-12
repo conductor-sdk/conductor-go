@@ -723,3 +723,108 @@ func (a *WorkflowResourceApiService) Terminate(ctx context.Context, workflowId s
 	}
 	return resp, nil
 }
+
+/*
+   WorkflowResourceApiService Jump workflow execution to given task
+       Jump workflow execution to given task.
+   * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+    * @param body
+    * @param workflowId
+    * @param optional nil or *WorkflowResourceApiJumpToTaskOpts - Optional Parameters:
+        * @param "TaskReferenceName" (optional.String) -
+
+*/
+
+type WorkflowResourceApiJumpToTaskOpts struct {
+	TaskReferenceName optional.String
+}
+
+func (a *WorkflowResourceApiService) JumpToTask(ctx context.Context, body map[string]interface{}, workflowId string, optionals *WorkflowResourceApiJumpToTaskOpts) (*http.Response, error) {
+	path := fmt.Sprintf("/workflow/%s/jump/%s", workflowId, optionals.TaskReferenceName.Value())
+
+	resp, err := a.Post(ctx, path, body, nil)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, nil
+}
+
+/*
+   WorkflowResourceApiService Update a workflow state by updating variables or in progress task
+       Updates the workflow variables, tasks and triggers evaluation.
+   * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+    * @param body
+    * @param requestId
+    * @param workflowId
+    * @param optional nil or *WorkflowResourceApiUpdateWorkflowAndTaskStateOpts - Optional Parameters:
+        * @param "WaitUntilTaskRef" (optional.String) -
+    * @param "WaitForSeconds" (optional.Int32) -
+   @return WorkflowRun
+*/
+
+type WorkflowResourceApiUpdateWorkflowAndTaskStateOpts struct {
+	WaitUntilTaskRef optional.String
+	WaitForSeconds   optional.Int32
+}
+
+func (a *WorkflowResourceApiService) UpdateWorkflowAndTaskState(ctx context.Context, body model.WorkflowStateUpdate, requestId string, workflowId string, optionals *WorkflowResourceApiUpdateWorkflowAndTaskStateOpts) (model.WorkflowRun, *http.Response, error) {
+	var result model.WorkflowRun
+
+	// create path and map variables
+	path := fmt.Sprintf("/api/workflow/%s/state", workflowId)
+
+	queryParams := url.Values{}
+	queryParams.Add("requestId", parameterToString(requestId, ""))
+	if optionals != nil && optionals.WaitUntilTaskRef.IsSet() {
+		queryParams.Add("waitUntilTaskRef", parameterToString(optionals.WaitUntilTaskRef.Value(), ""))
+	}
+	if optionals != nil && optionals.WaitForSeconds.IsSet() {
+		queryParams.Add("waitForSeconds", parameterToString(optionals.WaitForSeconds.Value(), ""))
+	}
+
+	resp, err := a.PostWithParams(ctx, path, queryParams, body, &result)
+	if err != nil {
+		return result, resp, err
+	}
+	return result, resp, nil
+}
+
+/*
+WorkflowResourceApiService Upgrade running workflow to newer version
+
+	Upgrade running workflow to newer version
+
+* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param body
+  - @param workflowId
+*/
+func (a *WorkflowResourceApiService) UpgradeRunningWorkflowToVersion(ctx context.Context, body model.UpgradeWorkflowRequest, workflowId string) (*http.Response, error) {
+	// create path and map variables
+	path := fmt.Sprintf("/api/workflow/%s/upgrade", workflowId)
+
+	resp, err := a.Post(ctx, path, body, nil)
+	if err != nil {
+		return resp, err
+	}
+	return resp, nil
+}
+
+/*
+WorkflowResourceApiService Test workflow execution using mock data
+* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param body
+    @return Workflow
+*/
+func (a *WorkflowResourceApiService) TestWorkflow(ctx context.Context, body model.WorkflowTestRequest) (model.Workflow, *http.Response, error) {
+	var result model.Workflow
+
+	// create path and map variables
+	path := "/api/workflow/test"
+
+	resp, err := a.Post(ctx, path, body, &result)
+	if err != nil {
+		return model.Workflow{}, resp, err
+	}
+	return result, resp, nil
+}
