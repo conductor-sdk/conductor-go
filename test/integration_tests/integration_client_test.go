@@ -114,7 +114,7 @@ func TestIntegrationClient(t *testing.T) {
 			t.Fatalf("Integration #%d (%s) is not active, but should be", i, integration.Name)
 		}
 	}
-	require.Equal(t, 2, len(integrations))
+	require.Equal(t, 3, len(integrations))
 
 	for _, integration := range integrations {
 		require.NotNil(t, integration)
