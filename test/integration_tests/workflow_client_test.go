@@ -2,12 +2,13 @@ package integration_tests
 
 import (
 	"context"
+	"github.com/antihax/optional"
+	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/test/testdata"
 	"net/http"
 	"testing"
-	"time"
 )
 
 func TestWorkflowTest(t *testing.T) {
@@ -105,7 +106,7 @@ func TestUpgradeRunningWorkflowToVersion(t *testing.T) {
 	// Create an HTTP task with a longer delay to ensure workflow stays in RUNNING state
 	httpInput := &workflow.HttpInput{
 		Method: "GET",
-		Uri:    "http://localhost:8081/api/hello/with-delay?name=Sdktest&delaySeconds=6",
+		Uri:    "http://localhost:8081/api/hello/with-delay?name=Sdktest&delaySeconds=2",
 	}
 
 	// Step 1: Create version 1 of a workflow
@@ -161,9 +162,6 @@ func TestUpgradeRunningWorkflowToVersion(t *testing.T) {
 
 	t.Logf("Started workflow with ID: %s", workflowId)
 
-	// Step 4: Wait a short time for the workflow to be in RUNNING state
-	time.Sleep(2 * time.Second)
-
 	// Step 5: Verify the workflow is running (not completed) and at version 1
 	workflow, err := testdata.WorkflowExecutor.GetWorkflow(workflowId, true)
 	if err != nil {
@@ -217,9 +215,6 @@ func TestUpgradeRunningWorkflowToVersion(t *testing.T) {
 		t.Fatalf("Expected status code 200, got %d", resp.StatusCode)
 	}
 
-	// Step 9: Wait for the upgraded workflow to continue processing
-	time.Sleep(3 * time.Second)
-
 	// Step 10: Verify the workflow has been upgraded to version 2
 	upgradedWorkflow, err := testdata.WorkflowExecutor.GetWorkflow(workflowId, true)
 	if err != nil {
@@ -248,4 +243,115 @@ func TestUpgradeRunningWorkflowToVersion(t *testing.T) {
 	if !foundAdditionalTask {
 		t.Fatal("Expected to find the additional task in the upgraded workflow")
 	}
+}
+
+func TestJumpToTask(t *testing.T) {
+	workflowDef := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
+		Name("TEST_GO_WORKFLOW_JUMP").
+		Version(1).
+		Add(testdata.TestSimpleTask).
+		Add(testdata.TestHttpTask)
+
+	err := testdata.ValidateWorkflowRegistration(workflowDef)
+	if err != nil {
+		t.Fatal(
+			"Failed to register workflow. Reason: ", err.Error(),
+		)
+	}
+
+	// Start a workflow instance
+	workflowInput := map[string]interface{}{
+		"testKey": "testValue",
+	}
+
+	startRequest := &model.StartWorkflowRequest{
+		Name:    workflowDef.GetName(),
+		Version: 1,
+		Input:   workflowInput,
+	}
+
+	workflowId, err := testdata.WorkflowExecutor.StartWorkflow(startRequest)
+	if err != nil {
+		t.Fatal(
+			"Failed to start workflow. Reason: ", err.Error(),
+		)
+	}
+
+	t.Logf("Started workflow with ID: %s", workflowId)
+
+	// Verify workflow is running
+	workflow, err := testdata.WorkflowExecutor.GetWorkflow(workflowId, true)
+	if err != nil {
+		t.Fatal(
+			"Failed to get workflow. Reason: ", err.Error(),
+		)
+	}
+
+	if workflow.Status != "RUNNING" {
+		t.Fatalf("Expected workflow status RUNNING, got %s", workflow.Status)
+	}
+
+	// Define custom input for the task we're jumping to
+	jumpTaskInput := map[string]interface{}{
+		"uri":    "http://localhost:8081/api/hello?name=Test1",
+		"method": "GET",
+	}
+
+	// Jump to the third task, skipping the second
+	opts := &client.WorkflowResourceApiJumpToTaskOpts{
+		TaskReferenceName: optional.NewString("TEST_GO_TASK_HTTP"),
+	}
+
+	resp, err := testdata.WorkflowClient.JumpToTask(
+		context.Background(),
+		jumpTaskInput,
+		workflowId,
+		opts,
+	)
+
+	if err != nil {
+		t.Fatal(
+			"Failed to jump to task. Reason: ", err.Error(),
+		)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status code 200, got %d", resp.StatusCode)
+	}
+
+	// Get the updated workflow
+	updatedWorkflow, err := testdata.WorkflowExecutor.GetWorkflow(workflowId, true)
+	if err != nil {
+		t.Fatal(
+			"Failed to get updated workflow. Reason: ", err.Error(),
+		)
+	}
+
+	// Verify that the second task was skipped and the third task is being executed or completed
+	var firstTaskSkipped bool
+	var secondTaskActive bool
+
+	for _, task := range updatedWorkflow.Tasks {
+		if task.ReferenceTaskName == "TEST_GO_TASK_SIMPLE" {
+			if task.Status == "SKIPPED" {
+				firstTaskSkipped = true
+			}
+		}
+
+		if task.ReferenceTaskName == "TEST_GO_TASK_HTTP" {
+			if task.Status == "IN_PROGRESS" || task.Status == "COMPLETED" {
+				secondTaskActive = true
+			}
+		}
+	}
+
+	if !firstTaskSkipped {
+		t.Fatal("Expected the second task to be skipped")
+	}
+
+	if !secondTaskActive {
+		t.Fatal("Expected the third task to be active after jumping")
+	}
+
+	t.Log("Successfully tested jump to task functionality")
 }

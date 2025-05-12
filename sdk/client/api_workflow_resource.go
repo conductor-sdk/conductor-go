@@ -740,9 +740,14 @@ type WorkflowResourceApiJumpToTaskOpts struct {
 }
 
 func (a *WorkflowResourceApiService) JumpToTask(ctx context.Context, body map[string]interface{}, workflowId string, optionals *WorkflowResourceApiJumpToTaskOpts) (*http.Response, error) {
-	path := fmt.Sprintf("/workflow/%s/jump/%s", workflowId, optionals.TaskReferenceName.Value())
+	path := fmt.Sprintf("/workflow/%s/jump/{taskReferenceName}", workflowId)
 
-	resp, err := a.Post(ctx, path, body, nil)
+	queryParams := url.Values{}
+	if optionals != nil && optionals.TaskReferenceName.IsSet() {
+		queryParams.Add("taskReferenceName", parameterToString(optionals.TaskReferenceName.Value(), ""))
+	}
+
+	resp, err := a.PostWithParams(ctx, path, queryParams, body, nil)
 	if err != nil {
 		return resp, err
 	}
