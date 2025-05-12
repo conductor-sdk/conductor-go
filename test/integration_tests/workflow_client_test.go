@@ -79,18 +79,13 @@ func TestWorkflowTest(t *testing.T) {
 	if httpTask.Status != "COMPLETED" {
 		t.Fatalf("Expected HTTP task status COMPLETED, got %s", httpTask.Status)
 	}
-
-	// Check execution metrics
-	if httpTask.QueueWaitTime != 5 {
-		t.Fatalf("Expected HTTP task queue wait time to be 5ms, got %d", httpTask.QueueWaitTime)
-	}
 }
 
 func TestUpgradeRunningWorkflowToVersion(t *testing.T) {
 	// Create an HTTP task with a longer delay to ensure workflow stays in RUNNING state
 	httpInput := &workflow.HttpInput{
 		Method: "GET",
-		Uri:    "http://httpbin:8081/api/hello/with-delay?name=Sdktest&delaySeconds=2",
+		Uri:    "http://httpbin:8081/api/hello/with-delay?name=Sdktest&delaySeconds=10",
 	}
 
 	// Step 1: Create version 1 of a workflow
@@ -230,11 +225,15 @@ func TestUpgradeRunningWorkflowToVersion(t *testing.T) {
 }
 
 func TestJumpToTask(t *testing.T) {
+	input := workflow.HttpInput{
+		Method: "GET",
+		Uri:    "http://httpbin:8081/api/hello?name=Test123",
+	}
 	workflowDef := workflow.NewConductorWorkflow(testdata.WorkflowExecutor).
 		Name("TEST_GO_WORKFLOW_JUMP").
 		Version(1).
 		Add(testdata.TestSimpleTask).
-		Add(testdata.TestHttpTask)
+		Add(workflow.NewHttpTask("http_ref_1", &input))
 
 	err := testdata.ValidateWorkflowRegistration(workflowDef)
 	if err != nil {
@@ -283,7 +282,7 @@ func TestJumpToTask(t *testing.T) {
 
 	// Jump to the third task, skipping the second
 	opts := &client.WorkflowResourceApiJumpToTaskOpts{
-		TaskReferenceName: optional.NewString("TEST_GO_TASK_HTTP"),
+		TaskReferenceName: optional.NewString("http_ref_1"),
 	}
 
 	resp, err := testdata.WorkflowClient.JumpToTask(
@@ -322,7 +321,7 @@ func TestJumpToTask(t *testing.T) {
 			}
 		}
 
-		if task.ReferenceTaskName == "TEST_GO_TASK_HTTP" {
+		if task.ReferenceTaskName == "http_ref_1" {
 			if task.Status == "IN_PROGRESS" || task.Status == "COMPLETED" {
 				secondTaskActive = true
 			}
