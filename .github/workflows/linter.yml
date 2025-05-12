@@ -1,4 +1,4 @@
-name: Lint
+name: Lint & Format
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint:
-    name: Run golangci-lint
+    name: Go Format and Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -17,7 +17,21 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.19'
+          go-version: 1.17
+
+      - name: Install formatting tools
+        run: |
+          go install golang.org/x/tools/cmd/goimports@latest
+          go install mvdan.cc/gofumpt@latest
+
+      - name: Run go fmt
+        run: go fmt ./...
+
+      - name: Run goimports
+        run: goimports -w .
+
+      - name: Run gofumpt (optional stricter formatting)
+        run: gofumpt -w .
 
       - name: Install golangci-lint
         uses: golangci/golangci-lint-action@v3
