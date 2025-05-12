@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/antihax/optional"
@@ -144,7 +145,7 @@ TaskResourceApiService Get the external uri where the task payload is to be stor
 func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context, path string, operation string, payloadType string) (model.ExternalStorageLocation, *http.Response, error) {
 	var result model.ExternalStorageLocation
 
-	localVarPath := "/tasks/externalstoragelocation"
+	http_path := "/tasks/externalstoragelocation"
 
 	queryParams := url.Values{}
 
@@ -152,7 +153,7 @@ func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context
 	queryParams.Add("operation", parameterToString(operation, ""))
 	queryParams.Add("payloadType", parameterToString(payloadType, ""))
 
-	resp, err := a.Get(ctx, localVarPath, queryParams, &result)
+	resp, err := a.Get(ctx, http_path, queryParams, &result)
 	if err != nil {
 		return model.ExternalStorageLocation{}, resp, err
 	}
@@ -249,18 +250,18 @@ type TaskResourceApiPollOpts struct {
 	Domain   optional.String
 }
 
-func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiPollOpts) (model.Task, *http.Response, error) {
+func (a *TaskResourceApiService) Poll(ctx context.Context, tasktype string, opts *TaskResourceApiPollOpts) (model.Task, *http.Response, error) {
 	var result model.Task
 
 	path := fmt.Sprintf("/tasks/poll/%s", tasktype)
 
 	queryParams := url.Values{}
 
-	if localVarOptionals != nil && localVarOptionals.Workerid.IsSet() {
-		queryParams.Add("workerid", parameterToString(localVarOptionals.Workerid.Value(), ""))
+	if opts != nil && opts.Workerid.IsSet() {
+		queryParams.Add("workerid", parameterToString(opts.Workerid.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Domain.IsSet() {
-		queryParams.Add("domain", parameterToString(localVarOptionals.Domain.Value(), ""))
+	if opts != nil && opts.Domain.IsSet() {
+		queryParams.Add("domain", parameterToString(opts.Domain.Value(), ""))
 	}
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
@@ -309,26 +310,26 @@ type TaskResourceApiSearch1Opts struct {
 	Query    optional.String
 }
 
-func (a *TaskResourceApiService) Search(ctx context.Context, localVarOptionals *TaskResourceApiSearch1Opts) (model.SearchResultTaskSummary, *http.Response, error) {
+func (a *TaskResourceApiService) Search(ctx context.Context, opts *TaskResourceApiSearch1Opts) (model.SearchResultTaskSummary, *http.Response, error) {
 	var result model.SearchResultTaskSummary
 
 	path := "/tasks/search"
 
 	queryParams := url.Values{}
-	if localVarOptionals != nil && localVarOptionals.Start.IsSet() {
-		queryParams.Add("start", parameterToString(localVarOptionals.Start.Value(), ""))
+	if opts != nil && opts.Start.IsSet() {
+		queryParams.Add("start", parameterToString(opts.Start.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Size.IsSet() {
-		queryParams.Add("size", parameterToString(localVarOptionals.Size.Value(), ""))
+	if opts != nil && opts.Size.IsSet() {
+		queryParams.Add("size", parameterToString(opts.Size.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Sort.IsSet() {
-		queryParams.Add("sort", parameterToString(localVarOptionals.Sort.Value(), ""))
+	if opts != nil && opts.Sort.IsSet() {
+		queryParams.Add("sort", parameterToString(opts.Sort.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.FreeText.IsSet() {
-		queryParams.Add("freeText", parameterToString(localVarOptionals.FreeText.Value(), ""))
+	if opts != nil && opts.FreeText.IsSet() {
+		queryParams.Add("freeText", parameterToString(opts.FreeText.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Query.IsSet() {
-		queryParams.Add("query", parameterToString(localVarOptionals.Query.Value(), ""))
+	if opts != nil && opts.Query.IsSet() {
+		queryParams.Add("query", parameterToString(opts.Query.Value(), ""))
 	}
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
@@ -359,26 +360,26 @@ type TaskResourceApiSearchV21Opts struct {
 	Query    optional.String
 }
 
-func (a *TaskResourceApiService) SearchV2(ctx context.Context, localVarOptionals *TaskResourceApiSearchV21Opts) (model.SearchResultTask, *http.Response, error) {
+func (a *TaskResourceApiService) SearchV2(ctx context.Context, opts *TaskResourceApiSearchV21Opts) (model.SearchResultTask, *http.Response, error) {
 	var result model.SearchResultTask
 
 	path := "/tasks/search-v2"
 
 	queryParams := url.Values{}
-	if localVarOptionals != nil && localVarOptionals.Start.IsSet() {
-		queryParams.Add("start", parameterToString(localVarOptionals.Start.Value(), ""))
+	if opts != nil && opts.Start.IsSet() {
+		queryParams.Add("start", parameterToString(opts.Start.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Size.IsSet() {
-		queryParams.Add("size", parameterToString(localVarOptionals.Size.Value(), ""))
+	if opts != nil && opts.Size.IsSet() {
+		queryParams.Add("size", parameterToString(opts.Size.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Sort.IsSet() {
-		queryParams.Add("sort", parameterToString(localVarOptionals.Sort.Value(), ""))
+	if opts != nil && opts.Sort.IsSet() {
+		queryParams.Add("sort", parameterToString(opts.Sort.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.FreeText.IsSet() {
-		queryParams.Add("freeText", parameterToString(localVarOptionals.FreeText.Value(), ""))
+	if opts != nil && opts.FreeText.IsSet() {
+		queryParams.Add("freeText", parameterToString(opts.FreeText.Value(), ""))
 	}
-	if localVarOptionals != nil && localVarOptionals.Query.IsSet() {
-		queryParams.Add("query", parameterToString(localVarOptionals.Query.Value(), ""))
+	if opts != nil && opts.Query.IsSet() {
+		queryParams.Add("query", parameterToString(opts.Query.Value(), ""))
 	}
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
@@ -400,14 +401,14 @@ type TaskResourceApiSizeOpts struct {
 	TaskType optional.Interface
 }
 
-func (a *TaskResourceApiService) Size(ctx context.Context, localVarOptionals *TaskResourceApiSizeOpts) (map[string]int32, *http.Response, error) {
+func (a *TaskResourceApiService) Size(ctx context.Context, opts *TaskResourceApiSizeOpts) (map[string]int32, *http.Response, error) {
 	var result map[string]int32
 
 	path := "/tasks/queue/sizes"
 
 	queryParams := url.Values{}
-	if localVarOptionals != nil && localVarOptionals.TaskType.IsSet() {
-		queryParams.Add("taskType", parameterToString(localVarOptionals.TaskType.Value(), "multi"))
+	if opts != nil && opts.TaskType.IsSet() {
+		queryParams.Add("taskType", parameterToString(opts.TaskType.Value(), "multi"))
 	}
 
 	resp, err := a.Get(ctx, path, queryParams, &result)
@@ -453,49 +454,15 @@ type TaskResourceApiUpdateTaskSyncOpts struct {
 }
 
 func (a *TaskResourceApiService) UpdateTaskSync(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, localVarOptionals *TaskResourceApiUpdateTaskSyncOpts) (model.Workflow, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.Workflow
-	)
+	var result model.Workflow
 
-	localVarPath := fmt.Sprintf("/tasks/%v/%v/%v/sync", workflowId, taskRefName, status)
+	path := fmt.Sprintf("/tasks/%v/%v/%v/sync", workflowId, taskRefName, status)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-	localVarPostBody = &body
-
-	if localVarOptionals != nil && localVarOptionals.Workerid.IsSet() {
-		localVarQueryParams.Add("workerid", parameterToString(localVarOptionals.Workerid.Value(), ""))
-	}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Post(ctx, path, body, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return model.Workflow{}, resp, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -507,45 +474,14 @@ TaskResourceApiService Signal workflow to update running task in the workflow wi
   - @param status
 */
 func (a *TaskResourceApiService) SignalTaskAsync(ctx context.Context, body map[string]interface{}, workflowId string, status string) (*http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Post")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue string
-	)
-
 	// create path and map variables
-	localVarPath := fmt.Sprintf("/tasks/%v/%v/signal", workflowId, status)
+	path := fmt.Sprintf("/tasks/%v/%v/signal", workflowId, status)
 
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-	localVarPostBody = &body
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	resp, err := a.Post(ctx, path, body, &struct{}{})
 	if err != nil {
 		return nil, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarHttpResponse, newErr
-	}
-
-	return localVarHttpResponse, err
+	return resp, nil
 }
 
 /*

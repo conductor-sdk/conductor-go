@@ -3,6 +3,7 @@ package integration_tests
 import (
 	"context"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	"testing"
 	"time"
 
@@ -320,6 +321,28 @@ func TestSubWorkflowSignal(t *testing.T) {
 	assert.Equal(t, model.CompletedWorkflow, workflowDetails.Status, "Workflow should be in COMPLETED state")
 
 	t.Logf("Verified workflow has COMPLETED after signaling")
+}
+
+// Helper function that polls until completion or timeout
+func waitForWorkflowCompletion(executor *executor.WorkflowExecutor, workflowId string, maxWait time.Duration) error {
+	deadline := time.Now().Add(maxWait)
+	for time.Now().Before(deadline) {
+		wf, err := executor.GetWorkflow(workflowId, false)
+		if err != nil {
+			time.Sleep(1 * time.Second)
+			continue
+		}
+
+		if wf.Status == model.CompletedWorkflow {
+			return nil // Success!
+		} else if wf.Status == model.FailedWorkflow || wf.Status == model.TerminatedWorkflow {
+			return fmt.Errorf("workflow failed with status: %s", wf.Status)
+		}
+
+		// Exponential backoff - start with 1s, then increase
+		time.Sleep(1 * time.Second)
+	}
+	return fmt.Errorf("timed out waiting for workflow %s to complete", workflowId)
 }
 
 func TestSubWorkflowSignalWithSyncConsistency(t *testing.T) {
