@@ -10,32 +10,37 @@
 package model
 
 type Workflow struct {
-	OwnerApp                         string                 `json:"ownerApp,omitempty"`
-	CreateTime                       int64                  `json:"createTime,omitempty"`
-	UpdateTime                       int64                  `json:"updateTime,omitempty"`
-	CreatedBy                        string                 `json:"createdBy,omitempty"`
-	UpdatedBy                        string                 `json:"updatedBy,omitempty"`
-	Status                           WorkflowStatus         `json:"status,omitempty"`
-	EndTime                          int64                  `json:"endTime,omitempty"`
-	WorkflowId                       string                 `json:"workflowId,omitempty"`
-	ParentWorkflowId                 string                 `json:"parentWorkflowId,omitempty"`
-	ParentWorkflowTaskId             string                 `json:"parentWorkflowTaskId,omitempty"`
-	Tasks                            []Task                 `json:"tasks,omitempty"`
-	Input                            map[string]interface{} `json:"input,omitempty"`
-	Output                           map[string]interface{} `json:"output,omitempty"`
 	CorrelationId                    string                 `json:"correlationId,omitempty"`
-	ReRunFromWorkflowId              string                 `json:"reRunFromWorkflowId,omitempty"`
-	ReasonForIncompletion            string                 `json:"reasonForIncompletion,omitempty"`
+	CreateTime                       int64                  `json:"createTime,omitempty"`
+	CreatedBy                        string                 `json:"createdBy,omitempty"`
+	EndTime                          int64                  `json:"endTime,omitempty"`
 	Event                            string                 `json:"event,omitempty"`
-	TaskToDomain                     map[string]string      `json:"taskToDomain,omitempty"`
-	FailedReferenceTaskNames         []string               `json:"failedReferenceTaskNames,omitempty"`
-	WorkflowDefinition               *WorkflowDef           `json:"workflowDefinition,omitempty"`
 	ExternalInputPayloadStoragePath  string                 `json:"externalInputPayloadStoragePath,omitempty"`
 	ExternalOutputPayloadStoragePath string                 `json:"externalOutputPayloadStoragePath,omitempty"`
-	Priority                         int32                  `json:"priority,omitempty"`
-	Variables                        map[string]interface{} `json:"variables,omitempty"`
+	FailedReferenceTaskNames         []string               `json:"failedReferenceTaskNames,omitempty"`
+	FailedTaskNames                  []string               `json:"failedTaskNames,omitempty"`
+	History                          []Workflow             `json:"history,omitempty"`
+	IdempotencyKey                   string                 `json:"idempotencyKey,omitempty"`
+	Input                            map[string]interface{} `json:"input,omitempty"`
 	LastRetriedTime                  int64                  `json:"lastRetriedTime,omitempty"`
+	Output                           map[string]interface{} `json:"output,omitempty"`
+	OwnerApp                         string                 `json:"ownerApp,omitempty"`
+	ParentWorkflowId                 string                 `json:"parentWorkflowId,omitempty"`
+	ParentWorkflowTaskId             string                 `json:"parentWorkflowTaskId,omitempty"`
+	Priority                         int32                  `json:"priority,omitempty"`
+	RateLimitKey                     string                 `json:"rateLimitKey,omitempty"`
+	RateLimited                      bool                   `json:"rateLimited,omitempty"`
+	ReRunFromWorkflowId              string                 `json:"reRunFromWorkflowId,omitempty"`
+	ReasonForIncompletion            string                 `json:"reasonForIncompletion,omitempty"`
 	StartTime                        int64                  `json:"startTime,omitempty"`
+	Status                           WorkflowStatus         `json:"status,omitempty"`
+	TaskToDomain                     map[string]string      `json:"taskToDomain,omitempty"`
+	Tasks                            []Task                 `json:"tasks,omitempty"`
+	UpdateTime                       int64                  `json:"updateTime,omitempty"`
+	UpdatedBy                        string                 `json:"updatedBy,omitempty"`
+	Variables                        map[string]interface{} `json:"variables,omitempty"`
+	WorkflowDefinition               *WorkflowDef           `json:"workflowDefinition,omitempty"`
+	WorkflowId                       string                 `json:"workflowId,omitempty"`
 	WorkflowName                     string                 `json:"workflowName,omitempty"`
 	WorkflowVersion                  int32                  `json:"workflowVersion,omitempty"`
 }
