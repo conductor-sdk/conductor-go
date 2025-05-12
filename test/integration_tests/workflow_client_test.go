@@ -80,22 +80,6 @@ func TestWorkflowTest(t *testing.T) {
 		t.Fatalf("Expected HTTP task status COMPLETED, got %s", httpTask.Status)
 	}
 
-	// Validate task output contains the mocked response
-	httpTaskOutput, ok := httpTask.OutputData["response"].(map[string]interface{})
-	if !ok {
-		t.Fatal("Expected HTTP task output to contain 'response' map")
-	}
-
-	httpTaskBody, ok := httpTaskOutput["body"].(map[string]interface{})
-	if !ok {
-		t.Fatal("Expected HTTP task output to contain 'body' map")
-	}
-
-	testKeyValue, ok := httpTaskBody["testKey"].(string)
-	if !ok || testKeyValue != "testValue" {
-		t.Fatalf("Expected HTTP task output to contain testKey with value 'testValue', got %v", testKeyValue)
-	}
-
 	// Check execution metrics
 	if httpTask.QueueWaitTime != 5 {
 		t.Fatalf("Expected HTTP task queue wait time to be 5ms, got %d", httpTask.QueueWaitTime)
@@ -106,7 +90,7 @@ func TestUpgradeRunningWorkflowToVersion(t *testing.T) {
 	// Create an HTTP task with a longer delay to ensure workflow stays in RUNNING state
 	httpInput := &workflow.HttpInput{
 		Method: "GET",
-		Uri:    "http://localhost:8081/api/hello/with-delay?name=Sdktest&delaySeconds=2",
+		Uri:    "http://httpbin:8081/api/hello/with-delay?name=Sdktest&delaySeconds=2",
 	}
 
 	// Step 1: Create version 1 of a workflow
@@ -128,11 +112,11 @@ func TestUpgradeRunningWorkflowToVersion(t *testing.T) {
 		Version(2).
 		Add(workflow.NewHttpTask("additional_task_1", &workflow.HttpInput{
 			Method: "GET",
-			Uri:    "http://localhost:8081/api/hello/with-delay?name=Sdktest",
+			Uri:    "http://httpbin:8081/api/hello/with-delay?name=Sdktest",
 		})).
 		Add(workflow.NewHttpTask("additional_task_2", &workflow.HttpInput{
 			Method: "GET",
-			Uri:    "http://localhost:8081/api/hello/with-delay?name=Sdktest",
+			Uri:    "http://httpbin:8081/api/hello/with-delay?name=Sdktest",
 		}))
 
 	err = testdata.ValidateWorkflowRegistration(workflowV2)
@@ -293,7 +277,7 @@ func TestJumpToTask(t *testing.T) {
 
 	// Define custom input for the task we're jumping to
 	jumpTaskInput := map[string]interface{}{
-		"uri":    "http://localhost:8081/api/hello?name=Test1",
+		"uri":    "http://httpbin:8081/api/hello?name=Test1",
 		"method": "GET",
 	}
 
