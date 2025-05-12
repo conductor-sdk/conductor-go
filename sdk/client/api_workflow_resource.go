@@ -772,7 +772,7 @@ func (a *WorkflowResourceApiService) UpdateWorkflowAndTaskState(ctx context.Cont
 	var result model.WorkflowRun
 
 	// create path and map variables
-	path := fmt.Sprintf("/api/workflow/%s/state", workflowId)
+	path := fmt.Sprintf("/workflow/%s/state", workflowId)
 
 	queryParams := url.Values{}
 	queryParams.Add("requestId", parameterToString(requestId, ""))
@@ -801,7 +801,7 @@ WorkflowResourceApiService Upgrade running workflow to newer version
 */
 func (a *WorkflowResourceApiService) UpgradeRunningWorkflowToVersion(ctx context.Context, body model.UpgradeWorkflowRequest, workflowId string) (*http.Response, error) {
 	// create path and map variables
-	path := fmt.Sprintf("/api/workflow/%s/upgrade", workflowId)
+	path := fmt.Sprintf("/workflow/%s/upgrade", workflowId)
 
 	resp, err := a.Post(ctx, path, body, nil)
 	if err != nil {
@@ -820,7 +820,7 @@ func (a *WorkflowResourceApiService) TestWorkflow(ctx context.Context, body mode
 	var result model.Workflow
 
 	// create path and map variables
-	path := "/api/workflow/test"
+	path := "/workflow/test"
 
 	resp, err := a.Post(ctx, path, body, &result)
 	if err != nil {
