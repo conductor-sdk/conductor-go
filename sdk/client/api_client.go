@@ -51,15 +51,29 @@ type APIClient struct {
 	httpRequester *HttpRequester
 }
 
+type Option func(c *http.Client)
+
+// WithHTTPClient lets callers replace the entire http.Client.
+func WithHTTPClient(custom *http.Client) Option {
+	return func(c *http.Client) { *c = *custom }
+}
+
+// WithRoundTripper lets callers replace or wrap just Transport.
+func WithRoundTripper(rt http.RoundTripper) Option {
+	return func(c *http.Client) { c.Transport = rt }
+}
+
 func NewAPIClient(
 	authenticationSettings *settings.AuthenticationSettings,
 	httpSettings *settings.HttpSettings,
+	opts ...Option,
 ) *APIClient {
 	return newAPIClient(
 		authenticationSettings,
 		httpSettings,
 		nil,
 		nil,
+		opts...,
 	)
 }
 func NewAPIClientFromEnv() *APIClient {
@@ -109,7 +123,7 @@ func NewAPIClientWithTokenManager(
 	)
 }
 
-func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings, tokenExpiration *authentication.TokenExpiration, tokenManager authentication.TokenManager) *APIClient {
+func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpSettings *settings.HttpSettings, tokenExpiration *authentication.TokenExpiration, tokenManager authentication.TokenManager, opts ...Option) *APIClient {
 	if httpSettings == nil {
 		httpSettings = settings.NewHttpDefaultSettings()
 	}
@@ -135,15 +149,18 @@ func newAPIClient(authenticationSettings *settings.AuthenticationSettings, httpS
 		MaxIdleConnsPerHost: 100,
 		DisableCompression:  false,
 	}
-	client := http.Client{
+	client := &http.Client{
 		Transport:     netTransport,
 		CheckRedirect: nil,
 		Jar:           nil,
 		Timeout:       httpTimeout,
 	}
+	for _, opt := range opts {
+		opt(client)
+	}
 	return &APIClient{
 		httpRequester: NewHttpRequester(
-			authenticationSettings, httpSettings, &client, tokenExpiration, tokenManager,
+			authenticationSettings, httpSettings, client, tokenExpiration, tokenManager,
 		),
 	}
 }
