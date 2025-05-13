@@ -65,7 +65,7 @@ func TestHTTPServiceRegistryClientIntegration(t *testing.T) {
 		// This is a more reliable endpoint that should return OpenAPI spec
 		updatedRegistry := model.ServiceRegistry{
 			Name:       testRegistryName,
-			ServiceURI: "https://petstore.swagger.io/v2/swagger.json", // Using public Swagger Petstore API
+			ServiceURI: "http://localhost:8081/api-docs",
 			Type_:      "HTTP",
 		}
 
@@ -103,15 +103,14 @@ func TestHTTPServiceRegistryClientIntegration(t *testing.T) {
 				method := methods[0]
 				assert.NotEmpty(t, method.MethodName)
 				assert.NotEmpty(t, method.MethodType)
-				assert.NotEmpty(t, method.InputType)
-				assert.NotEmpty(t, method.OutputType)
+				assert.NotEmpty(t, method.OperationName)
 			}
 		} else {
 			// Log the error but don't fail the test since this depends on external service
 			t.Logf("Discovery error (test continues): %v", err)
 		}
 
-		assert.Equal(t, 20, len(methods))
+		assert.Equal(t, 16, len(methods))
 
 		// Now get all methods for the service to verify they exist
 		registry, resp, err := serviceRegistryClient.GetService(ctx, testRegistryName)

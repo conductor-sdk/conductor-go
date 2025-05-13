@@ -111,7 +111,7 @@ func (a *ServiceRegistryResourceApiService) Discover(ctx context.Context, name s
 		queryParams.Add("create", parameterToString(opts.Create.Value(), ""))
 	}
 
-	resp, err := a.Post(ctx, path, queryParams, nil)
+	resp, err := a.Get(ctx, path, queryParams, &result)
 	if err != nil {
 		return result, resp, err
 	}
