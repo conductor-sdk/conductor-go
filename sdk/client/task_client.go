@@ -26,6 +26,11 @@ type TaskClient interface {
 	UpdateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string) (string, *http.Response, error)
 	UpdateTaskByRefNameWithWorkerId(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, workerId optional.String) (string, *http.Response, error)
 	updateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, workerId optional.String) (string, *http.Response, error)
+	SignalTaskAsync(ctx context.Context, body map[string]interface{}, workflowId string, status string) (*http.Response, error)
+	SignalAndGetTargetWorkflow(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.WorkflowRun, *http.Response, error)
+	SignalAndGetBlockingWorkflow(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.WorkflowRun, *http.Response, error)
+	SignalAndGetBlockingTask(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.TaskRun, *http.Response, error)
+	SignalAndGetBlockingTaskInput(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.TaskRun, *http.Response, error)
 }
 
 func NewTaskClient(apiClient *APIClient) TaskClient {

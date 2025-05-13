@@ -34,11 +34,12 @@ func TestWorkflowCreation(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, run, "Workflow is null", run)
-
+	workflowId := run.WorkflowId
 	timeout := time.After(60 * time.Second)
 	tick := time.Tick(1 * time.Second)
-	workflowId := run.WorkflowId
+
 	assert.NoError(t, err)
+
 	for {
 		select {
 		case <-timeout:
@@ -111,7 +112,7 @@ func TestExecuteWorkflow(t *testing.T) {
 		},
 	)
 	assert.NoError(t, err, "Failed to start workflow")
-	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
+	assert.Equal(t, model.CompletedWorkflow, run.Status)
 
 	execution, err := executor.GetWorkflow(run.WorkflowId, true)
 	assert.NoError(t, err, "Failed to get workflow execution")
@@ -221,7 +222,7 @@ func TestExecuteWorkflowSync(t *testing.T) {
 		t.Fatalf("Failed to complete the workflow, reason: %s", err)
 	}
 	assert.NotEmpty(t, run, "Workflow is null", run)
-	assert.Equal(t, string(model.CompletedWorkflow), run.Status)
+	assert.Equal(t, model.CompletedWorkflow, run.Status)
 
 	execution, err := executor.GetWorkflow(run.WorkflowId, true)
 	assert.NoError(t, err, "Failed to get workflow execution")

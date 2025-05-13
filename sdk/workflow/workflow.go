@@ -214,7 +214,7 @@ func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.Sta
 // workflow completes or reaches the timeout (as specified on the server)
 // The input struct MUST be serializable to JSON
 // Returns the workflow output
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, waitUntilTask string) (worfklowRun *model.WorkflowRun, err error) {
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, waitUntilTask string) (workflowRun *model.WorkflowRun, err error) {
 	version := workflow.GetVersion()
 	return workflow.executor.ExecuteWorkflow(
 		&model.StartWorkflowRequest{
@@ -224,6 +224,86 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, w
 			WorkflowDef: workflow.ToWorkflowDef(),
 		},
 		waitUntilTask,
+	)
+}
+
+// ExecuteAndGetTarget executes the workflow and returns the target workflow details.
+// waitUntilTask: Reference name of the task to wait for (empty string will wait for workflow completion)
+// waitForSeconds: Maximum time to wait in seconds
+// consistency: Consistency level ("DURABLE" or "EVENTUAL")
+// Returns the target workflow details
+func (workflow *ConductorWorkflow) ExecuteAndGetTarget(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
+	version := workflow.GetVersion()
+	return workflow.executor.ExecuteAndGetTarget(
+		&model.StartWorkflowRequest{
+			Name:        workflow.GetName(),
+			Version:     version,
+			Input:       getInputAsMap(input),
+			WorkflowDef: workflow.ToWorkflowDef(),
+		},
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+}
+
+// ExecuteWorkflowWithBlockingWorkflow executes the workflow and returns the blocking workflow details.
+// waitUntilTask: Reference name of the task to wait for (empty string will wait for workflow completion)
+// waitForSeconds: Maximum time to wait in seconds
+// consistency: Consistency level ("DURABLE" or "EVENTUAL")
+// Returns the blocking workflow details
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingWorkflow(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
+	version := workflow.GetVersion()
+	return workflow.executor.ExecuteAndGetBlockingWorkflow(
+		&model.StartWorkflowRequest{
+			Name:        workflow.GetName(),
+			Version:     version,
+			Input:       getInputAsMap(input),
+			WorkflowDef: workflow.ToWorkflowDef(),
+		},
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+}
+
+// ExecuteWorkflowWithBlockingTask executes the workflow and returns the blocking task details.
+// waitUntilTask: Reference name of the task to wait for (required)
+// waitForSeconds: Maximum time to wait in seconds
+// consistency: Consistency level ("DURABLE" or "EVENTUAL")
+// Returns the blocking task details
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTask(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
+	version := workflow.GetVersion()
+	return workflow.executor.ExecuteAndGetBlockingTask(
+		&model.StartWorkflowRequest{
+			Name:        workflow.GetName(),
+			Version:     version,
+			Input:       getInputAsMap(input),
+			WorkflowDef: workflow.ToWorkflowDef(),
+		},
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+}
+
+// ExecuteWorkflowWithBlockingTaskInput executes the workflow and returns the blocking task input.
+// waitUntilTask: Reference name of the task to wait for (required)
+// waitForSeconds: Maximum time to wait in seconds
+// consistency: Consistency level ("DURABLE" or "EVENTUAL")
+// Returns the blocking task with its input data
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTaskInput(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
+	version := workflow.GetVersion()
+	return workflow.executor.ExecuteAndGetBlockingTaskInput(
+		&model.StartWorkflowRequest{
+			Name:        workflow.GetName(),
+			Version:     version,
+			Input:       getInputAsMap(input),
+			WorkflowDef: workflow.ToWorkflowDef(),
+		},
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
 	)
 }
 
