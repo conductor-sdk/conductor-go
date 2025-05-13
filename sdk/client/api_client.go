@@ -363,7 +363,7 @@ func isSuccessfulStatus(statusCode int) bool {
 
 // executeCall performs an HTTP request with centralized error handling
 // Supports all CRUD operations through a common interface
-func (c *APIClient) executeCall(ctx context.Context, method, path string, queryParams url.Values, body interface{}, contentType string, result interface{}) (*http.Response, error) {
+func (c *APIClient) executeCall(ctx context.Context, method, path string, queryParams url.Values, body interface{}, contentType string, acceptType string, result interface{}) (*http.Response, error) {
 	// Create headers
 	headers := make(map[string]string)
 
@@ -376,8 +376,11 @@ func (c *APIClient) executeCall(ctx context.Context, method, path string, queryP
 		headers["Content-Type"] = cType
 	}
 
-	// Set accept header for all requests
-	headers["Accept"] = "application/json"
+	hType := "application/json"
+	if len(acceptType) > 0 && acceptType != "" {
+		hType = acceptType
+	}
+	headers["Accept"] = hType
 
 	// Prepare the request
 	req, err := c.prepareRequest(ctx, path, method, body, headers, queryParams, nil, "", nil)
@@ -400,7 +403,19 @@ func (c *APIClient) executeCall(ctx context.Context, method, path string, queryP
 	// Handle successful response
 	if isSuccessfulStatus(resp.StatusCode) {
 		if result != nil && len(respBody) > 0 {
-			err = c.decode(result, respBody, resp.Header.Get("Content-Type"))
+			// Special case for binary data (octet-stream)
+			if resp.Header.Get("Content-Type") == "application/octet-stream" {
+				// For binary data, we just copy the bytes into the result
+				// The result must be a *[]byte
+				byteSlice, ok := result.(*[]byte)
+				if !ok {
+					return resp, fmt.Errorf("result must be a *[]byte for octet-stream responses")
+				}
+				*byteSlice = respBody
+			} else {
+				// For other content types (like JSON), use the decoder
+				err = c.decode(result, respBody, resp.Header.Get("Content-Type"))
+			}
 		}
 		return resp, err
 	}
@@ -412,45 +427,55 @@ func (c *APIClient) executeCall(ctx context.Context, method, path string, queryP
 
 // Get performs a GET request
 func (c *APIClient) Get(ctx context.Context, path string, queryParams url.Values, result interface{}) (*http.Response, error) {
-	return c.executeCall(ctx, "GET", path, queryParams, nil, "", result)
+	return c.executeCall(ctx, "GET", path, queryParams, nil, "", "", result)
+}
+
+// GetWithAcceptType performs a GET request
+func (c *APIClient) GetWithAcceptType(ctx context.Context, path string, queryParams url.Values, acceptType string, result interface{}) (*http.Response, error) {
+	return c.executeCall(ctx, "GET", path, queryParams, nil, "", acceptType, result)
 }
 
 // Post performs a POST request
 func (c *APIClient) Post(ctx context.Context, path string, body interface{}, result interface{}) (*http.Response, error) {
-	return c.executeCall(ctx, "POST", path, nil, body, "", result)
+	return c.executeCall(ctx, "POST", path, nil, body, "", "", result)
+}
+
+// PostWithContentType performs a POST request
+func (c *APIClient) PostWithContentType(ctx context.Context, path string, contentType string, body interface{}, result interface{}) (*http.Response, error) {
+	return c.executeCall(ctx, "POST", path, nil, body, contentType, "", result)
 }
 
 // PostWithParams performs a POST request with query parameters
 func (c *APIClient) PostWithParams(ctx context.Context, path string, queryParams url.Values, body interface{}, result interface{}) (*http.Response, error) {
-	return c.executeCall(ctx, "POST", path, queryParams, body, "", result)
+	return c.executeCall(ctx, "POST", path, queryParams, body, "", "", result)
 }
 
 // Put performs a PUT request
 func (c *APIClient) Put(ctx context.Context, path string, body interface{}, result interface{}) (*http.Response, error) {
-	return c.executeCall(ctx, "PUT", path, nil, body, "", result)
+	return c.executeCall(ctx, "PUT", path, nil, body, "", "", result)
 }
 
 // PutWithContentType performs a PUT request
 func (c *APIClient) PutWithContentType(ctx context.Context, path string, body interface{}, contentType string, result interface{}) (*http.Response, error) {
-	return c.executeCall(ctx, "PUT", path, nil, body, contentType, result)
+	return c.executeCall(ctx, "PUT", path, nil, body, contentType, "", result)
 }
 
 // PutWithParams performs a PUT request with query parameters
 func (c *APIClient) PutWithParams(ctx context.Context, path string, queryParams url.Values, body interface{}, result interface{}) (*http.Response, error) {
-	return c.executeCall(ctx, "PUT", path, queryParams, body, "", result)
+	return c.executeCall(ctx, "PUT", path, queryParams, body, "", "", result)
 }
 
 // Delete performs a DELETE request without a body
 func (c *APIClient) Delete(ctx context.Context, path string, queryParams url.Values, result interface{}) (*http.Response, error) {
-	return c.executeCall(ctx, "DELETE", path, queryParams, nil, "", result)
+	return c.executeCall(ctx, "DELETE", path, queryParams, nil, "", "", result)
 }
 
 // DeleteWithBody performs a DELETE request with a body
 func (c *APIClient) DeleteWithBody(ctx context.Context, path string, body interface{}, result interface{}) (*http.Response, error) {
-	return c.executeCall(ctx, "DELETE", path, nil, body, "", result)
+	return c.executeCall(ctx, "DELETE", path, nil, body, "", "", result)
 }
 
 // Patch performs a PATCH request
 func (c *APIClient) Patch(ctx context.Context, path string, body interface{}, result interface{}) (*http.Response, error) {
-	return c.executeCall(ctx, "PATCH", path, nil, body, "", result)
+	return c.executeCall(ctx, "PATCH", path, nil, body, "", "", result)
 }

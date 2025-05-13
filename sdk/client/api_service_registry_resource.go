@@ -172,7 +172,8 @@ func (a *ServiceRegistryResourceApiService) GetProtoData(ctx context.Context, re
 	// create path and map variables
 	path := fmt.Sprintf("/registry/service/protos/%s/%s", registryName, filename)
 
-	resp, err := a.Get(ctx, path, nil, &result)
+	acceptType := "application/octet-stream"
+	resp, err := a.GetWithAcceptType(ctx, path, nil, acceptType, &result)
 	if err != nil {
 		return result, resp, err
 	}
@@ -286,8 +287,9 @@ ServiceRegistryResourceApiService
 func (a *ServiceRegistryResourceApiService) SetProtoData(ctx context.Context, body []byte, registryName string, filename string) (*http.Response, error) {
 	// create path and map variables
 	localVarPath := fmt.Sprintf("/registry/service/protos/%s/%s", registryName, filename)
+	contentType := "application/octet-stream"
 
-	resp, err := a.Post(ctx, localVarPath, body, nil)
+	resp, err := a.PostWithContentType(ctx, localVarPath, contentType, body, nil)
 	if err != nil {
 		return resp, err
 	}
