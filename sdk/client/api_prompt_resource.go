@@ -372,7 +372,7 @@ PromptResourceApiService Test Prompt Template
   - @param body
     @return string
 */
-func (a *PromptResourceApiService) TestMessageTemplate(ctx context.Context, body model.PromptTemplateTestRequest) (string, *http.Response, error) {
+func (a *PromptResourceApiService) TestMessageTemplate(ctx context.Context, body integration.PromptTemplateTestRequest) (string, *http.Response, error) {
 	var (
 		httpMethod  = strings.ToUpper("Post")
 		postBody    interface{}
