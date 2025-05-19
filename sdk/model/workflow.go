@@ -32,10 +32,18 @@ type Workflow struct {
 	WorkflowDefinition               *WorkflowDef           `json:"workflowDefinition,omitempty"`
 	ExternalInputPayloadStoragePath  string                 `json:"externalInputPayloadStoragePath,omitempty"`
 	ExternalOutputPayloadStoragePath string                 `json:"externalOutputPayloadStoragePath,omitempty"`
-	Priority                         int32                  `json:"priority,omitempty"`
+	Priority                         int                    `json:"priority,omitempty"`
 	Variables                        map[string]interface{} `json:"variables,omitempty"`
 	LastRetriedTime                  int64                  `json:"lastRetriedTime,omitempty"`
-	StartTime                        int64                  `json:"startTime,omitempty"`
-	WorkflowName                     string                 `json:"workflowName,omitempty"`
-	WorkflowVersion                  int32                  `json:"workflowVersion,omitempty"`
+	// Deprecated: Use CreateTime instead
+	StartTime int64 `json:"startTime,omitempty"`
+	// Deprecated: Use WorkflowDefinition.Name instead
+	WorkflowName string `json:"workflowName,omitempty"`
+	// Deprecated: Use WorkflowDefinition.Version instead
+	WorkflowVersion int32 `json:"workflowVersion,omitempty"`
+	FailedTaskNames []string `json:"failedTaskNames,omitempty"`
+	History         []Workflow `json:"history,omitempty"`
+	IdempotencyKey  string `json:"idempotencyKey,omitempty"`
+	RateLimitKey    string `json:"rateLimitKey,omitempty"`
+	RateLimited     bool `json:"rateLimited,omitempty"`
 }
