@@ -9,4 +9,9 @@
 
 package model
 
-type UpgradeWorkflowRequest struct {}
+type UpgradeWorkflowRequest struct {
+	Name          string                 `json:"name,omitempty"`
+	Version       int                    `json:"version,omitempty"`
+	WorkflowInput map[string]interface{} `json:"workflowInput,omitempty"`
+	TaskOutput    map[string]interface{} `json:"taskOutput,omitempty"`
+}

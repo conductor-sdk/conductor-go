@@ -9,7 +9,12 @@
 
 package model
 
-type BulkResponse struct {
+/**
+ * Response object to return a list of succeeded entities and a map of failed ones, including error
+ * message, for the bulk request.
+ */
+type BulkResponse[T any] struct {
 	BulkErrorResults      map[string]string `json:"bulkErrorResults,omitempty"`
-	BulkSuccessfulResults []string          `json:"bulkSuccessfulResults,omitempty"`
+	BulkSuccessfulResults []T               `json:"bulkSuccessfulResults,omitempty"`
+	Message               string            `json:"message,omitempty"`
 }

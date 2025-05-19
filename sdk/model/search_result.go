@@ -9,5 +9,7 @@
 
 package model
 
-type SearchResult struct {
+type SearchResult[T any] struct {
+	TotalHits int64 `json:"totalHits,omitempty"`
+	Results   []T   `json:"results,omitempty"`
 }

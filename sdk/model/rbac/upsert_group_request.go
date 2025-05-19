@@ -10,9 +10,10 @@
 package rbac
 
 type UpsertGroupRequest struct {
+	// A general description of the group
+	Description string `json:"description"`
+	// allowable values: ADMIN, USER, WORKER, METADATA_MANAGER, WORKFLOW_MANAGER
+	Roles []string `json:"roles,omitempty"`
 	// a default Map<TargetType, Set<Access> to share permissions, allowed target types: WORKFLOW_DEF, TASK_DEF, WORKFLOW_SCHEDULE
 	DefaultAccess map[string][]string `json:"defaultAccess,omitempty"`
-	// A general description of the group
-	Description string   `json:"description"`
-	Roles       []string `json:"roles,omitempty"`
 }

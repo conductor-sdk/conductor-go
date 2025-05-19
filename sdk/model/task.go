@@ -48,7 +48,12 @@ type Task struct {
 	Iteration                        int32                  `json:"iteration,omitempty"`
 	SubWorkflowId                    string                 `json:"subWorkflowId,omitempty"`
 	SubworkflowChanged               bool                   `json:"subworkflowChanged,omitempty"`
-	QueueWaitTime                    int64                  `json:"queueWaitTime,omitempty"`
-	TaskDefinition                   *TaskDef               `json:"taskDefinition,omitempty"`
-	LoopOverTask                     bool                   `json:"loopOverTask,omitempty"`
+	FirstStartTime                   int64                  `json:"firstStartTime,omitempty"`
+	ParentTaskId                     string                 `json:"parentTaskId,omitempty"`
+	// Deprecated: QueueWaitTime is deprecated
+	QueueWaitTime int64 `json:"queueWaitTime,omitempty"`
+	// Deprecated: TaskDefinition is deprecated
+	TaskDefinition *TaskDef `json:"taskDefinition,omitempty"`
+	// Deprecated: LoopOverTask is deprecated
+	LoopOverTask bool `json:"loopOverTask,omitempty"`
 }

@@ -9,4 +9,7 @@
 
 package security
 
-type Subject struct {}
+// Subject represents a subject with a type and ID
+type Subject struct {
+	Identifier
+}

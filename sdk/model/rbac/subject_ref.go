@@ -13,5 +13,5 @@ package rbac
 type SubjectRef struct {
 	Id string `json:"id"`
 	// User, role or group
-	Type_ string `json:"type,omitempty"`
+	Type string `json:"type,omitempty"`
 }

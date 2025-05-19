@@ -9,4 +9,15 @@
 
 package integration
 
-type LlmWorkerInput struct {}
+type LlmWorkerInput struct {
+	LlmProvider            string   `json:"llmProvider,omitempty"`
+	Model                  string   `json:"model,omitempty"`
+	EmbeddingModel         string   `json:"embeddingModel,omitempty"`
+	EmbeddingModelProvider string   `json:"embeddingModelProvider,omitempty"`
+	Prompt                 string   `json:"prompt,omitempty"`
+	Temperature            float64  `json:"temperature,omitempty"`
+	TopP                   float64  `json:"topP,omitempty"`
+	StopWords              []string `json:"stopWords,omitempty"`
+	MaxTokens              int      `json:"maxTokens,omitempty"`
+	MaxResults             int      `json:"maxResults,omitempty"`
+}

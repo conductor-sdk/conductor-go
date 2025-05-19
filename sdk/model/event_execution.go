@@ -9,5 +9,23 @@
 
 package model
 
+// Status represents the status of an event execution
+type EventExecutionStatus string
+
+const (
+	EventExecutionStatusInProgress EventExecutionStatus = "IN_PROGRESS"
+	EventExecutionStatusCompleted  EventExecutionStatus = "COMPLETED"
+	EventExecutionStatusFailed     EventExecutionStatus = "FAILED"
+	EventExecutionStatusSkipped    EventExecutionStatus = "SKIPPED"
+)
+
 type EventExecution struct {
+	ID        string                 `json:"id,omitempty"`
+	MessageID string                 `json:"messageId,omitempty"`
+	Name      string                 `json:"name,omitempty"`
+	Event     string                 `json:"event,omitempty"`
+	Created   int64                  `json:"created,omitempty"`
+	Status    EventExecutionStatus   `json:"status,omitempty"`
+	Action    string                 `json:"action,omitempty"`
+	Output    map[string]interface{} `json:"output,omitempty"`
 }

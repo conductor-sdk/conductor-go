@@ -9,4 +9,12 @@
 
 package model
 
-type SchemaDef struct {}
+// SchemaDef represents a schema definition
+type SchemaDef struct {
+	Auditable
+	Name        string                 `json:"name,omitempty"`
+	Version     int                    `json:"version,omitempty"`
+	Type        string                 `json:"type,omitempty"`
+	Data        map[string]interface{} `json:"data,omitempty"`
+	ExternalRef string                 `json:"externalRef,omitempty"`
+}
