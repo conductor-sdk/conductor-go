@@ -10,7 +10,7 @@
 package rbac
 
 type AccessKeyResponse struct {
-	CreatedAt int64  `json:"createdAt,omitempty"`
 	Id        string `json:"id,omitempty"`
+	CreatedAt int64  `json:"createdAt,omitempty"`
 	Status    string `json:"status,omitempty"`
 }
