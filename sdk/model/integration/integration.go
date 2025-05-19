@@ -15,4 +15,5 @@ type Integration struct {
 	Type_         string                 `json:"type,omitempty"`
 	UpdatedBy     string                 `json:"updatedBy,omitempty"`
 	UpdatedOn     int64                  `json:"updatedOn,omitempty"`
+	Apis          []IntegrationApi       `json:"apis,omitempty"`
 }
