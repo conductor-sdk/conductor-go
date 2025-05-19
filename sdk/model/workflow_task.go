@@ -1,12 +1,5 @@
-//  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
-//  the License. You may obtain a copy of the License at
-//
-//  http://www.apache.org/licenses/LICENSE-2.0
-//
-//  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
-//  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
-//  specific language governing permissions and limitations under the License.
-
+// This is the task definition definied as part of the WorkflowDef. The tasks definied in
+// the Workflow definition are saved as part of WorkflowDef#getTasks
 package model
 
 type WorkflowTask struct {
@@ -16,31 +9,38 @@ type WorkflowTask struct {
 	InputParameters                map[string]interface{}    `json:"inputParameters,omitempty"`
 	Type_                          string                    `json:"type,omitempty"`
 	DynamicTaskNameParam           string                    `json:"dynamicTaskNameParam,omitempty"`
+	// Deprecated: Use EvaluatorType and Expression combination.
 	CaseValueParam                 string                    `json:"caseValueParam,omitempty"`
+	// Deprecated: Use EvaluatorType and Expression combination.
 	CaseExpression                 string                    `json:"caseExpression,omitempty"`
 	ScriptExpression               string                    `json:"scriptExpression,omitempty"`
 	DecisionCases                  map[string][]WorkflowTask `json:"decisionCases,omitempty"`
+	// Deprecated
 	DynamicForkJoinTasksParam      string                    `json:"dynamicForkJoinTasksParam,omitempty"`
 	DynamicForkTasksParam          string                    `json:"dynamicForkTasksParam,omitempty"`
 	DynamicForkTasksInputParamName string                    `json:"dynamicForkTasksInputParamName,omitempty"`
 	DefaultCase                    []WorkflowTask            `json:"defaultCase,omitempty"`
 	ForkTasks                      [][]WorkflowTask          `json:"forkTasks,omitempty"`
-	StartDelay                     int32                     `json:"startDelay,omitempty"`
+	StartDelay                     int                       `json:"startDelay,omitempty"`
 	SubWorkflowParam               *SubWorkflowParams        `json:"subWorkflowParam,omitempty"`
 	JoinOn                         []string                  `json:"joinOn,omitempty"`
 	Sink                           string                    `json:"sink,omitempty"`
 	Optional                       bool                      `json:"optional,omitempty"`
 	TaskDefinition                 *TaskDef                  `json:"taskDefinition,omitempty"`
-	RateLimited                    bool                      `json:"rateLimited,omitempty"`
+	RateLimited                    *bool                     `json:"rateLimited,omitempty"`
 	DefaultExclusiveJoinTask       []string                  `json:"defaultExclusiveJoinTask,omitempty"`
-	AsyncComplete                  bool                      `json:"asyncComplete,omitempty"`
+	AsyncComplete                  *bool                     `json:"asyncComplete,omitempty"`
 	LoopCondition                  string                    `json:"loopCondition,omitempty"`
 	LoopOver                       []WorkflowTask            `json:"loopOver,omitempty"`
-	RetryCount                     int32                     `json:"retryCount,omitempty"`
+	RetryCount                     *int                      `json:"retryCount,omitempty"`
 	EvaluatorType                  string                    `json:"evaluatorType,omitempty"`
 	Expression                     string                    `json:"expression,omitempty"`
+	// Deprecated
 	WorkflowTaskType               string                    `json:"workflowTaskType,omitempty"`
+	OnStateChange                  map[string][]StateChangeEvent `json:"onStateChange,omitempty"`
+	JoinStatus                     string                    `json:"joinStatus,omitempty"`
 	CacheConfig                    *CacheConfig              `json:"cacheConfig,omitempty"`
+	Permissive                     bool                      `json:"permissive,omitempty"`
 }
 
 type CacheConfig struct {
