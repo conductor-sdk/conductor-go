@@ -9,4 +9,11 @@
 
 package security
 
-type SubjectType struct {}
+// SubjectType represents the type of subject in the security model
+type SubjectType string
+
+const (
+	SubjectTypeUser  SubjectType = "USER"
+	SubjectTypeRole  SubjectType = "ROLE"
+	SubjectTypeGroup SubjectType = "GROUP"
+)
