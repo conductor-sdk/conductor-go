@@ -9,4 +9,20 @@
 
 package integration
 
-type IndexDocInput struct {}
+type IndexDocInput struct {
+	LlmProvider           string                 `json:"llmProvider,omitempty"`
+	Model                 string                 `json:"model,omitempty"`
+	EmbeddingModelProvider string                 `json:"embeddingModelProvider,omitempty"`
+	EmbeddingModel        string                 `json:"embeddingModel,omitempty"`
+	VectorDB              string                 `json:"vectorDB,omitempty"`
+	Text                  string                 `json:"text,omitempty"`
+	DocId                 string                 `json:"docId,omitempty"`
+	Url                   string                 `json:"url,omitempty"`
+	MediaType             string                 `json:"mediaType,omitempty"`
+	Namespace             string                 `json:"namespace,omitempty"`
+	Index                 string                 `json:"index,omitempty"`
+	ChunkSize             int                    `json:"chunkSize,omitempty"`
+	ChunkOverlap          int                    `json:"chunkOverlap,omitempty"`
+	Metadata              map[string]interface{} `json:"metadata,omitempty"`
+	Dimensions            *int                   `json:"dimensions,omitempty"`
+}
