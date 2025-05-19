@@ -11,5 +11,5 @@ package rbac
 
 type CreateOrUpdateApplicationRequest struct {
 	// Application's name e.g.: Payment Processors
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 }
