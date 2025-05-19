@@ -10,12 +10,13 @@
 package rbac
 
 type ConductorUser struct {
-	ApplicationUser         bool    `json:"applicationUser,omitempty"`
-	EncryptedId             bool    `json:"encryptedId,omitempty"`
-	EncryptedIdDisplayValue string  `json:"encryptedIdDisplayValue,omitempty"`
-	Groups                  []Group `json:"groups,omitempty"`
 	Id                      string  `json:"id,omitempty"`
 	Name                    string  `json:"name,omitempty"`
 	Roles                   []Role  `json:"roles,omitempty"`
+	Groups                  []Group `json:"groups,omitempty"`
 	Uuid                    string  `json:"uuid,omitempty"`
+	EncryptedId             bool    `json:"encryptedId,omitempty"`
+	EncryptedIdDisplayValue string  `json:"encryptedIdDisplayValue,omitempty"`
+	// Deprecated
+	ApplicationUser bool `json:"applicationUser,omitempty"`
 }
