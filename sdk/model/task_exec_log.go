@@ -9,6 +9,7 @@
 
 package model
 
+// Model that represents the task's execution log.
 type TaskExecLog struct {
 	Log         string `json:"log,omitempty"`
 	TaskId      string `json:"taskId,omitempty"`
