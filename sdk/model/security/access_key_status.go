@@ -9,4 +9,10 @@
 
 package security
 
-type AccessKeyStatus struct {}
+// AccessKeyStatus represents the status of an access key
+type AccessKeyStatus string
+
+const (
+	AccessKeyStatusActive   AccessKeyStatus = "ACTIVE"
+	AccessKeyStatusInactive AccessKeyStatus = "INACTIVE"
+)
