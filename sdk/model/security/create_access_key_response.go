@@ -9,4 +9,7 @@
 
 package security
 
-type CreateAccessKeyResponse struct {}
+type CreateAccessKeyResponse struct {
+	Id     string `json:"id,omitempty"`
+	Secret string `json:"secret,omitempty"`
+}
