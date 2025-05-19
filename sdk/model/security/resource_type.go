@@ -9,4 +9,28 @@
 
 package security
 
-type ResourceType struct {}
+// ResourceType represents the types of resources in the system
+type ResourceType string
+
+const (
+	ResourceTypeWorkflow             ResourceType = "WORKFLOW"
+	ResourceTypeWorkflowDef          ResourceType = "WORKFLOW_DEF"
+	ResourceTypeWorkflowSchedule     ResourceType = "WORKFLOW_SCHEDULE"
+	ResourceTypeEventHandler         ResourceType = "EVENT_HANDLER"
+	ResourceTypeTaskDef              ResourceType = "TASK_DEF"
+	ResourceTypeTaskRefName          ResourceType = "TASK_REF_NAME"
+	ResourceTypeTaskId               ResourceType = "TASK_ID"
+	ResourceTypeApplication          ResourceType = "APPLICATION"
+	ResourceTypeUser                 ResourceType = "USER"
+	ResourceTypeSecretName           ResourceType = "SECRET_NAME"
+	ResourceTypeEnvVariable          ResourceType = "ENV_VARIABLE"
+	ResourceTypeTag                  ResourceType = "TAG"
+	ResourceTypeDomain               ResourceType = "DOMAIN"
+	ResourceTypeIntegrationProvider  ResourceType = "INTEGRATION_PROVIDER"
+	ResourceTypeIntegration          ResourceType = "INTEGRATION"
+	ResourceTypePrompt               ResourceType = "PROMPT"
+	ResourceTypeUserFormTemplate     ResourceType = "USER_FORM_TEMPLATE"
+	ResourceTypeSchema               ResourceType = "SCHEMA"
+	ResourceTypeClusterConfig        ResourceType = "CLUSTER_CONFIG"
+	ResourceTypeWebhook              ResourceType = "WEBHOOK"
+)
