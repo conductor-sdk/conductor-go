@@ -9,4 +9,10 @@
 
 package integration
 
-type ChatCompletion struct {}
+// ChatCompletion extends LLMWorkerInput and represents a chat completion request
+type ChatCompletion struct {
+	LLMWorkerInput
+	Messages     []ChatMessage `json:"messages,omitempty"`
+	Instructions string        `json:"instructions,omitempty"`
+	JsonOutput   bool          `json:"jsonOutput,omitempty"`
+}
