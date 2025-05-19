@@ -9,4 +9,11 @@
 
 package model
 
-type Auditable struct {}
+// Auditable represents a base struct for objects that need auditing information
+type Auditable struct {
+	OwnerApp   string `json:"ownerApp,omitempty"`
+	CreateTime int64  `json:"createTime,omitempty"`
+	UpdateTime int64  `json:"updateTime,omitempty"`
+	CreatedBy  string `json:"createdBy,omitempty"`
+	UpdatedBy  string `json:"updatedBy,omitempty"`
+}
