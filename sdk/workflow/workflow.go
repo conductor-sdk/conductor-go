@@ -11,8 +11,6 @@ package workflow
 
 import (
 	"encoding/json"
-	"strings"
-
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	log "github.com/sirupsen/logrus"
@@ -244,7 +242,7 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithReturnStrategy(input inter
 // workflow completes or reaches the timeout (as specified on the server)
 // The input struct MUST be serializable to JSON
 // Returns the workflow output
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, waitUntilTask []string) (workflowRun *model.WorkflowRun, err error) {
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, waitUntilTask string) (workflowRun *model.WorkflowRun, err error) {
 	version := workflow.GetVersion()
 	return workflow.executor.ExecuteWorkflow(
 		&model.StartWorkflowRequest{
@@ -253,7 +251,7 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, w
 			Input:       getInputAsMap(input),
 			WorkflowDef: workflow.ToWorkflowDef(),
 		},
-		strings.Join(waitUntilTask, ","),
+		waitUntilTask,
 	)
 }
 
