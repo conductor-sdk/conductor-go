@@ -531,17 +531,10 @@ func (a *TaskResourceApiService) signalWorkflowTaskWithReturnStrategy(
 	}
 
 	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		// Determine which type to decode to based on returnStrategy
-		if returnStrategy == "BLOCKING_TASK" || returnStrategy == "BLOCKING_TASK_INPUT" {
-			var taskRun model.TaskRun
-			err = a.decode(&taskRun, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			localVarReturnValue = taskRun
-		} else {
-			// Default to WorkflowRun for TARGET_WORKFLOW, BLOCKING_WORKFLOW or no returnStrategy
-			var workflowRun model.WorkflowRun
-			err = a.decode(&workflowRun, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			localVarReturnValue = workflowRun
-		}
+		// Decode directly into SignalResponse since API returns unified format
+		var signalResponse model.SignalResponse
+		err = a.decode(&signalResponse, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+		localVarReturnValue = signalResponse
 	} else {
 		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
 		return nil, localVarHttpResponse, newErr
@@ -550,76 +543,45 @@ func (a *TaskResourceApiService) signalWorkflowTaskWithReturnStrategy(
 	return localVarReturnValue, localVarHttpResponse, err
 }
 
-/*
-Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
-SignalWorkflowTaskAndReturnTargetWorkflow Signal workflow to update running task with given status and output synchronously and return target workflow details
-*/
-func (a *TaskResourceApiService) SignalAndGetTargetWorkflow(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.WorkflowRun, *http.Response, error) {
-	response, httpResponse, err := a.signalWorkflowTaskWithReturnStrategy(ctx, body, workflowId, status, "TARGET_WORKFLOW")
-	if err != nil {
-		return model.WorkflowRun{}, httpResponse, err
-	}
-
-	workflowRun, ok := response.(model.WorkflowRun)
-	if !ok {
-		return model.WorkflowRun{}, httpResponse, fmt.Errorf("expected WorkflowRun but got %T", response)
-	}
-
-	return workflowRun, httpResponse, nil
+// SignalTaskOpts contains options for the Signal method
+type SignalTaskOpts struct {
+	ReturnStrategy model.ReturnStrategy
 }
 
-/*
-Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
-SignalWorkflowTaskAndReturnBlockingWorkflow Signal workflow to update running task with given status and output synchronously and return blocking workflow details
-*/
-func (a *TaskResourceApiService) SignalAndGetBlockingWorkflow(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.WorkflowRun, *http.Response, error) {
-	response, httpResponse, err := a.signalWorkflowTaskWithReturnStrategy(ctx, body, workflowId, status, "BLOCKING_WORKFLOW")
-	if err != nil {
-		return model.WorkflowRun{}, httpResponse, err
+// DefaultSignalTaskOpts returns the default options for Signal
+func DefaultSignalTaskOpts() SignalTaskOpts {
+	return SignalTaskOpts{
+		ReturnStrategy: model.ReturnTargetWorkflow, // Set TARGET_WORKFLOW as default
 	}
-
-	workflowRun, ok := response.(model.WorkflowRun)
-	if !ok {
-		return model.WorkflowRun{}, httpResponse, fmt.Errorf("expected WorkflowRun but got %T", response)
-	}
-
-	return workflowRun, httpResponse, nil
 }
 
-/*
-Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
-SignalWorkflowTaskAndReturnBlockingTask Signal workflow to update running task with given status and output synchronously and return blocking task details
-*/
-func (a *TaskResourceApiService) SignalAndGetBlockingTask(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.TaskRun, *http.Response, error) {
-	response, httpResponse, err := a.signalWorkflowTaskWithReturnStrategy(ctx, body, workflowId, status, "BLOCKING_TASK")
+// SignalTask signals a task in a workflow synchronously with the specified return strategy
+func (a *TaskResourceApiService) Signal(ctx context.Context, body map[string]interface{}, workflowID string, status model.WorkflowStatus, opts ...SignalTaskOpts) (*model.SignalResponse, error) {
+	// Get options with defaults
+	options := DefaultSignalTaskOpts()
+	if len(opts) > 0 {
+		options = opts[0]
+	}
+
+	// Call the existing internal method
+	response, _, err := a.signalWorkflowTaskWithReturnStrategy(
+		ctx,
+		body,
+		workflowID,
+		string(status),                 // Convert WorkflowStatus enum to string
+		string(options.ReturnStrategy), // Convert ReturnStrategy enum to string
+	)
 	if err != nil {
-		return model.TaskRun{}, httpResponse, err
+		return nil, err
 	}
 
-	taskRun, ok := response.(model.TaskRun)
+	// Type assert to SignalResponse
+	signalResponse, ok := response.(model.SignalResponse)
 	if !ok {
-		return model.TaskRun{}, httpResponse, fmt.Errorf("expected TaskRun but got %T", response)
+		return nil, fmt.Errorf("expected SignalResponse but got %T", response)
 	}
 
-	return taskRun, httpResponse, nil
-}
-
-/*
-Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
-SignalWorkflowTaskAndReturnBlockingTaskInput Signal workflow to update running task with given status and output synchronously and return blocking task input
-*/
-func (a *TaskResourceApiService) SignalAndGetBlockingTaskInput(ctx context.Context, body map[string]interface{}, workflowId string, status string) (model.TaskRun, *http.Response, error) {
-	response, httpResponse, err := a.signalWorkflowTaskWithReturnStrategy(ctx, body, workflowId, status, "BLOCKING_TASK_INPUT")
-	if err != nil {
-		return model.TaskRun{}, httpResponse, err
-	}
-
-	taskRun, ok := response.(model.TaskRun)
-	if !ok {
-		return model.TaskRun{}, httpResponse, fmt.Errorf("expected TaskRun but got %T", response)
-	}
-
-	return taskRun, httpResponse, nil
+	return &signalResponse, nil
 }
 
 /*

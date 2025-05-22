@@ -517,8 +517,8 @@ func (e *WorkflowExecutor) SignalWorkflowTaskWithContext(ctx context.Context, wo
 }
 
 // Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
-// SignalTaskAndGetTargetWorkflowWithContext signals a task and returns the target workflow
-func (e *WorkflowExecutor) SignalTaskAndGetTargetWorkflowWithContext(ctx context.Context, workflowId string, status model.TaskResultStatus, output interface{}) (*model.WorkflowRun, error) {
+// Signal signals a task and returns the target workflow
+func (e *WorkflowExecutor) SignalWithContext(ctx context.Context, workflowId string, status model.WorkflowStatus, output interface{}, opts ...client.SignalTaskOpts) (*model.SignalResponse, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -528,72 +528,12 @@ func (e *WorkflowExecutor) SignalTaskAndGetTargetWorkflowWithContext(ctx context
 		return nil, err
 	}
 
-	workflowRun, _, err := e.taskClient.SignalAndGetTargetWorkflow(ctx, outputData, workflowId, string(status))
+	signalResponse, err := e.taskClient.Signal(ctx, outputData, workflowId, status, opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &workflowRun, nil
-}
-
-// Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
-// SignalTaskAndGetBlockingWorkflowWithContext signals a task and returns the blocking workflow
-func (e *WorkflowExecutor) SignalTaskAndGetBlockingWorkflowWithContext(ctx context.Context, workflowId string, status model.TaskResultStatus, output interface{}) (*model.WorkflowRun, error) {
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
-
-	outputData, err := model.ConvertToMap(output)
-	if err != nil {
-		return nil, err
-	}
-
-	workflowRun, _, err := e.taskClient.SignalAndGetBlockingWorkflow(ctx, outputData, workflowId, string(status))
-	if err != nil {
-		return nil, err
-	}
-
-	return &workflowRun, nil
-}
-
-// Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
-// SignalTaskAndReturnBlockingTaskWithContext signals a task and returns the blocking task
-func (e *WorkflowExecutor) SignalTaskAndReturnBlockingTaskWithContext(ctx context.Context, workflowId string, status model.TaskResultStatus, output interface{}) (*model.TaskRun, error) {
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
-
-	outputData, err := model.ConvertToMap(output)
-	if err != nil {
-		return nil, err
-	}
-
-	taskRun, _, err := e.taskClient.SignalAndGetBlockingTask(ctx, outputData, workflowId, string(status))
-	if err != nil {
-		return nil, err
-	}
-
-	return &taskRun, nil
-}
-
-// Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
-// SignalTaskAndGetBlockingTaskInputWithContext signals a task and returns the blocking task input
-func (e *WorkflowExecutor) SignalTaskAndGetBlockingTaskInputWithContext(ctx context.Context, workflowId string, status model.TaskResultStatus, output interface{}) (*model.TaskRun, error) {
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
-
-	outputData, err := model.ConvertToMap(output)
-	if err != nil {
-		return nil, err
-	}
-
-	taskRun, _, err := e.taskClient.SignalAndGetBlockingTaskInput(ctx, outputData, workflowId, string(status))
-	if err != nil {
-		return nil, err
-	}
-
-	return &taskRun, nil
+	return signalResponse, nil
 }
 
 func getTaskResultFromOutput(taskId string, workflowInstanceId string, taskExecutionOutput interface{}) (*model.TaskResult, error) {

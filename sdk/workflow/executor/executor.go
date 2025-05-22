@@ -363,27 +363,9 @@ func (e *WorkflowExecutor) SignalWorkflowTaskAsync(workflowId string, status mod
 }
 
 // Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
-// SignalTaskAndReturnTargetWorkflow signals a task and returns the target workflow
-func (e *WorkflowExecutor) SignalTaskAndReturnTargetWorkflow(workflowId string, status model.TaskResultStatus, output interface{}) (*model.WorkflowRun, error) {
-	return e.SignalTaskAndGetTargetWorkflowWithContext(context.Background(), workflowId, status, output)
-}
-
-// Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
-// SignalTaskAndReturnBlockingWorkflow signals a task and returns the blocking workflow
-func (e *WorkflowExecutor) SignalTaskAndReturnBlockingWorkflow(workflowId string, status model.TaskResultStatus, output interface{}) (*model.WorkflowRun, error) {
-	return e.SignalTaskAndGetBlockingWorkflowWithContext(context.Background(), workflowId, status, output)
-}
-
-// Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
-// SignalTaskAndReturnBlockingTask signals a task and returns the blocking task
-func (e *WorkflowExecutor) SignalTaskAndReturnBlockingTask(workflowId string, status model.TaskResultStatus, output interface{}) (*model.TaskRun, error) {
-	return e.SignalTaskAndReturnBlockingTaskWithContext(context.Background(), workflowId, status, output)
-}
-
-// Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
-// SignalTaskAndReturnBlockingTaskInput signals a task and returns the blocking task input
-func (e *WorkflowExecutor) SignalTaskAndReturnBlockingTaskInput(workflowId string, status model.TaskResultStatus, output interface{}) (*model.TaskRun, error) {
-	return e.SignalTaskAndGetBlockingTaskInputWithContext(context.Background(), workflowId, status, output)
+// Signal signals a task and returns the target workflow
+func (e *WorkflowExecutor) Signal(workflowId string, status model.WorkflowStatus, output interface{}, opts ...client.SignalTaskOpts) (*model.SignalResponse, error) {
+	return e.SignalWithContext(context.Background(), workflowId, status, output, opts...)
 }
 
 func getEnvStr(key string) (string, error) {

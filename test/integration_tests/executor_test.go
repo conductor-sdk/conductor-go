@@ -2,8 +2,11 @@ package integration_tests
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
+	"os"
 	"testing"
 	"time"
 
@@ -217,6 +220,7 @@ func getSubWorkflow(t *testing.T) workflow.ConductorWorkflow {
 
 	return wf
 }
+
 func TestRegisterWorkflowWithWaitSignal(t *testing.T) {
 	executor := testdata.WorkflowExecutor
 	wf := getSubWorkflow(t)
@@ -259,7 +263,6 @@ func TestSubWorkflowSignal(t *testing.T) {
 	subWf := getSubWorkflow(t)
 	executor.RegisterWorkflow(true, subWf.ToWorkflowDef())
 
-	// Now create the signal_subworkflow using the fluent API
 	wf := workflow.ConductorWorkflow{}
 	wf.Name("signal_subworkflow").
 		Description("signal_subworkflow").
@@ -411,9 +414,6 @@ func TestSubWorkflowSignalWithSyncConsistency(t *testing.T) {
 func TestSubWorkflowSignalWithDurableConsistency(t *testing.T) {
 	executor := testdata.WorkflowExecutor
 
-	// First, make sure the wait_signal_test workflow is registered
-	// (We can reuse the code from the previous test or assume it's already registered)
-
 	// Create the workflow start request
 	startRequest := &model.StartWorkflowRequest{
 		Name:    "signal_subworkflow",
@@ -472,107 +472,358 @@ func TestSubWorkflowSignalWithDurableConsistency(t *testing.T) {
 }
 
 // Helper method to register all the complex workflows
-func registerComplexWorkflows(t *testing.T) {
+func registerComplexWorkflows() {
 	executor := testdata.WorkflowExecutor
 
-	// Register complex_wf_signal_test_subworkflow_2 (innermost workflow)
-	subWorkflow2 := workflow.ConductorWorkflow{}
-	subWorkflow2.Name("complex_wf_signal_test_subworkflow_2").
-		Description("complex_wf_signal_test_subworkflow_2").
-		Version(1).
-		OwnerEmail("shailesh.padave@orkes.io").
-		// Add HTTP task
-		Add(workflow.NewJQTask(
-			"JSON_JQ_TRANSFORM", "json_transform_ref").
-			Input("persons", []map[string]interface{}{
-				{
-					"name":  "some",
-					"last":  "name",
-					"email": "mail@mail.com",
-					"id":    1,
-				},
-				{
-					"name":  "some2",
-					"last":  "name2",
-					"email": "mail2@mail.com",
-					"id":    2,
-				},
-			}).
-			Input("queryExpression", ".persons | map({user:{email,id}})")).
-		// Add YIELD task
-		Add(workflow.NewSimpleTask("yield", "simple_task_ref_1"))
+	// Subworkflow-2
+	wfDef, err := getWorkflowDef("complex_wf_signal_test_subworkflow_2.json")
+	if err != nil {
+		log.Fatalf("Failed to get workflow definition: %v", err)
+	}
+	err = executor.RegisterWorkflow(true, wfDef)
+	if err != nil {
+		log.Fatalf("Failed to register workflow: %v", err)
+	}
 
-	err := executor.RegisterWorkflow(true, subWorkflow2.ToWorkflowDef())
-	assert.Nil(t, err)
+	// Subworkflow-1
+	wfDef, err = getWorkflowDef("complex_wf_signal_test_subworkflow_1.json")
+	if err != nil {
+		log.Fatalf("Failed to get workflow definition: %v", err)
+	}
+	err = executor.RegisterWorkflow(true, wfDef)
+	if err != nil {
+		log.Fatalf("Failed to register workflow: %v", err)
+	}
 
-	// Register complex_wf_signal_test_subworkflow_1 (middle workflow)
-	subWorkflow1 := workflow.ConductorWorkflow{}
-	subWorkflow1.Name("complex_wf_signal_test_subworkflow_1").
-		Description("complex_wf_signal_test_subworkflow_1").
-		Version(1).
-		OwnerEmail("shailesh.padave@orkes.io").
-		Add(workflow.NewJQTask(
-			"JSON_JQ_TRANSFORM", "json_transform_ref").
-			Input("persons", []map[string]interface{}{
-				{
-					"name":  "some",
-					"last":  "name",
-					"email": "mail@mail.com",
-					"id":    1,
-				},
-				{
-					"name":  "some2",
-					"last":  "name2",
-					"email": "mail2@mail.com",
-					"id":    2,
-				},
-			}).
-			Input("queryExpression", ".persons | map({user:{email,id}})")).
-		// Add YIELD task
-		Add(workflow.NewSimpleTask("yield", "simple_task_ref_2")).
-		// Add SUB_WORKFLOW task
-		Add(workflow.NewSubWorkflowTask("sub_workflow_ref", "complex_wf_signal_test_subworkflow_2", 1))
-
-	err = executor.RegisterWorkflow(true, subWorkflow1.ToWorkflowDef())
-	assert.Nil(t, err)
-
-	// Register complex_wf_signal_test (main workflow)
-	mainWorkflow := workflow.ConductorWorkflow{}
-	mainWorkflow.Name("complex_wf_signal_test").
-		Description("http_yield_signal_test").
-		Version(1).
-		OwnerEmail("shailesh.padave@orkes.io").
-		// Add HTTP task
-		Add(workflow.NewJQTask(
-			"JSON_JQ_TRANSFORM", "json_transform_ref").
-			Input("persons", []map[string]interface{}{
-				{
-					"name":  "some",
-					"last":  "name",
-					"email": "mail@mail.com",
-					"id":    1,
-				},
-				{
-					"name":  "some2",
-					"last":  "name2",
-					"email": "mail2@mail.com",
-					"id":    2,
-				},
-			}).
-			Input("queryExpression", ".persons | map({user:{email,id}})")).
-		// Add SUB_WORKFLOW task
-		Add(workflow.NewSubWorkflowTask("sub_workflow_ref", "complex_wf_signal_test_subworkflow_1", 1))
-
-	err = executor.RegisterWorkflow(true, mainWorkflow.ToWorkflowDef())
-	assert.Nil(t, err)
+	// Main WF
+	wfDef, err = getWorkflowDef("complex_wf_signal_test.json")
+	if err != nil {
+		log.Fatalf("Failed to get workflow definition: %v", err)
+	}
+	err = executor.RegisterWorkflow(true, wfDef)
+	if err != nil {
+		log.Fatalf("Failed to register workflow: %v", err)
+	}
 }
 
-// Test complex workflow signaling with BLOCKING_WORKFLOW strategy
-func TestComplexWorkflowSignalWithBlockingWorkflow(t *testing.T) {
-	executor := testdata.WorkflowExecutor
+func getWorkflowDef(filename string) (*model.WorkflowDef, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open file %s: %w", filename, err)
+	}
+	defer file.Close()
 
-	// Register all the complex workflows
-	registerComplexWorkflows(t)
+	var def model.WorkflowDef
+	if err := json.NewDecoder(file).Decode(&def); err != nil {
+		return nil, fmt.Errorf("failed to decode JSON from %s: %w", filename, err)
+	}
+
+	return &def, nil
+}
+
+func TestSignal_AllStrategies_Comprehensive(t *testing.T) {
+	registerComplexWorkflows()
+	testCases := []struct {
+		name                         string
+		returnStrategy               model.ReturnStrategy
+		consistency                  model.WorkflowConsistency
+		expectedIsTarget             bool
+		expectedIsBlocking           bool
+		expectedIsTask               bool
+		expectedIsTaskInput          bool
+		shouldHaveWorkflow           bool
+		shouldHaveTask               bool
+		shouldHaveTaskInput          bool
+		shouldValidateWorkflowFields bool
+		shouldValidateTaskFields     bool
+	}{
+		{
+			name:                         "TARGET_WORKFLOW",
+			returnStrategy:               model.ReturnTargetWorkflow,
+			consistency:                  model.SynchronousConsistency,
+			expectedIsTarget:             true,
+			expectedIsBlocking:           false,
+			expectedIsTask:               false,
+			expectedIsTaskInput:          false,
+			shouldHaveWorkflow:           true,
+			shouldHaveTask:               false,
+			shouldHaveTaskInput:          false,
+			shouldValidateWorkflowFields: true,
+			shouldValidateTaskFields:     false,
+		},
+		{
+			name:                         "BLOCKING_WORKFLOW",
+			returnStrategy:               model.ReturnBlockingWorkflow,
+			consistency:                  model.SynchronousConsistency,
+			expectedIsTarget:             false,
+			expectedIsBlocking:           true,
+			expectedIsTask:               false,
+			expectedIsTaskInput:          false,
+			shouldHaveWorkflow:           true,
+			shouldHaveTask:               false,
+			shouldHaveTaskInput:          false,
+			shouldValidateWorkflowFields: true,
+			shouldValidateTaskFields:     false,
+		},
+		{
+			name:                         "BLOCKING_TASK",
+			returnStrategy:               model.ReturnBlockingTask,
+			consistency:                  model.SynchronousConsistency,
+			expectedIsTarget:             false,
+			expectedIsBlocking:           false,
+			expectedIsTask:               true,
+			expectedIsTaskInput:          false,
+			shouldHaveWorkflow:           false,
+			shouldHaveTask:               true,
+			shouldHaveTaskInput:          false,
+			shouldValidateWorkflowFields: false,
+			shouldValidateTaskFields:     true,
+		},
+		{
+			name:                         "BLOCKING_TASK_INPUT",
+			returnStrategy:               model.ReturnBlockingTaskInput,
+			consistency:                  model.SynchronousConsistency,
+			expectedIsTarget:             false,
+			expectedIsBlocking:           false,
+			expectedIsTask:               false,
+			expectedIsTaskInput:          true,
+			shouldHaveWorkflow:           false,
+			shouldHaveTask:               true,
+			shouldHaveTaskInput:          true,
+			shouldValidateWorkflowFields: false,
+			shouldValidateTaskFields:     true,
+		},
+		{
+			name:                         "TARGET_WORKFLOW",
+			returnStrategy:               model.ReturnTargetWorkflow,
+			consistency:                  model.DurableConsistency,
+			expectedIsTarget:             true,
+			expectedIsBlocking:           false,
+			expectedIsTask:               false,
+			expectedIsTaskInput:          false,
+			shouldHaveWorkflow:           true,
+			shouldHaveTask:               false,
+			shouldHaveTaskInput:          false,
+			shouldValidateWorkflowFields: true,
+			shouldValidateTaskFields:     false,
+		},
+		{
+			name:                         "BLOCKING_WORKFLOW",
+			returnStrategy:               model.ReturnBlockingWorkflow,
+			consistency:                  model.DurableConsistency,
+			expectedIsTarget:             false,
+			expectedIsBlocking:           true,
+			expectedIsTask:               false,
+			expectedIsTaskInput:          false,
+			shouldHaveWorkflow:           true,
+			shouldHaveTask:               false,
+			shouldHaveTaskInput:          false,
+			shouldValidateWorkflowFields: true,
+			shouldValidateTaskFields:     false,
+		},
+		{
+			name:                         "BLOCKING_TASK",
+			returnStrategy:               model.ReturnBlockingTask,
+			consistency:                  model.DurableConsistency,
+			expectedIsTarget:             false,
+			expectedIsBlocking:           false,
+			expectedIsTask:               true,
+			expectedIsTaskInput:          false,
+			shouldHaveWorkflow:           false,
+			shouldHaveTask:               true,
+			shouldHaveTaskInput:          false,
+			shouldValidateWorkflowFields: false,
+			shouldValidateTaskFields:     true,
+		},
+		{
+			name:                         "BLOCKING_TASK_INPUT",
+			returnStrategy:               model.ReturnBlockingTaskInput,
+			consistency:                  model.DurableConsistency,
+			expectedIsTarget:             false,
+			expectedIsBlocking:           false,
+			expectedIsTask:               false,
+			expectedIsTaskInput:          true,
+			shouldHaveWorkflow:           false,
+			shouldHaveTask:               true,
+			shouldHaveTaskInput:          true,
+			shouldValidateWorkflowFields: false,
+			shouldValidateTaskFields:     true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Setup workflow (same as your default test)
+			executor := testdata.WorkflowExecutor
+
+			startRequest := &model.StartWorkflowRequest{
+				Name:    "complex_wf_signal_test",
+				Version: 1,
+				Input:   map[string]interface{}{},
+			}
+
+			// 1. Start workflow
+			workflowRun, err := executor.ExecuteAndGetTarget(
+				startRequest,
+				"", // No waitUntilTask
+				10, // waitForSeconds
+				tc.consistency.String(),
+			)
+			assert.Nil(t, err)
+			assert.NotEmpty(t, workflowRun)
+			workflowId := workflowRun.WorkflowId
+
+			t.Logf("Started complex workflow with ID: %s for strategy: %s, Consistency: %s", workflowId, tc.name, tc.consistency.String())
+
+			// Wait for workflow to execute the HTTP task and start the subworkflow
+			time.Sleep(20 * time.Millisecond)
+
+			// 2. Get workflow and check its status
+			workflow, err := executor.GetWorkflow(workflowId, true)
+			assert.Nil(t, err)
+			assert.Equal(t, model.RunningWorkflow, workflow.Status, "Workflow should be RUNNING")
+
+			// 3. Check that first task (HTTP) is completed and second task (SUBWORKFLOW) is in progress
+			assert.GreaterOrEqual(t, len(workflow.Tasks), 2, "Workflow should have at least 2 tasks")
+
+			httpTask := workflow.Tasks[0]
+			assert.Equal(t, "http_ref", httpTask.ReferenceTaskName, "First task should be http_ref")
+			assert.Equal(t, model.CompletedTask, httpTask.Status, "HTTP task should be COMPLETED")
+
+			subWorkflowTask := workflow.Tasks[1]
+			assert.Equal(t, "sub_workflow_ref", subWorkflowTask.ReferenceTaskName, "Second task should be sub_workflow_ref")
+			assert.Equal(t, model.InProgressTask, subWorkflowTask.Status, "SUBWORKFLOW task should be IN_PROGRESS")
+
+			// 4. Signal with the test strategy
+			resp, err := executor.Signal(workflowId, model.CompletedWorkflow,
+				map[string]interface{}{"result": fmt.Sprintf("Signal received for %s", tc.name)},
+				client.SignalTaskOpts{
+					ReturnStrategy: tc.returnStrategy,
+				})
+			// Validate response type
+			assert.Equal(t, tc.returnStrategy, resp.ResponseType, fmt.Sprintf("Response type should be %s", tc.returnStrategy))
+
+			// ========== BASIC VALIDATIONS (same for all strategies) ==========
+			assert.NoError(t, err, "Signal should not return an error")
+			assert.NotNil(t, resp, "Response should not be nil")
+
+			// Type check validations
+			assert.Equal(t, tc.expectedIsTarget, resp.IsTargetWorkflow(), "IsTargetWorkflow check")
+			assert.Equal(t, tc.expectedIsBlocking, resp.IsBlockingWorkflow(), "IsBlockingWorkflow check")
+			assert.Equal(t, tc.expectedIsTask, resp.IsBlockingTask(), "IsBlockingTask check")
+			assert.Equal(t, tc.expectedIsTaskInput, resp.IsBlockingTaskInput(), "IsBlockingTaskInput check")
+
+			// Validate workflow identifiers (common for all)
+			assert.NotEmpty(t, resp.WorkflowId, "WorkflowId should not be empty")
+			assert.NotEmpty(t, resp.TargetWorkflowId, "TargetWorkflowId should not be empty")
+			assert.NotEmpty(t, resp.WorkflowId, "WorkflowId should match the input workflowId")
+
+			// Validate workflow status (common for all)
+			assert.NotEmpty(t, resp.TargetWorkflowStatus, "TargetWorkflowStatus should not be empty")
+
+			// Validate input/output data (common for all)
+			assert.NotNil(t, resp.Input, "Input should not be nil")
+			assert.NotNil(t, resp.Output, "Output should not be nil")
+
+			// ========== WORKFLOW-SPECIFIC VALIDATIONS ==========
+			if tc.shouldValidateWorkflowFields {
+				// Validate workflow status and timestamps
+				assert.NotEmpty(t, resp.Status, "Status should not be empty")
+				assert.Greater(t, resp.CreateTime, int64(0), "CreateTime should be greater than 0")
+				assert.Greater(t, resp.UpdateTime, int64(0), "UpdateTime should be greater than 0")
+				assert.GreaterOrEqual(t, resp.UpdateTime, resp.CreateTime, "UpdateTime should be >= CreateTime")
+
+				// Validate tasks array for workflow responses
+				assert.NotNil(t, resp.Tasks, "Tasks should not be nil")
+				if len(resp.Tasks) > 0 {
+					assert.Greater(t, len(resp.Tasks), 0, "Should have at least one task")
+
+					// Validate first task
+					firstTask := resp.Tasks[0]
+					assert.NotEmpty(t, firstTask.TaskId, "Task ID should not be empty")
+					assert.NotEmpty(t, firstTask.TaskType, "Task type should not be empty")
+					assert.NotEmpty(t, firstTask.ReferenceTaskName, "Reference task name should not be empty")
+					assert.NotEmpty(t, firstTask.TaskDefName, "Task definition name should not be empty")
+					assert.NotNil(t, firstTask.WorkflowInstanceId, "Task workflow instance ID should not be nil")
+				}
+			}
+
+			// ========== TASK-SPECIFIC VALIDATIONS ==========
+			if tc.shouldValidateTaskFields {
+				// Task-specific field validations
+				assert.NotEmpty(t, resp.TaskType, "TaskType should not be empty")
+				assert.NotEmpty(t, resp.TaskId, "TaskId should not be empty")
+				assert.NotEmpty(t, resp.ReferenceTaskName, "ReferenceTaskName should not be empty")
+				assert.NotEmpty(t, resp.TaskDefName, "TaskDefName should not be empty")
+				assert.NotEmpty(t, resp.WorkflowType, "WorkflowType should not be empty")
+				assert.NotEmpty(t, resp.Status, "Status should not be empty")
+			}
+
+			// ========== HELPER METHOD VALIDATIONS ==========
+			if tc.shouldHaveWorkflow {
+				// Test GetWorkflow helper method
+				workflowFromResp, err := resp.GetWorkflow()
+				assert.NoError(t, err, "GetWorkflow should not return an error")
+				assert.NotNil(t, workflowFromResp, "Workflow should not be nil")
+
+				// Validate workflow data matches response
+				assert.Equal(t, resp.WorkflowId, workflowFromResp.WorkflowId, "Workflow ID should match")
+				assert.Equal(t, resp.Status, workflowFromResp.Status, "Workflow status should match")
+				assert.Equal(t, resp.CreateTime, workflowFromResp.CreateTime, "Create time should match")
+				assert.Equal(t, resp.UpdateTime, workflowFromResp.UpdateTime, "Update time should match")
+				assert.Equal(t, resp.CreatedBy, workflowFromResp.CreatedBy, "Created by should match")
+				assert.Equal(t, len(resp.Tasks), len(workflowFromResp.Tasks), "Tasks count should match")
+			} else {
+				_, err := resp.GetWorkflow()
+				assert.Error(t, err, "GetWorkflow should return error for non-workflow responses")
+			}
+
+			if tc.shouldHaveTask {
+				// Test GetBlockingTask helper method
+				task, err := resp.GetBlockingTask()
+				assert.NoError(t, err, "GetBlockingTask should not return an error")
+				assert.NotNil(t, task, "Task should not be nil")
+
+				// Validate task data matches response
+				assert.Equal(t, resp.TaskId, task.TaskId, "Task ID should match")
+				assert.Equal(t, resp.TaskType, task.TaskType, "Task type should match")
+				assert.Equal(t, resp.ReferenceTaskName, task.ReferenceTaskName, "Reference task name should match")
+				assert.Equal(t, resp.TaskDefName, task.TaskDefName, "Task definition name should match")
+				assert.Equal(t, resp.WorkflowType, task.WorkflowType, "Workflow type should match")
+			} else {
+				_, err := resp.GetBlockingTask()
+				assert.Error(t, err, "GetBlockingTask should return error for non-task responses")
+			}
+
+			if tc.shouldHaveTaskInput {
+				// Test GetTaskInput helper method
+				taskInput, err := resp.GetTaskInput()
+				assert.NoError(t, err, "GetTaskInput should not return an error")
+				assert.NotNil(t, taskInput, "Task input should not be nil")
+				assert.Equal(t, resp.Input, taskInput, "Task input should match response input")
+			} else {
+				_, err := resp.GetTaskInput()
+				assert.Error(t, err, "GetTaskInput should return error for non-task-input responses")
+			}
+
+			resp, err = executor.Signal(workflowId, model.CompletedWorkflow,
+				map[string]interface{}{"result": fmt.Sprintf("Signal received for %s", tc.name)},
+				client.SignalTaskOpts{
+					ReturnStrategy: tc.returnStrategy,
+				})
+			assert.NoError(t, err, "Signal should not return an error")
+			if tc.returnStrategy == model.ReturnBlockingTask {
+				assert.Empty(t, resp, "Signal response should not be nil")
+			}
+		})
+	}
+}
+
+// Add a separate test for default strategy to ensure it behaves like TARGET_WORKFLOW
+func TestSignal_DefaultStrategy_IsTargetWorkflow(t *testing.T) {
+	// Setup workflow (same setup code as in your original test)
+	executor := testdata.WorkflowExecutor
+	registerComplexWorkflows()
 
 	startRequest := &model.StartWorkflowRequest{
 		Name:    "complex_wf_signal_test",
@@ -580,273 +831,35 @@ func TestComplexWorkflowSignalWithBlockingWorkflow(t *testing.T) {
 		Input:   map[string]interface{}{},
 	}
 
-	// 1. Start workflow
-	workflowRun, err := executor.ExecuteAndGetBlockingWorkflow(
-		startRequest,
-		"",        // No waitUntilTask
-		10,        // waitForSeconds
-		"DURABLE", // consistency
-	)
+	workflowRun, err := executor.ExecuteAndGetTarget(startRequest, "", 10, "DURABLE")
 	assert.Nil(t, err)
-	assert.NotEmpty(t, workflowRun)
 	workflowId := workflowRun.WorkflowId
 
-	t.Logf("Started complex workflow with ID: %s", workflowId)
-
-	// Wait for workflow to execute the HTTP task and start the subworkflow
 	time.Sleep(20 * time.Millisecond)
 
-	// 2. Get workflow and check its status
-	workflow, err := executor.GetWorkflow(workflowId, true)
-	assert.Nil(t, err)
-	assert.Equal(t, model.RunningWorkflow, workflow.Status, "Workflow should be RUNNING")
+	// Signal with NO ReturnStrategy specified (should default to TARGET_WORKFLOW)
+	resp, err := executor.Signal(workflowId, model.CompletedWorkflow,
+		map[string]interface{}{"result": "Signal received for default strategy"},
+		client.SignalTaskOpts{}) // Empty options - should use default
 
-	// 3. Check that first task (HTTP) is completed and second task (SUBWORKFLOW) is in progress
-	assert.GreaterOrEqual(t, len(workflow.Tasks), 2, "Workflow should have at least 2 tasks")
+	// Should behave exactly like TARGET_WORKFLOW
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, model.ReturnTargetWorkflow, resp.ResponseType, "Default strategy should be TARGET_WORKFLOW")
+	assert.True(t, resp.IsTargetWorkflow(), "Default should behave like TARGET_WORKFLOW")
 
-	httpTask := workflow.Tasks[0]
-	assert.Equal(t, "JSON_JQ_TRANSFORM", httpTask.ReferenceTaskName, "First task should be http_ref")
-	assert.Equal(t, model.CompletedTask, httpTask.Status, "HTTP task should be COMPLETED")
+	// All the same validations as TARGET_WORKFLOW...
+	assert.NotEmpty(t, resp.WorkflowId)
+	assert.Greater(t, resp.CreateTime, int64(0))
+	assert.Greater(t, resp.UpdateTime, int64(0))
 
-	subWorkflowTask := workflow.Tasks[1]
-	assert.Equal(t, "sub_workflow_ref", subWorkflowTask.ReferenceTaskName, "Second task should be sub_workflow_ref")
-	assert.Equal(t, model.InProgressTask, subWorkflowTask.Status, "SUBWORKFLOW task should be IN_PROGRESS")
+	workflow, err := resp.GetWorkflow()
+	assert.NoError(t, err)
+	assert.NotNil(t, workflow)
 
-	// 4. Signal with BLOCKING_WORKFLOW return strategy
-	response1, err := executor.SignalTaskAndReturnBlockingWorkflow(
-		workflow.WorkflowId,
-		model.CompletedTask,
-		map[string]interface{}{"result": "Signal received for first subworkflow"},
-	)
-	assert.Nil(t, err)
-
-	// 5. Check the response
-	assert.NotNil(t, response1, "Response should not be null")
-
-	// Wait for the second subworkflow to start and reach the YIELD task
-	time.Sleep(10 * time.Millisecond)
-
-	// 6. Signal second subworkflow with BLOCKING_WORKFLOW return strategy
-	response2, err := executor.SignalTaskAndReturnBlockingWorkflow(
-		workflow.WorkflowId,
-		model.CompletedTask,
-		map[string]interface{}{"result": "Signal received for second subworkflow"},
-	)
-	assert.Nil(t, err)
-
-	// 7. Check the response
-	assert.NotNil(t, response2, "Response should not be null")
-}
-
-// Test complex workflow signaling with TARGET_WORKFLOW strategy
-func TestComplexWorkflowSignalWithTargetWorkflow(t *testing.T) {
-	executor := testdata.WorkflowExecutor
-
-	// Register all the complex workflows
-	registerComplexWorkflows(t)
-
-	startRequest := &model.StartWorkflowRequest{
-		Name:    "complex_wf_signal_test",
-		Version: 1,
-		Input:   map[string]interface{}{},
-	}
-
-	// 1. Start workflow
-	workflowRun, err := executor.ExecuteAndGetTarget(
-		startRequest,
-		"",        // No waitUntilTask
-		10,        // waitForSeconds
-		"DURABLE", // consistency
-	)
-	assert.Nil(t, err)
-	assert.NotEmpty(t, workflowRun)
-	workflowId := workflowRun.WorkflowId
-
-	t.Logf("Started complex workflow with ID: %s", workflowId)
-
-	// Wait for workflow to execute the HTTP task and start the subworkflow
-	time.Sleep(20 * time.Millisecond)
-
-	// 2. Get workflow and check its status
-	workflow, err := executor.GetWorkflow(workflowId, true)
-	assert.Nil(t, err)
-	assert.Equal(t, model.RunningWorkflow, workflow.Status, "Workflow should be RUNNING")
-
-	// 3. Check that first task (HTTP) is completed and second task (SUBWORKFLOW) is in progress
-	assert.GreaterOrEqual(t, len(workflow.Tasks), 2, "Workflow should have at least 2 tasks")
-
-	httpTask := workflow.Tasks[0]
-	assert.Equal(t, "JSON_JQ_TRANSFORM", httpTask.ReferenceTaskName, "First task should be http_ref")
-	assert.Equal(t, model.CompletedTask, httpTask.Status, "HTTP task should be COMPLETED")
-
-	subWorkflowTask := workflow.Tasks[1]
-	assert.Equal(t, "sub_workflow_ref", subWorkflowTask.ReferenceTaskName, "Second task should be sub_workflow_ref")
-	assert.Equal(t, model.InProgressTask, subWorkflowTask.Status, "SUBWORKFLOW task should be IN_PROGRESS")
-
-	// 4. Signal with TARGET_WORKFLOW return strategy
-	response1, err := executor.SignalTaskAndReturnTargetWorkflow(
-		workflow.WorkflowId,
-		model.CompletedTask,
-		map[string]interface{}{"result": "Signal received for first subworkflow"},
-	)
-	assert.Nil(t, err)
-
-	// 5. Check the response
-	assert.NotNil(t, response1, "Response should not be null")
-
-	// Wait for the second subworkflow to start and reach the YIELD task
-	time.Sleep(10 * time.Millisecond)
-
-	// 6. Signal second subworkflow with BLOCKING_WORKFLOW return strategy
-	response2, err := executor.SignalTaskAndReturnTargetWorkflow(
-		workflow.WorkflowId,
-		model.CompletedTask,
-		map[string]interface{}{"result": "Signal received for second subworkflow"},
-	)
-	assert.Nil(t, err)
-
-	// 7. Check the response
-	assert.NotNil(t, response2, "Response should not be null")
-}
-
-// Test complex workflow signaling with BLOCKING_TASK strategy
-func TestComplexWorkflowSignalWithBlockingTask(t *testing.T) {
-	executor := testdata.WorkflowExecutor
-
-	// Register all the complex workflows
-	registerComplexWorkflows(t)
-
-	startRequest := &model.StartWorkflowRequest{
-		Name:    "complex_wf_signal_test",
-		Version: 1,
-		Input:   map[string]interface{}{},
-	}
-
-	// 1. Start workflow
-	workflowRun, err := executor.ExecuteAndGetBlockingTask(
-		startRequest,
-		"",            // No waitUntilTask
-		10,            // waitForSeconds
-		"SYNCHRONOUS", // consistency
-	)
-	assert.Nil(t, err)
-	assert.NotEmpty(t, workflowRun)
-	workflowId := workflowRun.WorkflowId
-
-	t.Logf("Started complex workflow with ID: %s", workflowId)
-
-	// Wait for workflow to execute the HTTP task and start the subworkflow
-	time.Sleep(20 * time.Millisecond)
-
-	// 2. Get workflow and check its status
-	workflow, err := executor.GetWorkflow(workflowId, true)
-	assert.Nil(t, err)
-	assert.Equal(t, model.RunningWorkflow, workflow.Status, "Workflow should be RUNNING")
-
-	// 3. Check that first task (HTTP) is completed and second task (SUBWORKFLOW) is in progress
-	assert.GreaterOrEqual(t, len(workflow.Tasks), 2, "Workflow should have at least 2 tasks")
-
-	httpTask := workflow.Tasks[0]
-	assert.Equal(t, "JSON_JQ_TRANSFORM", httpTask.ReferenceTaskName, "First task should be http_ref")
-	assert.Equal(t, model.CompletedTask, httpTask.Status, "HTTP task should be COMPLETED")
-
-	subWorkflowTask := workflow.Tasks[1]
-	assert.Equal(t, "sub_workflow_ref", subWorkflowTask.ReferenceTaskName, "Second task should be sub_workflow_ref")
-	assert.Equal(t, model.InProgressTask, subWorkflowTask.Status, "SUBWORKFLOW task should be IN_PROGRESS")
-
-	// 4. Signal with TARGET_WORKFLOW return strategy
-	response1, err := executor.SignalTaskAndReturnBlockingTask(
-		workflow.WorkflowId,
-		model.CompletedTask,
-		map[string]interface{}{"result": "Signal received for first subworkflow"},
-	)
-	assert.Nil(t, err)
-
-	// 5. Check the response
-	assert.NotNil(t, response1, "Response should not be null")
-
-	// Wait for the second subworkflow to start and reach the YIELD task
-	time.Sleep(10 * time.Millisecond)
-
-	// 6. Signal second subworkflow with BLOCKING_WORKFLOW return strategy
-	response2, err := executor.SignalTaskAndReturnBlockingTask(
-		workflow.WorkflowId,
-		model.CompletedTask,
-		map[string]interface{}{"result": "Signal received for second subworkflow"},
-	)
-	assert.Nil(t, err)
-
-	// 7. Check the response
-	assert.NotNil(t, response2, "Response should not be null")
-}
-
-// Test complex workflow signaling with BLOCKING_TASK_INPUT strategy
-func TestComplexWorkflowSignalWithBlockingTaskInput(t *testing.T) {
-	executor := testdata.WorkflowExecutor
-
-	// Register all the complex workflows
-	registerComplexWorkflows(t)
-
-	startRequest := &model.StartWorkflowRequest{
-		Name:    "complex_wf_signal_test",
-		Version: 1,
-		Input:   map[string]interface{}{},
-	}
-
-	// 1. Start workflow
-	workflowRun, err := executor.ExecuteAndGetBlockingTaskInput(
-		startRequest,
-		"",            // No waitUntilTask
-		10,            // waitForSeconds
-		"SYNCHRONOUS", // consistency
-	)
-	assert.Nil(t, err)
-	assert.NotEmpty(t, workflowRun)
-	workflowId := workflowRun.WorkflowId
-
-	t.Logf("Started complex workflow with ID: %s", workflowId)
-
-	// Wait for workflow to execute the HTTP task and start the subworkflow
-	time.Sleep(20 * time.Millisecond)
-
-	// 2. Get workflow and check its status
-	workflow, err := executor.GetWorkflow(workflowId, true)
-	assert.Nil(t, err)
-	assert.Equal(t, model.RunningWorkflow, workflow.Status, "Workflow should be RUNNING")
-
-	// 3. Check that first task (HTTP) is completed and second task (SUBWORKFLOW) is in progress
-	assert.GreaterOrEqual(t, len(workflow.Tasks), 2, "Workflow should have at least 2 tasks")
-
-	httpTask := workflow.Tasks[0]
-	assert.Equal(t, "JSON_JQ_TRANSFORM", httpTask.ReferenceTaskName, "First task should be http_ref")
-	assert.Equal(t, model.CompletedTask, httpTask.Status, "HTTP task should be COMPLETED")
-
-	subWorkflowTask := workflow.Tasks[1]
-	assert.Equal(t, "sub_workflow_ref", subWorkflowTask.ReferenceTaskName, "Second task should be sub_workflow_ref")
-	assert.Equal(t, model.InProgressTask, subWorkflowTask.Status, "SUBWORKFLOW task should be IN_PROGRESS")
-
-	// 4. Signal with TARGET_WORKFLOW return strategy
-	response1, err := executor.SignalTaskAndReturnBlockingTaskInput(
-		workflow.WorkflowId,
-		model.CompletedTask,
-		map[string]interface{}{"result": "Signal received for first subworkflow"},
-	)
-	assert.Nil(t, err)
-
-	// 5. Check the response
-	assert.NotNil(t, response1, "Response should not be null")
-
-	// Wait for the second subworkflow to start and reach the YIELD task
-	time.Sleep(10 * time.Millisecond)
-
-	// 6. Signal second subworkflow with BLOCKING_TASK_INPUT return strategy
-	response2, err := executor.SignalTaskAndReturnBlockingTaskInput(
-		workflow.WorkflowId,
-		model.CompletedTask,
-		map[string]interface{}{"result": "Signal received for second subworkflow"},
-	)
-	assert.Nil(t, err)
-
-	// 7. Check the response
-	assert.NotNil(t, response2, "Response should not be null")
+	// Signal with NO ReturnStrategy specified (should default to TARGET_WORKFLOW)
+	resp, err = executor.Signal(workflowId, model.CompletedWorkflow,
+		map[string]interface{}{"result": "Signal received for default strategy"},
+		client.SignalTaskOpts{}) // Empty options - should use default
+	assert.NoError(t, err)
 }

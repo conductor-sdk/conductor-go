@@ -6,11 +6,10 @@ import (
 
 // TaskRun represents a task run in the Conductor system
 type TaskRun struct {
-	SignalResponse
 	TaskType              string                 `json:"taskType,omitempty"`
 	TaskId                string                 `json:"taskId,omitempty"`
 	ReferenceTaskName     string                 `json:"referenceTaskName,omitempty"`
-	RetryCount            int                    `json:"retryCount,omitempty"`
+	RetryCount            int32                  `json:"retryCount,omitempty"`
 	TaskDefName           string                 `json:"taskDefName,omitempty"`
 	RetriedTaskId         string                 `json:"retriedTaskId,omitempty"`
 	WorkflowType          string                 `json:"workflowType,omitempty"`
