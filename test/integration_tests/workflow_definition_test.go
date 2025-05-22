@@ -243,7 +243,7 @@ func startWorkers() {
 
 func executeWorkflowWithRetries(wf *workflow.ConductorWorkflow, workflowInput interface{}) (*model.WorkflowRun, error) {
 	for attempt := 0; attempt < retryLimit; attempt += 1 {
-		workflowRun, err := wf.ExecuteWorkflowWithInput(workflowInput, "")
+		workflowRun, err := wf.ExecuteWorkflowWithInput(workflowInput, []string{""})
 		if err != nil {
 			time.Sleep(time.Duration(attempt+2) * time.Second)
 			fmt.Println("Failed to execute workflow, reason: " + err.Error())
@@ -256,7 +256,7 @@ func executeWorkflowWithRetries(wf *workflow.ConductorWorkflow, workflowInput in
 
 func executeWorkflowWithRetriesWithStartWorkflowRequest(startWorkflowRequest *model.StartWorkflowRequest) (*model.WorkflowRun, error) {
 	for attempt := 1; attempt <= retryLimit; attempt += 1 {
-		workflowRun, err := testdata.WorkflowExecutor.ExecuteWorkflow(startWorkflowRequest, "")
+		workflowRun, err := testdata.WorkflowExecutor.ExecuteWorkflow(startWorkflowRequest, []string{""})
 		if err != nil {
 			time.Sleep(time.Duration(attempt+2) * time.Second)
 			fmt.Printf("Failed to execute workflow, reason: %s", err.Error())

@@ -32,13 +32,14 @@ func (e *WorkflowExecutor) UnRegisterWorkflowWithContext(ctx context.Context, na
 	return err
 }
 
-func (e *WorkflowExecutor) ExecuteWorkflowWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string) (run *model.WorkflowRun, err error) {
+func (e *WorkflowExecutor) ExecuteWorkflowWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string) (run *model.WorkflowRun, err error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
 
 	requestId := ""
 	version := startWorkflowRequest.Version
+
 	workflowRun, _, err := e.workflowClient.ExecuteWorkflow(ctx, *startWorkflowRequest, requestId, startWorkflowRequest.Name, version, waitUntilTask)
 	if err != nil {
 		return nil, err
@@ -46,7 +47,26 @@ func (e *WorkflowExecutor) ExecuteWorkflowWithContext(ctx context.Context, start
 	return &workflowRun, nil
 }
 
-func (e *WorkflowExecutor) ExecuteAndGetTargetWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
+func (e *WorkflowExecutor) ExecuteWorkflowWithReturnStrategyWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, consistency model.WorkflowConsistency, returnStrategy model.ReturnStrategy, waitUntilTaskRef []string, waitForSeconds int) (run *model.SignalResponse, err error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	resp, err := e.workflowClient.ExecuteWorkflowWithReturnStrategy(ctx, *startWorkflowRequest, client.ExecuteWorkflowOpts{
+		ReturnStrategy:   returnStrategy,
+		RequestID:        "",
+		WaitUntilTaskRef: waitUntilTaskRef,
+		Consistency:      consistency,
+		WaitForSeconds:   waitForSeconds,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (e *WorkflowExecutor) ExecuteAndGetTargetWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -69,7 +89,7 @@ func (e *WorkflowExecutor) ExecuteAndGetTargetWithContext(ctx context.Context, s
 	return &workflowRun, nil
 }
 
-func (e *WorkflowExecutor) ExecuteAndGetBlockingWorkflowWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
+func (e *WorkflowExecutor) ExecuteAndGetBlockingWorkflowWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -92,7 +112,7 @@ func (e *WorkflowExecutor) ExecuteAndGetBlockingWorkflowWithContext(ctx context.
 	return &workflowRun, nil
 }
 
-func (e *WorkflowExecutor) ExecuteAndGetBlockingTaskWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
+func (e *WorkflowExecutor) ExecuteAndGetBlockingTaskWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -116,7 +136,7 @@ func (e *WorkflowExecutor) ExecuteAndGetBlockingTaskWithContext(ctx context.Cont
 }
 
 // Method for executing workflow with blocking task input
-func (e *WorkflowExecutor) ExecuteAndGetBlockingTaskInputWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
+func (e *WorkflowExecutor) ExecuteAndGetBlockingTaskInputWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}

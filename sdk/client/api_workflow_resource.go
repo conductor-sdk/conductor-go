@@ -662,7 +662,7 @@ func (a *WorkflowResourceApiService) executeWorkflowImpl(
 	requestId string,
 	name string,
 	version int32,
-	waitUntilTask string,
+	waitUntilTask []string,
 	waitForSeconds int,
 	consistency string,
 	returnStrategy string) (interface{}, *http.Response, error) {
@@ -688,8 +688,8 @@ func (a *WorkflowResourceApiService) executeWorkflowImpl(
 		localVarQueryParams.Add("requestId", parameterToString(requestId, ""))
 	}
 
-	if waitUntilTask != "" {
-		localVarQueryParams.Add("waitUntilTaskRef", parameterToString(waitUntilTask, ""))
+	if len(waitUntilTask) > 0 {
+		localVarQueryParams.Add("waitUntilTaskRef", strings.Join(waitUntilTask, ","))
 	}
 
 	if waitForSeconds > 0 {
@@ -723,17 +723,10 @@ func (a *WorkflowResourceApiService) executeWorkflowImpl(
 	}
 
 	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		// Decode response based on returnStrategy
-		if returnStrategy == "BLOCKING_TASK" || returnStrategy == "BLOCKING_TASK_INPUT" {
-			var taskRun model.TaskRun
-			err = a.decode(&taskRun, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			localVarReturnValue = taskRun
-		} else {
-			// Default to WorkflowRun for TARGET_WORKFLOW, BLOCKING_WORKFLOW or no returnStrategy
-			var workflowRun model.WorkflowRun
-			err = a.decode(&workflowRun, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-			localVarReturnValue = workflowRun
-		}
+		// Decode directly into SignalResponse since API returns unified format
+		var signalResponse model.SignalResponse
+		err = a.decode(&signalResponse, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+		localVarReturnValue = signalResponse
 	} else {
 		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
 		return nil, localVarHttpResponse, newErr
@@ -742,7 +735,77 @@ func (a *WorkflowResourceApiService) executeWorkflowImpl(
 	return localVarReturnValue, localVarHttpResponse, err
 }
 
-func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask string) (model.WorkflowRun, *http.Response, error) {
+type ExecuteWorkflowOpts struct {
+	// Required options
+	Name    string
+	Version int32 // Changed to int32 to match your existing API
+
+	// Optional parameters
+	RequestID        string
+	WaitUntilTaskRef []string
+	WaitForSeconds   int
+	Input            map[string]interface{}
+
+	// Execution behavior options
+	Consistency    model.WorkflowConsistency
+	ReturnStrategy model.ReturnStrategy
+}
+
+// DefaultExecuteWorkflowOpts returns the default options
+func DefaultExecuteWorkflowOpts() ExecuteWorkflowOpts {
+	return ExecuteWorkflowOpts{
+		Consistency:    model.DurableConsistency,   // Default is "DURABLE"
+		ReturnStrategy: model.ReturnTargetWorkflow, // Default is TARGET_WORKFLOW
+		WaitForSeconds: 10,                         // Default is 10 seconds
+	}
+}
+
+// ExecuteWorkflowWithReturnStrategy executes a workflow with the specified return strategy
+func (a *WorkflowResourceApiService) ExecuteWorkflowWithReturnStrategy(ctx context.Context, body model.StartWorkflowRequest, opts ExecuteWorkflowOpts) (*model.SignalResponse, error) {
+	// Apply defaults if not specified
+	if opts.Consistency == "" {
+		opts.Consistency = model.DurableConsistency
+	}
+	if opts.ReturnStrategy == "" {
+		opts.ReturnStrategy = model.ReturnTargetWorkflow
+	}
+	if opts.WaitForSeconds <= 0 {
+		opts.WaitForSeconds = 10
+	}
+
+	// Validate required fields
+	if body.Name == "" {
+		return nil, fmt.Errorf("workflow name is required")
+	}
+	if body.Version <= 0 {
+		return nil, fmt.Errorf("workflow version must be greater than 0")
+	}
+
+	// Call the existing internal method
+	response, _, err := a.executeWorkflowImpl(
+		ctx,
+		body,
+		opts.RequestID,
+		body.Name,
+		body.Version,
+		opts.WaitUntilTaskRef,
+		opts.WaitForSeconds,
+		string(opts.Consistency),
+		string(opts.ReturnStrategy),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	signalResponse, ok := response.(model.SignalResponse)
+	if !ok {
+		return nil, fmt.Errorf("expected SignalResponse but got %T", response)
+	}
+
+	return &signalResponse, nil
+}
+
+func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask []string) (model.WorkflowRun, *http.Response, error) {
 	waitForSeconds := 10
 	consistency := "DURABLE"
 	returnStrategy := "TARGET_WORKFLOW"
@@ -779,7 +842,7 @@ func (a *WorkflowResourceApiService) ExecuteAndGetBlockingTask(
 	requestId string,
 	name string,
 	version int32,
-	waitUntilTask string,
+	waitUntilTask []string,
 	waitForSeconds int,
 	consistency string) (model.TaskRun, *http.Response, error) {
 
@@ -816,7 +879,7 @@ func (a *WorkflowResourceApiService) ExecuteAndGetBlockingTaskInput(
 	requestId string,
 	name string,
 	version int32,
-	waitUntilTask string,
+	waitUntilTask []string,
 	waitForSeconds int,
 	consistency string) (model.TaskRun, *http.Response, error) {
 
@@ -853,7 +916,7 @@ func (a *WorkflowResourceApiService) ExecuteAndGetBlockingWorkflow(
 	requestId string,
 	name string,
 	version int32,
-	waitUntilTask string,
+	waitUntilTask []string,
 	waitForSeconds int,
 	consistency string) (model.WorkflowRun, *http.Response, error) {
 
@@ -890,7 +953,7 @@ func (a *WorkflowResourceApiService) ExecuteAndGetTarget(
 	requestId string,
 	name string,
 	version int32,
-	waitUntilTask string,
+	waitUntilTask []string,
 	waitForSeconds int,
 	consistency string) (model.WorkflowRun, *http.Response, error) {
 

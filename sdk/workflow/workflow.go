@@ -214,7 +214,7 @@ func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.Sta
 // workflow completes or reaches the timeout (as specified on the server)
 // The input struct MUST be serializable to JSON
 // Returns the workflow output
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, waitUntilTask string) (workflowRun *model.WorkflowRun, err error) {
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, waitUntilTask []string) (workflowRun *model.WorkflowRun, err error) {
 	version := workflow.GetVersion()
 	return workflow.executor.ExecuteWorkflow(
 		&model.StartWorkflowRequest{
@@ -232,7 +232,7 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, w
 // waitForSeconds: Maximum time to wait in seconds
 // consistency: Consistency level ("DURABLE" or "EVENTUAL")
 // Returns the target workflow details
-func (workflow *ConductorWorkflow) ExecuteAndGetTarget(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
+func (workflow *ConductorWorkflow) ExecuteAndGetTarget(input interface{}, waitUntilTask []string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
 	version := workflow.GetVersion()
 	return workflow.executor.ExecuteAndGetTarget(
 		&model.StartWorkflowRequest{
@@ -252,7 +252,7 @@ func (workflow *ConductorWorkflow) ExecuteAndGetTarget(input interface{}, waitUn
 // waitForSeconds: Maximum time to wait in seconds
 // consistency: Consistency level ("DURABLE" or "EVENTUAL")
 // Returns the blocking workflow details
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingWorkflow(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingWorkflow(input interface{}, waitUntilTask []string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
 	version := workflow.GetVersion()
 	return workflow.executor.ExecuteAndGetBlockingWorkflow(
 		&model.StartWorkflowRequest{
@@ -272,7 +272,7 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingWorkflow(input int
 // waitForSeconds: Maximum time to wait in seconds
 // consistency: Consistency level ("DURABLE" or "EVENTUAL")
 // Returns the blocking task details
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTask(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTask(input interface{}, waitUntilTask []string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
 	version := workflow.GetVersion()
 	return workflow.executor.ExecuteAndGetBlockingTask(
 		&model.StartWorkflowRequest{
@@ -292,7 +292,7 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTask(input interfa
 // waitForSeconds: Maximum time to wait in seconds
 // consistency: Consistency level ("DURABLE" or "EVENTUAL")
 // Returns the blocking task with its input data
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTaskInput(input interface{}, waitUntilTask string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTaskInput(input interface{}, waitUntilTask []string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
 	version := workflow.GetVersion()
 	return workflow.executor.ExecuteAndGetBlockingTaskInput(
 		&model.StartWorkflowRequest{

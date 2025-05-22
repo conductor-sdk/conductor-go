@@ -364,7 +364,7 @@ func TestSubWorkflowSignalWithSyncConsistency(t *testing.T) {
 	// Execute the workflow with BLOCKING_WORKFLOW return strategy
 	workflowRun, err := executor.ExecuteAndGetBlockingWorkflow(
 		startRequest,
-		"",            // No waitUntilTask
+		[]string{""},  // No waitUntilTask
 		10,            // waitForSeconds
 		"SYNCHRONOUS", // consistency
 	)
@@ -424,7 +424,7 @@ func TestSubWorkflowSignalWithDurableConsistency(t *testing.T) {
 	// Execute the workflow with BLOCKING_WORKFLOW return strategy
 	workflowRun, err := executor.ExecuteAndGetBlockingWorkflow(
 		startRequest,
-		"",            // No waitUntilTask
+		[]string{""},  // No waitUntilTask
 		10,            // waitForSeconds
 		"SYNCHRONOUS", // consistency
 	)
@@ -663,15 +663,17 @@ func TestSignal_AllStrategies_Comprehensive(t *testing.T) {
 			}
 
 			// 1. Start workflow
-			workflowRun, err := executor.ExecuteAndGetTarget(
+			resp, err := executor.ExecuteWorkflowWithReturnStrategy(
 				startRequest,
-				"", // No waitUntilTask
-				10, // waitForSeconds
-				tc.consistency.String(),
+				tc.consistency,
+				tc.returnStrategy,
+				[]string{""},
+				10,
 			)
+
 			assert.Nil(t, err)
-			assert.NotEmpty(t, workflowRun)
-			workflowId := workflowRun.WorkflowId
+			assert.NotEmpty(t, resp)
+			workflowId := resp.WorkflowId
 
 			t.Logf("Started complex workflow with ID: %s for strategy: %s, Consistency: %s", workflowId, tc.name, tc.consistency.String())
 
@@ -690,12 +692,17 @@ func TestSignal_AllStrategies_Comprehensive(t *testing.T) {
 			assert.Equal(t, "http_ref", httpTask.ReferenceTaskName, "First task should be http_ref")
 			assert.Equal(t, model.CompletedTask, httpTask.Status, "HTTP task should be COMPLETED")
 
-			subWorkflowTask := workflow.Tasks[1]
-			assert.Equal(t, "sub_workflow_ref", subWorkflowTask.ReferenceTaskName, "Second task should be sub_workflow_ref")
-			assert.Equal(t, model.InProgressTask, subWorkflowTask.Status, "SUBWORKFLOW task should be IN_PROGRESS")
-
+			if tc.returnStrategy == model.ReturnTargetWorkflow {
+				subWorkflowTask := workflow.Tasks[1]
+				assert.Equal(t, "sub_workflow_ref", subWorkflowTask.ReferenceTaskName, "Second task should be sub_workflow_ref")
+				assert.Equal(t, model.InProgressTask, subWorkflowTask.Status, "SUBWORKFLOW task should be IN_PROGRESS")
+			} else {
+				subWorkflowTask := workflow.Tasks[1]
+				assert.Equal(t, "simple_ref_1", subWorkflowTask.ReferenceTaskName, "Second task should be simple_ref_1")
+				assert.Equal(t, model.InProgressTask, subWorkflowTask.Status, "SUBWORKFLOW task should be IN_PROGRESS")
+			}
 			// 4. Signal with the test strategy
-			resp, err := executor.Signal(workflowId, model.CompletedWorkflow,
+			resp, err = executor.Signal(workflowId, model.CompletedWorkflow,
 				map[string]interface{}{"result": fmt.Sprintf("Signal received for %s", tc.name)},
 				client.SignalTaskOpts{
 					ReturnStrategy: tc.returnStrategy,
@@ -831,7 +838,7 @@ func TestSignal_DefaultStrategy_IsTargetWorkflow(t *testing.T) {
 		Input:   map[string]interface{}{},
 	}
 
-	workflowRun, err := executor.ExecuteAndGetTarget(startRequest, "", 10, "DURABLE")
+	workflowRun, err := executor.ExecuteAndGetTarget(startRequest, []string{""}, 10, "DURABLE")
 	assert.Nil(t, err)
 	workflowId := workflowRun.WorkflowId
 

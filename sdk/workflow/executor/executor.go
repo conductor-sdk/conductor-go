@@ -95,27 +95,33 @@ func (e *WorkflowExecutor) UnRegisterWorkflow(name string, version int32) error 
 
 // ExecuteWorkflow start a workflow and wait until the workflow completes or the waitUntilTask completes
 // Returns the output of the workflow
-func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string) (run *model.WorkflowRun, err error) {
+func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string) (run *model.WorkflowRun, err error) {
 	return e.ExecuteWorkflowWithContext(context.Background(), startWorkflowRequest, waitUntilTask)
 }
 
+// ExecuteWorkflowWithReturnStrategy start a workflow with return strategy, consistency and wait until task, the workflow completes or the waitUntilTask completes
+// Returns the output of the workflow as unified response
+func (e *WorkflowExecutor) ExecuteWorkflowWithReturnStrategy(startWorkflowRequest *model.StartWorkflowRequest, consistency model.WorkflowConsistency, returnStrategy model.ReturnStrategy, waitUntilTask []string, waitForSec int) (resp *model.SignalResponse, err error) {
+	return e.ExecuteWorkflowWithReturnStrategyWithContext(context.Background(), startWorkflowRequest, consistency, returnStrategy, waitUntilTask, waitForSec)
+}
+
 // ExecuteAndGetTarget starts a workflow and returns the target workflow
-func (e *WorkflowExecutor) ExecuteAndGetTarget(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
+func (e *WorkflowExecutor) ExecuteAndGetTarget(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
 	return e.ExecuteAndGetTargetWithContext(context.Background(), startWorkflowRequest, waitUntilTask, waitForSeconds, consistency)
 }
 
 // ExecuteAndGetBlockingWorkflow starts a workflow and returns the blocking workflow
-func (e *WorkflowExecutor) ExecuteAndGetBlockingWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
+func (e *WorkflowExecutor) ExecuteAndGetBlockingWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
 	return e.ExecuteAndGetBlockingWorkflowWithContext(context.Background(), startWorkflowRequest, waitUntilTask, waitForSeconds, consistency)
 }
 
 // ExecuteAndGetBlockingTask starts a workflow and returns the blocking task
-func (e *WorkflowExecutor) ExecuteAndGetBlockingTask(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
+func (e *WorkflowExecutor) ExecuteAndGetBlockingTask(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
 	return e.ExecuteAndGetBlockingTaskWithContext(context.Background(), startWorkflowRequest, waitUntilTask, waitForSeconds, consistency)
 }
 
 // ExecuteAndGetBlockingTaskInput starts a workflow and returns the blocking task input
-func (e *WorkflowExecutor) ExecuteAndGetBlockingTaskInput(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
+func (e *WorkflowExecutor) ExecuteAndGetBlockingTaskInput(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
 	return e.ExecuteAndGetBlockingTaskInputWithContext(context.Background(), startWorkflowRequest, waitUntilTask, waitForSeconds, consistency)
 }
 
