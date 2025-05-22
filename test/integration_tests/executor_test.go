@@ -878,3 +878,59 @@ func TestSignal_DefaultStrategy_IsTargetWorkflow(t *testing.T) {
 		client.SignalTaskOpts{}) // Empty options - should use default
 	assert.NoError(t, err)
 }
+
+// Add a separate test for mixed strategy
+func TestSignal_MixedStrategy(t *testing.T) {
+	// Setup workflow (same setup code as in your original test)
+	executor := testdata.WorkflowExecutor
+	registerComplexWorkflows()
+
+	startRequest := &model.StartWorkflowRequest{
+		Name:    "complex_wf_signal_test",
+		Version: 1,
+		Input:   map[string]interface{}{},
+	}
+
+	workflowRun, err := executor.ExecuteWorkflowWithReturnStrategy(
+		startRequest,
+		model.SynchronousConsistency,
+		model.ReturnTargetWorkflow,
+		[]string{""},
+		10,
+	)
+	assert.Nil(t, err)
+	workflowId := workflowRun.WorkflowId
+
+	time.Sleep(20 * time.Millisecond)
+
+	// Signal with NO ReturnStrategy specified (should default to TARGET_WORKFLOW)
+	resp, err := executor.Signal(workflowId, model.CompletedWorkflow,
+		map[string]interface{}{"result": "Signal received for default strategy"},
+		client.SignalTaskOpts{
+			ReturnStrategy: model.ReturnBlockingWorkflow,
+		})
+
+	// Should behave exactly like TARGET_WORKFLOW
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, model.ReturnBlockingWorkflow, resp.ResponseType, "Default strategy should be BLOCKING_WORKFLOW")
+	assert.True(t, resp.IsBlockingWorkflow(), "Default should behave like BLOCKING_WORKFLOW")
+
+	// All the same validations as TARGET_WORKFLOW...
+	assert.NotEmpty(t, resp.WorkflowId)
+	assert.Greater(t, resp.CreateTime, int64(0))
+	assert.Greater(t, resp.UpdateTime, int64(0))
+
+	workflow, err := resp.GetWorkflow()
+	assert.NoError(t, err)
+	assert.NotNil(t, workflow)
+
+	// Signal with NO ReturnStrategy specified (should default to TARGET_WORKFLOW)
+	resp, err = executor.Signal(workflowId, model.CompletedWorkflow,
+		map[string]interface{}{"result": "Signal received for default strategy"},
+		client.SignalTaskOpts{
+			ReturnStrategy: model.ReturnBlockingTask,
+		})
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+}
