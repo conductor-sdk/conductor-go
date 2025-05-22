@@ -105,26 +105,6 @@ func (e *WorkflowExecutor) ExecuteWorkflowWithReturnStrategy(startWorkflowReques
 	return e.ExecuteWorkflowWithReturnStrategyWithContext(context.Background(), startWorkflowRequest, consistency, returnStrategy, waitUntilTask, waitForSec)
 }
 
-// ExecuteAndGetTarget starts a workflow and returns the target workflow
-func (e *WorkflowExecutor) ExecuteAndGetTarget(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
-	return e.ExecuteAndGetTargetWithContext(context.Background(), startWorkflowRequest, waitUntilTask, waitForSeconds, consistency)
-}
-
-// ExecuteAndGetBlockingWorkflow starts a workflow and returns the blocking workflow
-func (e *WorkflowExecutor) ExecuteAndGetBlockingWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
-	return e.ExecuteAndGetBlockingWorkflowWithContext(context.Background(), startWorkflowRequest, waitUntilTask, waitForSeconds, consistency)
-}
-
-// ExecuteAndGetBlockingTask starts a workflow and returns the blocking task
-func (e *WorkflowExecutor) ExecuteAndGetBlockingTask(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
-	return e.ExecuteAndGetBlockingTaskWithContext(context.Background(), startWorkflowRequest, waitUntilTask, waitForSeconds, consistency)
-}
-
-// ExecuteAndGetBlockingTaskInput starts a workflow and returns the blocking task input
-func (e *WorkflowExecutor) ExecuteAndGetBlockingTaskInput(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
-	return e.ExecuteAndGetBlockingTaskInputWithContext(context.Background(), startWorkflowRequest, waitUntilTask, waitForSeconds, consistency)
-}
-
 // MonitorExecution monitors the workflow execution
 // Returns the channel with the execution result of the workflow
 // Note: Channels will continue to grow if the workflows do not complete and/or are not taken out

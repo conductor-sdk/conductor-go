@@ -362,11 +362,12 @@ func TestSubWorkflowSignalWithSyncConsistency(t *testing.T) {
 	}
 
 	// Execute the workflow with BLOCKING_WORKFLOW return strategy
-	workflowRun, err := executor.ExecuteAndGetBlockingWorkflow(
+	workflowRun, err := executor.ExecuteWorkflowWithReturnStrategy(
 		startRequest,
-		[]string{""},  // No waitUntilTask
-		10,            // waitForSeconds
-		"SYNCHRONOUS", // consistency
+		model.SynchronousConsistency,
+		model.ReturnBlockingWorkflow,
+		[]string{""},
+		10,
 	)
 	assert.NotNil(t, workflowRun)
 
@@ -422,11 +423,12 @@ func TestSubWorkflowSignalWithDurableConsistency(t *testing.T) {
 	}
 
 	// Execute the workflow with BLOCKING_WORKFLOW return strategy
-	workflowRun, err := executor.ExecuteAndGetBlockingWorkflow(
+	workflowRun, err := executor.ExecuteWorkflowWithReturnStrategy(
 		startRequest,
-		[]string{""},  // No waitUntilTask
-		10,            // waitForSeconds
-		"SYNCHRONOUS", // consistency
+		model.SynchronousConsistency,
+		model.ReturnBlockingWorkflow,
+		[]string{""},
+		10,
 	)
 	assert.NotNil(t, workflowRun)
 
@@ -838,7 +840,13 @@ func TestSignal_DefaultStrategy_IsTargetWorkflow(t *testing.T) {
 		Input:   map[string]interface{}{},
 	}
 
-	workflowRun, err := executor.ExecuteAndGetTarget(startRequest, []string{""}, 10, "DURABLE")
+	workflowRun, err := executor.ExecuteWorkflowWithReturnStrategy(
+		startRequest,
+		model.SynchronousConsistency,
+		model.ReturnTargetWorkflow,
+		[]string{""},
+		10,
+	)
 	assert.Nil(t, err)
 	workflowId := workflowRun.WorkflowId
 

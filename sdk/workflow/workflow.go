@@ -209,6 +209,35 @@ func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.Sta
 	return workflow.executor.StartWorkflow(startWorkflowRequest)
 }
 
+// ExecuteWorkflowWithReturnStrategy starts the workflow with the provided input and waits for a specified return condition.
+//
+// Parameters:
+//   - input: The workflow input. Must be serializable to JSON.
+//   - consistency: The desired consistency level for workflow execution.
+//   - returnStrategy: Strategy indicating whether to wait for task completion or workflow completion.
+//   - waitUntilTask: A list of task reference names. The method returns once all specified tasks are completed.
+//     If empty, it waits until the workflow completes or reaches the server-defined timeout.
+//   - waitForSec: Maximum time to wait (in seconds) before returning.
+//
+// Returns:
+// - workflowRun: Contains the workflow execution output (if available).
+// - err: Error, if any occurred during execution or timeout.
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithReturnStrategy(input interface{}, consistency model.WorkflowConsistency, returnStrategy model.ReturnStrategy, waitUntilTask []string, waitForSec int) (workflowRun *model.SignalResponse, err error) {
+	version := workflow.GetVersion()
+	return workflow.executor.ExecuteWorkflowWithReturnStrategy(
+		&model.StartWorkflowRequest{
+			Name:        workflow.GetName(),
+			Version:     version,
+			Input:       getInputAsMap(input),
+			WorkflowDef: workflow.ToWorkflowDef(),
+		},
+		consistency,
+		returnStrategy,
+		waitUntilTask,
+		waitForSec,
+	)
+}
+
 // Executes the workflow with specific input and wait for the workflow to complete or until the task specified as waitUntil is completed.
 // waitUntilTask Reference name of the task which MUST be completed before returning the output.  if specified as empty string, then the call waits until the
 // workflow completes or reaches the timeout (as specified on the server)
@@ -224,86 +253,6 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, w
 			WorkflowDef: workflow.ToWorkflowDef(),
 		},
 		waitUntilTask,
-	)
-}
-
-// ExecuteAndGetTarget executes the workflow and returns the target workflow details.
-// waitUntilTask: Reference name of the task to wait for (empty string will wait for workflow completion)
-// waitForSeconds: Maximum time to wait in seconds
-// consistency: Consistency level ("DURABLE" or "EVENTUAL")
-// Returns the target workflow details
-func (workflow *ConductorWorkflow) ExecuteAndGetTarget(input interface{}, waitUntilTask []string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
-	version := workflow.GetVersion()
-	return workflow.executor.ExecuteAndGetTarget(
-		&model.StartWorkflowRequest{
-			Name:        workflow.GetName(),
-			Version:     version,
-			Input:       getInputAsMap(input),
-			WorkflowDef: workflow.ToWorkflowDef(),
-		},
-		waitUntilTask,
-		waitForSeconds,
-		consistency,
-	)
-}
-
-// ExecuteWorkflowWithBlockingWorkflow executes the workflow and returns the blocking workflow details.
-// waitUntilTask: Reference name of the task to wait for (empty string will wait for workflow completion)
-// waitForSeconds: Maximum time to wait in seconds
-// consistency: Consistency level ("DURABLE" or "EVENTUAL")
-// Returns the blocking workflow details
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingWorkflow(input interface{}, waitUntilTask []string, waitForSeconds int, consistency string) (workflowRun *model.WorkflowRun, err error) {
-	version := workflow.GetVersion()
-	return workflow.executor.ExecuteAndGetBlockingWorkflow(
-		&model.StartWorkflowRequest{
-			Name:        workflow.GetName(),
-			Version:     version,
-			Input:       getInputAsMap(input),
-			WorkflowDef: workflow.ToWorkflowDef(),
-		},
-		waitUntilTask,
-		waitForSeconds,
-		consistency,
-	)
-}
-
-// ExecuteWorkflowWithBlockingTask executes the workflow and returns the blocking task details.
-// waitUntilTask: Reference name of the task to wait for (required)
-// waitForSeconds: Maximum time to wait in seconds
-// consistency: Consistency level ("DURABLE" or "EVENTUAL")
-// Returns the blocking task details
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTask(input interface{}, waitUntilTask []string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
-	version := workflow.GetVersion()
-	return workflow.executor.ExecuteAndGetBlockingTask(
-		&model.StartWorkflowRequest{
-			Name:        workflow.GetName(),
-			Version:     version,
-			Input:       getInputAsMap(input),
-			WorkflowDef: workflow.ToWorkflowDef(),
-		},
-		waitUntilTask,
-		waitForSeconds,
-		consistency,
-	)
-}
-
-// ExecuteWorkflowWithBlockingTaskInput executes the workflow and returns the blocking task input.
-// waitUntilTask: Reference name of the task to wait for (required)
-// waitForSeconds: Maximum time to wait in seconds
-// consistency: Consistency level ("DURABLE" or "EVENTUAL")
-// Returns the blocking task with its input data
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithBlockingTaskInput(input interface{}, waitUntilTask []string, waitForSeconds int, consistency string) (taskRun *model.TaskRun, err error) {
-	version := workflow.GetVersion()
-	return workflow.executor.ExecuteAndGetBlockingTaskInput(
-		&model.StartWorkflowRequest{
-			Name:        workflow.GetName(),
-			Version:     version,
-			Input:       getInputAsMap(input),
-			WorkflowDef: workflow.ToWorkflowDef(),
-		},
-		waitUntilTask,
-		waitForSeconds,
-		consistency,
 	)
 }
 
