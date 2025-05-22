@@ -32,7 +32,7 @@ func (e *WorkflowExecutor) UnRegisterWorkflowWithContext(ctx context.Context, na
 	return err
 }
 
-func (e *WorkflowExecutor) ExecuteWorkflowWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string) (run *model.WorkflowRun, err error) {
+func (e *WorkflowExecutor) ExecuteWorkflowWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string) (run *model.WorkflowRun, err error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -528,7 +528,7 @@ func (e *WorkflowExecutor) SignalWorkflowTaskWithContext(ctx context.Context, wo
 		return err
 	}
 
-	_, err = e.taskClient.SignalTaskAsync(ctx, outputData, workflowId, string(status))
+	_, err = e.taskClient.SignalAsync(ctx, outputData, workflowId, string(status))
 	if err != nil {
 		return err
 	}

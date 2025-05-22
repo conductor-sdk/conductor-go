@@ -26,7 +26,7 @@ type TaskClient interface {
 	UpdateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string) (string, *http.Response, error)
 	UpdateTaskByRefNameWithWorkerId(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, workerId optional.String) (string, *http.Response, error)
 	updateTaskByRefName(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, status string, workerId optional.String) (string, *http.Response, error)
-	SignalTaskAsync(ctx context.Context, body map[string]interface{}, workflowId string, status string) (*http.Response, error)
+	SignalAsync(ctx context.Context, body map[string]interface{}, workflowId string, status string) (*http.Response, error)
 	Signal(ctx context.Context, body map[string]interface{}, workflowID string, status model.WorkflowStatus, opts ...SignalTaskOpts) (*model.SignalResponse, error)
 }
 

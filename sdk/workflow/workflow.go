@@ -11,6 +11,7 @@ package workflow
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
@@ -252,7 +253,7 @@ func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, w
 			Input:       getInputAsMap(input),
 			WorkflowDef: workflow.ToWorkflowDef(),
 		},
-		waitUntilTask,
+		strings.Join(waitUntilTask, ","),
 	)
 }
 

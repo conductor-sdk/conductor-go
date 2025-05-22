@@ -467,13 +467,13 @@ func (a *TaskResourceApiService) UpdateTaskSync(ctx context.Context, body map[st
 
 /*
 Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
-TaskResourceApiService Signal workflow to update running task in the workflow with given status and output asynchronously
+TaskResourceApiService SignalAsync workflow to update running task in the workflow with given status and output asynchronously
   - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
   - @param body
   - @param workflowId
   - @param status
 */
-func (a *TaskResourceApiService) SignalTaskAsync(ctx context.Context, body map[string]interface{}, workflowId string, status string) (*http.Response, error) {
+func (a *TaskResourceApiService) SignalAsync(ctx context.Context, body map[string]interface{}, workflowId string, status string) (*http.Response, error) {
 	// create path and map variables
 	path := fmt.Sprintf("/tasks/%v/%v/signal", workflowId, status)
 

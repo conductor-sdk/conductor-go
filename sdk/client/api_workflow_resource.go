@@ -805,34 +805,22 @@ func (a *WorkflowResourceApiService) ExecuteWorkflowWithReturnStrategy(ctx conte
 	return &signalResponse, nil
 }
 
-func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask []string) (model.WorkflowRun, *http.Response, error) {
-	waitForSeconds := 10
-	consistency := "DURABLE"
-	returnStrategy := "TARGET_WORKFLOW"
+func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask string) (model.WorkflowRun, *http.Response, error) {
+	var result model.WorkflowRun
 
-	response, httpResponse, err := a.executeWorkflowImpl(
-		ctx,
-		body,
-		requestId,
-		name,
-		version,
-		waitUntilTask,
-		waitForSeconds,
-		consistency,
-		returnStrategy,
-	)
+	path := fmt.Sprintf("/workflow/execute/%s/%d", name, version)
 
+	queryParams := url.Values{}
+	queryParams.Add("requestId", parameterToString(requestId, ""))
+	if len(waitUntilTask) > 0 {
+		queryParams.Add("waitUntilTaskRef", parameterToString(waitUntilTask, ""))
+	}
+
+	resp, err := a.PostWithParams(ctx, path, queryParams, body, &result)
 	if err != nil {
-		return model.WorkflowRun{}, httpResponse, err
+		return model.WorkflowRun{}, resp, err
 	}
-
-	// We know this should be a WorkflowRun based on returnStrategy
-	workflowRun, ok := response.(model.WorkflowRun)
-	if !ok {
-		return model.WorkflowRun{}, httpResponse, fmt.Errorf("expected WorkflowRun but got %T", response)
-	}
-
-	return workflowRun, httpResponse, nil
+	return result, resp, nil
 }
 
 // Enterprise: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.

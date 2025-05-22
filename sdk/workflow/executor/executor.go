@@ -95,7 +95,7 @@ func (e *WorkflowExecutor) UnRegisterWorkflow(name string, version int32) error 
 
 // ExecuteWorkflow start a workflow and wait until the workflow completes or the waitUntilTask completes
 // Returns the output of the workflow
-func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string) (run *model.WorkflowRun, err error) {
+func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask string) (run *model.WorkflowRun, err error) {
 	return e.ExecuteWorkflowWithContext(context.Background(), startWorkflowRequest, waitUntilTask)
 }
 

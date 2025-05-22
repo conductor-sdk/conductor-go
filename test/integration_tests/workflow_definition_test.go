@@ -256,7 +256,7 @@ func executeWorkflowWithRetries(wf *workflow.ConductorWorkflow, workflowInput in
 
 func executeWorkflowWithRetriesWithStartWorkflowRequest(startWorkflowRequest *model.StartWorkflowRequest) (*model.WorkflowRun, error) {
 	for attempt := 1; attempt <= retryLimit; attempt += 1 {
-		workflowRun, err := testdata.WorkflowExecutor.ExecuteWorkflow(startWorkflowRequest, []string{""})
+		workflowRun, err := testdata.WorkflowExecutor.ExecuteWorkflow(startWorkflowRequest, "")
 		if err != nil {
 			time.Sleep(time.Duration(attempt+2) * time.Second)
 			fmt.Printf("Failed to execute workflow, reason: %s", err.Error())
