@@ -99,6 +99,12 @@ func (e *WorkflowExecutor) ExecuteWorkflow(startWorkflowRequest *model.StartWork
 	return e.ExecuteWorkflowWithContext(context.Background(), startWorkflowRequest, waitUntilTask)
 }
 
+// ExecuteWorkflowWithReturnStrategy start a workflow with return strategy, consistency and wait until task, the workflow completes or the waitUntilTask completes
+// Returns the output of the workflow as unified response
+func (e *WorkflowExecutor) ExecuteWorkflowWithReturnStrategy(startWorkflowRequest *model.StartWorkflowRequest, consistency model.WorkflowConsistency, returnStrategy model.ReturnStrategy, waitUntilTask []string, waitForSec int) (resp *model.SignalResponse, err error) {
+	return e.ExecuteWorkflowWithReturnStrategyWithContext(context.Background(), startWorkflowRequest, consistency, returnStrategy, waitUntilTask, waitForSec)
+}
+
 // MonitorExecution monitors the workflow execution
 // Returns the channel with the execution result of the workflow
 // Note: Channels will continue to grow if the workflows do not complete and/or are not taken out
@@ -334,6 +340,18 @@ func (e *WorkflowExecutor) startWorkflowDaemon(monitorExecution bool, request *m
 		return
 	}
 	runningWorkflowChannel <- NewRunningWorkflow(workflowId, executionChannel, nil)
+}
+
+// Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+// SignalWorkflowTaskAsync signals a task asynchronously
+func (e *WorkflowExecutor) SignalWorkflowTaskAsync(workflowId string, status model.TaskResultStatus, output interface{}) error {
+	return e.SignalWorkflowTaskWithContext(context.Background(), workflowId, status, output)
+}
+
+// Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+// Signal signals a task and returns the target workflow
+func (e *WorkflowExecutor) Signal(workflowId string, status model.WorkflowStatus, output interface{}, opts ...client.SignalTaskOpts) (*model.SignalResponse, error) {
+	return e.SignalWithContext(context.Background(), workflowId, status, output, opts...)
 }
 
 func getEnvStr(key string) (string, error) {
