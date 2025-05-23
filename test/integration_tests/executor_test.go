@@ -3,6 +3,7 @@ package integration_tests
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/conductor-sdk/conductor-go/sdk/log"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
@@ -933,4 +934,84 @@ func TestSignal_MixedStrategy(t *testing.T) {
 		})
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
+}
+
+func TestWfExecutionWithWaitForSec_Success(t *testing.T) {
+	executor := testdata.WorkflowExecutor
+
+	wf := workflow.ConductorWorkflow{}
+	httpTask := workflow.NewHttpTask("http_ref_1",
+		&workflow.HttpInput{
+			Uri:    "http://httpbin:8081/api/hello/with-delay?name=test1&delaySeconds=2",
+			Method: "GET",
+		})
+	wf.Name("waitForSec_test").
+		Description("E2E test - Test Wait for sec with context").
+		Version(1).
+		Add(httpTask)
+
+	// register the workflow
+	err := executor.RegisterWorkflow(true, wf.ToWorkflowDef())
+	assert.NoError(t, err)
+
+	startRequest := &model.StartWorkflowRequest{
+		Name:    "waitForSec_test",
+		Version: 1,
+		Input:   map[string]interface{}{},
+	}
+
+	start := time.Now()
+	resp, err := executor.ExecuteWorkflowWithReturnStrategy(startRequest, model.SynchronousConsistency, model.ReturnTargetWorkflow, []string{""}, 2)
+	elapsed := time.Since(start)
+
+	assert.NoError(t, err, "ExecuteWorkflowWithReturnStrategy should succeed with buffer time")
+	assert.NotNil(t, resp, "Response should not be nil")
+
+	assert.GreaterOrEqual(t, elapsed.Seconds(), 2.0, "Should wait at least waitForSeconds")
+}
+
+func TestWfExecutionWithWaitForSec_ContextTimeout(t *testing.T) {
+	wfClient := testdata.WorkflowClient
+	executor := testdata.WorkflowExecutor
+	// Create a very short context timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+
+	wf := workflow.ConductorWorkflow{}
+	httpTask := workflow.NewHttpTask("http_ref_1",
+		&workflow.HttpInput{
+			Uri:    "http://httpbin:8081/api/hello/with-delay?name=test1&delaySeconds=2",
+			Method: "GET",
+		})
+	wf.Name("waitForSec_test").
+		Description("E2E test - Test Wait for sec with context").
+		Version(1).
+		Add(httpTask)
+
+	err := executor.RegisterWorkflow(true, wf.ToWorkflowDef())
+	assert.NoError(t, err)
+
+	startRequest := &model.StartWorkflowRequest{
+		Name:    "waitForSec_test",
+		Version: 1,
+		Input:   map[string]interface{}{},
+	}
+
+	start := time.Now()
+	resp, err := wfClient.ExecuteWorkflowWithReturnStrategy(ctx, *startRequest, client.ExecuteWorkflowOpts{
+		RequestID:        "123",
+		WaitForSeconds:   10,
+		ReturnStrategy:   model.ReturnTargetWorkflow,
+		Consistency:      model.SynchronousConsistency,
+		WaitUntilTaskRef: []string{""},
+	})
+
+	elapsed := time.Since(start)
+	// Should get context deadline exceeded
+	assert.Error(t, err, "Should get timeout error")
+	assert.True(t, errors.Is(err, context.DeadlineExceeded), "Should be context deadline exceeded")
+	assert.Nil(t, resp, "Response should be nil on timeout")
+	assert.Less(t, elapsed.Seconds(), 1.0, "Should timeout quickly")
+
+	t.Logf("Context timeout occurred in %v", elapsed)
 }

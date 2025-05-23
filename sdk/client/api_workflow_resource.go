@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 // Linger please
@@ -736,19 +737,12 @@ func (a *WorkflowResourceApiService) executeWorkflowImpl(
 }
 
 type ExecuteWorkflowOpts struct {
-	// Required options
-	Name    string
-	Version int32 // Changed to int32 to match your existing API
-
-	// Optional parameters
 	RequestID        string
 	WaitUntilTaskRef []string
 	WaitForSeconds   int
 	Input            map[string]interface{}
-
-	// Execution behavior options
-	Consistency    model.WorkflowConsistency
-	ReturnStrategy model.ReturnStrategy
+	Consistency      model.WorkflowConsistency
+	ReturnStrategy   model.ReturnStrategy
 }
 
 // DefaultExecuteWorkflowOpts returns the default options
@@ -781,9 +775,23 @@ func (a *WorkflowResourceApiService) ExecuteWorkflowWithReturnStrategy(ctx conte
 		return nil, fmt.Errorf("workflow version must be greater than 0")
 	}
 
+	// Create a new context with the same timeout as waitForSeconds
+	var cancelFunc context.CancelFunc
+	var effectiveCtx context.Context
+	if opts.WaitForSeconds > 0 {
+		// Add buffer time: 5 seconds for HTTP overhead + API processing
+		// This ensures the context doesn't timeout before the API can respond
+		bufferSeconds := 10
+		totalTimeout := time.Duration(opts.WaitForSeconds+bufferSeconds) * time.Second
+
+		effectiveCtx, cancelFunc = context.WithTimeout(ctx, totalTimeout)
+		defer cancelFunc()
+
+	}
+
 	// Call the existing internal method
 	response, _, err := a.executeWorkflowImpl(
-		ctx,
+		effectiveCtx,
 		body,
 		opts.RequestID,
 		body.Name,
