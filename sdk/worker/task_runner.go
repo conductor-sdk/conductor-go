@@ -24,7 +24,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/settings"
 
 	"github.com/antihax/optional"
-	log "github.com/sirupsen/logrus"
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 )
 
 const taskUpdateRetryAttemptsLimit = 3
@@ -62,6 +62,9 @@ type TaskRunner struct {
 	pausedWorkersMutex sync.RWMutex
 	pausedWorkers      map[string]bool
 
+	taskWorkerLegayExecutors map[string]model.ExecuteTaskFunction
+	taskWorkerExecutors      map[string]executePolledTaskFunction
+
 	pollTimeoutMutex      sync.RWMutex
 	pollTimeout           time.Duration
 	pollTimeoutByTaskName map[string]time.Duration
@@ -89,6 +92,8 @@ func NewTaskRunnerWithApiClient(
 		runningWorkersByTaskName: make(map[string]int),
 		pollIntervalByTaskName:   make(map[string]time.Duration),
 		pausedWorkers:            make(map[string]bool),
+		taskWorkerLegayExecutors: make(map[string]model.ExecuteTaskFunction),
+		taskWorkerExecutors:      make(map[string]executePolledTaskFunction),
 		pollTimeoutByTaskName:    make(map[string]time.Duration),
 		pollTimeout:              -1 * time.Millisecond, //If negative, the server will use its default.
 	}
@@ -106,7 +111,8 @@ func (c *TaskRunner) SetSleepOnGenericError(duration time.Duration) {
 //
 //	StartWorkerWithDomain(taskName, executeFunction, batchSize, pollInterval, "")
 func (c *TaskRunner) StartWorkerWithDomain(taskName string, executeFunction model.ExecuteTaskFunction, batchSize int, pollInterval time.Duration, domain string) error {
-	return c.startWorker(taskName, executeFunction, batchSize, pollInterval, domain)
+	c.taskWorkerLegayExecutors[taskName+"-"+domain] = executeFunction
+	return c.startWorker(taskName, batchSize, pollInterval, domain)
 }
 
 // StartWorker starts a worker on a new goroutine, which polls conductor periodically for tasks matching the provided
@@ -116,7 +122,17 @@ func (c *TaskRunner) StartWorkerWithDomain(taskName string, executeFunction mode
 // pollInterval and increases the batch size for the task, which applies to all tasks shared by this TaskRunner with the
 // same taskName.
 func (c *TaskRunner) StartWorker(taskName string, executeFunction model.ExecuteTaskFunction, batchSize int, pollInterval time.Duration) error {
-	return c.startWorker(taskName, executeFunction, batchSize, pollInterval, "")
+	c.taskWorkerLegayExecutors[taskName+"-"] = executeFunction
+	return c.startWorker(taskName, batchSize, pollInterval, "")
+}
+
+func (c *TaskRunner) StartWorkerWithExecFn(taskName string, executeFunction executePolledTaskFunction, options *TaskWorkerOptions) error {
+	batchSize := options.BatchSize
+	pollInterval := options.PollInterval
+	domain := options.Domain
+
+	c.taskWorkerExecutors[taskName+"-"+domain] = executeFunction
+	return c.startWorker(taskName, batchSize, pollInterval, domain)
 }
 
 // SetBatchSize can be used to set the batch size for all workers running the provided task.
@@ -247,8 +263,11 @@ func (c *TaskRunner) WaitWorkers() {
 	c.workerWaitGroup.Wait()
 }
 
-func (c *TaskRunner) startWorker(taskName string, executeFunction model.ExecuteTaskFunction, batchSize int, pollInterval time.Duration, taskDomain string) error {
-	c.SetPollIntervalForTask(taskName, pollInterval)
+func (c *TaskRunner) startWorker(taskName string, batchSize int, pollInterval time.Duration, taskDomain string) error {
+	err := c.SetPollIntervalForTask(taskName, pollInterval)
+	if err != nil {
+		return err
+	}
 	c.Resume(taskName)
 	previousMaxAllowedWorkers, err := c.getMaxAllowedWorkers(taskName)
 	if err != nil {
@@ -260,7 +279,7 @@ func (c *TaskRunner) startWorker(taskName string, executeFunction model.ExecuteT
 	}
 	if previousMaxAllowedWorkers < 1 {
 		c.workerWaitGroup.Add(1)
-		go c.work4ever(taskName, executeFunction, taskDomain)
+		go c.work4ever(taskName, taskDomain)
 	}
 	log.Info(
 		fmt.Sprintf(
@@ -273,15 +292,15 @@ func (c *TaskRunner) startWorker(taskName string, executeFunction model.ExecuteT
 	return nil
 }
 
-func (c *TaskRunner) work4ever(taskName string, executeFunction model.ExecuteTaskFunction, domain string) {
+func (c *TaskRunner) work4ever(taskName string, domain string) {
 	defer c.workerWaitGroup.Done()
 	defer concurrency.HandlePanicError("poll_and_execute")
 	for c.isWorkerRegistered(taskName) {
-		c.workOnce(taskName, executeFunction, domain)
+		c.workOnce(taskName, domain)
 	}
 }
 
-func (c *TaskRunner) workOnce(taskName string, executeFunction model.ExecuteTaskFunction, domain string) {
+func (c *TaskRunner) workOnce(taskName string, domain string) {
 	if c.isPaused(taskName) {
 		pauseOnGenericError(taskName, domain, fmt.Errorf("worker is paused"))
 		return
@@ -319,24 +338,155 @@ func (c *TaskRunner) workOnce(taskName string, executeFunction model.ExecuteTask
 		time.Sleep(pollInterval)
 		return
 	}
+	key := taskName + "-" + domain
+	executeFunction := c.taskWorkerLegayExecutors[key]
+	typedFunction := c.taskWorkerExecutors[key]
 	for _, task := range tasks {
 		c.increaseRunningWorkers(taskName)
-		go c.executeAndUpdateTask(taskName, task, executeFunction)
+		go c.executeAndUpdateTask(taskName, task, executeFunction, typedFunction)
 	}
 }
 
-func (c *TaskRunner) executeAndUpdateTask(taskName string, task model.Task, executeFunction model.ExecuteTaskFunction) {
+func (c *TaskRunner) executeAndUpdateTask(taskName string, task model.PolledTask,
+	executeFunction model.ExecuteTaskFunction, typedFunction executePolledTaskFunction) {
 	defer c.runningWorkerDone(taskName)
 	defer concurrency.HandlePanicError("execute_and_update_task " + string(task.TaskId) + ": " + string(task.Status))
-	taskResult := c.executeTask(&task, executeFunction)
+	var taskResult *model.TaskResult
+	if typedFunction != nil {
+		taskResult = c.executeTaskWithTypedWorker(&task, typedFunction)
+	} else {
+		taskResult = c.executeTask(&task, executeFunction)
+	}
 	err := c.updateTaskWithRetry(taskName, taskResult)
 	if err != nil {
 		log.Error("failed to update task ", taskName, ",taskId = ", task.TaskId, ",workflowId = ", task.WorkflowInstanceId, ",", err)
 	}
 }
 
-func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]model.Task, error) {
-	timeout, err := c.GetPollTimeoutForTask(taskName)
+func (c *TaskRunner) executeTask(polledTask *model.PolledTask, executeFunction model.ExecuteTaskFunction) *model.TaskResult {
+
+	log.Trace(
+		"Executing task of type: ", polledTask.TaskDefName,
+		", taskId: ", polledTask.TaskId,
+		", workflowId: ", polledTask.WorkflowInstanceId,
+	)
+	startTime := time.Now()
+
+	t, err := polledTask.ToTask()
+	if err != nil {
+		metrics.IncrementTaskExecuteError(t.TaskDefName, err)
+		log.Debug(
+			"failed to execute task",
+			", reason: ", err.Error(),
+			", taskName: ", t.TaskDefName,
+			", taskId: ", t.TaskId,
+			", workflowId: ", t.WorkflowInstanceId,
+		)
+		return model.NewTaskResultFromTaskWithError(t, err)
+	}
+	taskExecutionOutput, err := executeFunction(t)
+
+	spentTime := time.Since(startTime)
+	metrics.RecordTaskExecuteTime(
+		polledTask.TaskDefName, float64(spentTime.Milliseconds()),
+	)
+	if err != nil {
+		metrics.IncrementTaskExecuteError(polledTask.TaskDefName, err)
+		log.Debug(
+			"failed to execute task",
+			", reason: ", err.Error(),
+			", taskName: ", polledTask.TaskDefName,
+			", taskId: ", polledTask.TaskId,
+			", workflowId: ", polledTask.WorkflowInstanceId,
+		)
+		if taskExecutionOutput == nil {
+			return model.NewTaskResultFromTaskWithError(t, err)
+		}
+	}
+	taskResult, err := model.GetTaskResultFromTaskExecutionOutput(t, taskExecutionOutput)
+	if err != nil {
+		log.Debug(
+			"Failed to extract taskResult from generated object",
+			", reason: ", err.Error(),
+			", task type: ", polledTask.TaskDefName,
+			", taskId: ", polledTask.TaskId,
+			", workflowId: ", polledTask.WorkflowInstanceId,
+			", response: ", err,
+		)
+		return model.NewTaskResultFromTaskWithError(t, err)
+	}
+	log.Trace(
+		"Executed task of type: ", polledTask.TaskDefName,
+		", taskId: ", polledTask.TaskId,
+		", workflowId: ", polledTask.WorkflowInstanceId,
+	)
+	return taskResult
+}
+
+func getContext(task *model.PolledTask) TaskContext {
+	return &TaskContextImpl{
+		Context:            context.Background(),
+		RetryCount:         task.RetryCount,
+		CorrelationId:      task.CorrelationId,
+		PollCount:          task.PollCount,
+		RetriedTaskId:      task.RetriedTaskId,
+		Retried:            task.Retried,
+		WorkflowInstanceId: task.WorkflowInstanceId,
+		WorkflowType:       task.WorkflowType,
+		TaskId:             task.TaskId,
+		WorkflowPriority:   task.WorkflowPriority,
+	}
+}
+func (c *TaskRunner) executeTaskWithTypedWorker(polledTask *model.PolledTask, executeFunction executePolledTaskFunction) *model.TaskResult {
+
+	log.Trace(
+		"Executing task of type: ", polledTask.TaskDefName,
+		", taskId: ", polledTask.TaskId,
+		", workflowId: ", polledTask.WorkflowInstanceId,
+	)
+	startTime := time.Now()
+
+	taskExecutionOutput, err := executeFunction(getContext(polledTask), polledTask)
+
+	spentTime := time.Since(startTime)
+	metrics.RecordTaskExecuteTime(
+		polledTask.TaskDefName, float64(spentTime.Milliseconds()),
+	)
+	if err != nil {
+		metrics.IncrementTaskExecuteError(polledTask.TaskDefName, err)
+		log.Debug(
+			"failed to execute task",
+			", reason: ", err.Error(),
+			", taskName: ", polledTask.TaskDefName,
+			", taskId: ", polledTask.TaskId,
+			", workflowId: ", polledTask.WorkflowInstanceId,
+		)
+		if taskExecutionOutput == nil {
+			return polledTask.ToTaskResultWithError(err)
+		}
+	}
+	taskResult, err := polledTask.ToTaskResultExecutionOutput(taskExecutionOutput)
+	if err != nil {
+		log.Debug(
+			"Failed to extract taskResult from generated object",
+			", reason: ", err.Error(),
+			", task type: ", polledTask.TaskDefName,
+			", taskId: ", polledTask.TaskId,
+			", workflowId: ", polledTask.WorkflowInstanceId,
+			", response: ", err,
+		)
+		return polledTask.ToTaskResultWithError(err)
+	}
+	log.Trace(
+		"Executed task of type: ", polledTask.TaskDefName,
+		", taskId: ", polledTask.TaskId,
+		", workflowId: ", polledTask.WorkflowInstanceId,
+	)
+	return taskResult
+}
+
+func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]model.PolledTask, error) {
+	_, err := c.GetPollIntervalForTask(taskName)
 	if err != nil {
 		return nil, err
 	}
@@ -344,20 +494,19 @@ func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]mod
 	if domain != "" {
 		domainOptional = optional.NewString(domain)
 	}
-	log.Debug("Polling for task: ", taskName, ", in batches of size: ", count, ", with poll timeout: ", timeout)
-	metrics.IncrementTaskPoll(taskName)
-	startTime := time.Now()
 	opts := &client.TaskResourceApiBatchPollOpts{
 		Domain:   domainOptional,
-		Workerid: optional.NewString(hostname),
+		WorkerId: optional.NewString(hostname),
 		Count:    optional.NewInt32(int32(count)),
 	}
 
-	if timeout >= 0 {
-		opts.Timeout = optional.NewInt32(int32(timeout.Milliseconds()))
-	}
-
-	tasks, response, err := c.conductorTaskResourceClient.BatchPoll(
+	log.Debug(
+		"Polling for task: ", taskName, "with domain", domain,
+		", in batches of size: ", count,
+	)
+	metrics.IncrementTaskPoll(taskName)
+	startTime := time.Now()
+	tasks, response, err := c.conductorTaskResourceClient.BatchPollTask(
 		context.Background(),
 		taskName,
 		opts,
@@ -378,51 +527,6 @@ func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]mod
 	}
 	log.Debug(fmt.Sprintf("Polled %d tasks for taskName: %s", len(tasks), taskName))
 	return tasks, nil
-}
-
-func (c *TaskRunner) executeTask(t *model.Task, executeFunction model.ExecuteTaskFunction) *model.TaskResult {
-	log.Trace(
-		"Executing task of type: ", t.TaskDefName,
-		", taskId: ", t.TaskId,
-		", workflowId: ", t.WorkflowInstanceId,
-	)
-	startTime := time.Now()
-	taskExecutionOutput, err := executeFunction(t)
-	spentTime := time.Since(startTime)
-	metrics.RecordTaskExecuteTime(
-		t.TaskDefName, float64(spentTime.Milliseconds()),
-	)
-	if err != nil {
-		metrics.IncrementTaskExecuteError(t.TaskDefName, err)
-		log.Debug(
-			"failed to execute task",
-			", reason: ", err.Error(),
-			", taskName: ", t.TaskDefName,
-			", taskId: ", t.TaskId,
-			", workflowId: ", t.WorkflowInstanceId,
-		)
-		if taskExecutionOutput == nil {
-			return model.NewTaskResultFromTaskWithError(t, err)
-		}
-	}
-	taskResult, err := model.GetTaskResultFromTaskExecutionOutput(t, taskExecutionOutput)
-	if err != nil {
-		log.Debug(
-			"Failed to extract taskResult from generated object",
-			", reason: ", err.Error(),
-			", task type: ", t.TaskDefName,
-			", taskId: ", t.TaskId,
-			", workflowId: ", t.WorkflowInstanceId,
-			", response: ", err,
-		)
-		return model.NewTaskResultFromTaskWithError(t, err)
-	}
-	log.Trace(
-		"Executed task of type: ", t.TaskDefName,
-		", taskId: ", t.TaskId,
-		", workflowId: ", t.WorkflowInstanceId,
-	)
-	return taskResult
 }
 
 func (c *TaskRunner) updateTaskWithRetry(taskName string, taskResult *model.TaskResult) error {

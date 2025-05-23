@@ -30,6 +30,3 @@ func Error(args ...interface{}) {
 func Warning(args ...interface{}) {
 	sugar.Warn(args)
 }
-func Fatalf(format string, args ...interface{}) {
-	sugar.Fatalf(format, args...)
-}

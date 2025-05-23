@@ -12,18 +12,16 @@ package testdata
 import (
 	"context"
 	"fmt"
-	"os"
 	"reflect"
 	"time"
 
 	"github.com/conductor-sdk/conductor-go/sdk/authentication"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
+	"github.com/conductor-sdk/conductor-go/sdk/log"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/worker"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
-
-	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -57,12 +55,6 @@ var (
 var TaskRunner = worker.NewTaskRunnerWithApiClient(apiClient)
 
 var WorkflowExecutor = executor.NewWorkflowExecutor(apiClient)
-
-func init() {
-	log.SetFormatter(&log.JSONFormatter{})
-	log.SetOutput(os.Stdout)
-	log.SetLevel(log.ErrorLevel)
-}
 
 func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, workflowId string, expectedOutput map[string]interface{}, expectedStatus model.WorkflowStatus) {
 	time.Sleep(waitTime)
