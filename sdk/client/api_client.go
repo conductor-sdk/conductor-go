@@ -450,11 +450,6 @@ func (c *APIClient) DeleteWithBody(ctx context.Context, path string, body interf
 	return c.executeCall(ctx, "DELETE", path, nil, body, "", result)
 }
 
-// DeleteWithBody performs a DELETE request with a body
-func (c *APIClient) DeleteWithBody(ctx context.Context, path string, body interface{}, result interface{}) (*http.Response, error) {
-	return c.executeCall(ctx, "DELETE", path, nil, body, result)
-}
-
 // Patch performs a PATCH request
 func (c *APIClient) Patch(ctx context.Context, path string, body interface{}, result interface{}) (*http.Response, error) {
 	return c.executeCall(ctx, "PATCH", path, nil, body, "", result)

@@ -10,7 +10,6 @@ import (
 type TaskClient interface {
 	All(ctx context.Context) (map[string]int64, *http.Response, error)
 	AllVerbose(ctx context.Context) (map[string]map[string]map[string]int64, *http.Response, error)
-	BatchPoll(ctx context.Context, tasktype string, options *TaskResourceApiBatchPollOpts) ([]model.Task, *http.Response, error)
 	BatchPollTask(ctx context.Context, tasktype string, options *TaskResourceApiBatchPollOpts) ([]model.PolledTask, *http.Response, error)
 	GetAllPollData(ctx context.Context) ([]model.PollData, *http.Response, error)
 	GetExternalStorageLocation1(ctx context.Context, path string, operation string, payloadType string) (model.ExternalStorageLocation, *http.Response, error)

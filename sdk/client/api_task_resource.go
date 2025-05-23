@@ -74,7 +74,7 @@ TaskResourceApiService Batch poll for a task of a certain type
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param tasktype
  * @param optional nil or *TaskResourceApiBatchPollOpts - Optional Parameters:
-     * @param "Workerid" (optional.String) -
+     * @param "WorkerId" (optional.String) -
      * @param "Domain" (optional.String) -
      * @param "Count" (optional.Int32) -
      * @param "Timeout" (optional.Int32) -
@@ -82,20 +82,20 @@ TaskResourceApiService Batch poll for a task of a certain type
 */
 
 type TaskResourceApiBatchPollOpts struct {
-	Workerid optional.String
+	WorkerId optional.String
 	Domain   optional.String
 	Count    optional.Int32
 	Timeout  optional.Int32
 }
 
-func (a *TaskResourceApiService) BatchPoll(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiBatchPollOpts) ([]model.Task, *http.Response, error) {
-	var result []model.Task
+func (a *TaskResourceApiService) BatchPollTask(ctx context.Context, tasktype string, localVarOptionals *TaskResourceApiBatchPollOpts) ([]model.PolledTask, *http.Response, error) {
+	var result []model.PolledTask
 
 	path := fmt.Sprintf("/tasks/poll/batch/%s", tasktype)
 
 	queryParams := url.Values{}
-	if localVarOptionals != nil && localVarOptionals.Workerid.IsSet() {
-		queryParams.Add("workerid", parameterToString(localVarOptionals.Workerid.Value(), ""))
+	if localVarOptionals != nil && localVarOptionals.WorkerId.IsSet() {
+		queryParams.Add("workerid", parameterToString(localVarOptionals.WorkerId.Value(), ""))
 	}
 	if localVarOptionals != nil && localVarOptionals.Domain.IsSet() {
 		queryParams.Add("domain", parameterToString(localVarOptionals.Domain.Value(), ""))
@@ -239,7 +239,7 @@ TaskResourceApiService Poll for a task of a certain type
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param tasktype
  * @param optional nil or *TaskResourceApiPollOpts - Optional Parameters:
-     * @param "Workerid" (optional.String) -
+     * @param "WorkerId" (optional.String) -
      * @param "Domain" (optional.String) -
 @return Task
 */

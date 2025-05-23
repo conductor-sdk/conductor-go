@@ -496,7 +496,7 @@ func (c *TaskRunner) batchPoll(taskName string, count int, domain string) ([]mod
 	}
 	opts := &client.TaskResourceApiBatchPollOpts{
 		Domain:   domainOptional,
-		Workerid: optional.NewString(hostname),
+		WorkerId: optional.NewString(hostname),
 		Count:    optional.NewInt32(int32(count)),
 	}
 
