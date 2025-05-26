@@ -9,4 +9,7 @@
 
 package security
 
-type GenerateTokenRequest struct {}
+type GenerateTokenRequest struct {
+	KeyId     string `json:"keyId,omitempty"`
+	KeySecret string `json:"keySecret,omitempty"`
+}
