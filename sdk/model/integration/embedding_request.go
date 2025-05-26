@@ -9,4 +9,10 @@
 
 package integration
 
-type EmbeddingRequest struct {}
+// EmbeddingRequest represents a request for generating embeddings
+type EmbeddingRequest struct {
+	LlmProvider string `json:"llmProvider,omitempty"`
+	Model       string `json:"model,omitempty"`
+	Text        string `json:"text,omitempty"`
+	Dimensions  int    `json:"dimensions,omitempty"`
+}
