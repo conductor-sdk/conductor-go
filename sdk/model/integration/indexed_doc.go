@@ -9,4 +9,10 @@
 
 package integration
 
-type IndexedDoc struct {}
+type IndexedDoc struct {
+	DocId       string                 `json:"docId,omitempty"`
+	ParentDocId string                 `json:"parentDocId,omitempty"`
+	Text        string                 `json:"text,omitempty"`
+	Score       float64                `json:"score,omitempty"`
+	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+}
