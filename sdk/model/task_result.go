@@ -9,6 +9,7 @@
 
 package model
 
+// Result of the task execution.
 type TaskResult struct {
 	WorkflowInstanceId               string                 `json:"workflowInstanceId"`
 	TaskId                           string                 `json:"taskId"`
@@ -20,4 +21,5 @@ type TaskResult struct {
 	Logs                             []TaskExecLog          `json:"logs,omitempty"`
 	ExternalOutputPayloadStoragePath string                 `json:"externalOutputPayloadStoragePath,omitempty"`
 	SubWorkflowId                    string                 `json:"subWorkflowId,omitempty"`
+	ExtendLease                      bool                   `json:"extendLease,omitempty"`
 }
