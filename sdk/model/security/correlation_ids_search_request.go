@@ -9,4 +9,8 @@
 
 package security
 
-type CorrelationIdsSearchRequest struct {}
+// CorrelationIdsSearchRequest represents a request to search workflows by correlation IDs
+type CorrelationIdsSearchRequest struct {
+	CorrelationIds []string `json:"correlationIds,omitempty"`
+	WorkflowNames  []string `json:"workflowNames,omitempty"`
+}
