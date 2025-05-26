@@ -9,5 +9,14 @@
 
 package model
 
+// EventExecution represents an execution of an event handler
 type EventExecution struct {
+	ID        string                 `json:"id,omitempty"`
+	MessageID string                 `json:"messageId,omitempty"`
+	Name      string                 `json:"name,omitempty"`
+	Event     string                 `json:"event,omitempty"`
+	Created   int64                  `json:"created,omitempty"`
+	Status    string                 `json:"status,omitempty"`
+	Action    string                 `json:"action,omitempty"`
+	Output    map[string]interface{} `json:"output,omitempty"`
 }
