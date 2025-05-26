@@ -9,4 +9,8 @@
 
 package model
 
-type RateLimitConfig struct {}
+// RateLimitConfig Rate limit configuration for workflows
+type RateLimitConfig struct {
+	RateLimitKey        string `json:"rateLimitKey,omitempty"`
+	ConcurrentExecLimit int    `json:"concurrentExecLimit,omitempty"`
+}
