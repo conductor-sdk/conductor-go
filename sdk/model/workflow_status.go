@@ -9,19 +9,26 @@
 
 package model
 
-type WorkflowStatus string
+// WorkflowStatus represents the status information of a workflow
+type WorkflowStatus struct {
+	WorkflowId    string                 `json:"workflowId,omitempty"`
+	CorrelationId string                 `json:"correlationId,omitempty"`
+	Output        map[string]interface{} `json:"output,omitempty"`
+	Variables     map[string]interface{} `json:"variables,omitempty"`
+	Status        string                 `json:"status,omitempty"`
+}
 
 const (
-	RunningWorkflow    WorkflowStatus = "RUNNING"
-	CompletedWorkflow  WorkflowStatus = "COMPLETED"
-	FailedWorkflow     WorkflowStatus = "FAILED"
-	TimedOutWorkflow   WorkflowStatus = "TIMED_OUT"
-	TerminatedWorkflow WorkflowStatus = "TERMINATED"
-	PausedWorkflow     WorkflowStatus = "PAUSED"
+	RunningWorkflow    string = "RUNNING"
+	CompletedWorkflow  string = "COMPLETED"
+	FailedWorkflow     string = "FAILED"
+	TimedOutWorkflow   string = "TIMED_OUT"
+	TerminatedWorkflow string = "TERMINATED"
+	PausedWorkflow     string = "PAUSED"
 )
 
 var (
-	WorkflowTerminalStates = []WorkflowStatus{
+	WorkflowTerminalStates = []string{
 		CompletedWorkflow,
 		FailedWorkflow,
 		TimedOutWorkflow,
