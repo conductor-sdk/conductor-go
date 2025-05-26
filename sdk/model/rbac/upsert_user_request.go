@@ -10,9 +10,9 @@
 package rbac
 
 type UpsertUserRequest struct {
+	// User's full name
+	Name   string   `json:"name"`
+	Roles  []string `json:"roles,omitempty"`
 	// Ids of the groups this user belongs to
 	Groups []string `json:"groups,omitempty"`
-	// User's full name
-	Name  string   `json:"name"`
-	Roles []string `json:"roles,omitempty"`
 }
