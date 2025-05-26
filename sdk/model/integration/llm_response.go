@@ -9,4 +9,9 @@
 
 package integration
 
-type LlmResponse struct {}
+// LlmResponse represents a response from an LLM service
+type LlmResponse struct {
+	Result       interface{} `json:"result,omitempty"`
+	FinishReason string      `json:"finishReason,omitempty"`
+	TokenUsed    int         `json:"tokenUsed,omitempty"`
+}
