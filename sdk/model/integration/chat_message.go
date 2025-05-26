@@ -9,4 +9,17 @@
 
 package integration
 
-type ChatMessage struct {}
+// ChatMessage represents a message in a chat conversation
+type ChatMessage struct {
+	Role    string `json:"role,omitempty"`
+	Message string `json:"message,omitempty"`
+}
+
+// Actor constants for ChatMessage roles
+const (
+	ActorUser      = "user"
+	ActorAssistant = "assistant"
+	ActorSystem    = "system"
+	ActorHuman     = "human"
+	ActorChatbot   = "chatbot"
+)
