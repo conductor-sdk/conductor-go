@@ -9,4 +9,19 @@
 
 package integration
 
-type IntegrationDef struct {}
+// IntegrationDef represents an integration definition
+type IntegrationDef struct {
+	Type           string                     `json:"type,omitempty"`
+	Name           string                     `json:"name,omitempty"`
+	Description    string                     `json:"description,omitempty"`
+	Category       Category                   `json:"category,omitempty"`
+	CategoryLabel  string                     `json:"categoryLabel,omitempty"`
+	IconName       string                     `json:"iconName,omitempty"`
+	Configuration  []IntegrationDefFormField  `json:"configuration,omitempty"`
+	Tags           []string                   `json:"tags,omitempty"`
+	Enabled        bool                       `json:"enabled,omitempty"`
+}
+
+const (
+	TypeCustomAIModel = "TYPE_CUSTOM_AI_MODEL"
+)
