@@ -9,4 +9,15 @@
 
 package model
 
-type WorkflowTestRequest struct {}
+type WorkflowTestRequest struct {
+	StartWorkflowRequest
+	TaskRefToMockOutput    map[string][]TaskMock          `json:"taskRefToMockOutput,omitempty"`
+	SubWorkflowTestRequest map[string]WorkflowTestRequest `json:"subWorkflowTestRequest,omitempty"`
+}
+
+type TaskMock struct {
+	Status        string                 `json:"status,omitempty"`
+	Output        map[string]interface{} `json:"output,omitempty"`
+	ExecutionTime int64                  `json:"executionTime,omitempty"`
+	QueueWaitTime int64                  `json:"queueWaitTime,omitempty"`
+}
