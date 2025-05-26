@@ -9,4 +9,7 @@
 
 package integration
 
-type TextCompletion struct {}
+// TextCompletion represents a text completion request for LLM workers
+type TextCompletion struct {
+	LLMWorkerInput
+}
