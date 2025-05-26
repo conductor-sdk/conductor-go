@@ -9,4 +9,6 @@
 
 package model
 
-type DynamicForkJoinTaskList struct {}
+type DynamicForkJoinTaskList struct {
+	DynamicTasks []DynamicForkJoinTask `json:"dynamicTasks,omitempty"`
+}
