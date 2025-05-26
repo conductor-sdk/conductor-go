@@ -21,4 +21,5 @@ type WorkflowScheduleExecutionModel struct {
 	WorkflowId           string                `json:"workflowId,omitempty"`
 	WorkflowName         string                `json:"workflowName,omitempty"`
 	ZoneId               string                `json:"zoneId,omitempty"`
+	OrgId                string                `json:"orgId,omitempty"`
 }
