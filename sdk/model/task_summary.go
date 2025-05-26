@@ -28,5 +28,6 @@ type TaskSummary struct {
 	TaskId                           string `json:"taskId,omitempty"`
 	ExternalInputPayloadStoragePath  string `json:"externalInputPayloadStoragePath,omitempty"`
 	ExternalOutputPayloadStoragePath string `json:"externalOutputPayloadStoragePath,omitempty"`
-	WorkflowPriority                 int32  `json:"workflowPriority,omitempty"`
+	WorkflowPriority                 int    `json:"workflowPriority,omitempty"`
+	Domain                           string `json:"domain,omitempty"`
 }
