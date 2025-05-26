@@ -9,4 +9,10 @@
 
 package model
 
-type DynamicForkJoinTask struct {}
+type DynamicForkJoinTask struct {
+	TaskName      string                 `json:"taskName,omitempty"`
+	WorkflowName  string                 `json:"workflowName,omitempty"`
+	ReferenceName string                 `json:"referenceName,omitempty"`
+	Input         map[string]interface{} `json:"input,omitempty"`
+	Type          string                 `json:"type,omitempty"`
+}
