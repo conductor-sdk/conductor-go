@@ -9,4 +9,9 @@
 
 package security
 
-type TokenResponse struct {}
+import "github.com/conductor-sdk/conductor-go/sdk/model"
+
+type TokenResponse struct {
+	model.Response
+	Token string `json:"token,omitempty"`
+}
