@@ -9,4 +9,10 @@
 
 package security
 
-type SubjectType struct {}
+type SubjectType string
+
+const (
+	SubjectTypeUser  SubjectType = "USER"
+	SubjectTypeRole  SubjectType = "ROLE"
+	SubjectTypeGroup SubjectType = "GROUP"
+)
