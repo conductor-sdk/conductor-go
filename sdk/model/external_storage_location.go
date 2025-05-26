@@ -9,6 +9,10 @@
 
 package model
 
+// Describes the location where the JSON payload is stored in external storage.
+// The location is described using the following fields:
+// - uri: The uri of the json file in external storage.
+// - path: The relative path of the file in external storage.
 type ExternalStorageLocation struct {
 	Uri  string `json:"uri,omitempty"`
 	Path string `json:"path,omitempty"`
