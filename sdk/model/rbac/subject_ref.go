@@ -11,7 +11,7 @@ package rbac
 
 // User, group or role which is granted/removed access
 type SubjectRef struct {
-	Id string `json:"id"`
+	Id    string `json:"id"`
 	// User, role or group
 	Type_ string `json:"type,omitempty"`
 }
