@@ -34,6 +34,13 @@ type TaskDef struct {
 	OwnerEmail                  string                 `json:"ownerEmail,omitempty"`
 	PollTimeoutSeconds          int32                  `json:"pollTimeoutSeconds,omitempty"`
 	BackoffScaleFactor          int32                  `json:"backoffScaleFactor,omitempty"`
-	Tags                        []TagObject            `json:"tags,omitempty"`
-	OverwriteTags               bool                   `json:"overwriteTags"`
+	BaseType                    string                 `json:"baseType,omitempty"`
+	TotalTimeoutSeconds         int64                  `json:"totalTimeoutSeconds"`
+	InputSchema                 SchemaDef              `json:"inputSchema,omitempty"`
+	OutputSchema                SchemaDef              `json:"outputSchema,omitempty"`
+	EnforceSchema               bool                   `json:"enforceSchema,omitempty"`
+	// Deprecated
+	Tags []TagObject `json:"tags,omitempty"`
+	// Deprecated
+	OverwriteTags bool `json:"overwriteTags"`
 }
