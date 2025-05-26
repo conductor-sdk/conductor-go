@@ -9,4 +9,8 @@
 
 package model
 
-type WorkflowDefSummary struct {}
+type WorkflowDefSummary struct {
+	Name       string `json:"name,omitempty"`
+	Version    int    `json:"version,omitempty"`
+	CreateTime int64  `json:"createTime,omitempty"`
+}
