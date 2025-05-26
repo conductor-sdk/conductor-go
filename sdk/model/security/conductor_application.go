@@ -9,4 +9,11 @@
 
 package security
 
-type ConductorApplication struct {}
+type ConductorApplication struct {
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	CreatedBy  string `json:"createdBy,omitempty"`
+	UpdatedBy  string `json:"updatedBy,omitempty"`
+	CreateTime int64  `json:"createTime,omitempty"`
+	UpdateTime int64  `json:"updateTime,omitempty"`
+}
