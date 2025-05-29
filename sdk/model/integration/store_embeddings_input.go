@@ -10,11 +10,11 @@
 package integration
 
 type StoreEmbeddingsInput struct {
-	LLMWorkerInput
-	VectorDB  string                 `json:"vectorDB,omitempty"`
-	Index     string                 `json:"index,omitempty"`
-	Namespace string                 `json:"namespace,omitempty"`
-	Embeddings []float32             `json:"embeddings,omitempty"`
-	ID        string                 `json:"id,omitempty"`
-	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	LlmWorkerInput
+	VectorDB   string                 `json:"vectorDB,omitempty"`
+	Index      string                 `json:"index,omitempty"`
+	Namespace  string                 `json:"namespace,omitempty"`
+	Embeddings []float32              `json:"embeddings,omitempty"`
+	ID         string                 `json:"id,omitempty"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
 }

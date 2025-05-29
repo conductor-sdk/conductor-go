@@ -15,3 +15,13 @@ type Group struct {
 	Id            string              `json:"id"`
 	Roles         []Role              `json:"roles,omitempty"`
 }
+
+type Access string
+
+const (
+	CREATE  Access = "CREATE"
+	READ    Access = "READ"
+	EXECUTE Access = "EXECUTE"
+	UPDATE  Access = "UPDATE"
+	DELETE  Access = "DELETE"
+)

@@ -153,7 +153,7 @@ func (w *WorkflowMonitor) notifyFinishedWorkflow(workflowId string, workflow *mo
 
 func isWorkflowInTerminalState(workflow *model.Workflow) bool {
 	for _, terminalState := range model.WorkflowTerminalStates {
-		if workflow.Status == terminalState {
+		if workflow.Status.Status == terminalState {
 			return true
 		}
 	}

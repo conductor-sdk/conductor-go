@@ -11,5 +11,5 @@ package integration
 
 // TextCompletion represents a text completion request for LLM workers
 type TextCompletion struct {
-	LLMWorkerInput
+	LlmWorkerInput
 }
