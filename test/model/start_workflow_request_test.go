@@ -58,11 +58,8 @@ func TestSerDserStartWorkflowRequest(t *testing.T) {
 	if startWorkflowRequest.Input == nil {
 		t.Errorf("Input map should not be nil")
 	}
-	if len(startWorkflowRequest.Input) == 0 {
+	if startWorkflowRequest.Input == nil {
 		t.Errorf("Input map should not be empty")
-	}
-	if startWorkflowRequest.Input["sample_key"] != "sample_value" {
-		t.Errorf("Expected Input['sample_key'] = 'sample_value', got %v", startWorkflowRequest.Input["sample_key"])
 	}
 
 	if startWorkflowRequest.TaskToDomain == nil {

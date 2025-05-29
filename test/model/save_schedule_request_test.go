@@ -81,8 +81,13 @@ func TestSerDserSaveScheduleRequest(t *testing.T) {
 		}
 
 		// Check nested maps
-		if saveScheduleRequest.StartWorkflowRequest.Input == nil || len(saveScheduleRequest.StartWorkflowRequest.Input) == 0 {
-			t.Errorf("StartWorkflowRequest.Input map should not be nil or empty")
+		input := saveScheduleRequest.StartWorkflowRequest.Input
+		if input == nil {
+			t.Errorf("StartWorkflowRequest.Input should not be nil")
+		} else if m, ok := input.(map[string]interface{}); !ok {
+			t.Errorf("StartWorkflowRequest.Input should be of type map[string]interface{}")
+		} else if len(m) == 0 {
+			t.Errorf("StartWorkflowRequest.Input map should not be empty")
 		}
 		if saveScheduleRequest.StartWorkflowRequest.TaskToDomain == nil || len(saveScheduleRequest.StartWorkflowRequest.TaskToDomain) == 0 {
 			t.Errorf("StartWorkflowRequest.TaskToDomain map should not be nil or empty")
