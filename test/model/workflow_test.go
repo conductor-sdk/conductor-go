@@ -26,20 +26,6 @@ func TestSerDserWorkflow(t *testing.T) {
 		t.Fatalf("Failed to deserialize JSON to map: %v", err)
 	}
 
-	// Convert status string to WorkflowStatus struct if needed
-	if statusValue, exists := jsonData["status"]; exists {
-		if statusStr, ok := statusValue.(string); ok {
-			// Replace string status with WorkflowStatus struct
-			jsonData["status"] = map[string]interface{}{
-				"status":        statusStr,
-				"workflowId":    jsonData["workflowId"],
-				"correlationId": jsonData["correlationId"],
-				"output":        map[string]interface{}{"key": "sample_value"},
-				"variables":     map[string]interface{}{"key": "sample_value"},
-			}
-		}
-	}
-
 	// Convert back to JSON and then to struct
 	modifiedJSON, err := json.Marshal(jsonData)
 	if err != nil {
@@ -71,21 +57,21 @@ func TestSerDserWorkflow(t *testing.T) {
 	}
 
 	// WorkflowStatus struct field (not a simple enum)
-	if workflow.Status.Status != "RUNNING" {
-		t.Errorf("Expected Status.Status = 'RUNNING', got '%s'", workflow.Status.Status)
+	if workflow.Status != model.RunningWorkflow {
+		t.Errorf("Expected Status.Status = 'RUNNING', got '%s'", workflow.Status)
 	}
-	if workflow.Status.WorkflowId != "sample_workflowId" {
-		t.Errorf("Expected Status.WorkflowId = 'sample_workflowId', got '%s'", workflow.Status.WorkflowId)
+	if workflow.WorkflowId != "sample_workflowId" {
+		t.Errorf("Expected Status.WorkflowId = 'sample_workflowId', got '%s'", workflow.WorkflowId)
 	}
-	if workflow.Status.CorrelationId != "sample_correlationId" {
-		t.Errorf("Expected Status.CorrelationId = 'sample_correlationId', got '%s'", workflow.Status.CorrelationId)
+	if workflow.CorrelationId != "sample_correlationId" {
+		t.Errorf("Expected Status.CorrelationId = 'sample_correlationId', got '%s'", workflow.CorrelationId)
 	}
 
 	// Check Status Output and Variables maps
-	if workflow.Status.Output == nil || len(workflow.Status.Output) == 0 {
+	if workflow.Output == nil || len(workflow.Output) == 0 {
 		t.Errorf("Status.Output map should not be nil or empty")
 	}
-	if workflow.Status.Variables == nil || len(workflow.Status.Variables) == 0 {
+	if workflow.Variables == nil || len(workflow.Variables) == 0 {
 		t.Errorf("Status.Variables map should not be nil or empty")
 	}
 
@@ -277,8 +263,8 @@ func TestSerDserWorkflow(t *testing.T) {
 	if roundTripWorkflow.WorkflowId != workflow.WorkflowId {
 		t.Errorf("Round-trip WorkflowId mismatch: %s vs %s", workflow.WorkflowId, roundTripWorkflow.WorkflowId)
 	}
-	if string(roundTripWorkflow.Status.Status) != string(workflow.Status.Status) {
-		t.Errorf("Round-trip Status.Status mismatch: %s vs %s", workflow.Status.Status, roundTripWorkflow.Status.Status)
+	if roundTripWorkflow.Status != workflow.Status {
+		t.Errorf("Round-trip Status.Status mismatch: %s vs %s", workflow.Status, roundTripWorkflow.Status)
 	}
 	if roundTripWorkflow.CorrelationId != workflow.CorrelationId {
 		t.Errorf("Round-trip CorrelationId mismatch: %s vs %s", workflow.CorrelationId, roundTripWorkflow.CorrelationId)

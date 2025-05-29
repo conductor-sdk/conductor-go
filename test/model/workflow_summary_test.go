@@ -45,7 +45,7 @@ func TestSerDserWorkflowSummary(t *testing.T) {
 	if workflowSummary.EndTime != "sample_endTime" {
 		t.Errorf("Expected EndTime = 'sample_endTime', got '%s'", workflowSummary.EndTime)
 	}
-	if workflowSummary.Status != model.RunningWorkflow {
+	if workflowSummary.Status != string(model.RunningWorkflow) {
 		t.Errorf("Expected Status = 'RUNNING', got '%s'", workflowSummary.Status)
 	}
 	if workflowSummary.Input != "sample_input" {
