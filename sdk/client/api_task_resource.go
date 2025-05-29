@@ -154,6 +154,7 @@ func (a *TaskResourceApiService) GetExternalStorageLocation1(ctx context.Context
 	queryParams.Add("payloadType", parameterToString(payloadType, ""))
 
 	resp, err := a.Get(ctx, http_path, queryParams, &result)
+
 	if err != nil {
 		return model.ExternalStorageLocation{}, resp, err
 	}
