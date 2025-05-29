@@ -10,7 +10,7 @@
 package integration
 
 type ChatCompletion struct {
-	LLMWorkerInput
+	LlmWorkerInput
 	Messages     []ChatMessage `json:"messages,omitempty"`
 	Instructions string        `json:"instructions,omitempty"`
 	JsonOutput   bool          `json:"jsonOutput,omitempty"`

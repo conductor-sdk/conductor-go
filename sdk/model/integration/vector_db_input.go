@@ -11,7 +11,7 @@ package integration
 
 // VectorDbInput represents input for vector database operations
 type VectorDbInput struct {
-	LLMWorkerInput
+	LlmWorkerInput
 	VectorDB   string                 `json:"vectorDB,omitempty"`
 	Index      string                 `json:"index,omitempty"`
 	Namespace  string                 `json:"namespace,omitempty"`
