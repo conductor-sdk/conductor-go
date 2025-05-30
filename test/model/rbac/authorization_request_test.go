@@ -57,8 +57,8 @@ func TestSerDserAuthorizationRequest(t *testing.T) {
 		if authorizationRequest.Target.Id != "sample_id" {
 			t.Errorf("Expected Target.ID = 'sample_id', got '%s'", authorizationRequest.Target.Id)
 		}
-		if authorizationRequest.Target.Type != "WORKFLOW_DEF" {
-			t.Errorf("Expected Target.Type = 'WORKFLOW_DEF', got '%s'", authorizationRequest.Target.Type)
+		if authorizationRequest.Target.Type_ != "WORKFLOW_DEF" {
+			t.Errorf("Expected Target.Type = 'WORKFLOW_DEF', got '%s'", authorizationRequest.Target.Type_)
 		}
 	}
 
