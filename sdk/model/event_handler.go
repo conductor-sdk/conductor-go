@@ -9,6 +9,7 @@
 
 package model
 
+// Defines an event handler
 type EventHandler struct {
 	Name          string   `json:"name"`
 	Event         string   `json:"event"`
@@ -16,4 +17,15 @@ type EventHandler struct {
 	Actions       []Action `json:"actions"`
 	Active        bool     `json:"active,omitempty"`
 	EvaluatorType string   `json:"evaluatorType,omitempty"`
+}
+
+type TerminateWorkflow struct {
+	WorkflowId        string `json:"workflowId,omitempty"`
+	TerminationReason string `json:"terminationReason,omitempty"`
+}
+
+type UpdateWorkflowVariables struct {
+	WorkflowId  string                 `json:"workflowId,omitempty"`
+	Variables   map[string]interface{} `json:"variables,omitempty"`
+	AppendArray *bool                  `json:"appendArray,omitempty"`
 }

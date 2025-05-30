@@ -10,6 +10,7 @@
 package rbac
 
 type ConductorUser struct {
+	// Deprecated: ApplicationUser is deprecated
 	ApplicationUser         bool    `json:"applicationUser,omitempty"`
 	EncryptedId             bool    `json:"encryptedId,omitempty"`
 	EncryptedIdDisplayValue string  `json:"encryptedIdDisplayValue,omitempty"`

@@ -3,6 +3,7 @@ package model
 type SaveScheduleRequest struct {
 	CreatedBy                   string                `json:"createdBy,omitempty"`
 	CronExpression              string                `json:"cronExpression"`
+	Description                 string                `json:"description,omitempty"`
 	Name                        string                `json:"name"`
 	Paused                      bool                  `json:"paused,omitempty"`
 	RunCatchupScheduleInstances bool                  `json:"runCatchupScheduleInstances,omitempty"`
@@ -10,4 +11,5 @@ type SaveScheduleRequest struct {
 	ScheduleStartTime           int64                 `json:"scheduleStartTime,omitempty"`
 	StartWorkflowRequest        *StartWorkflowRequest `json:"startWorkflowRequest"`
 	UpdatedBy                   string                `json:"updatedBy,omitempty"`
+	ZoneId                      string                `json:"zoneId,omitempty"`
 }

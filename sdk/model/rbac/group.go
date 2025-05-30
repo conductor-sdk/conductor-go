@@ -10,8 +10,18 @@
 package rbac
 
 type Group struct {
-	DefaultAccess map[string][]string `json:"defaultAccess,omitempty"`
+	DefaultAccess map[string][]Access `json:"defaultAccess,omitempty"`
 	Description   string              `json:"description,omitempty"`
-	Id            string              `json:"id,omitempty"`
+	Id            string              `json:"id"`
 	Roles         []Role              `json:"roles,omitempty"`
 }
+
+type Access string
+
+const (
+	CREATE  Access = "CREATE"
+	READ    Access = "READ"
+	EXECUTE Access = "EXECUTE"
+	UPDATE  Access = "UPDATE"
+	DELETE  Access = "DELETE"
+)
