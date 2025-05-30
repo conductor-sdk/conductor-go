@@ -41,55 +41,31 @@ type HumanTaskApiAssignAndClaimOpts struct {
 }
 
 func (a *HumanTaskApiService) AssignAndClaim(ctx context.Context, taskId string, userId string, optionals *HumanTaskApiAssignAndClaimOpts) (human.HumanTaskEntry, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Post")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue human.HumanTaskEntry
-	)
+	var result human.HumanTaskEntry
 
-	path := "/human/tasks/{taskId}/externalUser/{userId}"
-	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
-	path = strings.Replace(path, "{"+"userId"+"}", fmt.Sprintf("%v", userId), -1)
+	// Build the path
+	path := fmt.Sprintf("/human/tasks/%s/externalUser/%s", taskId, userId)
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
+	// Build query parameters if options are provided
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	if optionals != nil && optionals.OverrideAssignment.IsSet() {
-		queryParams.Add("overrideAssignment", parameterToString(optionals.OverrideAssignment.Value(), ""))
+	if optionals != nil {
+		if optionals.OverrideAssignment.IsSet() {
+			queryParams.Add("overrideAssignment", parameterToString(optionals.OverrideAssignment.Value(), ""))
+		}
+		if optionals.WithTemplate.IsSet() {
+			queryParams.Add("withTemplate", parameterToString(optionals.WithTemplate.Value(), ""))
+		}
 	}
-	if optionals != nil && optionals.WithTemplate.IsSet() {
-		queryParams.Add("withTemplate", parameterToString(optionals.WithTemplate.Value(), ""))
-	}
 
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	// Make the request
+	resp, err := a.PostWithParams(ctx, path, queryParams, nil, &result)
+
+	// Return nil result if there's an error
 	if err != nil {
-		return returnValue, nil, err
+		return human.HumanTaskEntry{}, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -99,48 +75,23 @@ HumanTaskApiService API for backpopulating index data
     @return map[string]interface{}
 */
 func (a *HumanTaskApiService) BackPopulateFullTextIndex(ctx context.Context, var100 int32) (map[string]interface{}, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue map[string]interface{}
-	)
-
+	var result map[string]interface{}
+	// Build the path
 	path := "/human/tasks/backPopulateFullTextIndex"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
+	// Build query parameters
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
 	queryParams.Add("100", parameterToString(var100, ""))
 
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	// Make the request
+	resp, err := a.Get(ctx, path, queryParams, &result)
+
+	// Return nil result if there's an error
 	if err != nil {
-		return returnValue, nil, err
+		return nil, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -159,54 +110,29 @@ type HumanTaskApiClaimTaskOpts struct {
 }
 
 func (a *HumanTaskApiService) ClaimTask(ctx context.Context, taskId string, optionals *HumanTaskApiClaimTaskOpts) (human.HumanTaskEntry, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Post")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue human.HumanTaskEntry
-	)
+	var result human.HumanTaskEntry
 
-	path := "/human/tasks/{taskId}/claim"
-	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
+	path := fmt.Sprintf("/human/tasks/%s/claim", taskId)
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
+	// Build query parameters if options are provided
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	if optionals != nil && optionals.OverrideAssignment.IsSet() {
-		queryParams.Add("overrideAssignment", parameterToString(optionals.OverrideAssignment.Value(), ""))
+	if optionals != nil {
+		if optionals.OverrideAssignment.IsSet() {
+			queryParams.Add("overrideAssignment", parameterToString(optionals.OverrideAssignment.Value(), ""))
+		}
+		if optionals.WithTemplate.IsSet() {
+			queryParams.Add("withTemplate", parameterToString(optionals.WithTemplate.Value(), ""))
+		}
 	}
-	if optionals != nil && optionals.WithTemplate.IsSet() {
-		queryParams.Add("withTemplate", parameterToString(optionals.WithTemplate.Value(), ""))
-	}
 
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.PostWithParams(ctx, path, queryParams, nil, &result)
+
+	// Return nil result if there's an error
 	if err != nil {
-		return returnValue, nil, err
+		return human.HumanTaskEntry{}, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -215,43 +141,13 @@ HumanTaskApiService If the workflow is disconnected from tasks, this API can be 
   - @param body
 */
 func (a *HumanTaskApiService) DeleteTaskFromHumanTaskRecords(ctx context.Context, body []string) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Delete")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
-
+	// Build the path
 	path := "/human/tasks/delete"
 
-	headerParams := make(map[string]string)
-	headerParams["Content-Type"] = "application/json"
+	// Make the request using our DeleteWithBody helper method
+	resp, err := a.DeleteWithBody(ctx, path, body, nil)
 
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, err
 }
 
 /*
@@ -260,41 +156,13 @@ HumanTaskApiService If the workflow is disconnected from tasks, this API can be 
   - @param taskId
 */
 func (a *HumanTaskApiService) DeleteTaskFromHumanTaskRecords1(ctx context.Context, taskId string) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Delete")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
+	// Build the path
+	path := fmt.Sprintf("/human/tasks/delete/%s", taskId)
 
-	path := "/human/tasks/delete/{taskId}"
-	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
+	// Make the request using our Delete helper method
+	resp, err := a.Delete(ctx, path, nil, nil)
 
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, err
 }
 
 /*
@@ -303,41 +171,13 @@ HumanTaskApiService Delete all versions of user form template by name
   - @param name
 */
 func (a *HumanTaskApiService) DeleteTemplateByName(ctx context.Context, name string) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Delete")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
+	// Build the path
+	path := fmt.Sprintf("/human/template/%s", name)
 
-	path := "/human/template/{name}"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
+	// Make the request using our Delete helper method
+	resp, err := a.Delete(ctx, path, nil, nil)
 
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, err
 }
 
 /*
@@ -347,42 +187,13 @@ HumanTaskApiService Delete a version of form template by name
   - @param version
 */
 func (a *HumanTaskApiService) DeleteTemplatesByNameAndVersion(ctx context.Context, name string, version int32) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Delete")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
+	// Build the path
+	path := fmt.Sprintf("/human/template/%s/%d", name, version)
 
-	path := "/human/template/{name}/{version}"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-	path = strings.Replace(path, "{"+"version"+"}", fmt.Sprintf("%v", version), -1)
+	// Make the request using our Delete helper method
+	resp, err := a.Delete(ctx, path, nil, nil)
 
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, err
 }
 
 /*
@@ -400,53 +211,31 @@ type HumanTaskApiGetAllTemplatesOpts struct {
 }
 
 func (a *HumanTaskApiService) GetAllTemplates(ctx context.Context, optionals *HumanTaskApiGetAllTemplatesOpts) ([]human.HumanTaskSearch, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []human.HumanTaskSearch
-	)
+	var result []human.HumanTaskSearch
 
+	// Build the path
 	path := "/human/template"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
+	// Build query parameters if options are provided
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	if optionals != nil && optionals.Name.IsSet() {
-		queryParams.Add("name", parameterToString(optionals.Name.Value(), ""))
+	if optionals != nil {
+		if optionals.Name.IsSet() {
+			queryParams.Add("name", parameterToString(optionals.Name.Value(), ""))
+		}
+		if optionals.Version.IsSet() {
+			queryParams.Add("version", parameterToString(optionals.Version.Value(), ""))
+		}
 	}
-	if optionals != nil && optionals.Version.IsSet() {
-		queryParams.Add("version", parameterToString(optionals.Version.Value(), ""))
-	}
 
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	// Make the request
+	resp, err := a.Get(ctx, path, queryParams, &result)
+
+	// Return nil result if there's an error
 	if err != nil {
-		return returnValue, nil, err
+		return nil, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -463,51 +252,25 @@ type HumanTaskApiGetTask1Opts struct {
 }
 
 func (a *HumanTaskApiService) GetTask1(ctx context.Context, taskId string, optionals *HumanTaskApiGetTask1Opts) (human.HumanTaskEntry, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue human.HumanTaskEntry
-	)
+	var result human.HumanTaskEntry
+	// Build the path
+	path := fmt.Sprintf("/human/tasks/%s", taskId)
 
-	path := "/human/tasks/{taskId}"
-	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
+	// Build query parameters if options are provided
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
 	if optionals != nil && optionals.WithTemplate.IsSet() {
 		queryParams.Add("withTemplate", parameterToString(optionals.WithTemplate.Value(), ""))
 	}
 
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	// Make the request
+	resp, err := a.Get(ctx, path, queryParams, &result)
+
+	// Return nil result if there's an error
 	if err != nil {
-		return returnValue, nil, err
+		return human.HumanTaskEntry{}, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -517,48 +280,24 @@ HumanTaskApiService Get list of task display names applicable for the user
     @return []string
 */
 func (a *HumanTaskApiService) GetTaskDisplayNames(ctx context.Context, searchType string) ([]string, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []string
-	)
+	var result []string
 
+	// Build the path
 	path := "/human/tasks/getTaskDisplayNames"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
+	// Build query parameters
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
 	queryParams.Add("searchType", parameterToString(searchType, ""))
 
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	// Make the request
+	resp, err := a.Get(ctx, path, queryParams, &result)
+
+	// Return nil result if there's an error
 	if err != nil {
-		return returnValue, nil, err
+		return nil, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -569,47 +308,16 @@ HumanTaskApiService Get user form template by name and version
     @return human.human.human.HumanTaskSearch
 */
 func (a *HumanTaskApiService) GetTemplateByNameAndVersion(ctx context.Context, name string, version int32) (human.HumanTaskSearch, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue human.HumanTaskSearch
-	)
+	var result human.HumanTaskSearch
 
-	path := "/human/template/{name}/{version}"
-	path = strings.Replace(path, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
-	path = strings.Replace(path, "{"+"version"+"}", fmt.Sprintf("%v", version), -1)
+	path := fmt.Sprintf("/human/template/%s/%d", name, version)
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return human.HumanTaskSearch{}, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -619,46 +327,16 @@ HumanTaskApiService Get user form by human task id
     @return human.HumanTaskSearch
 */
 func (a *HumanTaskApiService) GetTemplateByTaskId(ctx context.Context, humanTaskId string) (human.HumanTaskSearch, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Get")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue human.HumanTaskSearch
-	)
+	var result human.HumanTaskSearch
 
-	path := "/human/template/{humanTaskId}"
-	path = strings.Replace(path, "{"+"humanTaskId"+"}", fmt.Sprintf("%v", humanTaskId), -1)
+	path := fmt.Sprintf("/human/template/%s", humanTaskId)
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return human.HumanTaskSearch{}, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -714,41 +392,15 @@ HumanTaskApiService Release a task without completing it
   - @param taskId
 */
 func (a *HumanTaskApiService) ReleaseTask(ctx context.Context, taskId string) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Post")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
 
-	path := "/human/tasks/{taskId}/release"
-	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
+	path := fmt.Sprintf("/human/tasks/%s/release", taskId)
 
-	headerParams := make(map[string]string)
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Post(ctx, path, nil, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -765,52 +417,21 @@ type HumanTaskApiSaveTemplateOpts struct {
 }
 
 func (a *HumanTaskApiService) SaveTemplate(ctx context.Context, body human.HumanTaskSearch, optionals *HumanTaskApiSaveTemplateOpts) (human.HumanTaskSearch, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Post")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue human.HumanTaskSearch
-	)
+	var result human.HumanTaskSearch
 
 	path := "/human/template"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-	headerParams["Content-Type"] = "application/json"
-
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
 	if optionals != nil && optionals.NewVersion.IsSet() {
 		queryParams.Add("newVersion", parameterToString(optionals.NewVersion.Value(), ""))
 	}
+	resp, err := a.Post(ctx, path, body, result)
 
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
 	if err != nil {
-		return returnValue, nil, err
+		return human.HumanTaskSearch{}, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -827,52 +448,21 @@ type HumanTaskApiSaveTemplatesOpts struct {
 }
 
 func (a *HumanTaskApiService) SaveTemplates(ctx context.Context, body []human.HumanTaskSearch, optionals *HumanTaskApiSaveTemplatesOpts) ([]human.HumanTaskSearch, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Post")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue []human.HumanTaskSearch
-	)
+	var result []human.HumanTaskSearch
 
 	path := "/human/template/bulk"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-	headerParams["Content-Type"] = "application/json"
-
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
 	if optionals != nil && optionals.NewVersion.IsSet() {
 		queryParams.Add("newVersion", parameterToString(optionals.NewVersion.Value(), ""))
 	}
 
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Post(ctx, path, body, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return nil, resp, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -882,48 +472,15 @@ HumanTaskApiService Search human tasks
     @return human.HumanTaskSearchResult
 */
 func (a *HumanTaskApiService) Search(ctx context.Context, body human.HumanTaskSearch) (human.HumanTaskSearchResult, *http.Response, error) {
-	var (
-		httpMethod  = strings.ToUpper("Post")
-		postBody    interface{}
-		fileName    string
-		fileBytes   []byte
-		returnValue human.HumanTaskSearchResult
-	)
+	var result human.HumanTaskSearchResult
 
 	path := "/human/tasks/search"
 
-	headerParams := make(map[string]string)
-	headerParams["Accept"] = "application/json"
-	headerParams["Content-Type"] = "application/json"
-
-	queryParams := url.Values{}
-	formParams := url.Values{}
-
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.Post(ctx, path, body, &result)
 	if err != nil {
-		return returnValue, nil, err
+		return human.HumanTaskSearchResult{}, resp, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return returnValue, httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return returnValue, httpResponse, err
-	}
-
-	if isSuccessfulStatus(httpResponse.StatusCode) {
-		err = a.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-		return returnValue, httpResponse, newErr
-	}
-
-	return returnValue, httpResponse, err
+	return result, resp, nil
 }
 
 /*
@@ -932,7 +489,6 @@ func (a *HumanTaskApiService) Search(ctx context.Context, body human.HumanTaskSe
     * @param taskId
     * @param optional nil or *HumanTaskApiSkipTaskOpts - Optional Parameters:
         * @param "Reason" (optional.String) -
-
 */
 
 type HumanTaskApiSkipTaskOpts struct {
@@ -940,44 +496,17 @@ type HumanTaskApiSkipTaskOpts struct {
 }
 
 func (a *HumanTaskApiService) SkipTask(ctx context.Context, taskId string, optionals *HumanTaskApiSkipTaskOpts) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Post")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
-
-	path := "/human/tasks/{taskId}/skip"
-	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
-
-	headerParams := make(map[string]string)
+	path := fmt.Sprintf("/human/tasks/%s/skip", taskId)
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
 	if optionals != nil && optionals.Reason.IsSet() {
 		queryParams.Add("reason", parameterToString(optionals.Reason.Value(), ""))
 	}
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+
+	resp, err := a.PostWithParams(ctx, path, queryParams, nil, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -987,7 +516,6 @@ func (a *HumanTaskApiService) SkipTask(ctx context.Context, taskId string, optio
     * @param taskId
     * @param optional nil or *HumanTaskApiUpdateTaskOutputOpts - Optional Parameters:
         * @param "Complete" (optional.Bool) -
-
 */
 
 type HumanTaskApiUpdateTaskOutputOpts struct {
@@ -995,48 +523,19 @@ type HumanTaskApiUpdateTaskOutputOpts struct {
 }
 
 func (a *HumanTaskApiService) UpdateTaskOutput(ctx context.Context, body map[string]interface{}, taskId string, optionals *HumanTaskApiUpdateTaskOutputOpts) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Post")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
-
-	path := "/human/tasks/{taskId}/update"
-	path = strings.Replace(path, "{"+"taskId"+"}", fmt.Sprintf("%v", taskId), -1)
-
-	headerParams := make(map[string]string)
-	headerParams["Content-Type"] = "application/json"
+	path := fmt.Sprintf("/human/tasks/%s/update", taskId)
 
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
 	if optionals != nil && optionals.Complete.IsSet() {
 		queryParams.Add("complete", parameterToString(optionals.Complete.Value(), ""))
 	}
 
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.PutWithParams(ctx, path, queryParams, body, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, nil
 }
 
 /*
@@ -1057,21 +556,9 @@ type HumanTaskApiUpdateTaskOutputByRefOpts struct {
 }
 
 func (a *HumanTaskApiService) UpdateTaskOutputByRef(ctx context.Context, body map[string]interface{}, workflowId string, taskRefName string, optionals *HumanTaskApiUpdateTaskOutputByRefOpts) (*http.Response, error) {
-	var (
-		httpMethod = strings.ToUpper("Post")
-		postBody   interface{}
-		fileName   string
-		fileBytes  []byte
-	)
-
 	path := "/human/tasks/update/taskRef"
 
-	headerParams := make(map[string]string)
-	headerParams["Content-Type"] = "application/json"
-
 	queryParams := url.Values{}
-	formParams := url.Values{}
-
 	queryParams.Add("workflowId", parameterToString(workflowId, ""))
 	queryParams.Add("taskRefName", parameterToString(taskRefName, ""))
 	if optionals != nil && optionals.Complete.IsSet() {
@@ -1081,26 +568,9 @@ func (a *HumanTaskApiService) UpdateTaskOutputByRef(ctx context.Context, body ma
 		queryParams.Add("iteration", parameterToString(optionals.Iteration.Value(), "multi"))
 	}
 
-	postBody = &body
-	r, err := a.prepareRequest(ctx, path, httpMethod, postBody, headerParams, queryParams, formParams, fileName, fileBytes)
+	resp, err := a.PutWithParams(ctx, path, queryParams, body, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	httpResponse, err := a.callAPI(r)
-	if err != nil || httpResponse == nil {
-		return httpResponse, err
-	}
-
-	responseBody, err := getDecompressedBody(httpResponse)
-	httpResponse.Body.Close()
-	if err != nil {
-		return httpResponse, err
-	}
-
-	if !isSuccessfulStatus(httpResponse.StatusCode) {
-		return httpResponse, NewGenericSwaggerError(responseBody, httpResponse.Status, nil, httpResponse.StatusCode)
-	}
-
-	return httpResponse, nil
+	return resp, nil
 }

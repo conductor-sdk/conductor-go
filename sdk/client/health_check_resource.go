@@ -11,11 +11,8 @@ package client
 
 import (
 	"context"
-	"net/http"
-	"net/url"
-	"strings"
-
 	"github.com/conductor-sdk/conductor-go/sdk/model"
+	"net/http"
 )
 
 // Linger please
@@ -34,44 +31,12 @@ HealthCheckResourceApiService
 @return http_model.HealthCheckStatus
 */
 func (a *HealthCheckResourceApiService) DoCheck(ctx context.Context) (model.HealthCheckStatus, *http.Response, error) {
-	var (
-		localVarHttpMethod  = strings.ToUpper("Get")
-		localVarPostBody    interface{}
-		localVarFileName    string
-		localVarFileBytes   []byte
-		localVarReturnValue model.HealthCheckStatus
-	)
+	var result model.HealthCheckStatus
 
-	localVarPath := "/health"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarHeaderParams["Accept"] = "*/*"
-
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	r, err := a.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	path := "/health"
+	resp, err := a.Get(ctx, path, nil, &result)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return model.HealthCheckStatus{}, resp, err
 	}
-
-	localVarHttpResponse, err := a.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := getDecompressedBody(localVarHttpResponse)
-
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
-		err = a.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
-	} else {
-		newErr := NewGenericSwaggerError(localVarBody, string(localVarBody), nil, localVarHttpResponse.StatusCode)
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, err
+	return result, resp, nil
 }

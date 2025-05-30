@@ -36,8 +36,8 @@ type WorkflowDef struct {
 	OutputSchema                  *SchemaDef             `json:"outputSchema,omitempty"`
 	EnforceSchema                 bool                   `json:"enforceSchema,omitempty"`
 	Metadata                      map[string]interface{} `json:"metadata,omitempty"`
-	// Tags is deprecated
+	// Deprecated: Tags is deprecated
 	Tags []TagObject `json:"tags,omitempty"`
-	// OverwriteTags is deprecated
+	// Deprecated: OverwriteTags is deprecated
 	OverwriteTags bool `json:"overwriteTags"`
 }

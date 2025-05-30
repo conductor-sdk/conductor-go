@@ -28,8 +28,8 @@ func TestSerDserTargetRef(t *testing.T) {
 	if targetRef.Id != "sample_id" {
 		t.Errorf("Expected Id = 'sample_id', got '%s'", targetRef.Id)
 	}
-	if targetRef.Type != "WORKFLOW_DEF" {
-		t.Errorf("Expected Type = 'WORKFLOW_DEF', got '%s'", targetRef.Type)
+	if targetRef.Type_ != "WORKFLOW_DEF" {
+		t.Errorf("Expected Type = 'WORKFLOW_DEF', got '%s'", targetRef.Type_)
 	}
 
 	// 4. Serialize struct back to JSON
