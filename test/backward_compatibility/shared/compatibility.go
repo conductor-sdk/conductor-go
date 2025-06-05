@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/conductor-sdk/conductor-go/test/backward_compatibility/shared/src"
 	log "github.com/sirupsen/logrus"
 	"time"
 
@@ -527,7 +526,7 @@ func testWorkflowClientAPIs() error {
 		log.Warnf("Failed to complete task for WorkflowClient test: %v", err)
 	}
 
-	taskRunner.StartWorker("SIMPLE", src.SimpleTask, 1, time.Millisecond*100)
+	taskRunner.StartWorker("SIMPLE", SimpleTask, 1, time.Millisecond*100)
 	// Wait for workflow to complete
 	waitAndValidateWorkflow(workflowExecutor, workflowId)
 
@@ -758,4 +757,10 @@ func cleanupTestArtifacts() error {
 		len(createdWorkflows), len(createdSchedules))
 
 	return nil
+}
+
+func SimpleTask(task *model.Task) (interface{}, error) {
+	return map[string]interface{}{
+		"greetings": "Hello, " + fmt.Sprintf("%v", task.InputData["name"]),
+	}, nil
 }

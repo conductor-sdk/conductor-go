@@ -6,7 +6,6 @@ echo "========================================"
 
 # Function to get latest release version
 get_latest_version() {
-    # Method 1: GitHub API (primary) - output only the version
     LATEST_RELEASE=$(curl -s https://api.github.com/repos/conductor-sdk/conductor-go/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' 2>/dev/null || echo "")
 
     if [ ! -z "$LATEST_RELEASE" ] && [ "$LATEST_RELEASE" != "null" ]; then
@@ -14,11 +13,9 @@ get_latest_version() {
         return
     fi
 
-    # Fallback: Use known stable version
     echo "v1.5.4"
 }
 
-# Get version once and store it
 echo "🔍 Detecting latest released version..."
 LATEST_RELEASE=$(get_latest_version)
 echo "✓ Detected latest version: $LATEST_RELEASE"
@@ -47,7 +44,7 @@ echo "📝 Creating go.mod for released SDK..."
 cat > go.mod << EOF
 module conductor-backward-compatibility-test
 
-go 1.19
+go 1.17
 
 require (
 	github.com/conductor-sdk/conductor-go $LATEST_RELEASE
@@ -63,13 +60,12 @@ echo "✓ Dependencies resolved for released SDK ($LATEST_RELEASE)"
 echo ""
 echo "🧪 Running compatibility test with released SDK..."
 echo "================================================="
-go run main.go
-
+go run compatibility.go
 echo ""
 echo "✅ Phase 1 PASSED: Released SDK ($LATEST_RELEASE) test successful"
 
 # Cleanup copied files
-rm -f main.go
+rm -f compatibility.go
 rm -rf src/
 
 # Phase 2: Test with current code
@@ -89,7 +85,7 @@ echo "📝 Creating go.mod for current code..."
 cat > go.mod << EOF
 module conductor-backward-compatibility-test
 
-go 1.19
+go 1.17
 
 require (
 	github.com/conductor-sdk/conductor-go v0.0.0
@@ -107,13 +103,12 @@ echo "✓ Dependencies resolved for current SDK"
 echo ""
 echo "🧪 Running compatibility test with current SDK..."
 echo "================================================="
-go run main.go
-
+go run compatibility.go
 echo ""
 echo "✅ Phase 2 PASSED: Current SDK test successful"
 
 # Cleanup copied files
-rm -f main.go
+rm -f compatibility.go
 rm -rf src/
 
 # Success
@@ -121,7 +116,7 @@ echo ""
 echo "🎉 BACKWARD COMPATIBILITY CONFIRMED!"
 echo "===================================="
 echo "✓ Released SDK ($LATEST_RELEASE) tests passed"
-echo "✓ Current branch ($CURRENT_BRANCH) tests passed"  
+echo "✓ Current branch ($CURRENT_BRANCH) tests passed"
 echo "✓ No breaking changes detected"
 echo ""
 echo "🚀 Your changes are safe to merge!"
