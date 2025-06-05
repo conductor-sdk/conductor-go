@@ -39,6 +39,17 @@ jobs:
           CONDUCTOR_AUTH_KEY: ${{ secrets.KEY }}
           CONDUCTOR_AUTH_SECRET: ${{ secrets.SECRET }}
 
+      - name: Run Backward Compatibility Tests
+        run: |
+          echo "🚀 Starting Backward Compatibility Tests..."
+          cd test/backward_compatibility
+          chmod +x run_compatibility.sh
+          ./run_compatibility.sh
+        env:
+          CONDUCTOR_SERVER_URL: ${{ secrets.CONDUCTOR_SERVER_URL }}
+          CONDUCTOR_AUTH_KEY: ${{ secrets.KEY }}
+          CONDUCTOR_AUTH_SECRET: ${{ secrets.SECRET }}
+
       - name: Set PR Status to Failure
         if: ${{ failure() }}
         uses: actions/github-script@v6
