@@ -4,22 +4,22 @@ set -e
 echo "🚀 Starting Backward Compatibility Tests"
 echo "========================================"
 
-# Get latest released version (your existing detection logic)
+# Function to get latest release version
 get_latest_version() {
-    echo "🔍 Detecting latest released version..."
     LATEST_RELEASE=$(curl -s https://api.github.com/repos/conductor-sdk/conductor-go/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' 2>/dev/null || echo "")
-    
+
     if [ ! -z "$LATEST_RELEASE" ] && [ "$LATEST_RELEASE" != "null" ]; then
-        echo "✓ Detected latest version: $LATEST_RELEASE"
         echo "$LATEST_RELEASE"
         return
     fi
-    
-    echo "💡 Using fallback version: v1.5.4"
+
     echo "v1.5.4"
 }
 
+echo "🔍 Detecting latest released version..."
 LATEST_RELEASE=$(get_latest_version)
+echo "✓ Detected latest version: $LATEST_RELEASE"
+
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 echo ""
@@ -40,14 +40,16 @@ cp -r ../shared/* .
 echo "✓ Source code copied"
 
 # Create go.mod for released SDK
+echo "📝 Creating go.mod for released SDK..."
 cat > go.mod << EOF
 module conductor-backward-compatibility-test
 
 go 1.17
 
 require (
-    github.com/conductor-sdk/conductor-go $LATEST_RELEASE
-    github.com/sirupsen/logrus v1.9.3
+	github.com/conductor-sdk/conductor-go $LATEST_RELEASE
+	github.com/sirupsen/logrus v1.9.3
+	github.com/antihax/optional v1.0.0
 )
 EOF
 
@@ -59,7 +61,6 @@ echo ""
 echo "🧪 Running compatibility test with released SDK..."
 echo "================================================="
 go run compatibility.go
-
 echo ""
 echo "✅ Phase 1 PASSED: Released SDK ($LATEST_RELEASE) test successful"
 
@@ -80,15 +81,16 @@ cp -r ../shared/* .
 echo "✓ Source code copied"
 
 # Create go.mod for current code
+echo "📝 Creating go.mod for current code..."
 cat > go.mod << EOF
 module conductor-backward-compatibility-test
 
 go 1.17
 
 require (
-    github.com/conductor-sdk/conductor-go v0.0.0
-    github.com/sirupsen/logrus v1.9.3
-    github.com/antihax/optional v1.0.0
+	github.com/conductor-sdk/conductor-go v0.0.0
+	github.com/sirupsen/logrus v1.9.3
+	github.com/antihax/optional v1.0.0
 )
 
 replace github.com/conductor-sdk/conductor-go => ../../..
@@ -102,7 +104,6 @@ echo ""
 echo "🧪 Running compatibility test with current SDK..."
 echo "================================================="
 go run compatibility.go
-
 echo ""
 echo "✅ Phase 2 PASSED: Current SDK test successful"
 
@@ -115,7 +116,7 @@ echo ""
 echo "🎉 BACKWARD COMPATIBILITY CONFIRMED!"
 echo "===================================="
 echo "✓ Released SDK ($LATEST_RELEASE) tests passed"
-echo "✓ Current branch ($CURRENT_BRANCH) tests passed"  
+echo "✓ Current branch ($CURRENT_BRANCH) tests passed"
 echo "✓ No breaking changes detected"
 echo ""
 echo "🚀 Your changes are safe to merge!"
