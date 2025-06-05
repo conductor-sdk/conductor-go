@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/conductor-sdk/conductor-go/test/backward_compatibility_check/shared/src"
+	"github.com/conductor-sdk/conductor-go/test/backward_compatibility/shared/src"
 	log "github.com/sirupsen/logrus"
 	"time"
 
