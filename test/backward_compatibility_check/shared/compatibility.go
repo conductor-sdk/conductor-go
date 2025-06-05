@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/test/backward_compatibility_check/shared/src"
 	log "github.com/sirupsen/logrus"
 	"time"
 
-	"conductor-compatibility-test/src"
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 	"github.com/conductor-sdk/conductor-go/sdk/model"
