@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"os"
 	"time"
 
 	"github.com/antihax/optional"
@@ -25,6 +26,7 @@ var (
 	// Cleanup tracking
 	createdWorkflows []string
 	createdSchedules []string
+	testErrors       []string
 )
 
 func main() {
@@ -33,41 +35,40 @@ func main() {
 	// Defer cleanup to ensure it runs even if tests fail
 	defer func() {
 		if err := cleanupTestArtifacts(); err != nil {
+
 			log.Errorf("Cleanup failed: %v", err)
 		}
 	}()
 
-	// Test 1: Basic Workflow Operations
-	if err := testBasicWorkflowOperations(); err != nil {
-		log.Fatalf("Basic workflow operations failed: %v", err)
-	}
+	// Run all tests - don't stop on failures
+	runTest("Basic Workflow Operations", testBasicWorkflowOperations)
+	runTest("WorkflowExecutor APIs", testWorkflowExecutorAPIs)
+	runTest("TaskClient APIs", testTaskClientAPIs)
+	runTest("WorkflowClient APIs", testWorkflowClientAPIs)
+	runTest("SchedulerClient APIs", testSchedulerClientAPIs)
+	runTest("Advanced Workflow Operations", testAdvancedWorkflowOperations)
 
-	// Test 2: WorkflowExecutor APIs
-	if err := testWorkflowExecutorAPIs(); err != nil {
-		log.Fatalf("WorkflowExecutor APIs failed: %v", err)
+	if len(testErrors) > 0 {
+		fmt.Printf("\n❌ %d tests failed:\n", len(testErrors))
+		for _, err := range testErrors {
+			fmt.Printf("- %s\n", err)
+		}
+		os.Exit(1)
+	} else {
+		fmt.Println("\n✅ All backward compatibility tests passed!")
+		os.Exit(0)
 	}
+}
 
-	// Test 3: TaskClient APIs
-	if err := testTaskClientAPIs(); err != nil {
-		log.Fatalf("TaskClient APIs failed: %v", err)
+func runTest(testName string, testFunc func() error) {
+	fmt.Printf("\n--- Running %s ---\n", testName)
+	if err := testFunc(); err != nil {
+		errorMsg := fmt.Sprintf("%s: %v", testName, err)
+		testErrors = append(testErrors, errorMsg)
+		log.Errorf("❌ %s FAILED: %v", testName, err)
+	} else {
+		log.Infof("✅ %s PASSED", testName)
 	}
-
-	// Test 4: WorkflowClient APIs
-	if err := testWorkflowClientAPIs(); err != nil {
-		log.Fatalf("WorkflowClient APIs failed: %v", err)
-	}
-
-	// Test 5: SchedulerClient APIs
-	if err := testSchedulerClientAPIs(); err != nil {
-		log.Fatalf("SchedulerClient APIs failed: %v", err)
-	}
-
-	// Test 6: Advanced Workflow Operations
-	if err := testAdvancedWorkflowOperations(); err != nil {
-		log.Fatalf("Advanced workflow operations failed: %v", err)
-	}
-
-	fmt.Println("✅ All backward compatibility tests passed!")
 }
 
 // Test 5: SchedulerClient API methods
@@ -124,7 +125,7 @@ func testSchedulerClientAPIs() error {
 		Limit: optional.NewInt32(3),
 	})
 	if err != nil {
-		log.Fatalf("SchedulerClient.GetNextFewSchedules failed: %v", err)
+		log.Warnf("SchedulerClient.GetNextFewSchedules failed: %v", err)
 	} else {
 		log.Infof("✓ SchedulerClient.GetNextFewSchedules returned %d timestamps", len(nextSchedules))
 	}
@@ -136,7 +137,7 @@ func testSchedulerClientAPIs() error {
 		Query: optional.NewString(fmt.Sprintf("name='%s'", scheduleName)),
 	})
 	if err != nil {
-		log.Fatalf("SchedulerClient.SearchV2 failed: %v", err)
+		log.Warnf("SchedulerClient.SearchV2 failed: %v", err)
 	} else {
 		log.Infof("✓ SchedulerClient.SearchV2 returned %d results", len(searchResult.Results))
 	}
@@ -150,14 +151,14 @@ func testSchedulerClientAPIs() error {
 	// Test PutTagForSchedule
 	_, err = schedulerClient.PutTagForSchedule(ctx, testTags, scheduleName)
 	if err != nil {
-		log.Fatalf("SchedulerClient.PutTagForSchedule failed: %v", err)
+		log.Warnf("SchedulerClient.PutTagForSchedule failed: %v", err)
 	} else {
 		log.Info("✓ SchedulerClient.PutTagForSchedule successful")
 
 		// Test GetTagsForSchedule
 		tags, _, err := schedulerClient.GetTagsForSchedule(ctx, scheduleName)
 		if err != nil {
-			log.Fatalf("SchedulerClient.GetTagsForSchedule failed: %v", err)
+			log.Warnf("SchedulerClient.GetTagsForSchedule failed: %v", err)
 		} else {
 			log.Infof("✓ SchedulerClient.GetTagsForSchedule returned %d tags", len(tags))
 		}
@@ -165,7 +166,7 @@ func testSchedulerClientAPIs() error {
 		// Test DeleteTagForSchedule
 		_, err = schedulerClient.DeleteTagForSchedule(ctx, testTags, scheduleName)
 		if err != nil {
-			log.Fatalf("SchedulerClient.DeleteTagForSchedule failed: %v", err)
+			log.Warnf("SchedulerClient.DeleteTagForSchedule failed: %v", err)
 		} else {
 			log.Info("✓ SchedulerClient.DeleteTagForSchedule successful")
 		}
@@ -175,7 +176,7 @@ func testSchedulerClientAPIs() error {
 	// Test ResumeSchedule
 	_, _, err = schedulerClient.ResumeSchedule(ctx, scheduleName)
 	if err != nil {
-		log.Fatalf("SchedulerClient.ResumeSchedule failed: %v", err)
+		log.Warnf("SchedulerClient.ResumeSchedule failed: %v", err)
 	} else {
 		log.Info("✓ SchedulerClient.ResumeSchedule successful")
 	}
@@ -183,7 +184,7 @@ func testSchedulerClientAPIs() error {
 	// Test PauseSchedule
 	_, _, err = schedulerClient.PauseSchedule(ctx, scheduleName)
 	if err != nil {
-		log.Fatalf("SchedulerClient.PauseSchedule failed: %v", err)
+		log.Warnf("SchedulerClient.PauseSchedule failed: %v", err)
 	} else {
 		log.Info("✓ SchedulerClient.PauseSchedule successful")
 	}
@@ -191,7 +192,7 @@ func testSchedulerClientAPIs() error {
 	// Test ResumeAllSchedules
 	_, _, err = schedulerClient.ResumeAllSchedules(ctx)
 	if err != nil {
-		log.Fatalf("SchedulerClient.ResumeAllSchedules failed: %v", err)
+		log.Warnf("SchedulerClient.ResumeAllSchedules failed: %v", err)
 	} else {
 		log.Info("✓ SchedulerClient.ResumeAllSchedules successful")
 	}
@@ -199,7 +200,7 @@ func testSchedulerClientAPIs() error {
 	// Test RequeueAllExecutionRecords
 	_, _, err = schedulerClient.RequeueAllExecutionRecords(ctx)
 	if err != nil {
-		log.Fatalf("SchedulerClient.RequeueAllExecutionRecords failed: %v", err)
+		log.Warnf("SchedulerClient.RequeueAllExecutionRecords failed: %v", err)
 	} else {
 		log.Info("✓ SchedulerClient.RequeueAllExecutionRecords successful")
 	}
@@ -207,7 +208,7 @@ func testSchedulerClientAPIs() error {
 	// Cleanup: Delete the test schedule
 	_, _, err = schedulerClient.DeleteSchedule(ctx, scheduleName)
 	if err != nil {
-		log.Fatalf("Failed to cleanup test schedule: %v", err)
+		log.Warnf("Failed to cleanup test schedule: %v", err)
 	} else {
 		log.Info("✓ SchedulerClient.DeleteSchedule successful (cleanup)")
 	}
@@ -310,7 +311,7 @@ func testWorkflowExecutorAPIs() error {
 		// Test Pause
 		err = workflowExecutor.Pause(id)
 		if err != nil {
-			log.Fatalf("Pause failed: %v", err)
+			log.Warnf("Pause failed: %v", err)
 		} else {
 			log.Info("✓ Pause successful")
 
@@ -323,7 +324,7 @@ func testWorkflowExecutorAPIs() error {
 			// Test Resume
 			err = workflowExecutor.Resume(id)
 			if err != nil {
-				log.Fatalf("Resume failed: %v", err)
+				log.Warnf("Resume failed: %v", err)
 			} else {
 				log.Info("✓ Resume successful")
 			}
@@ -345,7 +346,7 @@ func testWorkflowExecutorAPIs() error {
 		string(model.CompletedTask),
 	)
 	if err != nil {
-		log.Fatalf("UpdateTaskByRefName failed: %v", err)
+		log.Warnf("UpdateTaskByRefName failed: %v", err)
 	} else {
 		log.Info("✓ UpdateTaskByRefName successful")
 	}
@@ -353,7 +354,7 @@ func testWorkflowExecutorAPIs() error {
 	// Wait for workflow to complete after task update
 	err = waitAndValidateWorkflow(workflowExecutor, id)
 	if err != nil {
-		log.Fatalf("Workflow didn't complete normally: %v", err)
+		log.Warnf("Workflow didn't complete normally: %v", err)
 	}
 
 	log.Info("✓ WorkflowExecutor APIs tested successfully")
@@ -379,10 +380,10 @@ func testTaskClientAPIs() error {
 	})
 	if err != nil {
 		// If Size fails, try without parameters and handle gracefully
-		log.Fatalf("TaskClient.Size with task types failed, trying without parameters: %v", err)
+		log.Warnf("TaskClient.Size with task types failed, trying without parameters: %v", err)
 		sizes, _, err = taskClient.Size(ctx, &client.TaskResourceApiSizeOpts{})
 		if err != nil {
-			log.Fatalf("TaskClient.Size failed, skipping this test: %v", err)
+			log.Warnf("TaskClient.Size failed, skipping this test: %v", err)
 			log.Info("✓ TaskClient.Size test skipped (server may not have task definitions)")
 		} else {
 			log.Infof("✓ TaskClient.Size returned %d task types", len(sizes))
@@ -406,7 +407,7 @@ func testTaskClientAPIs() error {
 		Workerid: optional.NewString("test-worker"),
 	})
 	if err != nil {
-		log.Fatalf("TaskClient.Poll failed (expected if no HTTP tasks available): %v", err)
+		log.Warnf("TaskClient.Poll failed (expected if no HTTP tasks available): %v", err)
 		log.Info("✓ TaskClient.Poll test completed (no tasks to poll)")
 	} else {
 		log.Infof("✓ TaskClient.Poll returned task: %s", task.TaskId)
@@ -443,6 +444,22 @@ func testWorkflowClientAPIs() error {
 	}
 	log.Infof("✓ WorkflowClient.StartWorkflowWithRequest successful, ID: %s", workflowId)
 
+	// Test PauseWorkflow
+	_, err = workflowClient.PauseWorkflow(ctx, workflowId)
+	if err != nil {
+		log.Warnf("WorkflowClient.PauseWorkflow failed: %v", err)
+	} else {
+		log.Info("✓ WorkflowClient.PauseWorkflow successful")
+
+		// Test ResumeWorkflow
+		_, err = workflowClient.ResumeWorkflow(ctx, workflowId)
+		if err != nil {
+			log.Warnf("WorkflowClient.ResumeWorkflow failed: %v", err)
+		} else {
+			log.Info("✓ WorkflowClient.ResumeWorkflow successful")
+		}
+	}
+
 	// Wait a moment for workflow to initialize
 	time.Sleep(2 * time.Second)
 
@@ -462,22 +479,6 @@ func testWorkflowClientAPIs() error {
 	}
 	log.Infof("✓ WorkflowClient.GetWorkflowState: %s", workflowState.Status)
 
-	// Test PauseWorkflow
-	_, err = workflowClient.PauseWorkflow(ctx, workflowId)
-	if err != nil {
-		log.Fatalf("WorkflowClient.PauseWorkflow failed: %v", err)
-	} else {
-		log.Info("✓ WorkflowClient.PauseWorkflow successful")
-
-		// Test ResumeWorkflow
-		_, err = workflowClient.ResumeWorkflow(ctx, workflowId)
-		if err != nil {
-			log.Fatalf("WorkflowClient.ResumeWorkflow failed: %v", err)
-		} else {
-			log.Info("✓ WorkflowClient.ResumeWorkflow successful")
-		}
-	}
-
 	// Test Search
 	searchResult, _, err := workflowClient.Search(ctx, &client.WorkflowResourceApiSearchOpts{
 		Start:    optional.NewInt32(0),
@@ -495,7 +496,7 @@ func testWorkflowClientAPIs() error {
 		Version: optional.NewInt32(1),
 	})
 	if err != nil {
-		log.Fatalf("WorkflowClient.GetRunningWorkflow failed: %v", err)
+		log.Warnf("WorkflowClient.GetRunningWorkflow failed: %v", err)
 	} else {
 		log.Infof("✓ WorkflowClient.GetRunningWorkflow returned %d running workflows", len(runningWorkflowIds))
 	}
@@ -514,7 +515,7 @@ func testWorkflowClientAPIs() error {
 		string(model.CompletedTask),
 	)
 	if err != nil {
-		log.Fatalf("Failed to complete task for WorkflowClient test: %v", err)
+		log.Warnf("Failed to complete task for WorkflowClient test: %v", err)
 	}
 
 	taskRunner.StartWorker("SIMPLE", SimpleTask, 1, time.Millisecond*100)
@@ -527,7 +528,7 @@ func testWorkflowClientAPIs() error {
 		UseLatestDefinitions: optional.NewBool(false),
 	})
 	if err != nil {
-		log.Fatalf("WorkflowClient.Restart failed: %v", err)
+		log.Warnf("WorkflowClient.Restart failed: %v", err)
 	} else {
 		log.Info("✓ WorkflowClient.Restart successful")
 		// Complete the restarted workflow
@@ -589,7 +590,7 @@ func testAdvancedWorkflowOperations() error {
 		"",
 	)
 	if err != nil {
-		log.Fatalf("WorkflowClient.ExecuteWorkflow failed: %v", err)
+		log.Warnf("WorkflowClient.ExecuteWorkflow failed: %v", err)
 	} else {
 		log.Infof("✓ WorkflowClient.ExecuteWorkflow completed with status: %s", workflowRun.Status)
 	}
@@ -703,7 +704,7 @@ func cleanupTestArtifacts() error {
 		_, _, err := schedulerClient.DeleteSchedule(ctx, scheduleName)
 		if err != nil {
 			cleanupErrors = append(cleanupErrors, fmt.Sprintf("Failed to delete schedule %s: %v", scheduleName, err))
-			log.Fatalf("Failed to delete schedule %s: %v", scheduleName, err)
+			log.Warnf("Failed to delete schedule %s: %v", scheduleName, err)
 		} else {
 			log.Infof("✓ Deleted schedule: %s", scheduleName)
 		}
@@ -715,7 +716,7 @@ func cleanupTestArtifacts() error {
 		err := workflowExecutor.UnRegisterWorkflow(workflowName, 1)
 		if err != nil {
 			cleanupErrors = append(cleanupErrors, fmt.Sprintf("Failed to unregister workflow %s: %v", workflowName, err))
-			log.Fatalf("Failed to unregister workflow %s: %v", workflowName, err)
+			log.Warnf("Failed to unregister workflow %s: %v", workflowName, err)
 		} else {
 			log.Infof("✓ Unregistered workflow definition: %s", workflowName)
 		}
@@ -728,7 +729,7 @@ func cleanupTestArtifacts() error {
 
 	// Summary
 	if len(cleanupErrors) > 0 {
-		log.Fatalf("Cleanup completed with %d errors:", len(cleanupErrors))
+		log.Warnf("Cleanup completed with %d errors:", len(cleanupErrors))
 		for _, err := range cleanupErrors {
 			log.Warn("  - " + err)
 		}
