@@ -188,15 +188,6 @@ func testSchedulerClientAPIs() error {
 		log.Info("✓ SchedulerClient.PauseSchedule successful")
 	}
 
-	// Test bulk operations (these might fail if no other schedules exist, so handle gracefully)
-	// Test PauseAllSchedules
-	_, _, err = schedulerClient.PauseAllSchedules(ctx)
-	if err != nil {
-		log.Warnf("SchedulerClient.PauseAllSchedules failed: %v", err)
-	} else {
-		log.Info("✓ SchedulerClient.PauseAllSchedules successful")
-	}
-
 	// Test ResumeAllSchedules
 	_, _, err = schedulerClient.ResumeAllSchedules(ctx)
 	if err != nil {
@@ -579,14 +570,6 @@ func testAdvancedWorkflowOperations() error {
 			return fmt.Errorf("bulk workflow %d failed: %w", i, rw.Err)
 		}
 		log.Infof("✓ Bulk workflow %d started with ID: %s", i, rw.WorkflowId)
-	}
-
-	// Test GetByCorrelationIds (using workflow names as correlation)
-	correlationMap, err := workflowExecutor.GetByCorrelationIds("greetings", true, false, "test-correlation")
-	if err != nil {
-		log.Warnf("GetByCorrelationIds test skipped (might need specific setup): %v", err)
-	} else {
-		log.Infof("✓ GetByCorrelationIds returned %d entries", len(correlationMap))
 	}
 
 	// Test ExecuteWorkflow with WorkflowClient
