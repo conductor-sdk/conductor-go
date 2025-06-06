@@ -9,12 +9,68 @@
 
 package model
 
-/**
- * Response object to return a list of succeeded entities and a map of failed ones, including error
- * message, for the bulk request.
- */
+import (
+	"encoding/json"
+	"fmt"
+)
+
 type BulkResponse struct {
-	BulkErrorResults      map[string]string `json:"bulkErrorResults,omitempty"`
-	BulkSuccessfulResults interface{}       `json:"bulkSuccessfulResults,omitempty"`
-	Message               string            `json:"message,omitempty"`
+	BulkErrorResults map[string]string `json:"bulkErrorResults,omitempty"`
+
+	// Keep for backward compatibility but mark as deprecated
+	BulkSuccessfulResults []string `json:"bulkSuccessfulResults,omitempty"` // Deprecated: Use GetSuccessfulResults() instead
+
+	// Internal field for new functionality
+	bulkSuccessfulResultsRaw interface{} `json:"-"`
+
+	Message string `json:"message,omitempty"`
+}
+
+// Custom unmarshaling
+func (br *BulkResponse) UnmarshalJSON(data []byte) error {
+	type Alias BulkResponse
+	aux := &struct {
+		BulkSuccessfulResults json.RawMessage `json:"bulkSuccessfulResults,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(br),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	// Store raw data
+	if len(aux.BulkSuccessfulResults) > 0 {
+		// Try []string first
+		var stringResults []string
+		if err := json.Unmarshal(aux.BulkSuccessfulResults, &stringResults); err == nil {
+			br.BulkSuccessfulResults = stringResults
+			br.bulkSuccessfulResultsRaw = stringResults
+			return nil
+		}
+
+		// Try []interface{}
+		var interfaceResults []interface{}
+		if err := json.Unmarshal(aux.BulkSuccessfulResults, &interfaceResults); err == nil {
+			br.bulkSuccessfulResultsRaw = interfaceResults
+			// Convert to strings for backward compatibility
+			br.BulkSuccessfulResults = make([]string, len(interfaceResults))
+			for i, item := range interfaceResults {
+				br.BulkSuccessfulResults[i] = fmt.Sprintf("%v", item)
+			}
+			return nil
+		}
+	}
+
+	return nil
+}
+
+// New recommended methods
+func (br *BulkResponse) GetSuccessfulResults() interface{} {
+	return br.bulkSuccessfulResultsRaw
+}
+
+func (br *BulkResponse) GetSuccessfulResultsAsStrings() []string {
+	return br.BulkSuccessfulResults
 }

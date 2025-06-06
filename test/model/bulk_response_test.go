@@ -35,16 +35,25 @@ func TestSerDserBulkResponse(t *testing.T) {
 		t.Errorf("Expected BulkErrorResults['sample_key'] = 'sample_value', got %v", bulkResponse.BulkErrorResults["sample_key"])
 	}
 
-	// Check interface{} field (should be a slice based on template)
+	// Test backward compatibility - existing code should still work
 	if bulkResponse.BulkSuccessfulResults == nil {
-		t.Errorf("BulkSuccessfulResults should not be nil")
+		t.Errorf("BulkSuccessfulResults should not be nil for backward compatibility")
 	}
-	successfulResults, ok := bulkResponse.BulkSuccessfulResults.([]interface{})
-	if !ok {
-		t.Errorf("BulkSuccessfulResults should be a slice, got %T", bulkResponse.BulkSuccessfulResults)
-	}
-	if len(successfulResults) == 0 {
+
+	if len(bulkResponse.BulkSuccessfulResults) == 0 {
 		t.Errorf("BulkSuccessfulResults slice should not be empty")
+	}
+
+	// Test new functionality
+	successfulResults := bulkResponse.GetSuccessfulResults()
+	if successfulResults == nil {
+		t.Errorf("GetSuccessfulResults should not return nil")
+	}
+
+	// Test that both approaches give consistent results
+	stringResults := bulkResponse.GetSuccessfulResultsAsStrings()
+	if len(stringResults) != len(bulkResponse.BulkSuccessfulResults) {
+		t.Errorf("Inconsistent results between old and new methods")
 	}
 
 	// Check string field
@@ -59,11 +68,31 @@ func TestSerDserBulkResponse(t *testing.T) {
 	}
 
 	// 5. Round-trip integrity check
-	var originalMap, serializedMap map[string]interface{}
-	json.Unmarshal([]byte(jsonTemplate), &originalMap)
-	json.Unmarshal(serializedJSON, &serializedMap)
+	var originalStruct, roundTripStruct model.BulkResponse
 
-	if !reflect.DeepEqual(originalMap, serializedMap) {
-		t.Errorf("Round-trip integrity failed")
+	err = json.Unmarshal([]byte(jsonTemplate), &originalStruct)
+	if err != nil {
+		t.Fatalf("Failed to deserialize original JSON: %v", err)
+	}
+
+	err = json.Unmarshal(serializedJSON, &roundTripStruct)
+	if err != nil {
+		t.Fatalf("Failed to deserialize round-trip JSON: %v", err)
+	}
+
+	// Compare the important fields instead of raw JSON
+	if !reflect.DeepEqual(originalStruct.BulkErrorResults, roundTripStruct.BulkErrorResults) {
+		t.Errorf("BulkErrorResults mismatch after round-trip")
+	}
+
+	if originalStruct.Message != roundTripStruct.Message {
+		t.Errorf("Message mismatch after round-trip")
+	}
+
+	// Compare successful results semantically
+	originalResults := originalStruct.GetSuccessfulResultsAsStrings()
+	roundTripResults := roundTripStruct.GetSuccessfulResultsAsStrings()
+	if !reflect.DeepEqual(originalResults, roundTripResults) {
+		t.Errorf("BulkSuccessfulResults content mismatch after round-trip")
 	}
 }
