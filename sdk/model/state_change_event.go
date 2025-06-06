@@ -10,6 +10,6 @@
 package model
 
 type StateChangeEvent struct {
-	Payload map[string]interface{} `json:"payload,omitempty"`
 	Type_   string                 `json:"type"`
+	Payload map[string]interface{} `json:"payload,omitempty"`
 }

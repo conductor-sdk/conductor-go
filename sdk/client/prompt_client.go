@@ -15,7 +15,7 @@ type PromptClient interface {
 	GetTagsForPromptTemplate(ctx context.Context, name string) ([]model.Tag, *http.Response, error)
 	PutTagForPromptTemplate(ctx context.Context, tags []model.Tag, name string) (*http.Response, error)
 	SaveMessageTemplate(ctx context.Context, templateText string, description string, name string, optionals *PromptResourceApiSaveMessageTemplateOpts) (*http.Response, error)
-	TestMessageTemplate(ctx context.Context, request model.PromptTemplateTestRequest) (string, *http.Response, error)
+	TestMessageTemplate(ctx context.Context, request integration.PromptTemplateTestRequest) (string, *http.Response, error)
 }
 
 func NewPromptClient(apiClient *APIClient) PromptClient {

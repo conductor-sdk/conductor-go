@@ -11,6 +11,6 @@ package rbac
 
 // The object over which access is being granted or removed
 type TargetRef struct {
-	Id    string `json:"id"`
-	Type_ string `json:"type"`
+	Id    string `json:"id,omitempty"`
+	Type_ string `json:"type,omitempty"`
 }
