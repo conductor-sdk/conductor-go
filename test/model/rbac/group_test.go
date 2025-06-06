@@ -2,11 +2,10 @@ package rbac
 
 import (
 	"encoding/json"
-	"reflect"
-	"testing"
-
 	"github.com/conductor-sdk/conductor-go/sdk/model/rbac"
 	"github.com/conductor-sdk/conductor-go/test/serdesertest/util"
+	"reflect"
+	"testing"
 )
 
 func TestSerDserGroup(t *testing.T) {
@@ -32,7 +31,7 @@ func TestSerDserGroup(t *testing.T) {
 		t.Errorf("Expected Id = 'sample_id', got '%s'", group.Id)
 	}
 
-	// Check DefaultAccess map[string][]Access
+	// Check DefaultAccess map[string][]string (backward compatibility)
 	if group.DefaultAccess == nil {
 		t.Errorf("DefaultAccess map should not be nil")
 	}
@@ -40,7 +39,7 @@ func TestSerDserGroup(t *testing.T) {
 		t.Errorf("DefaultAccess map should not be empty")
 	}
 
-	// Validate map structure - should have ResourceType as key and []Access as value
+	// Validate map structure - should have ResourceType as key and []string as value
 	for resourceType, accessList := range group.DefaultAccess {
 		if resourceType == "" {
 			t.Errorf("ResourceType key should not be empty")
@@ -51,9 +50,9 @@ func TestSerDserGroup(t *testing.T) {
 		if len(accessList) == 0 {
 			t.Errorf("Access list should not be empty for resource type: %s", resourceType)
 		}
-		// Validate first access in the list
+		// Validate first access in the list (based on your JSON output showing "CREATE")
 		if len(accessList) > 0 {
-			if accessList[0] != rbac.CREATE {
+			if accessList[0] != "CREATE" {
 				t.Errorf("Expected first access = 'CREATE', got '%s'", accessList[0])
 			}
 		}
@@ -97,5 +96,73 @@ func TestSerDserGroup(t *testing.T) {
 
 	if !reflect.DeepEqual(originalMap, serializedMap) {
 		t.Errorf("Round-trip integrity failed")
+		t.Logf("Original: %+v", originalMap)
+		t.Logf("Serialized: %+v", serializedMap)
+	}
+
+	// 6. Test new type-safe helper methods (after round-trip check)
+	// Get the first resource type for testing
+	var firstResourceType string
+	for resourceType := range group.DefaultAccess {
+		firstResourceType = resourceType
+		break
+	}
+
+	if firstResourceType != "" {
+		// Test GetDefaultAccessTyped method
+		typedAccesses := group.GetDefaultAccessTyped(firstResourceType)
+		if typedAccesses == nil {
+			t.Errorf("GetDefaultAccessTyped should not return nil")
+		}
+
+		if len(typedAccesses) != len(group.DefaultAccess[firstResourceType]) {
+			t.Errorf("Typed access length (%d) should match string access length (%d)",
+				len(typedAccesses), len(group.DefaultAccess[firstResourceType]))
+		}
+
+		// Verify conversion between string and typed access
+		for i, typedAccess := range typedAccesses {
+			if string(typedAccess) != group.DefaultAccess[firstResourceType][i] {
+				t.Errorf("Typed access[%d] (%s) should match string access (%s)",
+					i, typedAccess, group.DefaultAccess[firstResourceType][i])
+			}
+		}
+
+		// Test SetDefaultAccessTyped method
+		testAccesses := []rbac.Access{rbac.CREATE, rbac.READ, rbac.UPDATE}
+		group.SetDefaultAccessTyped("test_resource", testAccesses)
+
+		// Verify it was set correctly as strings
+		if group.DefaultAccess["test_resource"] == nil {
+			t.Errorf("SetDefaultAccessTyped should set the access list")
+		}
+
+		expectedStrings := []string{"CREATE", "READ", "UPDATE"}
+		if !reflect.DeepEqual(group.DefaultAccess["test_resource"], expectedStrings) {
+			t.Errorf("SetDefaultAccessTyped should set correct string values, got %v",
+				group.DefaultAccess["test_resource"])
+		}
+
+		// Test AddDefaultAccess method
+		originalLength := len(group.DefaultAccess[firstResourceType])
+		group.AddDefaultAccess(firstResourceType, rbac.DELETE)
+
+		if len(group.DefaultAccess[firstResourceType]) != originalLength+1 {
+			t.Errorf("AddDefaultAccess should increase access list length")
+		}
+
+		lastAccess := group.DefaultAccess[firstResourceType][len(group.DefaultAccess[firstResourceType])-1]
+		if lastAccess != "DELETE" {
+			t.Errorf("AddDefaultAccess should add DELETE access, got %s", lastAccess)
+		}
+
+		// Test HasDefaultAccess method
+		if !group.HasDefaultAccess(firstResourceType, rbac.DELETE) {
+			t.Errorf("HasDefaultAccess should return true for DELETE access")
+		}
+
+		if group.HasDefaultAccess(firstResourceType, rbac.Access("NONEXISTENT")) {
+			t.Errorf("HasDefaultAccess should return false for non-existent access")
+		}
 	}
 }

@@ -25,8 +25,8 @@ func TestSerDserStateChangeEvent(t *testing.T) {
 
 	// 3. Validate deserialized fields
 	// String field
-	if stateChangeEvent.Type != "sample_type" {
-		t.Errorf("Expected Type = 'sample_type', got '%s'", stateChangeEvent.Type)
+	if stateChangeEvent.Type_ != "sample_type" {
+		t.Errorf("Expected Type = 'sample_type', got '%s'", stateChangeEvent.Type_)
 	}
 
 	// Map field

@@ -56,28 +56,16 @@ func TestSerDserSubWorkflowParams(t *testing.T) {
 	}
 
 	// Validate WorkflowDefinition structure (should resolve to WorkflowDef object)
-	if workflowDefMap, ok := subWorkflowParams.WorkflowDefinition.(map[string]interface{}); ok {
-		// Validate some expected fields in the WorkflowDef
-		if workflowDefMap["name"] == nil {
-			t.Errorf("WorkflowDefinition should contain name field")
-		}
-		if workflowDefMap["version"] == nil {
-			t.Errorf("WorkflowDefinition should contain version field")
-		}
-
-		// Validate specific field values
-		if name, exists := workflowDefMap["name"]; exists {
-			if nameStr, ok := name.(string); ok && nameStr != "sample_name" {
-				t.Errorf("Expected WorkflowDefinition.name = 'sample_name', got '%s'", nameStr)
-			}
-		}
-		if version, exists := workflowDefMap["version"]; exists {
-			if versionFloat, ok := version.(float64); ok && int32(versionFloat) != 123 {
-				t.Errorf("Expected WorkflowDefinition.version = 123, got %v", versionFloat)
-			}
-		}
+	if subWorkflowParams.WorkflowDefinition == nil {
+		t.Errorf("WorkflowDefinition should not be nil")
 	} else {
-		t.Logf("WorkflowDefinition contains: %v (type: %T)", subWorkflowParams.WorkflowDefinition, subWorkflowParams.WorkflowDefinition)
+		// Validate WorkflowDef fields
+		if subWorkflowParams.WorkflowDefinition.Name != "sample_name" {
+			t.Errorf("Expected WorkflowDefinition.Name = 'sample_name', got '%s'", subWorkflowParams.WorkflowDefinition.Name)
+		}
+		if subWorkflowParams.WorkflowDefinition.Version != 123 {
+			t.Errorf("Expected WorkflowDefinition.Version = 123, got %d", subWorkflowParams.WorkflowDefinition.Version)
+		}
 	}
 
 	// Interface{} field - Priority
