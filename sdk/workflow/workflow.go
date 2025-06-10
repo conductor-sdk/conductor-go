@@ -11,7 +11,6 @@ package workflow
 
 import (
 	"encoding/json"
-
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/workflow/executor"
 	log "github.com/sirupsen/logrus"
@@ -209,12 +208,41 @@ func (workflow *ConductorWorkflow) StartWorkflow(startWorkflowRequest *model.Sta
 	return workflow.executor.StartWorkflow(startWorkflowRequest)
 }
 
+// ExecuteWorkflowWithReturnStrategy starts the workflow with the provided input and waits for a specified return condition.
+//
+// Parameters:
+//   - input: The workflow input. Must be serializable to JSON.
+//   - consistency: The desired consistency level for workflow execution.
+//   - returnStrategy: Strategy indicating whether to wait for task completion or workflow completion.
+//   - waitUntilTask: A list of task reference names. The method returns once all specified tasks are completed.
+//     If empty, it waits until the workflow completes or reaches the server-defined timeout.
+//   - waitForSec: Maximum time to wait (in seconds) before returning.
+//
+// Returns:
+// - workflowRun: Contains the workflow execution output (if available).
+// - err: Error, if any occurred during execution or timeout.
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithReturnStrategy(input interface{}, consistency model.WorkflowConsistency, returnStrategy model.ReturnStrategy, waitUntilTask []string, waitForSec int) (workflowRun *model.SignalResponse, err error) {
+	version := workflow.GetVersion()
+	return workflow.executor.ExecuteWorkflowWithReturnStrategy(
+		&model.StartWorkflowRequest{
+			Name:        workflow.GetName(),
+			Version:     version,
+			Input:       getInputAsMap(input),
+			WorkflowDef: workflow.ToWorkflowDef(),
+		},
+		consistency,
+		returnStrategy,
+		waitUntilTask,
+		waitForSec,
+	)
+}
+
 // Executes the workflow with specific input and wait for the workflow to complete or until the task specified as waitUntil is completed.
 // waitUntilTask Reference name of the task which MUST be completed before returning the output.  if specified as empty string, then the call waits until the
 // workflow completes or reaches the timeout (as specified on the server)
 // The input struct MUST be serializable to JSON
 // Returns the workflow output
-func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, waitUntilTask string) (worfklowRun *model.WorkflowRun, err error) {
+func (workflow *ConductorWorkflow) ExecuteWorkflowWithInput(input interface{}, waitUntilTask string) (workflowRun *model.WorkflowRun, err error) {
 	version := workflow.GetVersion()
 	return workflow.executor.ExecuteWorkflow(
 		&model.StartWorkflowRequest{

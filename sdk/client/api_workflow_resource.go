@@ -16,6 +16,8 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"net/http"
 	"net/url"
+	"strings"
+	"time"
 )
 
 // Linger please
@@ -655,6 +657,162 @@ func (a *WorkflowResourceApiService) StartWorkflow(ctx context.Context, body map
 	return result, resp, nil
 }
 
+func (a *WorkflowResourceApiService) executeWorkflowImpl(
+	ctx context.Context,
+	body model.StartWorkflowRequest,
+	requestId string,
+	name string,
+	version int32,
+	waitUntilTask []string,
+	waitForSeconds int,
+	consistency string,
+	returnStrategy string) (interface{}, *http.Response, error) {
+
+	var (
+		localVarHttpMethod  = strings.ToUpper("Post")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
+		localVarReturnValue interface{}
+	)
+
+	path := fmt.Sprintf("/workflow/execute/%s/%d", name, version)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarHeaderParams["Accept"] = "application/json"
+	localVarHeaderParams["Content-Type"] = "application/json"
+
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if requestId != "" {
+		localVarQueryParams.Add("requestId", parameterToString(requestId, ""))
+	}
+
+	if len(waitUntilTask) > 0 {
+		localVarQueryParams.Add("waitUntilTaskRef", strings.Join(waitUntilTask, ","))
+	}
+
+	if waitForSeconds > 0 {
+		localVarQueryParams.Add("waitForSeconds", parameterToString(waitForSeconds, ""))
+	}
+
+	if consistency != "" {
+		localVarQueryParams.Add("consistency", parameterToString(consistency, ""))
+	}
+
+	if returnStrategy != "" {
+		localVarQueryParams.Add("returnStrategy", parameterToString(returnStrategy, ""))
+	}
+
+	localVarPostBody = &body
+	r, err := a.prepareRequest(ctx, path, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	localVarHttpResponse, err := a.callAPI(r)
+	if err != nil || localVarHttpResponse == nil {
+		return nil, localVarHttpResponse, err
+	}
+
+	localVarBody, err := getDecompressedBody(localVarHttpResponse)
+
+	localVarHttpResponse.Body.Close()
+	if err != nil {
+		return nil, localVarHttpResponse, err
+	}
+
+	if isSuccessfulStatus(localVarHttpResponse.StatusCode) {
+		// Decode directly into SignalResponse since API returns unified format
+		var signalResponse model.SignalResponse
+		err = a.decode(&signalResponse, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
+		localVarReturnValue = signalResponse
+	} else {
+		newErr := NewGenericSwaggerError(localVarBody, localVarHttpResponse.Status, nil, localVarHttpResponse.StatusCode)
+		return nil, localVarHttpResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHttpResponse, err
+}
+
+type ExecuteWorkflowOpts struct {
+	RequestID        string
+	WaitUntilTaskRef []string
+	WaitForSeconds   int
+	Input            map[string]interface{}
+	Consistency      model.WorkflowConsistency
+	ReturnStrategy   model.ReturnStrategy
+}
+
+// DefaultExecuteWorkflowOpts returns the default options
+func DefaultExecuteWorkflowOpts() ExecuteWorkflowOpts {
+	return ExecuteWorkflowOpts{
+		Consistency:    model.DurableConsistency,   // Default is "DURABLE"
+		ReturnStrategy: model.ReturnTargetWorkflow, // Default is TARGET_WORKFLOW
+		WaitForSeconds: 10,                         // Default is 10 seconds
+	}
+}
+
+// ExecuteWorkflowWithReturnStrategy executes a workflow with the specified return strategy
+func (a *WorkflowResourceApiService) ExecuteWorkflowWithReturnStrategy(ctx context.Context, body model.StartWorkflowRequest, opts ExecuteWorkflowOpts) (*model.SignalResponse, error) {
+	// Apply defaults if not specified
+	if opts.Consistency == "" {
+		opts.Consistency = model.DurableConsistency
+	}
+	if opts.ReturnStrategy == "" {
+		opts.ReturnStrategy = model.ReturnTargetWorkflow
+	}
+	if opts.WaitForSeconds <= 0 {
+		opts.WaitForSeconds = 10
+	}
+
+	// Validate required fields
+	if body.Name == "" {
+		return nil, fmt.Errorf("workflow name is required")
+	}
+	if body.Version <= 0 {
+		return nil, fmt.Errorf("workflow version must be greater than 0")
+	}
+
+	// Create a new context with the same timeout as waitForSeconds
+	var cancelFunc context.CancelFunc
+	var effectiveCtx context.Context
+	if opts.WaitForSeconds > 0 {
+		// Add buffer time: 5 seconds for HTTP overhead + API processing
+		// This ensures the context doesn't timeout before the API can respond
+		bufferSeconds := 10
+		totalTimeout := time.Duration(opts.WaitForSeconds+bufferSeconds) * time.Second
+
+		effectiveCtx, cancelFunc = context.WithTimeout(ctx, totalTimeout)
+		defer cancelFunc()
+
+	}
+
+	// Call the existing internal method
+	response, _, err := a.executeWorkflowImpl(
+		effectiveCtx,
+		body,
+		opts.RequestID,
+		body.Name,
+		body.Version,
+		opts.WaitUntilTaskRef,
+		opts.WaitForSeconds,
+		string(opts.Consistency),
+		string(opts.ReturnStrategy),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	signalResponse, ok := response.(model.SignalResponse)
+	if !ok {
+		return nil, fmt.Errorf("expected SignalResponse but got %T", response)
+	}
+
+	return &signalResponse, nil
+}
+
 func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body model.StartWorkflowRequest, requestId string, name string, version int32, waitUntilTask string) (model.WorkflowRun, *http.Response, error) {
 	var result model.WorkflowRun
 
@@ -671,6 +829,154 @@ func (a *WorkflowResourceApiService) ExecuteWorkflow(ctx context.Context, body m
 		return model.WorkflowRun{}, resp, err
 	}
 	return result, resp, nil
+}
+
+// Enterprise: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+func (a *WorkflowResourceApiService) ExecuteAndGetBlockingTask(
+	ctx context.Context,
+	body model.StartWorkflowRequest,
+	requestId string,
+	name string,
+	version int32,
+	waitUntilTask []string,
+	waitForSeconds int,
+	consistency string) (model.TaskRun, *http.Response, error) {
+
+	returnStrategy := "BLOCKING_TASK"
+
+	response, httpResponse, err := a.executeWorkflowImpl(
+		ctx,
+		body,
+		requestId,
+		name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+		returnStrategy,
+	)
+
+	if err != nil {
+		return model.TaskRun{}, httpResponse, err
+	}
+
+	taskRun, ok := response.(model.TaskRun)
+	if !ok {
+		return model.TaskRun{}, httpResponse, fmt.Errorf("expected TaskRun but got %T", response)
+	}
+
+	return taskRun, httpResponse, nil
+}
+
+// Enterprise: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+func (a *WorkflowResourceApiService) ExecuteAndGetBlockingTaskInput(
+	ctx context.Context,
+	body model.StartWorkflowRequest,
+	requestId string,
+	name string,
+	version int32,
+	waitUntilTask []string,
+	waitForSeconds int,
+	consistency string) (model.TaskRun, *http.Response, error) {
+
+	returnStrategy := "BLOCKING_TASK_INPUT"
+
+	response, httpResponse, err := a.executeWorkflowImpl(
+		ctx,
+		body,
+		requestId,
+		name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+		returnStrategy,
+	)
+
+	if err != nil {
+		return model.TaskRun{}, httpResponse, err
+	}
+
+	taskRun, ok := response.(model.TaskRun)
+	if !ok {
+		return model.TaskRun{}, httpResponse, fmt.Errorf("expected TaskRun but got %T", response)
+	}
+
+	return taskRun, httpResponse, nil
+}
+
+// Enterprise: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+func (a *WorkflowResourceApiService) ExecuteAndGetBlockingWorkflow(
+	ctx context.Context,
+	body model.StartWorkflowRequest,
+	requestId string,
+	name string,
+	version int32,
+	waitUntilTask []string,
+	waitForSeconds int,
+	consistency string) (model.WorkflowRun, *http.Response, error) {
+
+	returnStrategy := "BLOCKING_WORKFLOW"
+
+	response, httpResponse, err := a.executeWorkflowImpl(
+		ctx,
+		body,
+		requestId,
+		name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+		returnStrategy,
+	)
+
+	if err != nil {
+		return model.WorkflowRun{}, httpResponse, err
+	}
+
+	workflowRun, ok := response.(model.WorkflowRun)
+	if !ok {
+		return model.WorkflowRun{}, httpResponse, fmt.Errorf("expected WorkflowRun but got %T", response)
+	}
+
+	return workflowRun, httpResponse, nil
+}
+
+// Enterprise: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+func (a *WorkflowResourceApiService) ExecuteAndGetTarget(
+	ctx context.Context,
+	body model.StartWorkflowRequest,
+	requestId string,
+	name string,
+	version int32,
+	waitUntilTask []string,
+	waitForSeconds int,
+	consistency string) (model.WorkflowRun, *http.Response, error) {
+
+	returnStrategy := "TARGET_WORKFLOW"
+
+	response, httpResponse, err := a.executeWorkflowImpl(
+		ctx,
+		body,
+		requestId,
+		name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+		returnStrategy,
+	)
+
+	if err != nil {
+		return model.WorkflowRun{}, httpResponse, err
+	}
+
+	workflowRun, ok := response.(model.WorkflowRun)
+	if !ok {
+		return model.WorkflowRun{}, httpResponse, fmt.Errorf("expected WorkflowRun but got %T", response)
+	}
+
+	return workflowRun, httpResponse, nil
 }
 
 /*
