@@ -325,3 +325,25 @@ func (a *SchedulerResourceApiService) SearchV2(ctx context.Context, optionals *S
 	}
 	return result, resp, nil
 }
+
+/*
+SchedulerResourceApiService Get schedules by tag
+* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param tag
+    @return []WorkflowScheduleModel
+*/
+func (a *SchedulerResourceApiService) GetSchedulesByTag(ctx context.Context, tag string) ([]model.WorkflowScheduleModel, *http.Response, error) {
+	var result []model.WorkflowScheduleModel
+
+	// create path and map variables
+	path := "/scheduler/schedules/tags"
+
+	queryParams := url.Values{}
+	queryParams.Add("tag", parameterToString(tag, ""))
+
+	resp, err := a.Get(ctx, path, nil, &result)
+	if err != nil {
+		return nil, resp, err
+	}
+	return result, resp, nil
+}

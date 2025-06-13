@@ -22,7 +22,7 @@ type IntegrationClient interface {
 	GetIntegrationProvider(ctx context.Context, name string) (integration.Integration, *http.Response, error)
 	SaveIntegrationProvider(ctx context.Context, update integration.IntegrationUpdate, name string) (*http.Response, error)
 	DeleteIntegrationProvider(ctx context.Context, name string) (*http.Response, error)
-
+	GetIntegrationProviderDefs(ctx context.Context) ([]model.IntegrationDef, *http.Response, error)
 	// Tag management
 	//
 
@@ -48,6 +48,9 @@ type IntegrationClient interface {
 	AssociatePromptWithIntegration(ctx context.Context, integrationName string, model string, promptName string) (*http.Response, error)
 	GetTokenUsageForIntegration(ctx context.Context, integrationName string, model string) (int32, *http.Response, error)
 	GetTokenUsageForIntegrationProvider(ctx context.Context, name string) (map[string]string, *http.Response, error)
+
+	GetAllIntegrations(ctx context.Context, optionals *IntegrationResourceApiGetAllIntegrationsOpts) ([]model.Integration, *http.Response, error)
+	RecordEventStats(ctx context.Context, body []model.EventLog, type_ string) (*http.Response, error)
 }
 
 func NewIntegrationClient(apiClient *APIClient) IntegrationClient {
