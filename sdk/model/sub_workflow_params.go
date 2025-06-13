@@ -10,8 +10,11 @@
 package model
 
 type SubWorkflowParams struct {
-	Name               string            `json:"name"`
-	Version            int32             `json:"version,omitempty"`
-	TaskToDomain       map[string]string `json:"taskToDomain,omitempty"`
-	WorkflowDefinition *WorkflowDef      `json:"workflowDefinition,omitempty"`
+	Name                string            `json:"name"`
+	Version             int32             `json:"version,omitempty"`
+	TaskToDomain        map[string]string `json:"taskToDomain,omitempty"`
+	WorkflowDefinition  *WorkflowDef      `json:"workflowDefinition,omitempty"`
+	IdempotencyKey      string            `json:"idempotencyKey,omitempty"`
+	IdempotencyStrategy string            `json:"idempotencyStrategy,omitempty"`
+	Priority            interface{}       `json:"priority,omitempty"`
 }

@@ -18,6 +18,7 @@ type StartWorkflowRequest struct {
 	WorkflowDef                     *WorkflowDef        `json:"workflowDef,omitempty"`
 	ExternalInputPayloadStoragePath string              `json:"externalInputPayloadStoragePath,omitempty"`
 	Priority                        int32               `json:"priority,omitempty"`
+	CreatedBy                       string              `json:"createdBy,omitempty"`
 	IdempotencyKey                  string              `json:"idempotencyKey,omitempty"`
 	IdempotencyStrategy             IdempotencyStrategy `json:"idempotencyStrategy,omitempty"`
 }

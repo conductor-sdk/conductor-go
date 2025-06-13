@@ -35,7 +35,15 @@ type Workflow struct {
 	Priority                         int32                  `json:"priority,omitempty"`
 	Variables                        map[string]interface{} `json:"variables,omitempty"`
 	LastRetriedTime                  int64                  `json:"lastRetriedTime,omitempty"`
-	StartTime                        int64                  `json:"startTime,omitempty"`
-	WorkflowName                     string                 `json:"workflowName,omitempty"`
-	WorkflowVersion                  int32                  `json:"workflowVersion,omitempty"`
+	// StartTime is deprecated
+	StartTime int64 `json:"startTime,omitempty"`
+	// WorkflowName is deprecated
+	WorkflowName string `json:"workflowName,omitempty"`
+	// WorkflowVersion is deprecated
+	WorkflowVersion int32      `json:"workflowVersion,omitempty"`
+	FailedTaskNames []string   `json:"failedTaskNames,omitempty"`
+	History         []Workflow `json:"history,omitempty"`
+	IdempotencyKey  string     `json:"idempotencyKey,omitempty"`
+	RateLimitKey    string     `json:"rateLimitKey,omitempty"`
+	RateLimited     bool       `json:"rateLimited,omitempty"`
 }
