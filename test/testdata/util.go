@@ -47,11 +47,12 @@ var (
 	TagsClient = client.TagsApiService{
 		APIClient: apiClient,
 	}
-	ApplicationClient = client.NewApplicationClient(apiClient)
-	EnvironmentClient = client.NewEnvironmentClient(apiClient)
-	IntegrationClient = client.NewIntegrationClient(apiClient)
-	PromptClient      = client.NewPromptClient(apiClient)
-	UserClient        = client.NewUserClient(apiClient)
+	ApplicationClient     = client.NewApplicationClient(apiClient)
+	EnvironmentClient     = client.NewEnvironmentClient(apiClient)
+	IntegrationClient     = client.NewIntegrationClient(apiClient)
+	PromptClient          = client.NewPromptClient(apiClient)
+	UserClient            = client.NewUserClient(apiClient)
+	ServiceRegistryClient = client.NewServiceRegistryClient(apiClient)
 )
 
 var TaskRunner = worker.NewTaskRunnerWithApiClient(apiClient)
@@ -62,6 +63,15 @@ func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.ErrorLevel)
+}
+
+func ReadFile(path string) ([]byte, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
 func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, workflowId string, expectedOutput map[string]interface{}, expectedStatus model.WorkflowStatus) {

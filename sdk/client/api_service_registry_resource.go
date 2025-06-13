@@ -31,7 +31,7 @@ func (a *ServiceRegistryResourceApiService) AddOrUpdateMethod(ctx context.Contex
 	var fileBytes []byte
 
 	// create path and map variables
-	path := fmt.Sprintf("/api/registry/service/%s/methods", registryName)
+	path := fmt.Sprintf("/registry/service/%s/methods", registryName)
 
 	resp, err := a.Post(ctx, path, body, &fileBytes)
 	if err != nil {
@@ -47,7 +47,7 @@ ServiceRegistryResourceApiService
 */
 func (a *ServiceRegistryResourceApiService) AddOrUpdateService(ctx context.Context, body model.ServiceRegistry) (*http.Response, error) {
 	// create path and map variables
-	path := "/api/registry/service"
+	path := "/registry/service"
 
 	resp, err := a.Post(ctx, path, body, nil)
 	if err != nil {
@@ -66,7 +66,7 @@ func (a *ServiceRegistryResourceApiService) CloseCircuitBreaker(ctx context.Cont
 	var transitionResp model.CircuitBreakerTransitionResponse
 
 	// create path and map variables
-	path := fmt.Sprintf("/api/registry/service/%s/circuit-breaker/close", name)
+	path := fmt.Sprintf("/registry/service/%s/circuit-breaker/close", name)
 
 	resp, err := a.Post(ctx, path, nil, &transitionResp)
 	if err != nil {
@@ -84,7 +84,7 @@ ServiceRegistryResourceApiService
 func (a *ServiceRegistryResourceApiService) DeleteProto(ctx context.Context, registryName string, filename string) (*http.Response, error) {
 
 	// create path and map variables
-	path := fmt.Sprintf("/api/registry/service/protos/%s/%s", registryName, filename)
+	path := fmt.Sprintf("/registry/service/protos/%s/%s", registryName, filename)
 
 	resp, err := a.Delete(ctx, path, nil, nil)
 	if err != nil {
@@ -110,7 +110,7 @@ func (a *ServiceRegistryResourceApiService) Discover(ctx context.Context, name s
 	var returnValue []model.ServiceMethod
 
 	// create path and map variables
-	path := fmt.Sprintf("/api/registry/service/%s/discover", name)
+	path := fmt.Sprintf("/registry/service/%s/discover", name)
 
 	queryParams := url.Values{}
 
@@ -135,7 +135,7 @@ func (a *ServiceRegistryResourceApiService) GetAllProtos(ctx context.Context, re
 	var returnValue []model.ProtoRegistryEntry
 
 	// create path and map variables
-	path := fmt.Sprintf("/api/registry/service/protos/%s", registryName)
+	path := fmt.Sprintf("/registry/service/protos/%s", registryName)
 
 	resp, err := a.Get(ctx, path, nil, &returnValue)
 	if err != nil {
@@ -154,7 +154,7 @@ func (a *ServiceRegistryResourceApiService) GetCircuitBreakerStatus(ctx context.
 	var returnValue model.CircuitBreakerTransitionResponse
 
 	// create path and map variables
-	path := fmt.Sprintf("/api/registry/service/%s/circuit-breaker/status", name)
+	path := fmt.Sprintf("/registry/service/%s/circuit-breaker/status", name)
 
 	resp, err := a.Get(ctx, path, nil, &returnValue)
 	if err != nil {
@@ -174,7 +174,7 @@ func (a *ServiceRegistryResourceApiService) GetProtoData(ctx context.Context, re
 	var returnValue string
 
 	// create path and map variables
-	path := fmt.Sprintf("/api/registry/service/protos/%s/%s", registryName, filename)
+	path := fmt.Sprintf("/registry/service/protos/%s/%s", registryName, filename)
 
 	resp, err := a.Get(ctx, path, nil, &returnValue)
 	if err != nil {
@@ -192,7 +192,7 @@ func (a *ServiceRegistryResourceApiService) GetRegisteredServices(ctx context.Co
 	var returnValue []model.ServiceRegistry
 
 	// create path and map variables
-	path := "/api/registry/service"
+	path := "/registry/service"
 
 	resp, err := a.Get(ctx, path, nil, &returnValue)
 	if err != nil {
@@ -211,7 +211,7 @@ func (a *ServiceRegistryResourceApiService) GetService(ctx context.Context, name
 	var returnValue model.ServiceRegistry
 
 	// create path and map variables
-	path := fmt.Sprintf("/api/registry/service/%s", name)
+	path := fmt.Sprintf("/registry/service/%s", name)
 	resp, err := a.Get(ctx, path, nil, &returnValue)
 	if err != nil {
 		return model.ServiceRegistry{}, resp, err
@@ -229,7 +229,7 @@ func (a *ServiceRegistryResourceApiService) OpenCircuitBreaker(ctx context.Conte
 	var returnValue model.CircuitBreakerTransitionResponse
 
 	// create path and map variables
-	path := fmt.Sprintf("/api/registry/service/%s/circuit-breaker/open", name)
+	path := fmt.Sprintf("/registry/service/%s/circuit-breaker/open", name)
 
 	resp, err := a.Post(ctx, path, nil, &returnValue)
 	if err != nil {
@@ -248,14 +248,14 @@ ServiceRegistryResourceApiService
 */
 func (a *ServiceRegistryResourceApiService) RemoveMethod(ctx context.Context, registryName string, serviceName string, method string, methodType string) (*http.Response, error) {
 	// create path and map variables
-	path := fmt.Sprintf("/api/registry/service/%s/methods", registryName)
+	path := fmt.Sprintf("/registry/service/%s/methods", registryName)
 
 	queryParams := url.Values{}
 	queryParams.Add("serviceName", parameterToString(serviceName, ""))
 	queryParams.Add("method", parameterToString(method, ""))
 	queryParams.Add("methodType", parameterToString(methodType, ""))
 
-	resp, err := a.Delete(ctx, path, nil, &queryParams)
+	resp, err := a.Delete(ctx, path, queryParams, nil)
 	if err != nil {
 		return resp, err
 	}
@@ -269,7 +269,7 @@ ServiceRegistryResourceApiService
 */
 func (a *ServiceRegistryResourceApiService) RemoveService(ctx context.Context, name string) (*http.Response, error) {
 	// create path and map variables
-	path := fmt.Sprintf("/api/registry/service/%s", name)
+	path := fmt.Sprintf("/registry/service/%s", name)
 
 	resp, err := a.Delete(ctx, path, nil, nil)
 	if err != nil {
@@ -288,9 +288,9 @@ ServiceRegistryResourceApiService
 func (a *ServiceRegistryResourceApiService) SetProtoData(ctx context.Context, body string, registryName string, filename string) (*http.Response, error) {
 
 	// create path and map variables
-	path := fmt.Sprintf("/api/registry/service/protos/%s/%s", registryName, filename)
+	path := fmt.Sprintf("/registry/service/protos/%s/%s", registryName, filename)
 
-	resp, err := a.Post(ctx, path, body, nil)
+	resp, err := a.PostWithContentType(ctx, path, body, "application/octet-stream", nil)
 	if err != nil {
 		return resp, err
 	}

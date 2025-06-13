@@ -377,7 +377,7 @@ func (c *APIClient) executeCall(ctx context.Context, method, path string, queryP
 	}
 
 	// Set accept header for all requests
-	headers["Accept"] = "application/json"
+	headers["Accept"] = "*"
 
 	// Prepare the request
 	req, err := c.prepareRequest(ctx, path, method, body, headers, queryParams, nil, "", nil)
@@ -418,6 +418,11 @@ func (c *APIClient) Get(ctx context.Context, path string, queryParams url.Values
 // Post performs a POST request
 func (c *APIClient) Post(ctx context.Context, path string, body interface{}, result interface{}) (*http.Response, error) {
 	return c.executeCall(ctx, "POST", path, nil, body, "", result)
+}
+
+// PostWithContentType performs post with given content type
+func (c *APIClient) PostWithContentType(ctx context.Context, path string, body interface{}, contentType string, result interface{}) (*http.Response, error) {
+	return c.executeCall(ctx, "POST", path, nil, body, contentType, result)
 }
 
 // PostWithParams performs a POST request with query parameters
