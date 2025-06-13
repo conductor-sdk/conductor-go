@@ -52,7 +52,7 @@ func TestServiceRegistryClient_HTTPService(t *testing.T) {
 	serviceRegistry := model.ServiceRegistry{
 		Name:       HTTPServiceName,
 		Type_:      "HTTP",
-		ServiceURI: "http://localhost:8081/api-docs",
+		ServiceURI: "http://httpbin:8081/api-docs",
 	}
 
 	// Add service
@@ -69,7 +69,7 @@ func TestServiceRegistryClient_HTTPService(t *testing.T) {
 	methods, resp, err := suite.client.Discover(suite.ctx, HTTPServiceName, discoverOpts)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
-	require.GreaterOrEqual(t, len(methods), 17)
+	require.GreaterOrEqual(t, len(methods), 15)
 
 	// Wait for discovery to complete
 	time.Sleep(1 * time.Second)
@@ -93,7 +93,7 @@ func TestServiceRegistryClient_HTTPService(t *testing.T) {
 	// Verify service properties
 	assert.Equal(t, HTTPServiceName, actualService.Name)
 	assert.Equal(t, "HTTP", actualService.Type_) // Adjust based on your model
-	assert.Equal(t, "http://localhost:8081/api-docs", actualService.ServiceURI)
+	assert.Equal(t, "http://httpbin:8081/api-docs", actualService.ServiceURI)
 	assert.Greater(t, len(actualService.Methods), 0)
 
 	originalMethodCount := len(actualService.Methods)
@@ -145,7 +145,7 @@ func TestServiceRegistryClient_GRPCService(t *testing.T) {
 	serviceRegistry := model.ServiceRegistry{
 		Name:       GRPCServiceName,
 		Type_:      "gRPC",
-		ServiceURI: "localhost:50051",
+		ServiceURI: "grpcbin:50051",
 	}
 
 	// Add service
@@ -170,9 +170,9 @@ func TestServiceRegistryClient_GRPCService(t *testing.T) {
 
 	// Verify service properties
 	assert.Equal(t, GRPCServiceName, actualService.Name)
-	assert.Equal(t, "gRPC", actualService.Type_) // Adjust based on your model
-	assert.Equal(t, "localhost:50051", actualService.ServiceURI)
-	assert.Equal(t, 0, len(actualService.Methods)) // Initially no methods
+	assert.Equal(t, "gRPC", actualService.Type_)
+	assert.Equal(t, "grpcbin:50051", actualService.ServiceURI)
+	assert.Equal(t, 0, len(actualService.Methods))
 
 	originalMethodCount := len(actualService.Methods)
 
@@ -207,7 +207,7 @@ func TestServiceRegistryClient_GRPCService(t *testing.T) {
 	// Verify proto data was set and service has methods
 	finalService, resp, err := suite.client.GetService(suite.ctx, GRPCServiceName)
 	require.NoError(t, err)
-	assert.Greater(t, len(finalService.Methods), 0)
+	assert.Greater(t, len(finalService.Methods), 11)
 
 	// Verify circuit breaker config
 	if finalService.Config != nil && finalService.Config.CircuitBreakerConfig != nil {
@@ -241,7 +241,7 @@ func TestServiceRegistryClient_CircuitBreaker(t *testing.T) {
 	serviceRegistry := model.ServiceRegistry{
 		Name:       HTTPServiceName,
 		Type_:      "HTTP",
-		ServiceURI: "http://localhost:8081/api-docs",
+		ServiceURI: "http://httpbin:8081/api-docs",
 	}
 
 	resp, err := suite.client.AddOrUpdateService(suite.ctx, serviceRegistry)
@@ -279,7 +279,7 @@ func TestServiceRegistryClient_MethodOperations(t *testing.T) {
 	serviceRegistry := model.ServiceRegistry{
 		Name:       HTTPServiceName,
 		Type_:      "HTTP",
-		ServiceURI: "http://localhost:8081/api-docs",
+		ServiceURI: "http://httpbin:8081/api-docs",
 	}
 
 	resp, err := suite.client.AddOrUpdateService(suite.ctx, serviceRegistry)

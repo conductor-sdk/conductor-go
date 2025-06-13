@@ -377,7 +377,7 @@ func (c *APIClient) executeCall(ctx context.Context, method, path string, queryP
 	}
 
 	// Set accept header for all requests
-	headers["Accept"] = "*"
+	headers["Accept"] = "application/json"
 
 	// Prepare the request
 	req, err := c.prepareRequest(ctx, path, method, body, headers, queryParams, nil, "", nil)
