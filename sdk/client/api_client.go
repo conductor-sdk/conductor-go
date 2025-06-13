@@ -420,6 +420,11 @@ func (c *APIClient) Post(ctx context.Context, path string, body interface{}, res
 	return c.executeCall(ctx, "POST", path, nil, body, "", result)
 }
 
+// PostWithContentType performs post with given content type
+func (c *APIClient) PostWithContentType(ctx context.Context, path string, body interface{}, contentType string, result interface{}) (*http.Response, error) {
+	return c.executeCall(ctx, "POST", path, nil, body, contentType, result)
+}
+
 // PostWithParams performs a POST request with query parameters
 func (c *APIClient) PostWithParams(ctx context.Context, path string, queryParams url.Values, body interface{}, result interface{}) (*http.Response, error) {
 	return c.executeCall(ctx, "POST", path, queryParams, body, "", result)
