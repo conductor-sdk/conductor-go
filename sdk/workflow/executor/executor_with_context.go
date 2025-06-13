@@ -39,11 +39,124 @@ func (e *WorkflowExecutor) ExecuteWorkflowWithContext(ctx context.Context, start
 
 	requestId := ""
 	version := startWorkflowRequest.Version
+
 	workflowRun, _, err := e.workflowClient.ExecuteWorkflow(ctx, *startWorkflowRequest, requestId, startWorkflowRequest.Name, version, waitUntilTask)
 	if err != nil {
 		return nil, err
 	}
 	return &workflowRun, nil
+}
+
+func (e *WorkflowExecutor) ExecuteWorkflowWithReturnStrategyWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, consistency model.WorkflowConsistency, returnStrategy model.ReturnStrategy, waitUntilTaskRef []string, waitForSeconds int) (run *model.SignalResponse, err error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	resp, err := e.workflowClient.ExecuteWorkflowWithReturnStrategy(ctx, *startWorkflowRequest, client.ExecuteWorkflowOpts{
+		ReturnStrategy:   returnStrategy,
+		RequestID:        "",
+		WaitUntilTaskRef: waitUntilTaskRef,
+		Consistency:      consistency,
+		WaitForSeconds:   waitForSeconds,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (e *WorkflowExecutor) ExecuteAndGetTargetWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	requestId := ""
+	version := startWorkflowRequest.Version
+	workflowRun, _, err := e.workflowClient.ExecuteAndGetTarget(
+		ctx,
+		*startWorkflowRequest,
+		requestId,
+		startWorkflowRequest.Name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &workflowRun, nil
+}
+
+func (e *WorkflowExecutor) ExecuteAndGetBlockingWorkflowWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.WorkflowRun, err error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	requestId := ""
+	version := startWorkflowRequest.Version
+	workflowRun, _, err := e.workflowClient.ExecuteAndGetBlockingWorkflow(
+		ctx,
+		*startWorkflowRequest,
+		requestId,
+		startWorkflowRequest.Name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &workflowRun, nil
+}
+
+func (e *WorkflowExecutor) ExecuteAndGetBlockingTaskWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	requestId := ""
+	version := startWorkflowRequest.Version
+	taskRun, _, err := e.workflowClient.ExecuteAndGetBlockingTask(
+		ctx,
+		*startWorkflowRequest,
+		requestId,
+		startWorkflowRequest.Name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &taskRun, nil
+}
+
+// Method for executing workflow with blocking task input
+func (e *WorkflowExecutor) ExecuteAndGetBlockingTaskInputWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest, waitUntilTask []string, waitForSeconds int, consistency string) (run *model.TaskRun, err error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	requestId := ""
+	version := startWorkflowRequest.Version
+	taskRun, _, err := e.workflowClient.ExecuteAndGetBlockingTaskInput(
+		ctx,
+		*startWorkflowRequest,
+		requestId,
+		startWorkflowRequest.Name,
+		version,
+		waitUntilTask,
+		waitForSeconds,
+		consistency,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &taskRun, nil
 }
 
 func (e *WorkflowExecutor) StartWorkflowWithContext(ctx context.Context, startWorkflowRequest *model.StartWorkflowRequest) (workflowId string, err error) {
@@ -401,6 +514,46 @@ func (e *WorkflowExecutor) PutQueueConfigurationWithContext(ctx context.Context,
 	}
 
 	return e.eventClient.PutQueueConfig(ctx, body, queueConfiguration.QueueType, queueConfiguration.QueueName)
+}
+
+// Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+// SignalWorkflowTaskWithContext signals a task asynchronously
+func (e *WorkflowExecutor) SignalWorkflowTaskWithContext(ctx context.Context, workflowId string, status model.TaskResultStatus, output interface{}) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
+	outputData, err := model.ConvertToMap(output)
+	if err != nil {
+		return err
+	}
+
+	_, err = e.taskClient.SignalAsync(ctx, outputData, workflowId, string(status))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Enterprise Feature: This feature requires Orkes Conductor Enterprise license, NOT AVAILABLE in OSS.
+// Signal signals a task and returns the target workflow
+func (e *WorkflowExecutor) SignalWithContext(ctx context.Context, workflowId string, status model.WorkflowStatus, output interface{}, opts ...client.SignalTaskOpts) (*model.SignalResponse, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	outputData, err := model.ConvertToMap(output)
+	if err != nil {
+		return nil, err
+	}
+
+	signalResponse, err := e.taskClient.Signal(ctx, outputData, workflowId, status, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	return signalResponse, nil
 }
 
 func getTaskResultFromOutput(taskId string, workflowInstanceId string, taskExecutionOutput interface{}) (*model.TaskResult, error) {

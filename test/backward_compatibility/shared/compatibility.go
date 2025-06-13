@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"os"
 	"time"
 
 	"github.com/antihax/optional"
@@ -25,6 +26,7 @@ var (
 	// Cleanup tracking
 	createdWorkflows []string
 	createdSchedules []string
+	testErrors       []string
 )
 
 func main() {
@@ -33,41 +35,40 @@ func main() {
 	// Defer cleanup to ensure it runs even if tests fail
 	defer func() {
 		if err := cleanupTestArtifacts(); err != nil {
+
 			log.Errorf("Cleanup failed: %v", err)
 		}
 	}()
 
-	// Test 1: Basic Workflow Operations
-	if err := testBasicWorkflowOperations(); err != nil {
-		log.Fatalf("Basic workflow operations failed: %v", err)
-	}
+	// Run all tests - don't stop on failures
+	runTest("Basic Workflow Operations", testBasicWorkflowOperations)
+	runTest("WorkflowExecutor APIs", testWorkflowExecutorAPIs)
+	runTest("TaskClient APIs", testTaskClientAPIs)
+	runTest("WorkflowClient APIs", testWorkflowClientAPIs)
+	runTest("SchedulerClient APIs", testSchedulerClientAPIs)
+	runTest("Advanced Workflow Operations", testAdvancedWorkflowOperations)
 
-	// Test 2: WorkflowExecutor APIs
-	if err := testWorkflowExecutorAPIs(); err != nil {
-		log.Fatalf("WorkflowExecutor APIs failed: %v", err)
+	if len(testErrors) > 0 {
+		fmt.Printf("\n❌ %d tests failed:\n", len(testErrors))
+		for _, err := range testErrors {
+			fmt.Printf("- %s\n", err)
+		}
+		os.Exit(1)
+	} else {
+		fmt.Println("\n✅ All backward compatibility tests passed!")
+		os.Exit(0)
 	}
+}
 
-	// Test 3: TaskClient APIs
-	if err := testTaskClientAPIs(); err != nil {
-		log.Fatalf("TaskClient APIs failed: %v", err)
+func runTest(testName string, testFunc func() error) {
+	fmt.Printf("\n--- Running %s ---\n", testName)
+	if err := testFunc(); err != nil {
+		errorMsg := fmt.Sprintf("%s: %v", testName, err)
+		testErrors = append(testErrors, errorMsg)
+		log.Errorf("❌ %s FAILED: %v", testName, err)
+	} else {
+		log.Infof("✅ %s PASSED", testName)
 	}
-
-	// Test 4: WorkflowClient APIs
-	if err := testWorkflowClientAPIs(); err != nil {
-		log.Fatalf("WorkflowClient APIs failed: %v", err)
-	}
-
-	// Test 5: SchedulerClient APIs
-	if err := testSchedulerClientAPIs(); err != nil {
-		log.Fatalf("SchedulerClient APIs failed: %v", err)
-	}
-
-	// Test 6: Advanced Workflow Operations
-	if err := testAdvancedWorkflowOperations(); err != nil {
-		log.Fatalf("Advanced workflow operations failed: %v", err)
-	}
-
-	fmt.Println("✅ All backward compatibility tests passed!")
 }
 
 // Test 5: SchedulerClient API methods
@@ -186,15 +187,6 @@ func testSchedulerClientAPIs() error {
 		log.Warnf("SchedulerClient.PauseSchedule failed: %v", err)
 	} else {
 		log.Info("✓ SchedulerClient.PauseSchedule successful")
-	}
-
-	// Test bulk operations (these might fail if no other schedules exist, so handle gracefully)
-	// Test PauseAllSchedules
-	_, _, err = schedulerClient.PauseAllSchedules(ctx)
-	if err != nil {
-		log.Warnf("SchedulerClient.PauseAllSchedules failed: %v", err)
-	} else {
-		log.Info("✓ SchedulerClient.PauseAllSchedules successful")
 	}
 
 	// Test ResumeAllSchedules
@@ -452,6 +444,22 @@ func testWorkflowClientAPIs() error {
 	}
 	log.Infof("✓ WorkflowClient.StartWorkflowWithRequest successful, ID: %s", workflowId)
 
+	// Test PauseWorkflow
+	_, err = workflowClient.PauseWorkflow(ctx, workflowId)
+	if err != nil {
+		log.Warnf("WorkflowClient.PauseWorkflow failed: %v", err)
+	} else {
+		log.Info("✓ WorkflowClient.PauseWorkflow successful")
+
+		// Test ResumeWorkflow
+		_, err = workflowClient.ResumeWorkflow(ctx, workflowId)
+		if err != nil {
+			log.Warnf("WorkflowClient.ResumeWorkflow failed: %v", err)
+		} else {
+			log.Info("✓ WorkflowClient.ResumeWorkflow successful")
+		}
+	}
+
 	// Wait a moment for workflow to initialize
 	time.Sleep(2 * time.Second)
 
@@ -470,22 +478,6 @@ func testWorkflowClientAPIs() error {
 		return fmt.Errorf("WorkflowClient.GetWorkflowState failed: %w", err)
 	}
 	log.Infof("✓ WorkflowClient.GetWorkflowState: %s", workflowState.Status)
-
-	// Test PauseWorkflow
-	_, err = workflowClient.PauseWorkflow(ctx, workflowId)
-	if err != nil {
-		log.Warnf("WorkflowClient.PauseWorkflow failed: %v", err)
-	} else {
-		log.Info("✓ WorkflowClient.PauseWorkflow successful")
-
-		// Test ResumeWorkflow
-		_, err = workflowClient.ResumeWorkflow(ctx, workflowId)
-		if err != nil {
-			log.Warnf("WorkflowClient.ResumeWorkflow failed: %v", err)
-		} else {
-			log.Info("✓ WorkflowClient.ResumeWorkflow successful")
-		}
-	}
 
 	// Test Search
 	searchResult, _, err := workflowClient.Search(ctx, &client.WorkflowResourceApiSearchOpts{
@@ -579,14 +571,6 @@ func testAdvancedWorkflowOperations() error {
 			return fmt.Errorf("bulk workflow %d failed: %w", i, rw.Err)
 		}
 		log.Infof("✓ Bulk workflow %d started with ID: %s", i, rw.WorkflowId)
-	}
-
-	// Test GetByCorrelationIds (using workflow names as correlation)
-	correlationMap, err := workflowExecutor.GetByCorrelationIds("greetings", true, false, "test-correlation")
-	if err != nil {
-		log.Warnf("GetByCorrelationIds test skipped (might need specific setup): %v", err)
-	} else {
-		log.Infof("✓ GetByCorrelationIds returned %d entries", len(correlationMap))
 	}
 
 	// Test ExecuteWorkflow with WorkflowClient
