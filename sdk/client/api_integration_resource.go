@@ -17,6 +17,7 @@ import (
 	"github.com/conductor-sdk/conductor-go/sdk/model/integration"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 type IntegrationResourceApiService struct {
@@ -415,6 +416,94 @@ IntegrationResourceApiService Create or Update Integration provider
 func (a *IntegrationResourceApiService) SaveIntegrationProvider(ctx context.Context, integrationUpdate integration.IntegrationUpdate, name string) (*http.Response, error) {
 	path := fmt.Sprintf("/integrations/provider/%s", name)
 	resp, err := a.Post(ctx, path, integrationUpdate, nil)
+	if err != nil {
+		return resp, err
+	}
+	return resp, nil
+}
+
+/*
+   IntegrationResourceApiService Get all Integrations
+   * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+    * @param optional nil or *IntegrationResourceApiGetAllIntegrationsOpts - Optional Parameters:
+        * @param "Category" (optional.String) -
+    * @param "ActiveOnly" (optional.Bool) -
+   @return []Integration
+*/
+
+type IntegrationResourceApiGetAllIntegrationsOpts struct {
+	Category   optional.String
+	ActiveOnly optional.Bool
+}
+
+func (a *IntegrationResourceApiService) GetAllIntegrations(ctx context.Context, optionals *IntegrationResourceApiGetAllIntegrationsOpts) ([]model.Integration, *http.Response, error) {
+	var result []model.Integration
+
+	// create path and map variables
+	path := "/integrations/"
+
+	queryParams := url.Values{}
+	if optionals != nil && optionals.Category.IsSet() {
+		queryParams.Add("category", parameterToString(optionals.Category.Value(), ""))
+	}
+	if optionals != nil && optionals.ActiveOnly.IsSet() {
+		queryParams.Add("activeOnly", parameterToString(optionals.ActiveOnly.Value(), ""))
+	}
+
+	resp, err := a.Get(ctx, path, queryParams, &result)
+	if err != nil {
+		return nil, resp, err
+	}
+	return result, resp, nil
+}
+
+/*
+IntegrationResourceApiService Get Integration provider definitions
+  - @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+    @return []IntegrationDef
+*/
+func (a *IntegrationResourceApiService) GetIntegrationProviderDefs(ctx context.Context) ([]model.IntegrationDef, *http.Response, error) {
+	var result []model.IntegrationDef
+
+	// create path and map variables
+	path := "/integrations/def"
+
+	resp, err := a.Get(ctx, path, nil, &result)
+	if err != nil {
+		return nil, resp, err
+	}
+	return result, resp, nil
+}
+
+/*
+IntegrationResourceApiService Record Event Stats
+* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param body
+  - @param type_
+*/
+func (a *IntegrationResourceApiService) RecordEventStats(ctx context.Context, body []model.EventLog, type_ string) (*http.Response, error) {
+	// create path and map variables
+	path := fmt.Sprintf("/integrations/eventStats/%s", type_)
+	path = strings.Replace(path, "{"+"type"+"}", fmt.Sprintf("%v", type_), -1)
+
+	resp, err := a.Post(ctx, path, body, nil)
+	if err != nil {
+		return resp, err
+	}
+	return resp, nil
+}
+
+/*
+IntegrationResourceApiService Register Token usage
+* @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+  - @param body
+  - @param name
+  - @param integrationName
+*/
+func (a *IntegrationResourceApiService) RegisterTokenUsage(ctx context.Context, body int32, name string, integrationName string) (*http.Response, error) {
+	// create path and map variables
+	path := fmt.Sprintf("/integrations/provider/%s/integration/%s/metrics", name, integrationName)
+	resp, err := a.Post(ctx, path, body, nil)
 	if err != nil {
 		return resp, err
 	}

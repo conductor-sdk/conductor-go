@@ -2,14 +2,14 @@ package integration_tests
 
 import (
 	"context"
-	"github.com/conductor-sdk/conductor-go/sdk/model"
-	"testing"
-
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/model/integration"
 	"github.com/conductor-sdk/conductor-go/test/testdata"
 	"github.com/stretchr/testify/require"
+	"net/http"
+	"testing"
 )
 
 func TestIntegrationClient(t *testing.T) {
@@ -145,6 +145,37 @@ func TestIntegrationClient(t *testing.T) {
 	require.NoError(t, err, "Failed to get prompts with integration")
 	require.NotNil(t, resp, "Response should not be nil")
 	require.NotEmpty(t, prompts, "Expected non-empty list of prompts")
+
+	integrations, resp, err := testdata.IntegrationClient.GetAllIntegrations(
+		context.Background(), &client.IntegrationResourceApiGetAllIntegrationsOpts{
+			ActiveOnly: optional.NewBool(true),
+		})
+
+	if err != nil {
+		t.Fatalf("Failed to get integrations. Reason: %s", err.Error())
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status code 200, got %d", resp.StatusCode)
+	}
+	for i, integration := range integrations {
+		if !integration.Enabled {
+			t.Fatalf("Integration #%d (%s) is not active, but should be", i, integration.Name)
+		}
+	}
+	require.Equal(t, 3, len(integrations))
+
+	for _, integration := range integrations {
+		require.NotNil(t, integration)
+		require.True(t, integration.Enabled)
+		require.Equal(t, "AI_MODEL", integration.Category)
+	}
+
+	integrationDefs, resp, err := testdata.IntegrationClient.GetIntegrationProviderDefs(ctx)
+	require.NoError(t, err, "Failed to retrieve integration providers")
+	require.NotNil(t, resp, "Response should not be nil")
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	require.Equal(t, 29, len(integrationDefs))
 
 	promptClient.DeleteMessageTemplate(ctx, promptName)
 	template, res, err := promptClient.GetMessageTemplate(ctx, promptName)
