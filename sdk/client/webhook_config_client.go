@@ -21,6 +21,15 @@ type WebhooksConfigClient interface {
 
 	//UpdateWebhook Update webhook
 	UpdateWebhook(ctx context.Context, body model.WebhookConfig, id string) (model.WebhookConfig, *http.Response, error)
+
+	//PutTagForWebhook Add Tag to webhook
+	PutTagForWebhook(ctx context.Context, body []model.Tag, id string) (*http.Response, error)
+
+	//GetTagsForWebhook Get all tags for webhook
+	GetTagsForWebhook(ctx context.Context, id string) ([]model.Tag, *http.Response, error)
+
+	//DeleteTagForWebhook Delete Tag from webhook
+	DeleteTagForWebhook(ctx context.Context, id string, body []model.Tag) (*http.Response, error)
 }
 
 func NewWebhooksConfigClient(client *APIClient) WebhooksConfigClient {

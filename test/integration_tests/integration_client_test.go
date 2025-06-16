@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/antihax/optional"
 	"github.com/conductor-sdk/conductor-go/sdk/client"
+	"github.com/conductor-sdk/conductor-go/sdk/model"
 	"github.com/conductor-sdk/conductor-go/sdk/model/integration"
 	"github.com/conductor-sdk/conductor-go/test/testdata"
 	"github.com/stretchr/testify/require"
@@ -67,8 +68,56 @@ func TestIntegrationClient(t *testing.T) {
 	providerName := names[0]
 	apiModel := "DefaultModel"
 	promptName := "TestPrompt"
+	description := "greetings"
 	opts := client.PromptResourceApiSaveMessageTemplateOpts{Models: []string{providerName + ":" + apiModel}}
-	promptClient.SaveMessageTemplate(ctx, "Say hello to ${name}", "greetings", promptName, &opts)
+	promptClient.SaveMessageTemplate(ctx, "Say hello to ${name}", description, promptName, &opts)
+
+	promptTemplate, resp, err := promptClient.GetMessageTemplate(ctx, promptName)
+	require.NoError(t, err)
+	require.NotNil(t, resp, "response should not be nil for GetMessageTemplate")
+	require.Equal(t, resp.StatusCode, 200)
+	require.NotNil(t, promptTemplate)
+	require.Equal(t, promptName, promptTemplate.Name)
+	require.Equal(t, description, promptTemplate.Description)
+
+	tags := []model.Tag{
+		{
+			Key:   "environment",
+			Value: "test",
+			Type_: "metadata",
+		},
+		{
+			Key:   "owner",
+			Value: "integration-test",
+			Type_: "ownership",
+		},
+	}
+
+	// Add Tags on prompt template
+	resp, err = promptClient.PutTagForPromptTemplate(ctx, tags, promptName)
+	require.NoError(t, err)
+	require.NotNil(t, resp, "response should not be nil for PutTagForPromptTemplate")
+	require.Equal(t, resp.StatusCode, 200)
+
+	// Get Tags on prompt template
+	tags, resp, err = promptClient.GetTagsForPromptTemplate(ctx, promptName)
+	require.NoError(t, err)
+	require.NotNil(t, resp, "response should not be nil for GetTagsForPromptTemplate")
+	require.Equal(t, resp.StatusCode, 200)
+	require.Equal(t, len(tags), 2)
+
+	// Delete Tag on prompt template
+	resp, err = promptClient.DeleteTagForPromptTemplate(ctx, tags, promptName)
+	require.NoError(t, err)
+	require.NotNil(t, resp, "response should not be nil for DeleteTagForPromptTemplate")
+	require.Equal(t, resp.StatusCode, 200)
+
+	// Get Tags on prompt template
+	tags, resp, err = promptClient.GetTagsForPromptTemplate(ctx, promptName)
+	require.NoError(t, err)
+	require.NotNil(t, resp, "response should not be nil for GetTagsForPromptTemplate")
+	require.Equal(t, resp.StatusCode, 200)
+	require.Equal(t, len(tags), 0)
 
 	// Create an Integration API
 	_, err = integrationClient.SaveIntegrationApi(ctx, apiUpdate, providerName, apiModel)
@@ -145,6 +194,7 @@ func TestIntegrationClient(t *testing.T) {
 		require.NotNil(t, resp, "response should not be nil for DeleteIntegrationProvider")
 	}
 }
+
 func NewIntegrationClient() client.IntegrationClient {
 	return testdata.IntegrationClient
 }

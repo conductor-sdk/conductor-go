@@ -12,6 +12,7 @@ package testdata
 import (
 	"context"
 	"fmt"
+	"github.com/conductor-sdk/conductor-go/sdk/model/rbac"
 	"os"
 	"reflect"
 	"time"
@@ -48,10 +49,16 @@ var (
 		APIClient: apiClient,
 	}
 	ApplicationClient     = client.NewApplicationClient(apiClient)
+	AuthorizationClient   = client.NewAuthorizationClient(apiClient)
 	EnvironmentClient     = client.NewEnvironmentClient(apiClient)
+	HumanTaskClient       = client.NewHumanTaskClient(apiClient)
 	IntegrationClient     = client.NewIntegrationClient(apiClient)
 	PromptClient          = client.NewPromptClient(apiClient)
 	UserClient            = client.NewUserClient(apiClient)
+	GroupClient           = client.NewGroupClient(apiClient)
+	SchedulerClient       = client.NewSchedulerClient(apiClient)
+	SecretClient          = client.NewSecretsClient(apiClient)
+	WebhookClient         = client.NewWebhooksConfigClient(apiClient)
 	ServiceRegistryClient = client.NewServiceRegistryClient(apiClient)
 )
 
@@ -223,6 +230,24 @@ func ValidateWorkflowDeletion(workflow *workflow.ConductorWorkflow) error {
 		return nil
 	}
 	return fmt.Errorf("exhausted retries")
+}
+
+func CreateNewUser(ctx context.Context) (rbac.ConductorUser, error) {
+	// Generate random suffix for username and ID
+	randomSuffix := fmt.Sprintf("%d", time.Now().UnixNano())
+
+	body := rbac.UpsertUserRequest{
+		Name:  fmt.Sprintf("testuser-%s", randomSuffix),
+		Roles: []string{"ADMIN", "USER"},
+	}
+	id := "testUser"
+
+	user, _, err := UserClient.UpsertUser(ctx, body, id)
+	if err != nil {
+		fmt.Printf("Unable to create new user. %v", err)
+		return rbac.ConductorUser{}, err
+	}
+	return *user, nil
 }
 
 func isWorkflowCompleted(workflow *model.Workflow, expectedStatus model.WorkflowStatus) bool {
