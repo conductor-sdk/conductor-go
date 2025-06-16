@@ -1,4 +1,4 @@
-name: Integration Tests
+name: Backward Compatibility Tests
 
 on:
   workflow_run:
@@ -7,9 +7,10 @@ on:
       - completed
 
 jobs:
-  integration-tests:
+  backward-compatibility:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -22,26 +23,8 @@ jobs:
         with:
           go-version: '1.19'
 
-      - name: Install dependencies
-        run: go mod download
-
-      - name: Build
-        run: go build ./...
-
-      - name: Install gotestsum
-        run: go install gotest.tools/gotestsum@v1.12.0
-
-      - name: Run Integration tests 
-        run: |
-          gotestsum --format testname  --junitfile report.xml -- -v ./test/integration_tests/...
-        env:
-          CONDUCTOR_SERVER_URL: ${{ secrets.CONDUCTOR_SERVER_URL }}
-          CONDUCTOR_AUTH_KEY: ${{ secrets.KEY }}
-          CONDUCTOR_AUTH_SECRET: ${{ secrets.SECRET }}
-
       - name: Run Backward Compatibility Tests
         run: |
-          echo "🚀 Starting Backward Compatibility Tests..."
           cd test/backward_compatibility
           chmod +x run_compatibility.sh
           ./run_compatibility.sh
@@ -62,8 +45,8 @@ jobs:
               repo: repo,
               sha: sha,
               state: 'failure',
-              context: 'Integration Tests',
-              description: 'Integration tests failed.',
+              context: 'Backward Compatibility Tests',
+              description: 'Backward compatibility tests failed.',
             });
 
       - name: Set PR Status to Success
@@ -78,14 +61,6 @@ jobs:
               repo: repo,
               sha: sha,
               state: 'success',
-              context: 'Integration Tests',
-              description: 'Integration tests succeeded.',
+              context: 'Backward Compatibility Tests',
+              description: 'Backward compatibility tests passed.',
             });
-
-      - name: Publish test results
-        if: always() 
-        uses: dorny/test-reporter@v1
-        with:
-          name: Integration tests report
-          path: report.xml
-          reporter: java-junit

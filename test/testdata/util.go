@@ -58,6 +58,7 @@ var (
 	SchedulerClient     = client.NewSchedulerClient(apiClient)
 	SecretClient        = client.NewSecretsClient(apiClient)
 	WebhookClient       = client.NewWebhooksConfigClient(apiClient)
+  ServiceRegistryClient = client.NewServiceRegistryClient(apiClient)
 )
 
 var TaskRunner = worker.NewTaskRunnerWithApiClient(apiClient)
@@ -68,6 +69,15 @@ func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.ErrorLevel)
+}
+
+func ReadFile(path string) ([]byte, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
 func ValidateWorkflowDaemon(waitTime time.Duration, outputChannel chan error, workflowId string, expectedOutput map[string]interface{}, expectedStatus model.WorkflowStatus) {
